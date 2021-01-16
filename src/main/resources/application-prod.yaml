@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    password: ${RDS_PASSWORD}
+    url: jdbc:mysql://${RDS_HOSTNAME}:${RDS_PORT}/${RDS_DB_NAME}
+    username: ${RDS_USERNAME}
+security:
+  cookie-props:
+    domain: ${DOMAIN}
+  allow-credentials: true
+  allowed-origins:
+    - https://${DOMAIN}

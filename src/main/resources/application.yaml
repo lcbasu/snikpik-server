@@ -1,0 +1,104 @@
+server:
+  port: 5000
+spring:
+  quartz:
+    jdbc:
+      initialize-schema: NEVER
+    job-store-type: JDBC
+    scheduler-name: SchedulerService
+    overwrite-existing-jobs: false
+  datasource:
+    password:
+    url: jdbc:mysql://localhost:3306
+    username: root
+#  flyway:
+#    baseline-on-migrate: true
+  jpa:
+    hibernate:
+      use-new-id-generator-mappings: false
+#      ddl-auto: update
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+
+security:
+  firebase-props:
+    database-url: https://dukaankhatacom.firebaseio.com
+    storage-bucket: dukaankhatacom.appspot.com
+    enable-strict-server-session: false
+    enable-check-session-revoked: false
+    enable-logout-everywhere: false
+    session-expiry-in-days: 5
+  cookie-props:
+    max-age-in-minutes: 7200
+    http-only: true
+    secure: true
+    domain: //localhost:8080
+    path: /
+  allow-credentials: true
+  allowed-origins:
+    - https://${DOMAIN}
+    - http://localhost:8080
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
+    - OPTIONS
+  allowed-headers:
+    - Authorization
+    - Origin
+    - Content-Type
+    - Accept
+    - Accept-Encoding
+    - Accept-Language
+    - Access-Control-Allow-Origin
+    - Access-Control-Allow-Headers
+    - Access-Control-Request-Method
+    - X-Requested-With
+    - X-Auth-Token
+    - X-Xsrf-Token
+    - Cache-Control
+    - Id-Token
+  allowed-public-apis:
+    - /favicon.ico
+    - /session/login
+    - /public/*
+    - /whats_app_bot/twilio_callback
+    - /whats_app_bot/twilio_status_callback
+    - /survey/get_sharing_data
+    - /survey/get_survey_public
+    - /workspace/get_workspace_invitation_details
+    - /telegram_bot/test
+    - /telegram_bot/hello_world
+    - /telegram_bot/web_hook_callback
+    - /fb_messenger_bot/web_hook_callback
+  exposed-headers:
+    - X-Xsrf-Token
+
+notification:
+  email-properties:
+#    sendgrid-api-key: ${SENDGRID_API_KEY}
+#    reply-to: ${REPLY_TO_EMAIL}
+
+aws:
+  aws-key: ${AWS_KEY}
+  aws-secret: ${AWS_SECRET}
+
+cloud:
+  aws:
+    region:
+      auto: false
+      static: ap-south-1
+    stack:
+      auto: false
+
+payments:
+  razorpay:
+    key: ${RAZORPAY_KEY}
+    secret: ${RAZORPAY_SECRET}
+
+root:
+  base-url: ${ROOT_BASE_URL}
