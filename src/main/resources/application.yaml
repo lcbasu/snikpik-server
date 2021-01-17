@@ -66,6 +66,7 @@ security:
     - /favicon.ico
     - /session/login
     - /public/*
+    - /public/*
     - /whats_app_bot/twilio_callback
     - /whats_app_bot/twilio_status_callback
     - /survey/get_sharing_data
