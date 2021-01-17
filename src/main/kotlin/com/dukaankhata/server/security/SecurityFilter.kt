@@ -43,14 +43,14 @@ class SecurityFilter : OncePerRequestFilter() {
     }
 
     private fun verifyToken(request: HttpServletRequest) {
-        logger.error("Verifying token for request: ${request.toString()}")
+        logger.info("Verifying token for request: ${request.toString()}")
         var session: String? = null
         var decodedToken: FirebaseToken? = null
         var type: CredentialType? = null
         val strictServerSessionEnabled: Boolean = securityProps?.firebaseProps?.enableStrictServerSession == true
         val sessionCookie: Cookie? = cookieUtils?.getCookie("session")
         val token: String? = securityService?.getBearerToken(request)
-        logger.error("Token to verify: $token")
+        logger.info("Token to verify: $token")
         try {
             if (sessionCookie != null) {
                 session = sessionCookie.value
@@ -69,27 +69,20 @@ class SecurityFilter : OncePerRequestFilter() {
             e.printStackTrace()
             logger.error("Firebase Exception:: ${e.localizedMessage}")
         }
-        val firebaseAuthUser: FirebaseAuthUser? = firebaseTokenToUserDto(decodedToken)
-        if (firebaseAuthUser != null) {
-            val authentication = UsernamePasswordAuthenticationToken(firebaseAuthUser,
-                    Credentials(type, decodedToken, token, session), null)
+        decodedToken?.let {
+            val firebaseAuthUser = FirebaseAuthUser(
+                    uid = it.uid,
+                    name = it.name,
+                    phoneNumber = it.claims["phone_number"] as String?,
+                    picture = it.picture,
+                    issuer = it.issuer
+            )
+            val authentication = UsernamePasswordAuthenticationToken(
+                    firebaseAuthUser,
+                    Credentials(type, decodedToken, token, session),
+                    null)
             authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
             SecurityContextHolder.getContext().authentication = authentication
         }
-    }
-
-    private fun firebaseTokenToUserDto(decodedToken: FirebaseToken?): FirebaseAuthUser? {
-        var firebaseAuthUser: FirebaseAuthUser? = null
-        if (decodedToken != null) {
-            firebaseAuthUser = FirebaseAuthUser(
-                    uid = decodedToken.uid,
-                    name = decodedToken.name,
-                    email = decodedToken.email,
-                    picture = decodedToken.picture,
-                    issuer = decodedToken.issuer,
-                    isEmailVerified = decodedToken.isEmailVerified
-            )
-        }
-        return firebaseAuthUser
     }
 }
