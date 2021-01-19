@@ -1,13 +1,15 @@
 create table user
 (
-    id                  varchar(255) not null primary key,
-    uid                 varchar(255) null,
-    full_name           varchar(255) null,
-    gender              varchar(255) null,
+    id                  varchar(255)    not null primary key,
+    uid                 varchar(255)    null,
+    full_name           varchar(255)    null,
+    gender              varchar(255)    null,
 
-    -- Common for Audit
-    created_at          datetime     null,
-    last_modified_at    datetime     null
+    -- Common
+    created_by          varchar(255)    null,
+    created_at          datetime        null,
+    last_modified_by    varchar(255)    null,
+    last_modified_at    datetime        null
 ) engine = InnoDB;
 
 

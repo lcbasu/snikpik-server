@@ -7,4 +7,14 @@ data class FirebaseAuthUser(
         private val phoneNumber: String? = null,
         private val issuer: String? = null,
         private val picture: String? = null,
-)
+) {
+    // Adding getters so that we can access these values when we cast them from
+    // Java Object to Kotlin Object
+    fun getPhoneNumber(): String? {
+        return phoneNumber
+    }
+
+    fun getUid(): String? {
+        return uid
+    }
+}

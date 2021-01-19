@@ -53,6 +53,7 @@ dependencies {
 //	implementation("io.sentry:sentry-spring:1.7.30")
 //	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.0")
 	implementation("org.hibernate.validator:hibernate-validator:6.1.5.Final")
+	implementation("joda-time:joda-time:2.10.9")
 //	implementation("com.amazonaws:aws-java-sdk-ses:1.11.842")
 //	implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.1.RELEASE")
 //	implementation("org.springframework.boot:spring-boot-starter-thymeleaf:2.3.8.RELEASE")
