@@ -38,7 +38,9 @@ class SecurityFilter : OncePerRequestFilter() {
 
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
-        verifyToken(request)
+        if (securityService?.isPublic() == false) {
+            verifyToken(request)
+        }
         filterChain.doFilter(request, response)
     }
 
