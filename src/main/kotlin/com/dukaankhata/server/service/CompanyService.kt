@@ -1,7 +1,7 @@
 package com.dukaankhata.server.service
 
-import com.dukaankhata.server.dto.company.SaveCompanyRequest
-import com.dukaankhata.server.dto.company.SavedCompanyResponse
+import com.dukaankhata.server.dto.SaveCompanyRequest
+import com.dukaankhata.server.dto.SavedCompanyResponse
 
 open class CompanyService {
     open fun saveCompany(saveCompanyRequest: SaveCompanyRequest): SavedCompanyResponse? = null

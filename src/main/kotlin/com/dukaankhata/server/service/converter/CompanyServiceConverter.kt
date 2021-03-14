@@ -1,9 +1,7 @@
 package com.dukaankhata.server.service.converter
 
-import com.dukaankhata.server.dto.company.SavedCompanyResponse
-import com.dukaankhata.server.dto.user.SavedUserResponse
+import com.dukaankhata.server.dto.SavedCompanyResponse
 import com.dukaankhata.server.entities.Company
-import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.SalaryPaymentSchedule
 import org.springframework.stereotype.Component
 

@@ -1,6 +1,6 @@
 package com.dukaankhata.server.service.converter
 
-import com.dukaankhata.server.dto.user.SavedUserResponse
+import com.dukaankhata.server.dto.SavedUserResponse
 import com.dukaankhata.server.entities.User
 import org.springframework.stereotype.Component
 
