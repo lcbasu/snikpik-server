@@ -1,6 +1,6 @@
 package com.dukaankhata.server.service
 
-import com.dukaankhata.server.dto.user.SavedUserResponse
+import com.dukaankhata.server.dto.SavedUserResponse
 
 open class UserService {
     open fun saveUser(): SavedUserResponse? = null

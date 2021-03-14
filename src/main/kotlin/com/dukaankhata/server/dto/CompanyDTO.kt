@@ -1,4 +1,4 @@
-package com.dukaankhata.server.dto.company
+package com.dukaankhata.server.dto
 
 import com.dukaankhata.server.enums.SalaryPaymentSchedule
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 data class SaveCompanyRequest(
     val name: String,
     val location: String,
-    val salaryPaymentSchedule: String,
+    val salaryPaymentSchedule: SalaryPaymentSchedule,
     val workingMinutes: Int,
 )
 
