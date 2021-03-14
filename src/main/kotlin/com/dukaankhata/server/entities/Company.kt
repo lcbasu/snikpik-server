@@ -6,6 +6,7 @@ import javax.persistence.*
 @Entity
 class Company : Auditable() {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0
     var name: String = ""
     var location: String = ""
