@@ -21,3 +21,8 @@ data class SavedCompanyResponse(
     val userId: String,
 )
 
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class UserCompaniesResponse(
+    val companies: List<SavedCompanyResponse>,
+)

@@ -10,3 +10,7 @@ data class SavedUserResponse(
     val phoneNumber: String,
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class UserRoleResponse(
+    val roles: Set<String>,
+)

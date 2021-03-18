@@ -5,10 +5,12 @@ import com.dukaankhata.server.dto.SaveEmployeeRequest
 import com.dukaankhata.server.dto.SavedEmployeeResponse
 import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.enums.OpeningBalanceType
+import com.dukaankhata.server.enums.RoleType
 import com.dukaankhata.server.service.EmployeeService
 import com.dukaankhata.server.service.converter.EmployeeServiceConverter
 import com.dukaankhata.server.utils.AuthUtils
 import com.dukaankhata.server.utils.CompanyUtils
+import com.dukaankhata.server.utils.UserRoleUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -27,6 +29,9 @@ class EmployeeServiceImpl : EmployeeService() {
 
     @Autowired
     val companyServiceConverter: EmployeeServiceConverter? = null
+
+    @Autowired
+    val userRoleUtils: UserRoleUtils? = null
 
     override fun saveEmployee(saveEmployeeRequest: SaveEmployeeRequest): SavedEmployeeResponse? {
         val createdByUser = authUtils?.getRequestUserEntity()
@@ -50,6 +55,12 @@ class EmployeeServiceImpl : EmployeeService() {
             newEmployee.createdByUser = createdByUser
             newEmployee.createdForUser = createdForUser
             it.save(newEmployee)
+        }
+
+        employee?.let {
+            // Save the user role for the person who created the company
+            userRoleUtils?.addUserRole(createdForUser, company, RoleType.EMPLOYEE_NON_ADMIN)
+                ?: error("Unable to save user role for the employee")
         }
 
         return companyServiceConverter?.getSavedEmployeeResponse(employee);

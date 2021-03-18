@@ -1,9 +1,12 @@
 package com.dukaankhata.server.dao
 
 import com.dukaankhata.server.entities.Company
+import com.dukaankhata.server.entities.User
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 
 @Repository
-interface CompanyRepository : JpaRepository<Company?, Long?>
+interface CompanyRepository : JpaRepository<Company?, Long?> {
+    fun findByUser(user: User): List<Company>
+}

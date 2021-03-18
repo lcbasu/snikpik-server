@@ -1,8 +1,10 @@
 package com.dukaankhata.server.service
 
 import com.dukaankhata.server.dto.SavedUserResponse
+import com.dukaankhata.server.dto.UserRoleResponse
 
-open class UserService {
-    open fun saveUser(): SavedUserResponse? = null
-    open fun getUser(): SavedUserResponse? = null
+abstract class UserService {
+    abstract fun saveUser(): SavedUserResponse?
+    abstract fun getUser(): SavedUserResponse?
+    abstract fun getUserRoles(phoneNumber: String): UserRoleResponse?
 }

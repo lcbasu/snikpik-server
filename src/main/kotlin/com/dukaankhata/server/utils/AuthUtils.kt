@@ -64,12 +64,19 @@ class AuthUtils {
 
     fun getOrCreateUserByPhoneNumber(phoneNumber: String): User? {
         return userRepository?.let {
-            val user = it.findById(phoneNumber)
-            if (user.isPresent && user.get().id.isNotEmpty()) {
-                return user.get()
-            }
-            return createUser(phoneNumber = phoneNumber, fullName = phoneNumber, uid = "")
+            return getUserByPhoneNumber(phoneNumber) ?:
+            createUser(phoneNumber = phoneNumber, fullName = phoneNumber, uid = "")
         }
     }
 
+    fun getUserByPhoneNumber(phoneNumber: String): User? {
+        return userRepository?.let {
+            val userOptional = it.findById(phoneNumber)
+            return if (userOptional.isPresent && userOptional.get().id.isNotEmpty()) {
+                userOptional.get()
+            } else {
+                null
+            }
+        }
+    }
 }
