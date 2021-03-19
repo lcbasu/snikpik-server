@@ -9,10 +9,12 @@ import org.springframework.stereotype.Component
 class CompanyUtils {
 
     @Autowired
-    var companyRepository: CompanyRepository? = null
+    private lateinit var companyRepository: CompanyRepository
 
-    fun getCompany(companyId: Long): Company? {
-        val company = companyRepository?.findById(companyId)
-        return company?.get()
-    }
+    fun getCompany(companyId: Long): Company? =
+        try {
+            companyRepository.findById(companyId).get()
+        } catch (e: Exception) {
+            null
+        }
 }

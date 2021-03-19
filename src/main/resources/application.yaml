@@ -107,3 +107,6 @@ root:
 sentry:
   dsn: https://305142cd131b4e089a44b8e8bd10745d@o412876.ingest.sentry.io/5675460
 
+logging:
+  level:
+    org.zalando.logbook: TRACE

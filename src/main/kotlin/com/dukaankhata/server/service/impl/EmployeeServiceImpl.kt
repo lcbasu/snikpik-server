@@ -1,6 +1,7 @@
 package com.dukaankhata.server.service.impl
 
 import com.dukaankhata.server.dao.EmployeeRepository
+import com.dukaankhata.server.dto.CompanyEmployeesResponse
 import com.dukaankhata.server.dto.SaveEmployeeRequest
 import com.dukaankhata.server.dto.SavedEmployeeResponse
 import com.dukaankhata.server.entities.Employee
@@ -19,29 +20,29 @@ import java.time.LocalDateTime
 class EmployeeServiceImpl : EmployeeService() {
 
     @Autowired
-    var employeeRepository: EmployeeRepository? = null
+    private lateinit var employeeRepository: EmployeeRepository
 
     @Autowired
-    val authUtils: AuthUtils? = null
+    private lateinit var authUtils: AuthUtils
 
     @Autowired
-    val companyUtils: CompanyUtils? = null
+    private lateinit var companyUtils: CompanyUtils
 
     @Autowired
-    val companyServiceConverter: EmployeeServiceConverter? = null
+    private lateinit var employeeServiceConverter: EmployeeServiceConverter
 
     @Autowired
-    val userRoleUtils: UserRoleUtils? = null
+    private lateinit var userRoleUtils: UserRoleUtils
 
     override fun saveEmployee(saveEmployeeRequest: SaveEmployeeRequest): SavedEmployeeResponse? {
-        val createdByUser = authUtils?.getRequestUserEntity()
-        val company = companyUtils?.getCompany(saveEmployeeRequest.companyId)
+        val createdByUser = authUtils.getRequestUserEntity()
+        val company = companyUtils.getCompany(saveEmployeeRequest.companyId)
         if (createdByUser == null || company == null) {
             error("User and Company are required to add an employee");
         }
-        val createdForUser = authUtils?.getOrCreateUserByPhoneNumber(saveEmployeeRequest.phoneNumber)
+        val createdForUser = authUtils.getOrCreateUserByPhoneNumber(saveEmployeeRequest.phoneNumber)
             ?: error("User should be created for new employee without any user account")
-        val employee = employeeRepository?.let {
+        val employee = employeeRepository.let {
             val newEmployee = Employee()
             newEmployee.name = saveEmployeeRequest.name
             newEmployee.balanceInPaisaTillNow = saveEmployeeRequest.balanceInPaisaTillNow
@@ -57,16 +58,28 @@ class EmployeeServiceImpl : EmployeeService() {
             it.save(newEmployee)
         }
 
-        employee?.let {
+        employee.let {
             // Save the user role for the person who created the company
-            userRoleUtils?.addUserRole(createdForUser, company, RoleType.EMPLOYEE_NON_ADMIN)
+            userRoleUtils.addUserRole(createdForUser, company, RoleType.EMPLOYEE_NON_ADMIN)
                 ?: error("Unable to save user role for the employee")
         }
 
-        return companyServiceConverter?.getSavedEmployeeResponse(employee);
+        return employeeServiceConverter.getSavedEmployeeResponse(employee);
     }
 
-    override fun getEmployee(): SavedEmployeeResponse? {
-        return super.getEmployee()
+    override fun getCompanyEmployees(companyServerId: Long): CompanyEmployeesResponse? {
+        val requestingUser = authUtils.getRequestUserEntity()
+        val company = companyUtils.getCompany(companyServerId)
+        if (requestingUser == null || company == null) {
+            error("User and Company are required to get list of employees");
+        }
+        val userRoles = requestingUser.let { userRoleUtils?.getUserRolesForUserAndCompany(user = it, company = company) } ?: emptyList()
+        // Return the list of employees, only for employer and admin employees
+        val validRoles = userRoles.filter { it.id?.roleType == RoleType.EMPLOYER.name || it.id?.roleType == RoleType.EMPLOYEE_ADMIN.name }
+        if (validRoles.size > 0) {
+            return employeeServiceConverter.getCompanyEmployeesResponse(company, employeeRepository?.findByCompany(company) ?: emptyList());
+        } else {
+            return null
+        }
     }
 }

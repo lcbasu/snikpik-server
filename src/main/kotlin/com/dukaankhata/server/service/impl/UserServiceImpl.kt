@@ -42,7 +42,7 @@ class UserServiceImpl : UserService() {
 
     override fun getUserRoles(phoneNumber: String): UserRoleResponse? {
         val user = authUtils?.getUserByPhoneNumber(phoneNumber);
-        val userRoles = user?.let { userRoleUtils?.getUserRole(it) } ?: emptyList()
+        val userRoles = user?.let { userRoleUtils?.getUserRolesForUser(it) } ?: emptyList()
         return userServiceConverter?.getUserRolesResponse(userRoles)
     }
 }

@@ -36,8 +36,12 @@ class UserRoleUtils {
         }
     }
 
-    fun getUserRole(user: User) : List<UserRole>? {
+    fun getUserRolesForUser(user: User) : List<UserRole>? {
         return userRoleRepository?.findByUser(user)
+    }
+
+    fun getUserRolesForUserAndCompany(user: User, company: Company) : List<UserRole>? {
+        return userRoleRepository?.findByUserAndCompany(user, company)
     }
 
 }

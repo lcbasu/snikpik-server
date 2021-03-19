@@ -32,3 +32,8 @@ data class SavedEmployeeResponse(
     val leftAt: Long,
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class CompanyEmployeesResponse(
+    val company: SavedCompanyResponse,
+    val employees: List<SavedEmployeeResponse>
+)

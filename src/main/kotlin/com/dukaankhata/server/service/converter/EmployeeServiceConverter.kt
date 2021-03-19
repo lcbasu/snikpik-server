@@ -1,14 +1,20 @@
 package com.dukaankhata.server.service.converter
 
+import com.dukaankhata.server.dto.CompanyEmployeesResponse
 import com.dukaankhata.server.dto.SavedEmployeeResponse
+import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.enums.OpeningBalanceType
 import com.dukaankhata.server.enums.SalaryType
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.time.ZoneOffset
 
 @Component
 class EmployeeServiceConverter {
+
+    @Autowired
+    private lateinit var companyServiceConverter: CompanyServiceConverter
 
     fun getSavedEmployeeResponse(employee: Employee?): SavedEmployeeResponse {
         return SavedEmployeeResponse(
@@ -25,6 +31,14 @@ class EmployeeServiceConverter {
             joinedAt = employee?.joinedAt?.toEpochSecond(ZoneOffset.UTC) ?: 0,
             leftAt = employee?.leftAt?.toEpochSecond(ZoneOffset.UTC) ?: 0,
         )
+    }
+
+    fun getCompanyEmployeesResponse(company: Company, employees: List<Employee>): CompanyEmployeesResponse {
+        return CompanyEmployeesResponse(
+            company = companyServiceConverter.getSavedCompanyResponse(company),
+            employees = employees.map {
+            getSavedEmployeeResponse(it)
+        })
     }
 
 }
