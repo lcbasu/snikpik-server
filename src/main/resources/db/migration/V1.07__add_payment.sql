@@ -8,9 +8,9 @@ create table payment
     amount_in_paisa             bigint       null,
     multiplier_used             int       null,
 
-    employee_id                    bigint null,
-    company_id                    bigint null,
-    added_by_user_id           varchar(255) null,
+    employee_id                    bigint not null,
+    company_id                    bigint not null,
+    added_by_user_id           varchar(255) not null,
 
     constraint fk_payment_added_by_user_id
         foreign key (added_by_user_id) references user (id),

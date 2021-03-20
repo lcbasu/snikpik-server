@@ -13,7 +13,7 @@ data class SaveCompanyRequest(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SavedCompanyResponse(
-    val serverId: Long,
+    val serverId: String,
     val name: String,
     val location: String,
     val salaryPaymentSchedule: SalaryPaymentSchedule,

@@ -5,6 +5,7 @@ import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedBy
 import org.springframework.data.annotation.LastModifiedDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import javax.persistence.Column
 
 open class Auditable {
@@ -18,7 +19,7 @@ open class Auditable {
 
     @LastModifiedDate
     @Column(name = "last_modified_at")
-    var lastModifiedAt: LocalDateTime? = null
+    var lastModifiedAt: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC"))
 
     @LastModifiedBy
     @Column(name = "last_modified_by")

@@ -18,10 +18,10 @@ data class SaveEmployeeRequest(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SavedEmployeeResponse(
-    val serverId: Long,
+    val serverId: String,
     val name: String,
     val phoneNumber: String,
-    val companyId: Long,
+    val companyId: String,
     val salaryType: SalaryType,
     val salaryAmountInPaisa: Long,
     val openingBalanceType: OpeningBalanceType,

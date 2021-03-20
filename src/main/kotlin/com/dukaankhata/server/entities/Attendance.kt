@@ -3,6 +3,7 @@ package com.dukaankhata.server.entities
 import com.dukaankhata.server.enums.PunchType
 import com.dukaankhata.server.enums.SelfieType
 import java.time.LocalDateTime
+import java.time.ZoneId
 import javax.persistence.*
 
 @Entity
@@ -14,7 +15,7 @@ class Attendance : Auditable() {
 
     var forDate: String = ""
 
-    var punchAt: LocalDateTime = LocalDateTime.now()
+    var punchAt: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC"))
 
     @Enumerated(EnumType.STRING)
     var punchType: PunchType = PunchType.NONE

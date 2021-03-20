@@ -2,6 +2,7 @@ package com.dukaankhata.server.entities
 
 import com.dukaankhata.server.enums.PaymentType
 import java.time.LocalDateTime
+import java.time.ZoneId
 import javax.persistence.*
 
 @Entity
@@ -22,15 +23,15 @@ class Payment : Auditable() {
 
     var multiplierUsed: Int = 0
 
-    var addedAt: LocalDateTime = LocalDateTime.now()
+    var addedAt: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC"))
 
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    @MapsId("company_id")
+//    @MapsId("company_id")
     @JoinColumn(name = "company_id")
     var company: Company? = null;
 
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    @MapsId("employee_id")
+//    @MapsId("employee_id")
     @JoinColumn(name = "employee_id")
     var employee: Employee? = null;
 

@@ -11,7 +11,7 @@ class CompanyServiceConverter {
 
     fun getSavedCompanyResponse(company: Company?): SavedCompanyResponse {
         return SavedCompanyResponse(
-            serverId = company?.id ?: -1,
+            serverId = company?.id?.toString() ?: "-1",
             name = company?.name ?: "",
             location = company?.location ?: "",
             salaryPaymentSchedule = company?.salaryPaymentSchedule ?: SalaryPaymentSchedule.LAST_DAY_OF_MONTH,
@@ -22,7 +22,7 @@ class CompanyServiceConverter {
     fun getCompaniesResponse(companies: List<Company>): UserCompaniesResponse {
         return UserCompaniesResponse(companies = companies.map {
             SavedCompanyResponse(
-                serverId = it.id,
+                serverId = it.id.toString(),
                 name = it.name,
                 location = it.location,
                 salaryPaymentSchedule = it.salaryPaymentSchedule,

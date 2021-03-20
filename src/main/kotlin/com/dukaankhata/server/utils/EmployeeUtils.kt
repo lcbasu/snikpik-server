@@ -11,6 +11,7 @@ import com.dukaankhata.server.enums.RoleType
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
+import java.time.ZoneId
 
 @Component
 class EmployeeUtils {
@@ -49,7 +50,7 @@ class EmployeeUtils {
         newEmployee.salaryAmountInPaisa = saveEmployeeRequest.salaryAmountInPaisa
         newEmployee.salaryType = saveEmployeeRequest.salaryType
         newEmployee.openingBalanceType = saveEmployeeRequest.openingBalanceType ?: OpeningBalanceType.NONE
-        newEmployee.joinedAt = LocalDateTime.now()
+        newEmployee.joinedAt = LocalDateTime.now(ZoneId.of("UTC"))
         newEmployee.company = company
         newEmployee.createdByUser = createdByUser
         newEmployee.createdForUser = createdForUser
@@ -60,6 +61,7 @@ class EmployeeUtils {
     fun updateEmployee(payment: Payment) : Employee {
         val employee = payment.employee ?: error("Payment should always have an employee object")
         employee.balanceInPaisaTillNow = employee.balanceInPaisaTillNow + (payment.multiplierUsed * payment.amountInPaisa)
+        employee.lastModifiedAt = LocalDateTime.now(ZoneId.of("UTC"))
         return employeeRepository.save(employee)
     }
 }

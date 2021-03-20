@@ -18,10 +18,10 @@ class EmployeeServiceConverter {
 
     fun getSavedEmployeeResponse(employee: Employee?): SavedEmployeeResponse {
         return SavedEmployeeResponse(
-            serverId = employee?.id ?: -1,
+            serverId = employee?.id?.toString() ?: "-1",
             name = employee?.name ?: "",
             phoneNumber = employee?.phoneNumber ?: "",
-            companyId = employee?.company?.id ?: -1,
+            companyId = employee?.company?.id?.toString() ?: "-1",
             salaryType = employee?.salaryType ?: SalaryType.MONTHLY,
             salaryAmountInPaisa = employee?.salaryAmountInPaisa ?: 0,
             openingBalanceInPaisa = employee?.openingBalanceInPaisa ?: 0,
