@@ -5,10 +5,7 @@ import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.entities.Attendance
 import com.dukaankhata.server.service.AttendanceService
 import com.dukaankhata.server.service.converter.AttendanceServiceConverter
-import com.dukaankhata.server.utils.AuthUtils
-import com.dukaankhata.server.utils.CompanyUtils
-import com.dukaankhata.server.utils.EmployeeUtils
-import com.dukaankhata.server.utils.UserRoleUtils
+import com.dukaankhata.server.utils.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -29,6 +26,9 @@ class AttendanceServiceImpl : AttendanceService() {
 
     @Autowired
     private lateinit var employeeUtils: EmployeeUtils
+
+    @Autowired
+    private lateinit var attendanceUtils: AttendanceUtils
 
     @Autowired
     private lateinit var attendanceServiceConverter: AttendanceServiceConverter
@@ -54,28 +54,7 @@ class AttendanceServiceImpl : AttendanceService() {
         }
 
         // TODO: Employee 1 can not mark attendance for Employee 2 unless
-
-        val attendance = attendanceRepository.let {
-            val newAttendance = Attendance()
-
-            newAttendance.forDate = saveAttendanceRequest.forDate
-
-            newAttendance.punchBy = punchByUser
-            newAttendance.punchAt = LocalDateTime.ofInstant(Instant.ofEpochSecond(saveAttendanceRequest.punchAt/1000), ZoneId.of("UTC"))
-            newAttendance.punchType = saveAttendanceRequest.punchType
-
-            newAttendance.selfieUrl = saveAttendanceRequest.selfieUrl
-            newAttendance.selfieType = saveAttendanceRequest.selfieType
-
-            newAttendance.locationLat = saveAttendanceRequest.locationLat
-            newAttendance.locationLong = saveAttendanceRequest.locationLong
-            newAttendance.locationName = saveAttendanceRequest.locationName
-
-            newAttendance.employee = employee
-            newAttendance.company = company
-
-            it.save(newAttendance)
-        }
+        val attendance = attendanceUtils.saveAttendance(punchByUser, company, employee, saveAttendanceRequest)
         return attendanceServiceConverter.getSavedAttendanceResponse(attendance)
     }
 

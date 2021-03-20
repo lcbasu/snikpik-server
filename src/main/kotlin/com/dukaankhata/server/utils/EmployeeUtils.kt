@@ -1,15 +1,25 @@
 package com.dukaankhata.server.utils
 
 import com.dukaankhata.server.dao.EmployeeRepository
+import com.dukaankhata.server.dto.SaveEmployeeRequest
+import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.Employee
+import com.dukaankhata.server.entities.Payment
+import com.dukaankhata.server.entities.User
+import com.dukaankhata.server.enums.OpeningBalanceType
+import com.dukaankhata.server.enums.RoleType
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
 
 @Component
 class EmployeeUtils {
 
     @Autowired
     private lateinit var employeeRepository: EmployeeRepository
+
+    @Autowired
+    private lateinit var userRoleUtils: UserRoleUtils
 
     fun getEmployee(employeeId: Long): Employee? =
         try {
@@ -29,4 +39,27 @@ class EmployeeUtils {
         } catch (e: Exception) {
             emptyList()
         }
+
+    fun saveEmployee(createdByUser: User, createdForUser: User, company: Company, saveEmployeeRequest: SaveEmployeeRequest) : Employee {
+        val newEmployee = Employee()
+        newEmployee.name = saveEmployeeRequest.name
+        newEmployee.balanceInPaisaTillNow = saveEmployeeRequest.balanceInPaisaTillNow
+        newEmployee.openingBalanceInPaisa = saveEmployeeRequest.openingBalanceInPaisa
+        newEmployee.phoneNumber = saveEmployeeRequest.phoneNumber
+        newEmployee.salaryAmountInPaisa = saveEmployeeRequest.salaryAmountInPaisa
+        newEmployee.salaryType = saveEmployeeRequest.salaryType
+        newEmployee.openingBalanceType = saveEmployeeRequest.openingBalanceType ?: OpeningBalanceType.NONE
+        newEmployee.joinedAt = LocalDateTime.now()
+        newEmployee.company = company
+        newEmployee.createdByUser = createdByUser
+        newEmployee.createdForUser = createdForUser
+
+        return employeeRepository.save(newEmployee)
+    }
+
+    fun updateEmployee(payment: Payment) : Employee {
+        val employee = payment.employee ?: error("Payment should always have an employee object")
+        employee.balanceInPaisaTillNow = employee.balanceInPaisaTillNow + (payment.multiplierUsed * payment.amountInPaisa)
+        return employeeRepository.save(employee)
+    }
 }
