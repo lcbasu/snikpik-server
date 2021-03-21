@@ -6,6 +6,7 @@ import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.enums.OpeningBalanceType
 import com.dukaankhata.server.enums.SalaryType
+import com.dukaankhata.server.utils.DateUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.time.ZoneOffset
@@ -27,9 +28,9 @@ class EmployeeServiceConverter {
             openingBalanceInPaisa = employee?.openingBalanceInPaisa ?: 0,
             openingBalanceType = employee?.openingBalanceType ?: OpeningBalanceType.ADVANCE,
             balanceInPaisaTillNow = employee?.balanceInPaisaTillNow ?: 0,
-            isActive = employee?.leftAt === null,
-            joinedAt = employee?.joinedAt?.toEpochSecond(ZoneOffset.UTC) ?: 0,
-            leftAt = employee?.leftAt?.toEpochSecond(ZoneOffset.UTC) ?: 0,
+            isActive = employee?.leftAt == null,
+            joinedAt = DateUtils.getEpoch(employee?.joinedAt),
+            leftAt = DateUtils.getEpoch(employee?.leftAt),
         )
     }
 

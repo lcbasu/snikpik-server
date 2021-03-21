@@ -7,6 +7,7 @@ import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.enums.AttendanceType
 import com.dukaankhata.server.enums.PunchType
 import com.dukaankhata.server.enums.SelfieType
+import com.dukaankhata.server.utils.DateUtils
 import com.dukaankhata.server.utils.HolidayUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -29,11 +30,11 @@ class AttendanceServiceConverter {
 
     fun getSavedAttendanceResponse(attendance: Attendance?): SavedAttendanceResponse {
         return SavedAttendanceResponse(
-            serverId = attendance?.id ?: -1,
-            employeeId = attendance?.employee?.id ?: -1,
-            companyId = attendance?.company?.id ?: -1,
+            serverId = attendance?.id?.toString() ?: "-1",
+            employee = employeeServiceConverter.getSavedEmployeeResponse(attendance?.employee),
+            company = companyServiceConverter.getSavedCompanyResponse(attendance?.company),
             forDate = attendance?.forDate ?: "",
-            punchAt = attendance?.punchAt?.toEpochSecond(ZoneOffset.UTC) ?: 0,
+            punchAt = DateUtils.getEpoch(attendance?.punchAt),
             punchType = attendance?.punchType ?: PunchType.NONE,
             punchBy = attendance?.punchBy?.id ?: "",
             selfieUrl = attendance?.selfieUrl ?: "",
@@ -138,11 +139,16 @@ class AttendanceServiceConverter {
         val employeeAttendanceDetailsForDateResponseMutable = employeeAttendanceDetailsForDateResponse.toMutableList()
 
         attendanceNotAvailableForEmployees.map { employee ->
+            val attendanceType = if (holidayUtils.getHoliday(company, employee, forDate) != null) {
+                AttendanceType.HOLIDAY
+            } else {
+                AttendanceType.ABSENT
+            }
             employeeAttendanceDetailsForDateResponseMutable.add(
                 EmployeeAttendanceDetailsForDateResponse(
                     employee = employeeServiceConverter.getSavedEmployeeResponse(employee),
                     workingHoursInMinutes = 0,
-                    attendanceType = AttendanceType.ABSENT
+                    attendanceType = attendanceType
                 )
             )
         }

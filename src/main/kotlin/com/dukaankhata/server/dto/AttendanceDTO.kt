@@ -22,9 +22,9 @@ data class SaveAttendanceRequest(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SavedAttendanceResponse(
-    val serverId: Long,
-    val employeeId: Long,
-    val companyId: Long,
+    val serverId: String,
+    val employee: SavedEmployeeResponse,
+    val company: SavedCompanyResponse,
     val forDate: String,
     val punchAt: Long,
     val punchType: PunchType,

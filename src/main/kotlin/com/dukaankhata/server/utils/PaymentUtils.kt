@@ -6,6 +6,7 @@ import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.entities.Payment
 import com.dukaankhata.server.entities.User
+import com.dukaankhata.server.enums.PaymentType
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
@@ -23,6 +24,19 @@ class PaymentUtils {
         }
 
     fun savePayment(addedBy: User, company: Company, employee: Employee, savePaymentRequest: SavePaymentRequest) : Payment {
+
+        val multiplierUsed = when (savePaymentRequest.paymentType) {
+            PaymentType.PAYMENT_ONE_TIME_PAID -> 1
+            PaymentType.PAYMENT_ONE_TIME_TOOK -> 1
+            PaymentType.PAYMENT_ALLOWANCE -> 1
+            PaymentType.PAYMENT_BONUS -> 1
+            PaymentType.PAYMENT_DEDUCTIONS -> -1
+            PaymentType.PAYMENT_LOAN -> -1
+            PaymentType.PAYMENT_ATTENDANCE_LATE_FINE -> -1
+            PaymentType.PAYMENT_ATTENDANCE_OVERTIME -> 1
+            PaymentType.NONE -> 0
+        }
+
         val payment = Payment()
         payment.company = company
         payment.employee = employee
@@ -31,8 +45,8 @@ class PaymentUtils {
         payment.amountInPaisa = savePaymentRequest.amountInPaisa
         payment.description = savePaymentRequest.description
         payment.forDate = savePaymentRequest.forDate
-        payment.multiplierUsed = savePaymentRequest.multiplierUsed
-        payment.addedAt = DateUtils.parseEpochInMilliseconds(savePaymentRequest.addedAt)
+        payment.multiplierUsed = multiplierUsed
+        payment.addedAt = DateUtils.dateTimeNow()
         return paymentRepository.save(payment)
     }
 }

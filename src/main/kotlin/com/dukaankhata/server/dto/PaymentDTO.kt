@@ -10,8 +10,6 @@ data class SavePaymentRequest(
     val forDate: String,
     val paymentType: PaymentType,
     val amountInPaisa: Long,
-    val multiplierUsed: Int,
-    val addedAt: Long,
     val description: String?,
 )
 

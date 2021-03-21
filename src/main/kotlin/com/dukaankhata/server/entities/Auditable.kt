@@ -1,5 +1,6 @@
 package com.dukaankhata.server.entities
 
+import com.dukaankhata.server.utils.DateUtils
 import org.springframework.data.annotation.CreatedBy
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedBy
@@ -19,7 +20,7 @@ open class Auditable {
 
     @LastModifiedDate
     @Column(name = "last_modified_at")
-    var lastModifiedAt: LocalDateTime = LocalDateTime.now(ZoneId.of("UTC"))
+    var lastModifiedAt: LocalDateTime = DateUtils.dateTimeNow()
 
     @LastModifiedBy
     @Column(name = "last_modified_by")

@@ -1,33 +1,24 @@
 package com.dukaankhata.server.entities
 
-import com.dukaankhata.server.enums.PunchType
-import com.dukaankhata.server.enums.SelfieType
 import com.dukaankhata.server.utils.DateUtils
 import java.time.LocalDateTime
 import java.time.ZoneId
 import javax.persistence.*
 
 @Entity
-class Attendance : Auditable() {
+class Overtime : Auditable() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = -1
 
-    var forDate: String = ""
+    var forDate: String? = null
 
-    var punchAt: LocalDateTime = DateUtils.dateTimeNow()
+    var hourlyOvertimeWageInPaisa: Long = 0
+    var totalOvertimeAmountInPaisa: Long = 0
+    var totalOvertimeMinutes: Int = 0
 
-    @Enumerated(EnumType.STRING)
-    var punchType: PunchType = PunchType.NONE
-
-    var selfieUrl: String? = null
-    @Enumerated(EnumType.STRING)
-    var selfieType: SelfieType? = null
-
-    var locationLat: Double? = null
-    var locationLong: Double? = null
-    var locationName: String? = null
+    var addedAt: LocalDateTime = DateUtils.dateTimeNow()
 
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
@@ -38,7 +29,7 @@ class Attendance : Auditable() {
     var employee: Employee? = null;
 
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    @JoinColumn(name = "punch_by_user_id")
-    var punchBy: User? = null;
+    @JoinColumn(name = "added_by_user_id")
+    var addedBy: User? = null;
 
 }

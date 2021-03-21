@@ -3,6 +3,7 @@ package com.dukaankhata.server.service.converter
 import com.dukaankhata.server.dto.SavedPaymentResponse
 import com.dukaankhata.server.entities.Payment
 import com.dukaankhata.server.enums.PaymentType
+import com.dukaankhata.server.utils.DateUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.time.ZoneOffset
@@ -26,7 +27,7 @@ class PaymentServiceConverter {
             description = payment?.description,
             amountInPaisa = payment?.amountInPaisa ?: 0,
             multiplierUsed = payment?.multiplierUsed ?: 0,
-            addedAt = payment?.addedAt?.toEpochSecond(ZoneOffset.UTC) ?: 0,
+            addedAt = DateUtils.getEpoch(payment?.addedAt),
         )
     }
 }

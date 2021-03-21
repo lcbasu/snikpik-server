@@ -1,22 +1,21 @@
 package com.dukaankhata.server.dto
 
-import com.dukaankhata.server.enums.HolidayType
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class SaveHolidayRequest(
+data class SaveNoteRequest(
     val employeeId: Long,
     val companyId: Long,
     val forDate: String,
-    val holidayType: HolidayType
+    val description: String?,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class SavedHolidayResponse(
+data class SavedNoteResponse(
     val serverId: String,
-    val company: SavedCompanyResponse,
     val employee: SavedEmployeeResponse,
+    val company: SavedCompanyResponse,
     val forDate: String,
-    val holidayType: HolidayType,
+    val addedAt: Long,
+    val description: String?,
 )
-
