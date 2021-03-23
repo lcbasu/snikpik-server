@@ -1,5 +1,7 @@
 package com.dukaankhata.server.controller
 
+import com.dukaankhata.server.dto.PaymentSummaryRequest
+import com.dukaankhata.server.dto.PaymentSummaryResponse
 import com.dukaankhata.server.dto.SavePaymentRequest
 import com.dukaankhata.server.dto.SavedPaymentResponse
 import com.dukaankhata.server.service.PaymentService
@@ -18,5 +20,10 @@ class PaymentController {
     @RequestMapping(value = ["/save"], method = [RequestMethod.POST])
     fun saveUser(@RequestBody savePaymentRequest: SavePaymentRequest): SavedPaymentResponse? {
         return paymentService.savePayment(savePaymentRequest)
+    }
+
+    @RequestMapping(value = ["/getPaymentSummary"], method = [RequestMethod.POST])
+    fun getPaymentSummary(@RequestBody paymentSummaryRequest: PaymentSummaryRequest): PaymentSummaryResponse? {
+        return paymentService.getPaymentSummary(paymentSummaryRequest)
     }
 }

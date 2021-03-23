@@ -1,5 +1,8 @@
 package com.dukaankhata.server.service.impl
 
+import com.dukaankhata.server.dao.PaymentRepository
+import com.dukaankhata.server.dto.PaymentSummaryRequest
+import com.dukaankhata.server.dto.PaymentSummaryResponse
 import com.dukaankhata.server.dto.SavePaymentRequest
 import com.dukaankhata.server.dto.SavedPaymentResponse
 import com.dukaankhata.server.service.PaymentService
@@ -7,6 +10,9 @@ import com.dukaankhata.server.service.converter.PaymentServiceConverter
 import com.dukaankhata.server.utils.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.temporal.TemporalAdjusters
 
 @Service
 class PaymentServiceImpl : PaymentService() {
@@ -28,6 +34,9 @@ class PaymentServiceImpl : PaymentService() {
 
     @Autowired
     private lateinit var userRoleUtils: UserRoleUtils
+
+    @Autowired
+    private lateinit var paymentRepository: PaymentRepository
 
     override fun savePayment(savePaymentRequest: SavePaymentRequest): SavedPaymentResponse? {
         val addedByUser = authUtils.getRequestUserEntity()
@@ -57,7 +66,39 @@ class PaymentServiceImpl : PaymentService() {
 
         // Update the employee payment
         employeeUtils.updateEmployee(payment)
+
+        // Update the company payment
+        companyUtils.updateCompany(payment)
         return paymentServiceConverter.getSavedPaymentResponse(payment)
+    }
+
+    override fun getPaymentSummary(paymentSummaryRequest: PaymentSummaryRequest): PaymentSummaryResponse? {
+        val requestedByUser = authUtils.getRequestUserEntity()
+        val company = companyUtils.getCompany(paymentSummaryRequest.companyId)
+        if (requestedByUser == null || company == null) {
+            error("User, and Company are required to get payment summary");
+        }
+
+        val userRoles = userRoleUtils.getUserRolesForUserAndCompany(
+            user = requestedByUser,
+            company = company
+        ) ?: emptyList()
+
+        if (userRoles.isEmpty()) {
+            error("Only employees of the company can view payment");
+        }
+
+        // Choosing a random date in middle to select correct start and end month
+        val startDate = LocalDateTime.of(paymentSummaryRequest.forYear, paymentSummaryRequest.forMonth, 20, 0, 0, 0, 0)
+        val startTime = startDate.with(TemporalAdjusters.firstDayOfMonth()).toLocalDate().atStartOfDay().minusMonths(2) // get data from past 2 months
+        val endTime = startDate.with(TemporalAdjusters.lastDayOfMonth()).toLocalDate().atTime(LocalTime.MAX)
+
+        val payments = paymentRepository.getAllPaymentsBetweenGivenDates(
+            companyId = company.id,
+            startDate = startTime,
+            endDate = endTime
+        )
+        return paymentServiceConverter.getPaymentSummary(company, payments)
     }
 
 }

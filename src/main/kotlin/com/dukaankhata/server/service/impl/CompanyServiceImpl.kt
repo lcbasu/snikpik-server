@@ -37,6 +37,7 @@ class CompanyServiceImpl : CompanyService() {
             newCompany.location = saveCompanyRequest.location
             newCompany.salaryPaymentSchedule = saveCompanyRequest.salaryPaymentSchedule
             newCompany.workingMinutes = saveCompanyRequest.workingMinutes
+            newCompany.totalDueAmountInPaisa = 0
             newCompany.user = user
             it.save(newCompany)
         }

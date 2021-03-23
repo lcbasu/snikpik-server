@@ -44,11 +44,11 @@ class AttendanceServiceConverter {
             locationName = attendance?.locationName ?: "")
     }
 
-    fun getAttendancesResponse(company: Company, attendances: List<Attendance?>): AttendancesResponse {
+    fun getAttendancesResponse(company: Company, attendances: List<Attendance>): AttendancesResponse {
         val attendancesDateResponses = mutableListOf<AttendancesDateResponse>()
-        attendances.groupBy { it?.forDate }.map { attendancesForDate ->
-            attendancesForDate.key?.let {
-                val attendancesForGivenDate = attendancesForDate.value.groupBy { it?.employee }.map { employeeAttendance ->
+        attendances.groupBy { it.forDate }.map { attendancesForDate ->
+            attendancesForDate.key.let {
+                val attendancesForGivenDate = attendancesForDate.value.groupBy { it.employee }.map { employeeAttendance ->
                     val employee = employeeAttendance.key
                     val employeeAttendances = employeeAttendance.value
                     EmployeeAttendancesResponse(

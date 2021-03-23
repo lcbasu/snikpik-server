@@ -18,6 +18,7 @@ data class SavedCompanyResponse(
     val location: String,
     val salaryPaymentSchedule: SalaryPaymentSchedule,
     val workingMinutes: Int,
+    val totalDueAmountInPaisa: Long,
     val userId: String,
 )
 

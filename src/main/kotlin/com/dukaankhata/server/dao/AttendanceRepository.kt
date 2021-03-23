@@ -13,7 +13,7 @@ interface AttendanceRepository : JpaRepository<Attendance?, Long?> {
     fun getAttendanceByCompanyAndDates(
         @Param("company") company: Company,
         @Param("forDates") forDates: Set<String>
-    ): List<Attendance?>
+    ): List<Attendance>
 
     fun findByCompanyAndForDate(company: Company, forDate: String): List<Attendance>
 }

@@ -11,6 +11,7 @@ class Company : Auditable() {
     var name: String = ""
     var location: String = ""
     var workingMinutes: Int = 0
+    var totalDueAmountInPaisa: Long = 0
 //    var userId: String = ""
     @Enumerated(EnumType.STRING)
     var salaryPaymentSchedule: SalaryPaymentSchedule = SalaryPaymentSchedule.LAST_DAY_OF_MONTH
