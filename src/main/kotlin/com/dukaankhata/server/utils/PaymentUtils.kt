@@ -34,6 +34,8 @@ class PaymentUtils {
             PaymentType.PAYMENT_LOAN -> -1
             PaymentType.PAYMENT_ATTENDANCE_LATE_FINE -> -1
             PaymentType.PAYMENT_ATTENDANCE_OVERTIME -> 1
+            PaymentType.PAYMENT_OPENING_BALANCE_ADVANCE -> 1
+            PaymentType.PAYMENT_OPENING_BALANCE_PENDING -> -1
             PaymentType.NONE -> 0
         }
 

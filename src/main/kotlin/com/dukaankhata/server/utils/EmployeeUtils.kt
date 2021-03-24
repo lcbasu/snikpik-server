@@ -2,11 +2,14 @@ package com.dukaankhata.server.utils
 
 import com.dukaankhata.server.dao.EmployeeRepository
 import com.dukaankhata.server.dto.SaveEmployeeRequest
+import com.dukaankhata.server.dto.SavePaymentRequest
 import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.entities.Payment
 import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.OpeningBalanceType
+import com.dukaankhata.server.enums.PaymentType
+import com.dukaankhata.server.service.PaymentService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
@@ -19,6 +22,9 @@ class EmployeeUtils {
 
     @Autowired
     private lateinit var userRoleUtils: UserRoleUtils
+
+    @Autowired
+    private lateinit var paymentService: PaymentService
 
     fun getEmployee(employeeId: Long): Employee? =
         try {
@@ -53,7 +59,21 @@ class EmployeeUtils {
         newEmployee.createdByUser = createdByUser
         newEmployee.createdForUser = createdForUser
 
-        return employeeRepository.save(newEmployee)
+        val employee = employeeRepository.save(newEmployee)
+
+        if (employee.openingBalanceInPaisa != 0L && employee.openingBalanceType != OpeningBalanceType.NONE) {
+            val paymentType = if (employee.openingBalanceType == OpeningBalanceType.ADVANCE) PaymentType.PAYMENT_OPENING_BALANCE_ADVANCE else PaymentType.PAYMENT_OPENING_BALANCE_PENDING
+            val savedPaymentResponse = paymentService.savePayment(SavePaymentRequest(
+                employeeId = employee.id,
+                companyId = employee.company?.id ?: -1,
+                forDate = DateUtils.toStringDate(DateUtils.dateTimeNow()),
+                paymentType = paymentType,
+                amountInPaisa = employee.openingBalanceInPaisa,
+                description = "Added by system for opening balance",
+            )) ?: error("Payment was not saved for Employee with opening balance")
+        }
+
+        return employee
     }
 
     fun updateEmployee(payment: Payment) : Employee {
