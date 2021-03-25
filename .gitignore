@@ -1,7 +1,6 @@
 HELP.md
 .gradle
 build/
-!gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
@@ -97,7 +96,7 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
-.mvn/wrapper/maven-wrapper.jar
+
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/intellij+all,intellij

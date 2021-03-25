@@ -1,0 +1,22 @@
+branch-defaults:
+  master:
+    environment: DukaankhataEbProdAppEnvProd-env
+environment-defaults:
+  WhatsappSurvey-env:
+    branch: null
+    repository: null
+global:
+  application_name: dukaankhata-eb-prod-app-env-prod
+  default_ec2_keyname: dukaankhata-eb-prod
+  default_platform: arn:aws:elasticbeanstalk:ap-south-1::platform/Java 8 running on
+    64bit Amazon Linux/2.10.0
+  default_region: ap-south-1
+  include_git_submodules: false
+  instance_profile: null
+  platform_name: null
+  platform_version: null
+  profile: null
+  sc: null
+  workspace_type: Application
+deploy:
+  artifact: build/libs/dukaankhata-server-0.0.1-SNAPSHOT.jar
