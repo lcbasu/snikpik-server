@@ -42,12 +42,12 @@ jobs:
           timeZone: 8
           format: 'YYYY-MM-DD-HH-mm-ss'
       - name: Beanstalk Deploy
-        uses: einaregilsson/beanstalk-deploy@v10
+        uses: einaregilsson/beanstalk-deploy@v16
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: dukaankhata-eb-prod-app-env-prod
-          environment_name: DukaankhataEbProdAppEnvProd-env
+          application_name: dukaankhata-eb-prod-app
+          environment_name: dukaankhata-eb-prod-app-env-prod
           version_label: "${{ steps.time.outputs.time }}"
           region: ap-south-1
           deployment_package: release.zip
