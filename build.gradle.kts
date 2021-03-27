@@ -27,6 +27,7 @@ dependencies {
 
 	implementation("org.zalando:logbook-spring-boot-starter:2.6.1")
 	implementation("io.sentry:sentry-spring-boot-starter:4.3.0")
+	implementation("io.sentry:sentry-logback:4.3.0")
 	implementation("javax.xml.bind:jaxb-api:2.3.0")
 	implementation("org.springframework.boot:spring-boot-starter-mustache:2.3.8.RELEASE")
 	implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.21")

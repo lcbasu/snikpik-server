@@ -8,6 +8,7 @@ import com.dukaankhata.server.service.SecurityService
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseToken
+import io.sentry.Sentry
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
@@ -70,6 +71,7 @@ class SecurityFilter : OncePerRequestFilter() {
         } catch (e: FirebaseAuthException) {
             e.printStackTrace()
             logger.error("Firebase Exception:: ${e.localizedMessage}")
+            Sentry.captureException(e)
         }
         decodedToken?.let {
             val firebaseAuthUser = FirebaseAuthUser(
