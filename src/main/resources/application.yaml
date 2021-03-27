@@ -63,6 +63,8 @@ security:
     - Cache-Control
     - Id-Token
   allowed-public-apis:
+    - /actuator/*
+    - /error/*
     - /favicon.ico
     - /session/login
     - /public/*
