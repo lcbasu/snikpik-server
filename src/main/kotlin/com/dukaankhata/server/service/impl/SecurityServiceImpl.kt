@@ -37,21 +37,20 @@ class SecurityServiceImpl : SecurityService() {
         return securityContext.authentication.credentials as Credentials
     }
     override fun isPublic(): Boolean {
-        return true
-//        val reqUri = httpServletRequest?.requestURI
-//        val publicUris = securityProps?.allowedPublicApis
-//        var matchFound = false
-//        publicUris?.map {
-//            var currUri = it
-//            if (currUri.endsWith("*")) {
-//                // Then check if reqUri starts with the currUri after removing *
-//                currUri = currUri.replace("*", "")
-//            }
-//            if (reqUri != null && reqUri.startsWith(currUri)) {
-//                matchFound = true
-//            }
-//        }
-//        return matchFound
+        val reqUri = httpServletRequest?.requestURI
+        val publicUris = securityProps?.allowedPublicApis
+        var matchFound = false
+        publicUris?.map {
+            var currUri = it
+            if (currUri.endsWith("*")) {
+                // Then check if reqUri starts with the currUri after removing *
+                currUri = currUri.replace("*", "")
+            }
+            if (reqUri != null && reqUri.startsWith(currUri)) {
+                matchFound = true
+            }
+        }
+        return matchFound
     }
 
     override fun getBearerToken(request: HttpServletRequest?): String {
