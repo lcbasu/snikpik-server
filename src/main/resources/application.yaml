@@ -108,6 +108,7 @@ root:
 
 sentry:
   dsn: https://4101b54301334eca9fe6dd47a3618ee9@o412876.ingest.sentry.io/5694776
+  send-default-pii: true
 
 logging:
   level:
