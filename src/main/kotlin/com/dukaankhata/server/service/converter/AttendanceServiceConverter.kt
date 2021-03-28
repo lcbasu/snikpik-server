@@ -12,7 +12,6 @@ import com.dukaankhata.server.utils.HolidayUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.time.Duration
-import java.time.ZoneOffset
 
 @Component
 class AttendanceServiceConverter {
@@ -122,10 +121,11 @@ class AttendanceServiceConverter {
                     }
                 }
                 idsForAllEmployeesWithAttendanceMarked.add(employee.id)
-                EmployeeAttendanceDetailsForDateResponse(
+                EmployeeAttendanceResponse(
                     employee = employeeServiceConverter.getSavedEmployeeResponse(employee),
                     workingHoursInMinutes = totalWorkingMinute,
-                    attendanceType = attendanceType
+                    attendanceType = attendanceType,
+                    forDate = forDate
                 )
             }
         }.filterNotNull()
@@ -145,10 +145,11 @@ class AttendanceServiceConverter {
                 AttendanceType.ABSENT
             }
             employeeAttendanceDetailsForDateResponseMutable.add(
-                EmployeeAttendanceDetailsForDateResponse(
+                EmployeeAttendanceResponse(
                     employee = employeeServiceConverter.getSavedEmployeeResponse(employee),
                     workingHoursInMinutes = 0,
-                    attendanceType = attendanceType
+                    attendanceType = attendanceType,
+                    forDate = forDate
                 )
             )
         }
@@ -162,7 +163,7 @@ class AttendanceServiceConverter {
         return AttendanceInfoResponse(
             company = companyServiceConverter.getSavedCompanyResponse(company),
             forDate = forDate,
-            employeeAttendanceDetailsForDate = employeeAttendanceDetailsForDateResponseMutable,
+            employeesAttendance = employeeAttendanceDetailsForDateResponseMutable,
             attendanceTypeAggregate = attendanceTypeAggregate,
         )
     }

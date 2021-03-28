@@ -61,8 +61,9 @@ data class AttendancesResponse(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class EmployeeAttendanceDetailsForDateResponse(
+data class EmployeeAttendanceResponse(
     val employee: SavedEmployeeResponse,
+    val forDate: String, // YYYY-MM-DD
     val workingHoursInMinutes: Int,
     val attendanceType: AttendanceType,
 )
@@ -83,6 +84,6 @@ data class AttendanceInfoRequest(
 data class AttendanceInfoResponse(
     val company: SavedCompanyResponse,
     val forDate: String, // YYYY-MM-DD
-    val employeeAttendanceDetailsForDate: List<EmployeeAttendanceDetailsForDateResponse>,
+    val employeesAttendance: List<EmployeeAttendanceResponse>,
     val attendanceTypeAggregate: List<AttendanceTypeAggregateResponse>,
 )
