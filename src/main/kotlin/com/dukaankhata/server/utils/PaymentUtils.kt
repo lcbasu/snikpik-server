@@ -27,7 +27,7 @@ class PaymentUtils {
 
         val multiplierUsed = when (savePaymentRequest.paymentType) {
             PaymentType.PAYMENT_ONE_TIME_PAID -> 1
-            PaymentType.PAYMENT_ONE_TIME_TOOK -> 1
+            PaymentType.PAYMENT_ONE_TIME_TOOK -> -1
             PaymentType.PAYMENT_ALLOWANCE -> 1
             PaymentType.PAYMENT_BONUS -> 1
             PaymentType.PAYMENT_DEDUCTIONS -> -1
