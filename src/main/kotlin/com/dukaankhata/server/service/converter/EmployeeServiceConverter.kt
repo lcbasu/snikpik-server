@@ -24,6 +24,7 @@ class EmployeeServiceConverter {
             phoneNumber = employee?.phoneNumber ?: "",
             companyId = employee?.company?.id?.toString() ?: "-1",
             salaryType = employee?.salaryType ?: SalaryType.MONTHLY,
+            salaryCycle = employee?.salaryCycle ?: "",
             salaryAmountInPaisa = employee?.salaryAmountInPaisa ?: 0,
             openingBalanceInPaisa = employee?.openingBalanceInPaisa ?: 0,
             openingBalanceType = employee?.openingBalanceType ?: OpeningBalanceType.ADVANCE,

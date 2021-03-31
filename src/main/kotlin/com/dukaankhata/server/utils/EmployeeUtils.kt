@@ -53,6 +53,7 @@ class EmployeeUtils {
         newEmployee.phoneNumber = saveEmployeeRequest.phoneNumber
         newEmployee.salaryAmountInPaisa = saveEmployeeRequest.salaryAmountInPaisa
         newEmployee.salaryType = saveEmployeeRequest.salaryType
+        newEmployee.salaryCycle = saveEmployeeRequest.salaryCycle
         newEmployee.openingBalanceType = saveEmployeeRequest.openingBalanceType ?: OpeningBalanceType.NONE
         newEmployee.joinedAt = DateUtils.dateTimeNow()
         newEmployee.company = company

@@ -15,6 +15,7 @@ class Employee : Auditable() {
 
     @Enumerated(EnumType.STRING)
     var salaryType: SalaryType = SalaryType.MONTHLY
+    var salaryCycle: String = ""
     var salaryAmountInPaisa: Long = 0
 
     @Enumerated(EnumType.STRING)
