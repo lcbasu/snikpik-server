@@ -87,3 +87,21 @@ data class AttendanceInfoResponse(
     val employeesAttendance: List<EmployeeAttendanceResponse>,
     val attendanceTypeAggregate: List<AttendanceTypeAggregateResponse>,
 )
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class MarkAttendanceRequest(
+    val attendanceType: AttendanceType,
+    val employeeId: Long,
+    val forDate: String,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SavedAttendanceByAdminResponse(
+    val serverId: String,
+    val employee: SavedEmployeeResponse,
+    val company: SavedCompanyResponse,
+    val forDate: String,
+    val attendanceType: AttendanceType,
+    val workingMinutes: Int,
+    val addedBy: String,
+)

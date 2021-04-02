@@ -2,15 +2,12 @@ package com.dukaankhata.server.service.impl
 
 import com.dukaankhata.server.dao.AttendanceRepository
 import com.dukaankhata.server.dto.*
-import com.dukaankhata.server.entities.Attendance
+import com.dukaankhata.server.enums.RoleType
 import com.dukaankhata.server.service.AttendanceService
 import com.dukaankhata.server.service.converter.AttendanceServiceConverter
 import com.dukaankhata.server.utils.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
 
 @Service
 class AttendanceServiceImpl : AttendanceService() {
@@ -103,6 +100,28 @@ class AttendanceServiceImpl : AttendanceService() {
         val employeesForDate = employeeUtils.getEmployeesForDate(company.id, attendanceInfoRequest.forDate)
 
         return attendanceServiceConverter.getAttendanceInfo(company, employeesForDate, attendances, attendanceInfoRequest.forDate)
+    }
+
+    override fun markAttendance(markAttendanceRequest: MarkAttendanceRequest): SavedAttendanceByAdminResponse? {
+        val requestingUser = authUtils.getRequestUserEntity()
+        val employee = employeeUtils.getEmployee(markAttendanceRequest.employeeId)
+
+        if (requestingUser == null || employee == null) {
+            error("User, and Employee are required to add an employee");
+        }
+
+        val company = employee.company ?: error("Employee should always have company")
+
+        val userRoles = userRoleUtils.getUserRolesForUserAndCompany(
+            user = requestingUser,
+            company = company
+        ) ?: emptyList()
+        val validRoles = userRoles.filter { it.id?.roleType == RoleType.EMPLOYER.name || it.id?.roleType == RoleType.EMPLOYEE_ADMIN.name }
+        if (validRoles.isEmpty()) {
+            error("Only employer or admin employees of the company can mark the attendance");
+        }
+        val attendance = attendanceUtils.markAttendance(requestingUser, company, employee, markAttendanceRequest)
+        return attendanceServiceConverter.getSavedAttendanceByAdminResponse(attendance)
     }
 
 }

@@ -1,12 +1,12 @@
 package com.dukaankhata.server.service.converter
 
 import com.dukaankhata.server.dto.*
-import com.dukaankhata.server.entities.Attendance
-import com.dukaankhata.server.entities.Company
-import com.dukaankhata.server.entities.Employee
+import com.dukaankhata.server.entities.*
 import com.dukaankhata.server.enums.AttendanceType
+import com.dukaankhata.server.enums.HolidayType
 import com.dukaankhata.server.enums.PunchType
 import com.dukaankhata.server.enums.SelfieType
+import com.dukaankhata.server.utils.AttendanceUtils
 import com.dukaankhata.server.utils.DateUtils
 import com.dukaankhata.server.utils.HolidayUtils
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,6 +26,9 @@ class AttendanceServiceConverter {
 
     @Autowired
     private lateinit var holidayUtils: HolidayUtils
+
+    @Autowired
+    private lateinit var attendanceUtils: AttendanceUtils
 
     fun getSavedAttendanceResponse(attendance: Attendance?): SavedAttendanceResponse {
         return SavedAttendanceResponse(
@@ -76,47 +79,58 @@ class AttendanceServiceConverter {
             employeeAttendances.key?.let { employee ->
                 var totalWorkingMinute = 0
                 var attendanceType: AttendanceType = AttendanceType.ABSENT
-                if (holidayUtils.getHoliday(company, employee, forDate) != null) {
-                    attendanceType = AttendanceType.HOLIDAY
+                // Attendance by Admin takes the highest priority
+                val attendanceByAdmin = attendanceUtils.getAttendanceByAdmin(company, employee, forDate)
+                if (attendanceByAdmin != null) {
+                    attendanceType = attendanceByAdmin.attendanceType
+                    totalWorkingMinute = attendanceByAdmin.workingMinutes
                 } else {
-                    // Calculate the attendance type
-                    val currentEmployeeAttendance = employeeAttendances.value
-                    val allIns = currentEmployeeAttendance.filter { it.punchType == PunchType.IN }.sortedBy { it.punchAt }
-                    val allOuts = currentEmployeeAttendance.filter { it.punchType == PunchType.OUT }.sortedBy { it.punchAt }
-
-                    // Ins and Outs should be equal in count.
-                    // Otherwise flag that attendance as error
-                    when {
-                        allIns.size > allOuts.size -> {
-                            attendanceType = AttendanceType.OUT_NOT_MARKED
+                    val holiday = holidayUtils.getHoliday(company, employee, forDate)
+                    if (holiday != null) {
+                        attendanceType = if (holiday.holidayType == HolidayType.PAID) {
+                            AttendanceType.HOLIDAY_PAID
+                        } else {
+                            AttendanceType.HOLIDAY_NON_PAID
                         }
-                        allOuts.size > allIns.size -> {
-                            attendanceType = AttendanceType.IN_NOT_MARKED
-                        }
-                        else -> {
-                            // Genuine case
-                            // Evaluate
-                            for (index in allIns.indices) {
-                                val inAttendance = allIns[index]
-                                val outAttendance = allOuts[index]
-                                val duration = Duration.between(outAttendance.punchAt, inAttendance.punchAt).abs()
-                                totalWorkingMinute += duration.toMinutes().toInt()
-                            }
-                            attendanceType = when {
-                                totalWorkingMinute == 0 -> {
-                                    AttendanceType.ABSENT
-                                }
-                                totalWorkingMinute > companyWorkingMinutes + offsetInMinuteForOvertime -> {
-                                    AttendanceType.OVERTIME
-                                }
-                                totalWorkingMinute < companyWorkingMinutes -> {
-                                    AttendanceType.HALF_DAY
-                                }
-                                else -> {
-                                    AttendanceType.PRESENT
-                                }
-                            }
+                    } else {
+                        // Calculate the attendance type based on actual Punch IN and OUT
+                        val currentEmployeeAttendance = employeeAttendances.value
+                        val allIns = currentEmployeeAttendance.filter { it.punchType == PunchType.IN }.sortedBy { it.punchAt }
+                        val allOuts = currentEmployeeAttendance.filter { it.punchType == PunchType.OUT }.sortedBy { it.punchAt }
 
+                        // Ins and Outs should be equal in count.
+                        // Otherwise flag that attendance as error
+                        when {
+                            allIns.size > allOuts.size -> {
+                                attendanceType = AttendanceType.OUT_NOT_MARKED
+                            }
+                            allOuts.size > allIns.size -> {
+                                attendanceType = AttendanceType.IN_NOT_MARKED
+                            }
+                            else -> {
+                                // Genuine case
+                                // Evaluate
+                                for (index in allIns.indices) {
+                                    val inAttendance = allIns[index]
+                                    val outAttendance = allOuts[index]
+                                    val duration = Duration.between(outAttendance.punchAt, inAttendance.punchAt).abs()
+                                    totalWorkingMinute += duration.toMinutes().toInt()
+                                }
+                                attendanceType = when {
+                                    totalWorkingMinute == 0 -> {
+                                        AttendanceType.ABSENT
+                                    }
+                                    totalWorkingMinute > companyWorkingMinutes + offsetInMinuteForOvertime -> {
+                                        AttendanceType.OVERTIME
+                                    }
+                                    totalWorkingMinute < companyWorkingMinutes -> {
+                                        AttendanceType.HALF_DAY
+                                    }
+                                    else -> {
+                                        AttendanceType.PRESENT
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -139,15 +153,27 @@ class AttendanceServiceConverter {
         val employeeAttendanceDetailsForDateResponseMutable = employeeAttendanceDetailsForDateResponse.toMutableList()
 
         attendanceNotAvailableForEmployees.map { employee ->
-            val attendanceType = if (holidayUtils.getHoliday(company, employee, forDate) != null) {
-                AttendanceType.HOLIDAY
+            var workingMinutes = 0
+            var attendanceType = AttendanceType.ABSENT
+            // Attendance by Admin takes the highest priority
+            val attendanceByAdmin = attendanceUtils.getAttendanceByAdmin(company, employee, forDate)
+            if (attendanceByAdmin != null) {
+                attendanceType = attendanceByAdmin.attendanceType
+                workingMinutes = attendanceByAdmin.workingMinutes
             } else {
-                AttendanceType.ABSENT
+                val holiday = holidayUtils.getHoliday(company, employee, forDate)
+                if (holiday != null) {
+                    attendanceType = if (holiday.holidayType == HolidayType.PAID) {
+                        AttendanceType.HOLIDAY_PAID
+                    } else {
+                        AttendanceType.HOLIDAY_NON_PAID
+                    }
+                }
             }
             employeeAttendanceDetailsForDateResponseMutable.add(
                 EmployeeAttendanceResponse(
                     employee = employeeServiceConverter.getSavedEmployeeResponse(employee),
-                    workingHoursInMinutes = 0,
+                    workingHoursInMinutes = workingMinutes,
                     attendanceType = attendanceType,
                     forDate = forDate
                 )
@@ -166,5 +192,20 @@ class AttendanceServiceConverter {
             employeesAttendance = employeeAttendanceDetailsForDateResponseMutable,
             attendanceTypeAggregate = attendanceTypeAggregate,
         )
+    }
+
+    private fun getAttendanceByAdminServerId(attendanceByAdminKey: AttendanceByAdminKey?): String {
+        return attendanceByAdminKey?.companyId.toString() + "__" + attendanceByAdminKey?.employeeId.toString() + "__" + attendanceByAdminKey?.forDate;
+    }
+
+    fun getSavedAttendanceByAdminResponse(attendanceByAdmin: AttendanceByAdmin?): SavedAttendanceByAdminResponse? {
+        return SavedAttendanceByAdminResponse(
+            serverId = getAttendanceByAdminServerId(attendanceByAdmin?.id),
+            employee = employeeServiceConverter.getSavedEmployeeResponse(attendanceByAdmin?.employee),
+            company = companyServiceConverter.getSavedCompanyResponse(attendanceByAdmin?.company),
+            forDate = attendanceByAdmin?.id?.forDate ?: "",
+            attendanceType = attendanceByAdmin?.attendanceType ?: AttendanceType.NONE,
+            addedBy = attendanceByAdmin?.addedBy?.id ?: "",
+            workingMinutes = attendanceByAdmin?.workingMinutes ?: 0)
     }
 }

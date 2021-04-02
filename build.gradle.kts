@@ -50,7 +50,7 @@ dependencies {
 	implementation("org.springframework.security:spring-security-web:5.3.6.RELEASE")
 	implementation("org.springframework.security:spring-security-config:5.3.6.RELEASE")
 	implementation("org.flywaydb:flyway-core:7.3.1")
-//	implementation("org.quartz-scheduler:quartz:2.3.2")
+	implementation("org.quartz-scheduler:quartz:2.3.2")
 	implementation("org.springframework:spring-context-support:5.2.12.RELEASE")
 	implementation("org.springframework:spring-tx:5.2.12.RELEASE")
 //	implementation("org.springframework.boot:spring-boot-starter-mail:2.3.8.RELEASE")

@@ -5,7 +5,7 @@ import javax.persistence.Column
 import javax.persistence.Embeddable
 
 @Embeddable
-class HolidayKey: Serializable {
+class AttendanceByAdminKey: Serializable {
     @Column(name = "company_id")
     var companyId: Long? = null
 

@@ -12,7 +12,7 @@ class AttendanceController {
     private lateinit var attendanceService: AttendanceService
 
     @RequestMapping(value = ["/save"], method = [RequestMethod.POST])
-    fun saveUser(@RequestBody saveAttendanceRequest: SaveAttendanceRequest): SavedAttendanceResponse? {
+    fun saveAttendance(@RequestBody saveAttendanceRequest: SaveAttendanceRequest): SavedAttendanceResponse? {
         return attendanceService.saveAttendance(saveAttendanceRequest)
     }
 
@@ -24,5 +24,10 @@ class AttendanceController {
     @RequestMapping(value = ["/getAttendanceInfo"], method = [RequestMethod.POST])
     fun getAttendanceInfo(@RequestBody attendanceInfoRequest: AttendanceInfoRequest): AttendanceInfoResponse? {
         return attendanceService.getAttendanceInfo(attendanceInfoRequest)
+    }
+
+    @RequestMapping(value = ["/mark"], method = [RequestMethod.POST])
+    fun markAttendance(@RequestBody markAttendanceRequest: MarkAttendanceRequest): SavedAttendanceByAdminResponse? {
+        return attendanceService.markAttendance(markAttendanceRequest)
     }
 }
