@@ -80,7 +80,6 @@ class EmployeeUtils {
     fun updateEmployee(payment: Payment) : Employee {
         val employee = payment.employee ?: error("Payment should always have an employee object")
         employee.balanceInPaisaTillNow = employee.balanceInPaisaTillNow + (payment.multiplierUsed * payment.amountInPaisa)
-        employee.lastModifiedAt = DateUtils.dateTimeNow()
         return employeeRepository.save(employee)
     }
 }

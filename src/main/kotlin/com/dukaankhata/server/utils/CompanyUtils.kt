@@ -24,7 +24,6 @@ class CompanyUtils {
         val company = payment.company ?: error("Payment should always have a company object")
         // -1 is used as this payment is EXACTLY opposite of payment to payment to employee
         company.totalDueAmountInPaisa += -1 * (payment.multiplierUsed * payment.amountInPaisa)
-        company.lastModifiedAt = DateUtils.dateTimeNow()
         return companyRepository.save(company)
     }
 }

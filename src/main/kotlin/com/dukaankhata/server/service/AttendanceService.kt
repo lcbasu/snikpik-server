@@ -7,4 +7,5 @@ abstract class AttendanceService {
     abstract fun getAttendances(getAttendancesRequest: GetAttendancesRequest): AttendancesResponse?
     abstract fun getAttendanceInfo(attendanceInfoRequest: AttendanceInfoRequest): AttendanceInfoResponse?
     abstract fun markAttendance(markAttendanceRequest: MarkAttendanceRequest): SavedAttendanceByAdminResponse?
+    abstract fun getAttendanceSummary(attendanceSummaryRequest: AttendanceSummaryRequest): AttendanceSummaryResponse?
 }

@@ -30,4 +30,9 @@ class AttendanceController {
     fun markAttendance(@RequestBody markAttendanceRequest: MarkAttendanceRequest): SavedAttendanceByAdminResponse? {
         return attendanceService.markAttendance(markAttendanceRequest)
     }
+
+    @RequestMapping(value = ["/getAttendanceSummary"], method = [RequestMethod.POST])
+    fun getAttendanceSummary(@RequestBody attendanceSummaryRequest: AttendanceSummaryRequest): AttendanceSummaryResponse? {
+        return attendanceService.getAttendanceSummary(attendanceSummaryRequest)
+    }
 }

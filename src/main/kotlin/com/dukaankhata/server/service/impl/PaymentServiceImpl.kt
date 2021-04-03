@@ -93,10 +93,10 @@ class PaymentServiceImpl : PaymentService() {
         val startTime = startDate.with(TemporalAdjusters.firstDayOfMonth()).toLocalDate().atStartOfDay().minusMonths(2) // get data from past 2 months
         val endTime = startDate.with(TemporalAdjusters.lastDayOfMonth()).toLocalDate().atTime(LocalTime.MAX)
 
-        val payments = paymentRepository.getAllPaymentsBetweenGivenDates(
+        val payments = paymentRepository.getAllPaymentsBetweenGivenTimes(
             companyId = company.id,
-            startDate = startTime,
-            endDate = endTime
+            startTime = startTime,
+            endTime = endTime
         )
         return paymentServiceConverter.getPaymentSummary(company, payments)
     }

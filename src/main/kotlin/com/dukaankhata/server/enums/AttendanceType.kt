@@ -9,5 +9,6 @@ enum class AttendanceType {
     OVERTIME,
     IN_NOT_MARKED,
     OUT_NOT_MARKED,
+    LATE_FINE,
     NONE
 }

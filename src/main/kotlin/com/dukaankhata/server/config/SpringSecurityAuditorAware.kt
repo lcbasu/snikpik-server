@@ -6,7 +6,7 @@ import org.springframework.data.domain.AuditorAware
 import org.springframework.security.core.context.SecurityContextHolder
 import java.util.*
 
-internal class SpringSecurityAuditorAware : AuditorAware<String> {
+class SpringSecurityAuditorAware : AuditorAware<String> {
     override fun getCurrentAuditor(): Optional<String> {
         var firebaseAuthUserPrincipal: FirebaseAuthUser? = null
         val securityContext = SecurityContextHolder.getContext()

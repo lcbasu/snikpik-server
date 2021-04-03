@@ -9,11 +9,11 @@ import java.time.LocalDateTime
 
 @Repository
 interface PaymentRepository : JpaRepository<Payment?, Long?> {
-    @Query(value ="SELECT * FROM payment WHERE convert(for_date, datetime) >= :startDate and convert(for_date, datetime) <= :endDate and company_id = :companyId", nativeQuery = true)
-    fun getAllPaymentsBetweenGivenDates(
+    @Query(value ="SELECT * FROM payment WHERE convert(for_date, datetime) >= :startTime and convert(for_date, datetime) <= :endTime and company_id = :companyId", nativeQuery = true)
+    fun getAllPaymentsBetweenGivenTimes(
         @Param("companyId") companyId: Long,
-        @Param("startDate") startDate: LocalDateTime,
-        @Param("endDate") endDate: LocalDateTime,
+        @Param("startTime") startTime: LocalDateTime,
+        @Param("endTime") endTime: LocalDateTime,
     ): List<Payment>
 
 }

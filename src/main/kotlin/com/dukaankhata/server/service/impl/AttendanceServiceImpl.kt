@@ -124,4 +124,22 @@ class AttendanceServiceImpl : AttendanceService() {
         return attendanceServiceConverter.getSavedAttendanceByAdminResponse(attendance)
     }
 
+    override fun getAttendanceSummary(attendanceSummaryRequest: AttendanceSummaryRequest): AttendanceSummaryResponse? {
+        val requestedByUser = authUtils.getRequestUserEntity()
+        val company = companyUtils.getCompany(attendanceSummaryRequest.companyId)
+        if (requestedByUser == null || company == null) {
+            error("User, and Company are required to get payment summary");
+        }
+
+        val userRoles = userRoleUtils.getUserRolesForUserAndCompany(
+            user = requestedByUser,
+            company = company
+        ) ?: emptyList()
+
+        if (userRoles.isEmpty()) {
+            error("Only employees of the company can view payment");
+        }
+        return attendanceUtils.getAttendanceSummary(requestedByUser, company, attendanceSummaryRequest)
+    }
+
 }

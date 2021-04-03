@@ -1,15 +1,20 @@
 package com.dukaankhata.server.utils
 
-import com.dukaankhata.server.dao.AttendanceByAdminRepository
-import com.dukaankhata.server.dao.AttendanceRepository
+import com.dukaankhata.server.dao.*
+import com.dukaankhata.server.dto.AttendanceSummaryRequest
+import com.dukaankhata.server.dto.AttendanceSummaryResponse
 import com.dukaankhata.server.dto.MarkAttendanceRequest
 import com.dukaankhata.server.dto.SaveAttendanceRequest
 import com.dukaankhata.server.entities.*
 import com.dukaankhata.server.enums.AttendanceType
+import com.dukaankhata.server.service.converter.AttendanceServiceConverter
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.temporal.TemporalAdjusters
 
 @Component
 class AttendanceUtils {
@@ -21,6 +26,18 @@ class AttendanceUtils {
 
     @Autowired
     private lateinit var attendanceByAdminRepository: AttendanceByAdminRepository
+
+    @Autowired
+    private lateinit var holidayRepository: HolidayRepository
+
+    @Autowired
+    private lateinit var overtimeRepository: OvertimeRepository
+
+    @Autowired
+    private lateinit var lateFineRepository: LateFineRepository
+
+    @Autowired
+    private lateinit var attendanceServiceConverter: AttendanceServiceConverter
 
     fun saveAttendance(punchByUser: User, company: Company, employee: Employee, saveAttendanceRequest: SaveAttendanceRequest): Attendance? =
         attendanceRepository.let {
@@ -63,15 +80,9 @@ class AttendanceUtils {
 
     fun markAttendance(addedByUser: User, company: Company, employee: Employee, markAttendanceRequest: MarkAttendanceRequest): AttendanceByAdmin {
         val workingMinutes = when (markAttendanceRequest.attendanceType) {
-            AttendanceType.HOLIDAY_NON_PAID -> 0
             AttendanceType.PRESENT -> company.workingMinutes
-            AttendanceType.ABSENT -> 0
             AttendanceType.HALF_DAY -> company.workingMinutes / 2
-            AttendanceType.HOLIDAY_PAID -> 0
-            AttendanceType.OVERTIME -> 0
-            AttendanceType.IN_NOT_MARKED -> 0
-            AttendanceType.OUT_NOT_MARKED -> 0
-            AttendanceType.NONE -> 0
+            else -> 0
         }
 
         val key = getAttendanceByAdminKey(companyId = company.id, employeeId = employee.id, forDate = markAttendanceRequest.forDate)
@@ -95,6 +106,50 @@ class AttendanceUtils {
         newAttendance.company = company
         newAttendance.addedBy = addedByUser
         return attendanceByAdminRepository.save(newAttendance)
+    }
+
+    fun getAttendanceSummary(requestedByUser: User, company: Company, attendanceSummaryRequest: AttendanceSummaryRequest): AttendanceSummaryResponse? {
+
+
+        // Choosing a random date in middle to select correct start and end month
+        val startDate = LocalDateTime.of(attendanceSummaryRequest.forYear, attendanceSummaryRequest.forMonth, 20, 0, 0, 0, 0)
+        val startTime = startDate.with(TemporalAdjusters.firstDayOfMonth()).toLocalDate().atStartOfDay().minusMonths(2) // get data from past 2 months
+        val endTime = startDate.with(TemporalAdjusters.lastDayOfMonth()).toLocalDate().atTime(LocalTime.MAX)
+
+
+
+        val attendances = attendanceRepository.getAllAttendancesBetweenGivenTimes(
+            companyId = company.id,
+            startTime = startTime,
+            endTime = endTime
+        )
+
+        val attendancesByAdmin = attendanceByAdminRepository.getAllAttendancesByAdminBetweenGivenTimes(
+            companyId = company.id,
+            startTime = startTime,
+            endTime = endTime
+        )
+
+        val holidays = holidayRepository.getAllHolidaysBetweenGivenTimes(
+            companyId = company.id,
+            startTime = startTime,
+            endTime = endTime
+        )
+
+        val overtimes = overtimeRepository.getAllOvertimesBetweenGivenTimes(
+            companyId = company.id,
+            startTime = startTime,
+            endTime = endTime
+        )
+
+        val lateFines = lateFineRepository.getAllLateFineBetweenGivenTimes(
+            companyId = company.id,
+            startTime = startTime,
+            endTime = endTime
+        )
+
+
+        TODO()
     }
 
 }

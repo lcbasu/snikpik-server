@@ -12,6 +12,9 @@ import com.dukaankhata.server.utils.HolidayUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.time.Duration
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.temporal.TemporalAdjusters
 
 @Component
 class AttendanceServiceConverter {
@@ -207,5 +210,9 @@ class AttendanceServiceConverter {
             attendanceType = attendanceByAdmin?.attendanceType ?: AttendanceType.NONE,
             addedBy = attendanceByAdmin?.addedBy?.id ?: "",
             workingMinutes = attendanceByAdmin?.workingMinutes ?: 0)
+    }
+
+    fun getAttendanceSummary(requestedByUser: User, company: Company, attendanceSummaryRequest: AttendanceSummaryRequest): AttendanceSummaryResponse {
+        TODO()
     }
 }

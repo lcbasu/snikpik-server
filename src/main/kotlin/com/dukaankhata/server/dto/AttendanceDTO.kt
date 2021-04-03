@@ -3,6 +3,7 @@ package com.dukaankhata.server.dto
 import com.dukaankhata.server.enums.AttendanceType
 import com.dukaankhata.server.enums.PunchType
 import com.dukaankhata.server.enums.SelfieType
+import com.dukaankhata.server.enums.ValueUnitType
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -104,4 +105,42 @@ data class SavedAttendanceByAdminResponse(
     val attendanceType: AttendanceType,
     val workingMinutes: Int,
     val addedBy: String,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AttendanceSummaryRequest(
+    val companyId: Long,
+    val forYear: Int,
+    val forMonth: Int,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AttendanceAggregateUnit(
+    val attendanceType: AttendanceType,
+    val valueUnitType: ValueUnitType, // DAY or minutes worked or hours etc
+    val value: Long
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AttendanceAggregate(
+    val aggregate: List<AttendanceAggregateUnit>
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class EmployeeAttendanceSummaryResponse(
+    val employee: SavedEmployeeResponse,
+    // Could be different than start and end time of company if the employee was hired
+    // on a date which is different that some other employee
+    val startTime: Long,
+    val endTime: Long,
+    val attendanceAggregates: AttendanceAggregate
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AttendanceSummaryResponse(
+    val company: SavedCompanyResponse,
+    val startTime: Long,
+    val endTime: Long,
+    val monthAggregate: AttendanceAggregate,
+    val employeesAttendances: List<EmployeeAttendanceSummaryResponse>,
 )
