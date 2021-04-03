@@ -122,18 +122,13 @@ data class AttendanceAggregateUnit(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class AttendanceAggregate(
-    val aggregate: List<AttendanceAggregateUnit>
-)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
 data class EmployeeAttendanceSummaryResponse(
     val employee: SavedEmployeeResponse,
     // Could be different than start and end time of company if the employee was hired
     // on a date which is different that some other employee
     val startTime: Long,
     val endTime: Long,
-    val attendanceAggregates: AttendanceAggregate
+    val aggregate: List<AttendanceAggregateUnit>
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -141,6 +136,6 @@ data class AttendanceSummaryResponse(
     val company: SavedCompanyResponse,
     val startTime: Long,
     val endTime: Long,
-    val monthAggregate: AttendanceAggregate,
+    val aggregate: List<AttendanceAggregateUnit>,
     val employeesAttendances: List<EmployeeAttendanceSummaryResponse>,
 )

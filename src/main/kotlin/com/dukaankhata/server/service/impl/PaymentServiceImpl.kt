@@ -7,7 +7,10 @@ import com.dukaankhata.server.dto.SavePaymentRequest
 import com.dukaankhata.server.dto.SavedPaymentResponse
 import com.dukaankhata.server.service.PaymentService
 import com.dukaankhata.server.service.converter.PaymentServiceConverter
-import com.dukaankhata.server.utils.*
+import com.dukaankhata.server.utils.AuthUtils
+import com.dukaankhata.server.utils.CompanyUtils
+import com.dukaankhata.server.utils.EmployeeUtils
+import com.dukaankhata.server.utils.PaymentUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -33,34 +36,19 @@ class PaymentServiceImpl : PaymentService() {
     private lateinit var paymentServiceConverter: PaymentServiceConverter
 
     @Autowired
-    private lateinit var userRoleUtils: UserRoleUtils
-
-    @Autowired
     private lateinit var paymentRepository: PaymentRepository
 
     override fun savePayment(savePaymentRequest: SavePaymentRequest): SavedPaymentResponse? {
-        val addedByUser = authUtils.getRequestUserEntity()
-        val company = companyUtils.getCompany(savePaymentRequest.companyId)
-        val employee = employeeUtils.getEmployee(savePaymentRequest.employeeId)
-        if (addedByUser == null || company == null || employee == null) {
-            error("User, Company, and Employee are required to add an employee");
-        }
-
-        val userRoles = userRoleUtils.getUserRolesForUserAndCompany(
-            user = addedByUser,
-            company = company
-        ) ?: emptyList()
-
-        if (userRoles.isEmpty()) {
-            error("Only employees of the company can add payment");
-        }
-
-        // TODO: Employee 1 can not add payment for Employee 2 unless
+        val requestContext = authUtils.validateRequest(
+            employeeId = savePaymentRequest.employeeId,
+            companyId = savePaymentRequest.companyId,
+            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+        )
 
         val payment =  paymentUtils.savePayment(
-            addedBy = addedByUser,
-            company = company,
-            employee = employee,
+            addedBy = requestContext.user,
+            company = requestContext.company!!,
+            employee = requestContext.employee!!,
             savePaymentRequest = savePaymentRequest
         )
 
@@ -73,20 +61,10 @@ class PaymentServiceImpl : PaymentService() {
     }
 
     override fun getPaymentSummary(paymentSummaryRequest: PaymentSummaryRequest): PaymentSummaryResponse? {
-        val requestedByUser = authUtils.getRequestUserEntity()
-        val company = companyUtils.getCompany(paymentSummaryRequest.companyId)
-        if (requestedByUser == null || company == null) {
-            error("User, and Company are required to get payment summary");
-        }
-
-        val userRoles = userRoleUtils.getUserRolesForUserAndCompany(
-            user = requestedByUser,
-            company = company
-        ) ?: emptyList()
-
-        if (userRoles.isEmpty()) {
-            error("Only employees of the company can view payment");
-        }
+        val requestContext = authUtils.validateRequest(
+            companyId = paymentSummaryRequest.companyId,
+            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+        )
 
         // Choosing a random date in middle to select correct start and end month
         val startDate = LocalDateTime.of(paymentSummaryRequest.forYear, paymentSummaryRequest.forMonth, 20, 0, 0, 0, 0)
@@ -94,11 +72,11 @@ class PaymentServiceImpl : PaymentService() {
         val endTime = startDate.with(TemporalAdjusters.lastDayOfMonth()).toLocalDate().atTime(LocalTime.MAX)
 
         val payments = paymentRepository.getAllPaymentsBetweenGivenTimes(
-            companyId = company.id,
+            companyId = requestContext.company!!.id,
             startTime = startTime,
             endTime = endTime
         )
-        return paymentServiceConverter.getPaymentSummary(company, payments)
+        return paymentServiceConverter.getPaymentSummary(requestContext.company, payments)
     }
 
 }

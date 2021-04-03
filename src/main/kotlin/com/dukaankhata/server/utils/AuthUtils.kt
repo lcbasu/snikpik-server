@@ -1,13 +1,17 @@
 package com.dukaankhata.server.utils
 
 import com.dukaankhata.server.dao.UserRepository
+import com.dukaankhata.server.dto.RequestContext
+import com.dukaankhata.server.entities.Company
+import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.entities.User
+import com.dukaankhata.server.entities.UserRole
 import com.dukaankhata.server.enums.Gender
+import com.dukaankhata.server.enums.RoleType
 import com.dukaankhata.server.model.FirebaseAuthUser
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
-import java.util.*
 
 @Component
 class AuthUtils {
@@ -15,6 +19,14 @@ class AuthUtils {
     @Autowired
     var userRepository: UserRepository? = null
 
+    @Autowired
+    private lateinit var companyUtils: CompanyUtils
+
+    @Autowired
+    private lateinit var employeeUtils: EmployeeUtils
+
+    @Autowired
+    private lateinit var userRoleUtils: UserRoleUtils
 
     fun getFirebaseAuthUser(): FirebaseAuthUser? {
         var firebaseAuthUserPrincipal: FirebaseAuthUser? = null
@@ -78,5 +90,100 @@ class AuthUtils {
                 null
             }
         }
+    }
+
+
+    // requiredRoleTypes: Any of the role present in the set is ok. So we follow OR and not the AND
+    fun validateRequest(companyId: Long = -1, employeeId: Long = -1, requiredRoleTypes: Set<RoleType> = emptySet()): RequestContext {
+        val requestingUser = getRequestUserEntity()
+
+        if (requestingUser == null) {
+            error("User is required to be logged in!");
+        }
+
+        var company: Company? = null
+        var userRoles: List<UserRole> = emptyList()
+        if (companyId > 0) {
+            company = companyUtils.getCompany(companyId)
+            if (company == null) {
+                error("Company is required!");
+            }
+
+            userRoles = userRoleUtils.getUserRolesForUserAndCompany(
+                user = requestingUser,
+                company = company
+            ) ?: emptyList()
+
+            if (userRoles.isEmpty()) {
+                error("Only employers, admin, or employees of the company can perform this operation");
+            }
+
+            val currentUserRoles = mutableSetOf<RoleType>()
+
+            userRoles.map {
+                val roleType = it.id?.roleType
+                if (roleType != null) {
+                    currentUserRoles.add(RoleType.valueOf(roleType))
+                }
+            }
+
+            val common = currentUserRoles.intersect(requiredRoleTypes)
+
+            if (common.isEmpty()) {
+                error("Use doe not have the required access");
+            }
+        }
+
+        var employee: Employee? = null
+        if (employeeId > 0) {
+            employee = employeeUtils.getEmployee(employeeId)
+            if (employee == null) {
+                error("Employee is required");
+            }
+
+            // If only employee id is provided
+            if (companyId <= 0) {
+                company = employee.company
+
+                userRoles = userRoleUtils.getUserRolesForUserAndCompany(
+                    user = requestingUser,
+                    company = employee.company!!
+                ) ?: emptyList()
+
+                if (userRoles.isEmpty()) {
+                    error("Only employers, admin, or employees of the company can perform this operation");
+                }
+
+                val currentUserRoles = mutableSetOf<RoleType>()
+
+                userRoles.map {
+                    val roleType = it.id?.roleType
+                    if (roleType != null) {
+                        currentUserRoles.add(RoleType.valueOf(roleType))
+                    }
+                }
+
+                val common = currentUserRoles.intersect(requiredRoleTypes)
+
+                if (common.isEmpty()) {
+                    error("Use doe not have the required access");
+                }
+            }
+        }
+
+        return RequestContext(
+            user = requestingUser,
+            company = company,
+            employee = employee,
+            userRoles = userRoles
+        )
+    }
+
+    fun allAccessRoles(): Set<RoleType> {
+        return setOf(RoleType.EMPLOYER, RoleType.EMPLOYEE_ADMIN, RoleType.EMPLOYEE_NON_ADMIN)
+    }
+
+    fun onlyAdminLevelRoles(): Set<RoleType> {
+        return setOf(RoleType.EMPLOYER, RoleType.EMPLOYEE_ADMIN)
     }
 }

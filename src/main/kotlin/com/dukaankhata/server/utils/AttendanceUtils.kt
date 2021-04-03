@@ -1,10 +1,7 @@
 package com.dukaankhata.server.utils
 
 import com.dukaankhata.server.dao.*
-import com.dukaankhata.server.dto.AttendanceSummaryRequest
-import com.dukaankhata.server.dto.AttendanceSummaryResponse
-import com.dukaankhata.server.dto.MarkAttendanceRequest
-import com.dukaankhata.server.dto.SaveAttendanceRequest
+import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.entities.*
 import com.dukaankhata.server.enums.AttendanceType
 import com.dukaankhata.server.service.converter.AttendanceServiceConverter
@@ -39,13 +36,13 @@ class AttendanceUtils {
     @Autowired
     private lateinit var attendanceServiceConverter: AttendanceServiceConverter
 
-    fun saveAttendance(punchByUser: User, company: Company, employee: Employee, saveAttendanceRequest: SaveAttendanceRequest): Attendance? =
+    fun saveAttendance(requestContext: RequestContext, saveAttendanceRequest: SaveAttendanceRequest): Attendance? =
         attendanceRepository.let {
             val newAttendance = Attendance()
 
             newAttendance.forDate = saveAttendanceRequest.forDate
 
-            newAttendance.punchBy = punchByUser
+            newAttendance.punchBy = requestContext.user
             newAttendance.punchAt = DateUtils.parseEpochInMilliseconds(saveAttendanceRequest.punchAt)
             newAttendance.punchType = saveAttendanceRequest.punchType
 
@@ -56,8 +53,8 @@ class AttendanceUtils {
             newAttendance.locationLong = saveAttendanceRequest.locationLong
             newAttendance.locationName = saveAttendanceRequest.locationName
 
-            newAttendance.employee = employee
-            newAttendance.company = company
+            newAttendance.employee = requestContext.employee
+            newAttendance.company = requestContext.company
 
             it.save(newAttendance)
         }
@@ -78,7 +75,10 @@ class AttendanceUtils {
             null
         }
 
-    fun markAttendance(addedByUser: User, company: Company, employee: Employee, markAttendanceRequest: MarkAttendanceRequest): AttendanceByAdmin {
+    fun markAttendance(requestContext: RequestContext, markAttendanceRequest: MarkAttendanceRequest): AttendanceByAdmin {
+        val addedByUser = requestContext.user
+        val company = requestContext.company!!
+        val employee = requestContext.employee!!
         val workingMinutes = when (markAttendanceRequest.attendanceType) {
             AttendanceType.PRESENT -> company.workingMinutes
             AttendanceType.HALF_DAY -> company.workingMinutes / 2
@@ -108,8 +108,10 @@ class AttendanceUtils {
         return attendanceByAdminRepository.save(newAttendance)
     }
 
-    fun getAttendanceSummary(requestedByUser: User, company: Company, attendanceSummaryRequest: AttendanceSummaryRequest): AttendanceSummaryResponse? {
-
+    fun getAttendanceSummary(requestContext: RequestContext, attendanceSummaryRequest: AttendanceSummaryRequest): AttendanceSummaryResponse? {
+        val addedByUser = requestContext.user
+        val company = requestContext.company!!
+        val employee = requestContext.employee!!
 
         // Choosing a random date in middle to select correct start and end month
         val startDate = LocalDateTime.of(attendanceSummaryRequest.forYear, attendanceSummaryRequest.forMonth, 20, 0, 0, 0, 0)
