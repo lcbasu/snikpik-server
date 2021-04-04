@@ -18,9 +18,9 @@ class Employee : Auditable() {
     var salaryCycle: String = ""
     var salaryAmountInPaisa: Long = 0
 
-    @Enumerated(EnumType.STRING)
-    var openingBalanceType: OpeningBalanceType = OpeningBalanceType.ADVANCE
-    var openingBalanceInPaisa: Long = 0
+//    @Enumerated(EnumType.STRING)
+//    var openingBalanceType: OpeningBalanceType = OpeningBalanceType.ADVANCE
+//    var openingBalanceInPaisa: Long = 0
 
     var balanceInPaisaTillNow: Long = 0
 

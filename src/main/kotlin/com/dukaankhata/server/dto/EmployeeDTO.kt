@@ -14,7 +14,6 @@ data class SaveEmployeeRequest(
     val salaryAmountInPaisa: Long,
     val openingBalanceType: OpeningBalanceType?,
     val openingBalanceInPaisa: Long,
-    val balanceInPaisaTillNow: Long,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -26,8 +25,8 @@ data class SavedEmployeeResponse(
     val salaryType: SalaryType,
     val salaryCycle: String,
     val salaryAmountInPaisa: Long,
-    val openingBalanceType: OpeningBalanceType,
-    val openingBalanceInPaisa: Long,
+//    val openingBalanceType: OpeningBalanceType,
+//    val openingBalanceInPaisa: Long,
     val balanceInPaisaTillNow: Long,
     val isActive: Boolean,
     val joinedAt: Long,

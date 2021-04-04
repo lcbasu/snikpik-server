@@ -12,16 +12,12 @@ import com.dukaankhata.server.enums.PaymentType
 import com.dukaankhata.server.service.PaymentService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import java.time.LocalDateTime
 
 @Component
 class EmployeeUtils {
 
     @Autowired
     private lateinit var employeeRepository: EmployeeRepository
-
-    @Autowired
-    private lateinit var userRoleUtils: UserRoleUtils
 
     @Autowired
     private lateinit var paymentService: PaymentService
@@ -48,13 +44,13 @@ class EmployeeUtils {
     fun saveEmployee(createdByUser: User, createdForUser: User, company: Company, saveEmployeeRequest: SaveEmployeeRequest) : Employee {
         val newEmployee = Employee()
         newEmployee.name = saveEmployeeRequest.name
-        newEmployee.balanceInPaisaTillNow = saveEmployeeRequest.balanceInPaisaTillNow
-        newEmployee.openingBalanceInPaisa = saveEmployeeRequest.openingBalanceInPaisa
+        newEmployee.balanceInPaisaTillNow = 0
+//        newEmployee.openingBalanceInPaisa = saveEmployeeRequest.openingBalanceInPaisa
         newEmployee.phoneNumber = saveEmployeeRequest.phoneNumber
         newEmployee.salaryAmountInPaisa = saveEmployeeRequest.salaryAmountInPaisa
         newEmployee.salaryType = saveEmployeeRequest.salaryType
         newEmployee.salaryCycle = saveEmployeeRequest.salaryCycle
-        newEmployee.openingBalanceType = saveEmployeeRequest.openingBalanceType ?: OpeningBalanceType.NONE
+//        newEmployee.openingBalanceType = saveEmployeeRequest.openingBalanceType ?: OpeningBalanceType.NONE
         newEmployee.joinedAt = DateUtils.dateTimeNow()
         newEmployee.company = company
         newEmployee.createdByUser = createdByUser
@@ -62,14 +58,14 @@ class EmployeeUtils {
 
         val employee = employeeRepository.save(newEmployee)
 
-        if (employee.openingBalanceInPaisa != 0L && employee.openingBalanceType != OpeningBalanceType.NONE) {
-            val paymentType = if (employee.openingBalanceType == OpeningBalanceType.ADVANCE) PaymentType.PAYMENT_OPENING_BALANCE_ADVANCE else PaymentType.PAYMENT_OPENING_BALANCE_PENDING
+        if (saveEmployeeRequest.openingBalanceInPaisa != 0L && saveEmployeeRequest.openingBalanceType != OpeningBalanceType.NONE) {
+            val paymentType = if (saveEmployeeRequest.openingBalanceType == OpeningBalanceType.ADVANCE) PaymentType.PAYMENT_OPENING_BALANCE_ADVANCE else PaymentType.PAYMENT_OPENING_BALANCE_PENDING
             val savedPaymentResponse = paymentService.savePayment(SavePaymentRequest(
                 employeeId = employee.id,
                 companyId = employee.company?.id ?: -1,
                 forDate = DateUtils.toStringDate(DateUtils.dateTimeNow()),
                 paymentType = paymentType,
-                amountInPaisa = employee.openingBalanceInPaisa,
+                amountInPaisa = saveEmployeeRequest.openingBalanceInPaisa,
                 description = "Added by system for opening balance",
             )) ?: error("Payment was not saved for Employee with opening balance")
         }
