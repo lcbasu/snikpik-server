@@ -82,4 +82,8 @@ class EmployeeUtils {
         employee.balanceInPaisaTillNow = employee.balanceInPaisaTillNow + (payment.multiplierUsed * payment.amountInPaisa)
         return employeeRepository.save(employee)
     }
+
+    fun findByCompany(company: Company): List<Employee>? {
+        return employeeRepository.findByCompany(company)
+    }
 }

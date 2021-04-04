@@ -16,4 +16,10 @@ interface HolidayRepository : JpaRepository<Holiday?, HolidayKey?> {
         @Param("startTime") startTime: LocalDateTime,
         @Param("endTime") endTime: LocalDateTime,
     ): List<Holiday>
+
+    @Query(value ="SELECT * FROM holiday WHERE company_id = :companyId and for_date = :forDate", nativeQuery = true)
+    fun getAllHolidaysForDate(
+        @Param("companyId") companyId: Long,
+        @Param("forDate") forDate: String
+    ): List<Holiday>
 }

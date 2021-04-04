@@ -15,4 +15,10 @@ interface LateFineRepository : JpaRepository<LateFine?, Long?> {
         @Param("startTime") startTime: LocalDateTime,
         @Param("endTime") endTime: LocalDateTime,
     ): List<LateFine>
+
+    @Query(value ="SELECT * FROM late_fine WHERE for_date = :forDate and company_id = :companyId", nativeQuery = true)
+    fun getAllLateFineForDate(
+        @Param("companyId") companyId: Long,
+        @Param("forDate") forDate: String
+    ): List<LateFine>
 }

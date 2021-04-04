@@ -63,4 +63,12 @@ class OvertimeUtils {
         return overtimeServiceConverter.getSavedOvertimeResponse(savedOvertime, savedPaymentResponse)
     }
 
+    fun getAllOvertimesForDate(company: Company, forDate: String): List<Overtime> {
+        return try {
+            overtimeRepository.getAllOvertimesForDate(company.id, forDate)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
 }

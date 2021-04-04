@@ -9,6 +9,7 @@ import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.PaymentType
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
 
 @Component
 class PaymentUtils {
@@ -50,5 +51,9 @@ class PaymentUtils {
         payment.multiplierUsed = multiplierUsed
         payment.addedAt = DateUtils.dateTimeNow()
         return paymentRepository.save(payment)
+    }
+
+    fun getAllPaymentsBetweenGivenTimes(companyId: Long, startTime: LocalDateTime, endTime: LocalDateTime): List<Payment> {
+        return paymentRepository.getAllPaymentsBetweenGivenTimes(companyId, startTime, endTime)
     }
 }

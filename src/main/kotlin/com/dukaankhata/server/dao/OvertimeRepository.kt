@@ -15,4 +15,10 @@ interface OvertimeRepository : JpaRepository<Overtime?, Long?> {
         @Param("startTime") startTime: LocalDateTime,
         @Param("endTime") endTime: LocalDateTime,
     ): List<Overtime>
+
+    @Query(value ="SELECT * FROM overtime WHERE for_date = :forDate and company_id = :companyId", nativeQuery = true)
+    fun getAllOvertimesForDate(
+        @Param("companyId") companyId: Long,
+        @Param("forDate") forDate: String
+    ): List<Overtime>
 }

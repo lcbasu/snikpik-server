@@ -1,18 +1,16 @@
 package com.dukaankhata.server.service.impl
 
-import com.dukaankhata.server.dao.AttendanceRepository
 import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.service.AttendanceService
 import com.dukaankhata.server.service.converter.AttendanceServiceConverter
-import com.dukaankhata.server.utils.*
+import com.dukaankhata.server.utils.AttendanceUtils
+import com.dukaankhata.server.utils.AuthUtils
+import com.dukaankhata.server.utils.EmployeeUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
 class AttendanceServiceImpl : AttendanceService() {
-
-    @Autowired
-    private lateinit var attendanceRepository: AttendanceRepository
 
     @Autowired
     private lateinit var authUtils: AuthUtils
@@ -41,7 +39,7 @@ class AttendanceServiceImpl : AttendanceService() {
             companyId = getAttendancesRequest.companyId,
             requiredRoleTypes = authUtils.allAccessRoles()
         )
-        val attendances = attendanceRepository.getAttendanceByCompanyAndDates(
+        val attendances = attendanceUtils.getAttendanceByCompanyAndDates(
             company = requestContext.company!!,
             forDates = getAttendancesRequest.forDates
         )
@@ -55,7 +53,7 @@ class AttendanceServiceImpl : AttendanceService() {
             requiredRoleTypes = authUtils.allAccessRoles()
         )
 
-        val attendances = attendanceRepository.findByCompanyAndForDate(
+        val attendances = attendanceUtils.findByCompanyAndForDate(
             company = requestContext.company!!, forDate = attendanceInfoRequest.forDate
         )
 
@@ -66,12 +64,10 @@ class AttendanceServiceImpl : AttendanceService() {
     }
 
     override fun markAttendance(markAttendanceRequest: MarkAttendanceRequest): SavedAttendanceByAdminResponse? {
-
         val requestContext = authUtils.validateRequest(
             employeeId = markAttendanceRequest.employeeId,
             requiredRoleTypes = authUtils.onlyAdminLevelRoles()
         )
-
         val attendance = attendanceUtils.markAttendance(requestContext, markAttendanceRequest)
         return attendanceServiceConverter.getSavedAttendanceByAdminResponse(attendance)
     }

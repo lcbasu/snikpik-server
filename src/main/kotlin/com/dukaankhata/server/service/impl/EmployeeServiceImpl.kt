@@ -1,6 +1,5 @@
 package com.dukaankhata.server.service.impl
 
-import com.dukaankhata.server.dao.EmployeeRepository
 import com.dukaankhata.server.dto.CompanyEmployeesResponse
 import com.dukaankhata.server.dto.SaveEmployeeRequest
 import com.dukaankhata.server.dto.SavedEmployeeResponse
@@ -16,9 +15,6 @@ import org.springframework.stereotype.Service
 
 @Service
 class EmployeeServiceImpl : EmployeeService() {
-
-    @Autowired
-    private lateinit var employeeRepository: EmployeeRepository
 
     @Autowired
     private lateinit var authUtils: AuthUtils
@@ -66,7 +62,7 @@ class EmployeeServiceImpl : EmployeeService() {
         // Return the list of employees, only for employer and admin employees
         val validRoles = userRoles.filter { it.id?.roleType == RoleType.EMPLOYER.name || it.id?.roleType == RoleType.EMPLOYEE_ADMIN.name }
         return if (validRoles.isNotEmpty()) {
-            employeeServiceConverter.getCompanyEmployeesResponse(company, employeeRepository?.findByCompany(company) ?: emptyList());
+            employeeServiceConverter.getCompanyEmployeesResponse(company, employeeUtils.findByCompany(company) ?: emptyList());
         } else {
             null
         }

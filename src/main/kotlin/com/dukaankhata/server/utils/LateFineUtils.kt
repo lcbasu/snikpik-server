@@ -66,4 +66,12 @@ class LateFineUtils {
         return lateFineServiceConverter.getSavedLateFineResponse(savedLateFine, savedPaymentResponse)
     }
 
+    fun getAllLateFineForDate(company: Company, forDate: String): List<LateFine> {
+        return try {
+            lateFineRepository.getAllLateFineForDate(company.id, forDate)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
 }

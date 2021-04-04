@@ -1,14 +1,13 @@
 package com.dukaankhata.server.service.impl
 
-import com.dukaankhata.server.dao.CompanyRepository
-import com.dukaankhata.server.dto.UserCompaniesResponse
 import com.dukaankhata.server.dto.SaveCompanyRequest
 import com.dukaankhata.server.dto.SavedCompanyResponse
-import com.dukaankhata.server.entities.Company
+import com.dukaankhata.server.dto.UserCompaniesResponse
 import com.dukaankhata.server.enums.RoleType
 import com.dukaankhata.server.service.CompanyService
 import com.dukaankhata.server.service.converter.CompanyServiceConverter
 import com.dukaankhata.server.utils.AuthUtils
+import com.dukaankhata.server.utils.CompanyUtils
 import com.dukaankhata.server.utils.UserRoleUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -17,34 +16,30 @@ import org.springframework.stereotype.Service
 class CompanyServiceImpl : CompanyService() {
 
     @Autowired
-    var companyRepository: CompanyRepository? = null
+    private lateinit var companyUtils: CompanyUtils
 
     @Autowired
-    val authUtils: AuthUtils? = null
+    private lateinit var authUtils: AuthUtils
 
     @Autowired
-    val userRoleUtils: UserRoleUtils? = null
+    private lateinit var userRoleUtils: UserRoleUtils
 
     @Autowired
     val companyServiceConverter: CompanyServiceConverter? = null
 
     override fun saveCompany(saveCompanyRequest: SaveCompanyRequest): SavedCompanyResponse? {
-        val user = authUtils?.getRequestUserEntity() ?: return null
-        // Logged in user and the company data user id should always be the same
-        val company = companyRepository?.let {
-            val newCompany = Company()
-            newCompany.name = saveCompanyRequest.name
-            newCompany.location = saveCompanyRequest.location
-            newCompany.salaryPaymentSchedule = saveCompanyRequest.salaryPaymentSchedule
-            newCompany.workingMinutes = saveCompanyRequest.workingMinutes
-            newCompany.totalDueAmountInPaisa = 0
-            newCompany.user = user
-            it.save(newCompany)
-        }
+        val user = authUtils.getRequestUserEntity() ?: return null
+        val company = companyUtils.saveCompany(
+            user = user,
+            name = saveCompanyRequest.name,
+            location = saveCompanyRequest.location,
+            salaryPaymentSchedule = saveCompanyRequest.salaryPaymentSchedule,
+            workingMinutes = saveCompanyRequest.workingMinutes
+        )
 
-        company?.let {
+        company.let {
             // Save the user role for the person who created the company
-            userRoleUtils?.addUserRole(user, company, RoleType.EMPLOYER)
+            userRoleUtils.addUserRole(user, company, RoleType.EMPLOYER)
                 ?: error("Unable to save user role while creating company")
         }
 
@@ -56,8 +51,8 @@ class CompanyServiceImpl : CompanyService() {
     }
 
     override fun getUserCompanies(phoneNumber: String): UserCompaniesResponse? {
-        val user = authUtils?.getUserByPhoneNumber(phoneNumber);
-        val companies = user?.let { companyRepository?.findByUser(it) } ?: emptyList()
+        val user = authUtils.getUserByPhoneNumber(phoneNumber);
+        val companies = user?.let { companyUtils.findByUser(it) } ?: emptyList()
         return companyServiceConverter?.getCompaniesResponse(companies)
     }
 }

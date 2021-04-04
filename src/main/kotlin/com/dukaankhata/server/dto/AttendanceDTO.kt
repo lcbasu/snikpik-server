@@ -67,6 +67,7 @@ data class EmployeeAttendanceResponse(
     val forDate: String, // YYYY-MM-DD
     val workingHoursInMinutes: Int,
     val attendanceType: AttendanceType,
+    val metaData: List<AttendanceAggregateUnit> = emptyList(),
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -118,7 +119,7 @@ data class AttendanceSummaryRequest(
 data class AttendanceAggregateUnit(
     val attendanceType: AttendanceType,
     val valueUnitType: ValueUnitType, // DAY or minutes worked or hours etc
-    val value: Long
+    val value: String
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

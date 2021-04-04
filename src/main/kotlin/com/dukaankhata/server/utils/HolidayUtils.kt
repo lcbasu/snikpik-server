@@ -50,4 +50,11 @@ class HolidayUtils {
         }
     }
 
+    fun getHolidayForDate(company: Company, forDate: String): List<Holiday> =
+        try {
+            holidayRepository.getAllHolidaysForDate(company.id, forDate)
+        } catch (e: Exception) {
+            emptyList()
+        }
+
 }

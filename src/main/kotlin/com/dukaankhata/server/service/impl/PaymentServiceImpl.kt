@@ -1,6 +1,5 @@
 package com.dukaankhata.server.service.impl
 
-import com.dukaankhata.server.dao.PaymentRepository
 import com.dukaankhata.server.dto.PaymentSummaryRequest
 import com.dukaankhata.server.dto.PaymentSummaryResponse
 import com.dukaankhata.server.dto.SavePaymentRequest
@@ -35,9 +34,6 @@ class PaymentServiceImpl : PaymentService() {
     @Autowired
     private lateinit var paymentServiceConverter: PaymentServiceConverter
 
-    @Autowired
-    private lateinit var paymentRepository: PaymentRepository
-
     override fun savePayment(savePaymentRequest: SavePaymentRequest): SavedPaymentResponse? {
         val requestContext = authUtils.validateRequest(
             employeeId = savePaymentRequest.employeeId,
@@ -71,7 +67,7 @@ class PaymentServiceImpl : PaymentService() {
         val startTime = startDate.with(TemporalAdjusters.firstDayOfMonth()).toLocalDate().atStartOfDay().minusMonths(2) // get data from past 2 months
         val endTime = startDate.with(TemporalAdjusters.lastDayOfMonth()).toLocalDate().atTime(LocalTime.MAX)
 
-        val payments = paymentRepository.getAllPaymentsBetweenGivenTimes(
+        val payments = paymentUtils.getAllPaymentsBetweenGivenTimes(
             companyId = requestContext.company!!.id,
             startTime = startTime,
             endTime = endTime

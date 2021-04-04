@@ -10,10 +10,16 @@ import java.time.LocalDateTime
 
 @Repository
 interface AttendanceByAdminRepository : JpaRepository<AttendanceByAdmin?, AttendanceByAdminKey?> {
-    @Query(value ="SELECT * FROM attendance_by_admin WHERE convert(for_date, datetime) >= :startTime and convert(for_date, datetime) <= :endTime and company_id = :companyId", nativeQuery = true)
+    @Query(value ="SELECT * FROM attendance_by_admin WHERE company_id = :companyId and convert(for_date, datetime) >= :startTime and convert(for_date, datetime) <= :endTime", nativeQuery = true)
     fun getAllAttendancesByAdminBetweenGivenTimes(
         @Param("companyId") companyId: Long,
         @Param("startTime") startTime: LocalDateTime,
         @Param("endTime") endTime: LocalDateTime,
+    ): List<AttendanceByAdmin>
+
+    @Query(value ="SELECT * FROM attendance_by_admin WHERE company_id = :companyId and for_date = :forDate", nativeQuery = true)
+    fun getAllAttendancesByAdminForDate(
+        @Param("companyId") companyId: Long,
+        @Param("forDate") forDate: String
     ): List<AttendanceByAdmin>
 }

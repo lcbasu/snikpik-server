@@ -67,6 +67,16 @@ class AttendanceUtils {
         return key
     }
 
+    fun getAttendanceByAdminForDate(company: Company, forDate: String): List<AttendanceByAdmin> =
+        try {
+            attendanceByAdminRepository.getAllAttendancesByAdminForDate(
+                companyId = company.id,
+                forDate = forDate
+            )
+        } catch (e: Exception) {
+            emptyList()
+        }
+
     fun getAttendanceByAdmin(company: Company, employee: Employee, forDate: String): AttendanceByAdmin? =
         try {
             val key = getAttendanceByAdminKey(companyId = company.id, employeeId = employee.id, forDate = forDate)
@@ -152,6 +162,14 @@ class AttendanceUtils {
 
 
         TODO()
+    }
+
+    fun getAttendanceByCompanyAndDates(company: Company, forDates: Set<String>): List<Attendance> {
+        return attendanceRepository.getAttendanceByCompanyAndDates(company, forDates)
+    }
+
+    fun findByCompanyAndForDate(company: Company, forDate: String): List<Attendance> {
+        return attendanceRepository.findByCompanyAndForDate(company, forDate)
     }
 
 }
