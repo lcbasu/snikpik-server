@@ -86,15 +86,7 @@ class PaymentUtils {
         payment.forDate = forDate
         payment.multiplierUsed = multiplierUsed
         payment.addedAt = DateUtils.dateTimeNow()
-        val savedPayment = paymentRepository.save(payment)
-
-        // Update the employee payment
-        employeeUtils.updateEmployee(savedPayment)
-
-        // Update the company payment
-        companyUtils.updateCompany(savedPayment)
-
-        return savedPayment
+        return paymentRepository.save(payment)
     }
 
     fun getAllPaymentsBetweenGivenTimes(companyId: Long, startTime: LocalDateTime, endTime: LocalDateTime): List<Payment> {
