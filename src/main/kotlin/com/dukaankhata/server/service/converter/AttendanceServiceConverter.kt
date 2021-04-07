@@ -2,34 +2,22 @@ package com.dukaankhata.server.service.converter
 
 import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.entities.*
-import com.dukaankhata.server.enums.*
-import com.dukaankhata.server.utils.*
+import com.dukaankhata.server.enums.AttendanceType
+import com.dukaankhata.server.enums.PunchType
+import com.dukaankhata.server.enums.SelfieType
+import com.dukaankhata.server.enums.ValueUnitType
+import com.dukaankhata.server.utils.DateUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import java.time.Duration
 
 @Component
 class AttendanceServiceConverter {
-
-    private val offsetInMinuteForOvertime = 60//
 
     @Autowired
     private lateinit var companyServiceConverter: CompanyServiceConverter
 
     @Autowired
     private lateinit var employeeServiceConverter: EmployeeServiceConverter
-
-    @Autowired
-    private lateinit var holidayUtils: HolidayUtils
-
-    @Autowired
-    private lateinit var attendanceUtils: AttendanceUtils
-
-    @Autowired
-    private lateinit var overtimeUtils: OvertimeUtils
-
-    @Autowired
-    private lateinit var lateFineUtils: LateFineUtils
 
     fun getSavedAttendanceResponse(attendance: Attendance?): SavedAttendanceResponse {
         return SavedAttendanceResponse(
@@ -73,152 +61,41 @@ class AttendanceServiceConverter {
         )
     }
 
-    fun getAttendanceInfo(company: Company, employeesForDate: List<Employee>, attendances: List<Attendance>, forDate: String): AttendanceInfoResponse? {
-        val idsForAllEmployeesWithAttendanceMarked = mutableSetOf<Long>()
-        val companyWorkingMinutes = company.workingMinutes
+    fun getEmployeeAttendanceResponse(employee: Employee,
+                                      workingMinutes: Int,
+                                      attendanceType: AttendanceType,
+                                      forDate: String,
+                                      metaData: List<AttendanceUnit>): EmployeeAttendanceResponse {
+        return EmployeeAttendanceResponse(
+            employee = employeeServiceConverter.getSavedEmployeeResponse(employee),
+            workingHoursInMinutes = workingMinutes,
+            attendanceType = attendanceType,
+            forDate = forDate,
+            metaData = metaData
+        )
+    }
 
-        val attendanceForDate = attendanceUtils.getAttendanceByAdminForDate(company, forDate)
-        val holidayForDate = holidayUtils.getHolidayForDate(company, forDate)
+    fun getAttendanceTypeAggregateResponse(attendanceType: AttendanceType, count: Int): AttendanceTypeAggregateResponse {
+        return AttendanceTypeAggregateResponse(
+            attendanceType = attendanceType,
+            count = count
+        )
+    }
 
-        val overtimes = overtimeUtils.getAllOvertimesForDate(company, forDate).filterNot { it.employee == null }.groupBy { it.employee?.id }
-
-        val lateFines = lateFineUtils.getAllLateFineForDate(company, forDate).filterNot { it.employee == null }.groupBy { it.employee?.id }
-
-        val employeeAttendanceDetailsForDateResponse = attendances.groupBy { it.employee }.map { employeeAttendances ->
-            employeeAttendances.key?.let { employee ->
-                var totalWorkingMinute = 0
-                var attendanceType: AttendanceType = AttendanceType.ABSENT
-                // Attendance by Admin takes the highest priority
-                val attendanceByAdmin = attendanceForDate.findLast { it.employee?.id == employee.id }
-                if (attendanceByAdmin != null) {
-                    attendanceType = attendanceByAdmin.attendanceType
-                    totalWorkingMinute = attendanceByAdmin.workingMinutes
-                } else {
-                    val holiday = holidayForDate.findLast { it.employee?.id == employee.id }
-                    if (holiday != null) {
-                        attendanceType = if (holiday.holidayType == HolidayType.PAID) {
-                            AttendanceType.HOLIDAY_PAID
-                        } else {
-                            AttendanceType.HOLIDAY_NON_PAID
-                        }
-                    } else {
-                        // Calculate the attendance type based on actual Punch IN and OUT
-                        val currentEmployeeAttendance = employeeAttendances.value
-                        val allIns = currentEmployeeAttendance.filter { it.punchType == PunchType.IN }.sortedBy { it.punchAt }
-                        val allOuts = currentEmployeeAttendance.filter { it.punchType == PunchType.OUT }.sortedBy { it.punchAt }
-
-                        // Ins and Outs should be equal in count.
-                        // Otherwise flag that attendance as error
-                        when {
-                            allIns.size > allOuts.size -> {
-                                attendanceType = AttendanceType.OUT_NOT_MARKED
-                            }
-                            allOuts.size > allIns.size -> {
-                                attendanceType = AttendanceType.IN_NOT_MARKED
-                            }
-                            else -> {
-                                // Genuine case
-                                // Evaluate
-                                for (index in allIns.indices) {
-                                    val inAttendance = allIns[index]
-                                    val outAttendance = allOuts[index]
-                                    val duration = Duration.between(outAttendance.punchAt, inAttendance.punchAt).abs()
-                                    totalWorkingMinute += duration.toMinutes().toInt()
-                                }
-                                attendanceType = when {
-                                    totalWorkingMinute == 0 -> {
-                                        AttendanceType.ABSENT
-                                    }
-                                    totalWorkingMinute > companyWorkingMinutes + offsetInMinuteForOvertime -> {
-                                        AttendanceType.OVERTIME
-                                    }
-                                    totalWorkingMinute < companyWorkingMinutes -> {
-                                        AttendanceType.HALF_DAY
-                                    }
-                                    else -> {
-                                        AttendanceType.PRESENT
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                idsForAllEmployeesWithAttendanceMarked.add(employee.id)
-                EmployeeAttendanceResponse(
-                    employee = employeeServiceConverter.getSavedEmployeeResponse(employee),
-                    workingHoursInMinutes = totalWorkingMinute,
-                    attendanceType = attendanceType,
-                    forDate = forDate,
-                    metaData = getMetaData(employee, overtimes, lateFines)
-                )
-            }
-        }.filterNotNull()
-
-        val idsForAllEmployeesForThatDate = employeesForDate.map { it.id }.toSet()
-
-        val attendanceNotAvailableForEmployeesIds = idsForAllEmployeesForThatDate - idsForAllEmployeesWithAttendanceMarked
-
-        val attendanceNotAvailableForEmployees = employeesForDate.filter { attendanceNotAvailableForEmployeesIds.contains(it.id) }
-
-        val employeeAttendanceDetailsForDateResponseMutable = employeeAttendanceDetailsForDateResponse.toMutableList()
-
-        attendanceNotAvailableForEmployees.map { employee ->
-            var workingMinutes = 0
-            var attendanceType = AttendanceType.ABSENT
-            // Attendance by Admin takes the highest priority
-            val attendanceByAdmin = attendanceForDate.findLast { it.employee?.id == employee.id }
-            if (attendanceByAdmin != null) {
-                attendanceType = attendanceByAdmin.attendanceType
-                workingMinutes = attendanceByAdmin.workingMinutes
-            } else {
-                val holiday = holidayForDate.findLast { it.employee?.id == employee.id }
-                if (holiday != null) {
-                    attendanceType = if (holiday.holidayType == HolidayType.PAID) {
-                        AttendanceType.HOLIDAY_PAID
-                    } else {
-                        AttendanceType.HOLIDAY_NON_PAID
-                    }
-                }
-            }
-            employeeAttendanceDetailsForDateResponseMutable.add(
-                EmployeeAttendanceResponse(
-                    employee = employeeServiceConverter.getSavedEmployeeResponse(employee),
-                    workingHoursInMinutes = workingMinutes,
-                    attendanceType = attendanceType,
-                    forDate = forDate,
-                    metaData = getMetaData(employee, overtimes, lateFines)
-                )
-            )
-        }
-
-        val aggregateIds = mutableMapOf<AttendanceType, MutableSet<String>>()
-
-        employeeAttendanceDetailsForDateResponseMutable.map { emAtt ->
-            aggregateIds[emAtt.attendanceType] = (aggregateIds.getOrDefault(emAtt.attendanceType, emptySet()) + setOf(emAtt.employee.serverId)).toMutableSet()
-            emAtt.metaData.map { md ->
-                aggregateIds[md.attendanceType] = (aggregateIds.getOrDefault(md.attendanceType, emptySet()) + setOf(emAtt.employee.serverId)).toMutableSet()
-            }
-        }
-
-        val attendanceTypeAggregate = aggregateIds.map {
-            AttendanceTypeAggregateResponse(
-                attendanceType = it.key,
-                count = it.value.size
-            )
-        }
+    fun getAttendanceInfoResponse(company: Company, forDate: String, employeesAttendance: List<EmployeeAttendanceResponse>, attendanceTypeAggregate: List<AttendanceTypeAggregateResponse>): AttendanceInfoResponse {
         return AttendanceInfoResponse(
             company = companyServiceConverter.getSavedCompanyResponse(company),
             forDate = forDate,
-            employeesAttendance = employeeAttendanceDetailsForDateResponseMutable,
+            employeesAttendance = employeesAttendance,
             attendanceTypeAggregate = attendanceTypeAggregate,
         )
     }
 
-    private fun getMetaData(employee: Employee, overtimes: Map<Long?, List<Overtime>>, lateFines: Map<Long?, List<LateFine>>): List<AttendanceAggregateUnit> {
-        val metaData = mutableListOf<AttendanceAggregateUnit>()
+    private fun getMetaData(employee: Employee, overtimes: Map<Long?, List<Overtime>>, lateFines: Map<Long?, List<LateFine>>): List<AttendanceUnit> {
+        val metaData = mutableListOf<AttendanceUnit>()
         overtimes.getOrDefault(employee.id, emptyList()).map {
             metaData.add(
-                AttendanceAggregateUnit(
+                getAttendanceAggregateUnit(
                     attendanceType = AttendanceType.OVERTIME,
                     valueUnitType = ValueUnitType.MINUTE,
                     value = it.totalOvertimeMinutes.toString(),
@@ -227,7 +104,7 @@ class AttendanceServiceConverter {
         }
         lateFines.getOrDefault(employee.id, emptyList()).map {
             metaData.add(
-                AttendanceAggregateUnit(
+                getAttendanceAggregateUnit(
                     attendanceType = AttendanceType.LATE_FINE,
                     valueUnitType = ValueUnitType.MINUTE,
                     value = it.totalLateFineMinutes.toString(),
@@ -235,6 +112,14 @@ class AttendanceServiceConverter {
             )
         }
         return metaData
+    }
+
+    fun getAttendanceAggregateUnit(attendanceType: AttendanceType, valueUnitType: ValueUnitType, value: String): AttendanceUnit {
+        return AttendanceUnit(
+            attendanceType = attendanceType,
+            valueUnitType = valueUnitType,
+            value = value,
+        )
     }
 
     private fun getAttendanceByAdminServerId(attendanceByAdminKey: AttendanceByAdminKey?): String {

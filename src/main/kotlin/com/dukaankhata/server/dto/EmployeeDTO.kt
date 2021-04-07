@@ -1,6 +1,7 @@
 package com.dukaankhata.server.dto
 
 import com.dukaankhata.server.enums.OpeningBalanceType
+import com.dukaankhata.server.enums.RemovalReasonType
 import com.dukaankhata.server.enums.SalaryType
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
@@ -14,6 +15,7 @@ data class SaveEmployeeRequest(
     val salaryAmountInPaisa: Long,
     val openingBalanceType: OpeningBalanceType?,
     val openingBalanceInPaisa: Long,
+    val joinedAt: Long?,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -37,4 +39,12 @@ data class SavedEmployeeResponse(
 data class CompanyEmployeesResponse(
     val company: SavedCompanyResponse,
     val employees: List<SavedEmployeeResponse>
+)
+
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class RemoveEmployeeRequest(
+    val employeeId: Long,
+    val removalReasonType: RemovalReasonType,
+    val description: String
 )

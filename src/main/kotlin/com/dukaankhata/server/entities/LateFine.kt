@@ -11,7 +11,7 @@ class LateFine : Auditable() {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = -1
 
-    var forDate: String? = null
+    var forDate: String = ""
 
     var hourlyLateFineWageInPaisa: Long = 0
     var totalLateFineAmountInPaisa: Long = 0

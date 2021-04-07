@@ -22,4 +22,11 @@ interface AttendanceByAdminRepository : JpaRepository<AttendanceByAdmin?, Attend
         @Param("companyId") companyId: Long,
         @Param("forDate") forDate: String
     ): List<AttendanceByAdmin>
+
+    @Query(value ="SELECT * FROM attendance_by_admin WHERE convert(for_date, datetime) >= :startTime and convert(for_date, datetime) <= :endTime and employee_id = :employeeId", nativeQuery = true)
+    fun getAttendancesByAdminForEmployee(
+        @Param("employeeId") employeeId: Long,
+        @Param("startTime") startTime: LocalDateTime,
+        @Param("endTime") endTime: LocalDateTime,
+    ): List<AttendanceByAdmin>
 }

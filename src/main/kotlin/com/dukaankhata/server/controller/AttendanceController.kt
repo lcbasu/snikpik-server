@@ -2,12 +2,19 @@ package com.dukaankhata.server.controller
 
 import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.service.AttendanceService
+import kotlinx.coroutines.runBlocking
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
+import kotlin.system.measureTimeMillis
 
 @RestController
 @RequestMapping("attendance")
 class AttendanceController {
+
+    private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
+
     @Autowired
     private lateinit var attendanceService: AttendanceService
 
@@ -23,7 +30,12 @@ class AttendanceController {
 
     @RequestMapping(value = ["/getAttendanceInfo"], method = [RequestMethod.POST])
     fun getAttendanceInfo(@RequestBody attendanceInfoRequest: AttendanceInfoRequest): AttendanceInfoResponse? {
-        return attendanceService.getAttendanceInfo(attendanceInfoRequest)
+        var response: AttendanceInfoResponse?
+        val time = measureTimeMillis {
+            response = attendanceService.getAttendanceInfo(attendanceInfoRequest)
+        }
+        logger.info("getAttendanceInfo took $time milliseconds to executre")
+        return response
     }
 
     @RequestMapping(value = ["/mark"], method = [RequestMethod.POST])

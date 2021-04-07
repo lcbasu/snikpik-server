@@ -8,15 +8,13 @@ import com.dukaankhata.server.utils.AuthUtils
 import com.dukaankhata.server.utils.EmployeeUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import kotlinx.coroutines.*
 
 @Service
 class AttendanceServiceImpl : AttendanceService() {
 
     @Autowired
     private lateinit var authUtils: AuthUtils
-
-    @Autowired
-    private lateinit var employeeUtils: EmployeeUtils
 
     @Autowired
     private lateinit var attendanceUtils: AttendanceUtils
@@ -48,19 +46,13 @@ class AttendanceServiceImpl : AttendanceService() {
     }
 
     override fun getAttendanceInfo(attendanceInfoRequest: AttendanceInfoRequest): AttendanceInfoResponse? {
-        val requestContext = authUtils.validateRequest(
-            companyId = attendanceInfoRequest.companyId,
-            requiredRoleTypes = authUtils.allAccessRoles()
-        )
-
-        val attendances = attendanceUtils.findByCompanyAndForDate(
-            company = requestContext.company!!, forDate = attendanceInfoRequest.forDate
-        )
-
-        // get all employees who were on payroll that day
-        val employeesForDate = employeeUtils.getEmployeesForDate(requestContext.company.id, attendanceInfoRequest.forDate)
-
-        return attendanceServiceConverter.getAttendanceInfo(requestContext.company, employeesForDate, attendances, attendanceInfoRequest.forDate)
+        return runBlocking {
+            val requestContext = authUtils.validateRequest(
+                companyId = attendanceInfoRequest.companyId,
+                requiredRoleTypes = authUtils.allAccessRoles()
+            )
+            attendanceUtils.getAttendanceInfo(requestContext.company!!, attendanceInfoRequest.forDate)
+        }
     }
 
     override fun markAttendance(markAttendanceRequest: MarkAttendanceRequest): SavedAttendanceByAdminResponse? {

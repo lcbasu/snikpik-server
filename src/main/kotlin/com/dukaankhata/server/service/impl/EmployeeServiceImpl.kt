@@ -1,10 +1,13 @@
 package com.dukaankhata.server.service.impl
 
 import com.dukaankhata.server.dto.CompanyEmployeesResponse
+import com.dukaankhata.server.dto.RemoveEmployeeRequest
 import com.dukaankhata.server.dto.SaveEmployeeRequest
 import com.dukaankhata.server.dto.SavedEmployeeResponse
 import com.dukaankhata.server.enums.RoleType
+import com.dukaankhata.server.enums.SalaryType
 import com.dukaankhata.server.service.EmployeeService
+import com.dukaankhata.server.service.SchedulerService
 import com.dukaankhata.server.service.converter.EmployeeServiceConverter
 import com.dukaankhata.server.utils.AuthUtils
 import com.dukaankhata.server.utils.CompanyUtils
@@ -31,6 +34,9 @@ class EmployeeServiceImpl : EmployeeService() {
     @Autowired
     private lateinit var employeeUtils: EmployeeUtils
 
+    @Autowired
+    private lateinit var schedulerService: SchedulerService
+
     override fun saveEmployee(saveEmployeeRequest: SaveEmployeeRequest): SavedEmployeeResponse? {
         val createdByUser = authUtils.getRequestUserEntity()
         val company = companyUtils.getCompany(saveEmployeeRequest.companyId)
@@ -49,6 +55,10 @@ class EmployeeServiceImpl : EmployeeService() {
         userRoleUtils.addUserRole(createdForUser, company, RoleType.EMPLOYEE_NON_ADMIN)
             ?: error("Unable to save user role for the employee")
 
+        if (employee.salaryType != SalaryType.ONE_TIME) {
+            schedulerService.scheduleEmployeeSalaryUpdate(employee);
+        }
+
         return employeeServiceConverter.getSavedEmployeeResponse(employee);
     }
 
@@ -66,5 +76,26 @@ class EmployeeServiceImpl : EmployeeService() {
         } else {
             null
         }
+    }
+
+    override fun removeEmployee(removeEmployeeRequest: RemoveEmployeeRequest): SavedEmployeeResponse? {
+        val employee = employeeUtils.removeEmployee(removeEmployeeRequest)
+        if (employee.salaryType != SalaryType.ONE_TIME) {
+            schedulerService.unScheduleEmployeeSalaryUpdate(employee);
+        }
+        return employeeServiceConverter.getSavedEmployeeResponse(employee)
+    }
+
+    override fun updateSalary(employeeId: Long): SavedEmployeeResponse? {
+        val requestContext = authUtils.validateRequest(
+            employeeId = employeeId,
+            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+        )
+
+        val employee = requestContext.employee!!
+
+        employeeUtils.updateSalary(employee)
+
+        return employeeServiceConverter.getSavedEmployeeResponse(employee)
     }
 }

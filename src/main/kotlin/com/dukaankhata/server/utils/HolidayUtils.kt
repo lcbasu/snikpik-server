@@ -5,6 +5,7 @@ import com.dukaankhata.server.entities.*
 import com.dukaankhata.server.enums.HolidayType
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
 
 @Component
 class HolidayUtils {
@@ -53,6 +54,13 @@ class HolidayUtils {
     fun getHolidayForDate(company: Company, forDate: String): List<Holiday> =
         try {
             holidayRepository.getAllHolidaysForDate(company.id, forDate)
+        } catch (e: Exception) {
+            emptyList()
+        }
+
+    fun getHolidayForEmployee(employee: Employee, startTime: LocalDateTime, endTime: LocalDateTime): List<Holiday> =
+        try {
+            holidayRepository.getHolidayForEmployee(employee.id, startTime, endTime)
         } catch (e: Exception) {
             emptyList()
         }

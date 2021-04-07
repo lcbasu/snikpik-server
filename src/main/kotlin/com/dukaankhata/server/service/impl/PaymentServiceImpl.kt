@@ -7,8 +7,6 @@ import com.dukaankhata.server.dto.SavedPaymentResponse
 import com.dukaankhata.server.service.PaymentService
 import com.dukaankhata.server.service.converter.PaymentServiceConverter
 import com.dukaankhata.server.utils.AuthUtils
-import com.dukaankhata.server.utils.CompanyUtils
-import com.dukaankhata.server.utils.EmployeeUtils
 import com.dukaankhata.server.utils.PaymentUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -23,13 +21,7 @@ class PaymentServiceImpl : PaymentService() {
     private lateinit var authUtils: AuthUtils
 
     @Autowired
-    private lateinit var companyUtils: CompanyUtils
-
-    @Autowired
     private lateinit var paymentUtils: PaymentUtils
-
-    @Autowired
-    private lateinit var employeeUtils: EmployeeUtils
 
     @Autowired
     private lateinit var paymentServiceConverter: PaymentServiceConverter
@@ -40,20 +32,15 @@ class PaymentServiceImpl : PaymentService() {
             companyId = savePaymentRequest.companyId,
             requiredRoleTypes = authUtils.onlyAdminLevelRoles()
         )
-
-        val payment =  paymentUtils.savePayment(
+        return paymentUtils.savePaymentAndDependentData(
             addedBy = requestContext.user,
             company = requestContext.company!!,
             employee = requestContext.employee!!,
-            savePaymentRequest = savePaymentRequest
+            forDate = savePaymentRequest.forDate,
+            paymentType = savePaymentRequest.paymentType,
+            amountInPaisa = savePaymentRequest.amountInPaisa,
+            description = savePaymentRequest.description
         )
-
-        // Update the employee payment
-        employeeUtils.updateEmployee(payment)
-
-        // Update the company payment
-        companyUtils.updateCompany(payment)
-        return paymentServiceConverter.getSavedPaymentResponse(payment)
     }
 
     override fun getPaymentSummary(paymentSummaryRequest: PaymentSummaryRequest): PaymentSummaryResponse? {

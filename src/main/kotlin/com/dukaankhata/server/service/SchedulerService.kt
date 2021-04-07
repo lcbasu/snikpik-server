@@ -1,9 +1,13 @@
 package com.dukaankhata.server.service
 
 import com.dukaankhata.server.entities.Employee
-import com.dukaankhata.server.entities.Payment
 
 abstract class SchedulerService {
-    abstract fun schedulePaymentSms(payment: Payment): Payment?
-    abstract fun scheduleSalaryUpdate(employee: Employee): Employee?
+    // Employee Salary Update Subscription
+    abstract fun scheduleEmployeeSalaryUpdate(employee: Employee): Employee
+    abstract fun unScheduleEmployeeSalaryUpdate(employee: Employee): Employee
+//    abstract fun getEmployeeSalaryUpdateJobDetail(employee: Employee): JobDetail
+//    abstract fun getEmployeeSalaryUpdateJobKey(employee: Employee): JobKey
+//    abstract fun getEmployeeSalaryUpdateTrigger(employee: Employee, jobDetail: JobDetail): Trigger
+//    abstract fun getEmployeeSalaryUpdateTriggerKey(employee: Employee): TriggerKey
 }

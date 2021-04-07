@@ -2,17 +2,16 @@ package com.dukaankhata.server.utils
 
 import com.dukaankhata.server.dao.LateFineRepository
 import com.dukaankhata.server.dto.SaveLateFineRequest
-import com.dukaankhata.server.dto.SavePaymentRequest
 import com.dukaankhata.server.dto.SavedLateFineResponse
 import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.entities.LateFine
 import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.PaymentType
-import com.dukaankhata.server.service.PaymentService
 import com.dukaankhata.server.service.converter.LateFineServiceConverter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
 
 @Component
 class LateFineUtils {
@@ -21,7 +20,7 @@ class LateFineUtils {
     private lateinit var lateFineRepository: LateFineRepository
 
     @Autowired
-    private lateinit var paymentService: PaymentService
+    private lateinit var paymentUtils: PaymentUtils
 
     @Autowired
     private lateinit var lateFineServiceConverter: LateFineServiceConverter
@@ -54,14 +53,15 @@ class LateFineUtils {
             error("Invalid LateFine")
         }
 
-        val savedPaymentResponse = paymentService.savePayment(SavePaymentRequest(
-            employeeId = savedLateFine.employee?.id ?: -1,
-            companyId = savedLateFine.company?.id ?: -1,
-            forDate = savedLateFine.forDate ?: "",
+        val savedPaymentResponse = paymentUtils.savePaymentAndDependentData(
+            addedBy = addedBy,
+            company = company,
+            employee = employee,
+            forDate = savedLateFine.forDate,
             paymentType = PaymentType.PAYMENT_ATTENDANCE_LATE_FINE,
             amountInPaisa = savedLateFine.totalLateFineAmountInPaisa,
             description = "Added by system for attendance late fine",
-        )) ?: error("Payment was not saved for late fine")
+        )
 
         return lateFineServiceConverter.getSavedLateFineResponse(savedLateFine, savedPaymentResponse)
     }
@@ -69,6 +69,22 @@ class LateFineUtils {
     fun getAllLateFineForDate(company: Company, forDate: String): List<LateFine> {
         return try {
             lateFineRepository.getAllLateFineForDate(company.id, forDate)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    fun getLateFinesForEmployee(employee: Employee, forDate: String): List<LateFine> {
+        return try {
+            lateFineRepository.getLateFinesForEmployee(employee.id, forDate)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    fun getLateFinesForEmployee(employee: Employee, startTime: LocalDateTime, endTime: LocalDateTime): List<LateFine> {
+        return try {
+            lateFineRepository.getLateFinesForEmployee(employee.id, startTime, endTime)
         } catch (e: Exception) {
             emptyList()
         }

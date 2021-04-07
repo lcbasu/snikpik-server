@@ -12,7 +12,7 @@ class Overtime : Auditable() {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = -1
 
-    var forDate: String? = null
+    var forDate: String = ""
 
     var hourlyOvertimeWageInPaisa: Long = 0
     var totalOvertimeAmountInPaisa: Long = 0

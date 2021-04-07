@@ -11,15 +11,15 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("company")
 class CompanyController {
     @Autowired
-    var companyService: CompanyService? = null
+    private lateinit var companyService: CompanyService
 
     @RequestMapping(value = ["/save"], method = [RequestMethod.POST])
     fun saveCompany(@RequestBody saveCompanyRequest: SaveCompanyRequest): SavedCompanyResponse? {
-        return companyService?.saveCompany(saveCompanyRequest)
+        return companyService.saveCompany(saveCompanyRequest)
     }
 
     @RequestMapping(value = ["/getUserCompanies/{phoneNumber}"], method = [RequestMethod.GET])
     fun getUserCompanies(@PathVariable phoneNumber: String): UserCompaniesResponse? {
-        return companyService?.getUserCompanies(phoneNumber)
+        return companyService.getUserCompanies(phoneNumber)
     }
 }

@@ -1,10 +1,12 @@
 package com.dukaankhata.server.dto
 
+import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.enums.AttendanceType
 import com.dukaankhata.server.enums.PunchType
 import com.dukaankhata.server.enums.SelfieType
 import com.dukaankhata.server.enums.ValueUnitType
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import java.time.LocalDateTime
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveAttendanceRequest(
@@ -67,7 +69,7 @@ data class EmployeeAttendanceResponse(
     val forDate: String, // YYYY-MM-DD
     val workingHoursInMinutes: Int,
     val attendanceType: AttendanceType,
-    val metaData: List<AttendanceAggregateUnit> = emptyList(),
+    val metaData: List<AttendanceUnit> = emptyList(),
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -116,7 +118,7 @@ data class AttendanceSummaryRequest(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class AttendanceAggregateUnit(
+data class AttendanceUnit(
     val attendanceType: AttendanceType,
     val valueUnitType: ValueUnitType, // DAY or minutes worked or hours etc
     val value: String
@@ -129,7 +131,7 @@ data class EmployeeAttendanceSummaryResponse(
     // on a date which is different that some other employee
     val startTime: Long,
     val endTime: Long,
-    val aggregate: List<AttendanceAggregateUnit>
+    val aggregate: List<AttendanceUnit>
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -137,6 +139,30 @@ data class AttendanceSummaryResponse(
     val company: SavedCompanyResponse,
     val startTime: Long,
     val endTime: Long,
-    val aggregate: List<AttendanceAggregateUnit>,
+    val aggregate: List<AttendanceUnit>,
     val employeesAttendances: List<EmployeeAttendanceSummaryResponse>,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AttendanceForEmployeeSalary (
+    val employee: Employee,
+    val startDate: String,
+    val endDate: String,
+    val totalDay: Int,
+    val presentDays: Int,
+    val absentDays: Int,
+    val halfDaysDays: Int,
+    val paidHolidays: Int,
+    val nonPaidHolidays: Int,
+    val overtimeMinutes: Int,
+    val overtimeAmountInPaisa: Long,
+    val lateFineMinutes: Int,
+    val lateFineAmountInPaisa: Long,
+    val companyWorkingMinutesPerDay: Int,
+)
+
+data class AttendancePunchData (
+    val attendanceType: AttendanceType,
+    val totalMinutes: Int,
+    val updatedAt: LocalDateTime
 )

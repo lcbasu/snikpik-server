@@ -26,6 +26,9 @@ dependencies {
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools:2.3.8.RELEASE")
 
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.4.2")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.4.2")
 	implementation("org.zalando:logbook-spring-boot-starter:2.6.1")
 	implementation("io.sentry:sentry-spring-boot-starter:4.3.0")
 	implementation("io.sentry:sentry-logback:4.3.0")

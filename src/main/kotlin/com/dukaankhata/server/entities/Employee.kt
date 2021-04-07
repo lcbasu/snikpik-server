@@ -2,6 +2,7 @@ package com.dukaankhata.server.entities
 
 import com.dukaankhata.server.enums.OpeningBalanceType
 import com.dukaankhata.server.enums.SalaryType
+import com.dukaankhata.server.utils.DateUtils
 import java.time.LocalDateTime
 import javax.persistence.*
 
@@ -24,7 +25,7 @@ class Employee : Auditable() {
 
     var balanceInPaisaTillNow: Long = 0
 
-    var joinedAt: LocalDateTime? = null
+    var joinedAt: LocalDateTime = DateUtils.dateTimeNow()
     var leftAt: LocalDateTime? = null
 
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)

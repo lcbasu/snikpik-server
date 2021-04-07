@@ -7,11 +7,11 @@ import javax.persistence.Embeddable
 @Embeddable
 class UserRoleKey: Serializable {
     @Column(name = "user_id")
-    var userId: String? = null
+    var userId: String = ""
 
     @Column(name = "company_id")
-    var companyId: Long? = null
+    var companyId: Long = -1
 
     @Column(name = "role_type")
-    var roleType: String? = null
+    var roleType: String = ""
 }
