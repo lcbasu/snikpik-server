@@ -13,6 +13,9 @@ class HolidayUtils {
     @Autowired
     private lateinit var holidayRepository: HolidayRepository
 
+    @Autowired
+    private lateinit var employeeUtils: EmployeeUtils
+
     fun getHolidayKey(companyId: Long, employeeId: Long, forDate: String): HolidayKey {
         val key = HolidayKey()
         key.companyId = companyId
@@ -32,23 +35,28 @@ class HolidayUtils {
     fun saveOrUpdateHoliday(addedBy: User, company: Company, employee: Employee, forDate: String, holidayType: HolidayType) : Holiday? {
         val key = getHolidayKey(companyId = company.id, employeeId = employee.id, forDate = forDate)
         val holidayOptional = holidayRepository.findById(key)
-        if (holidayOptional.isPresent) {
+        val savedHoliday = if (holidayOptional.isPresent) {
             val holiday = holidayOptional.get()
             holiday.addedBy = addedBy
             holiday.holidayType = holidayType
-            return holidayRepository.save(holiday)
-        }
-
-        // Save new one if old one does not exist
-        return holidayRepository.let {
+            holiday.lastModifiedAt = DateUtils.dateTimeNow()
+            holidayRepository.save(holiday)
+        } else {
             val holiday = Holiday()
             holiday.company = company
             holiday.employee = employee
             holiday.id = key
             holiday.holidayType = holidayType
             holiday.addedBy = addedBy
-            it.save(holiday)
+            holidayRepository.save(holiday)
         }
+
+        // Because for today, we will always cover that in the job that will run tomorrow
+        if (DateUtils.parseStandardDate(forDate).toLocalDate().atStartOfDay().isBefore(DateUtils.dateTimeNow().toLocalDate().atStartOfDay())) {
+            employeeUtils.updateSalary(employee, forDate)
+        }
+
+        return savedHoliday
     }
 
     fun getHolidayForDate(company: Company, forDate: String): List<Holiday> =

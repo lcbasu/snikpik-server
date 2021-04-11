@@ -16,4 +16,10 @@ interface PaymentRepository : JpaRepository<Payment?, Long?> {
         @Param("endTime") endTime: LocalDateTime,
     ): List<Payment>
 
+    @Query(value ="SELECT * FROM payment WHERE for_date = :forDate and employee_id = :employeeId", nativeQuery = true)
+    fun getPaymentsForDate(
+        @Param("employeeId") employeeId: Long,
+        @Param("forDate") forDate: String
+    ): List<Payment>
+
 }

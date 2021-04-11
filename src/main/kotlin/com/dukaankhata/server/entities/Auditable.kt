@@ -32,7 +32,7 @@ abstract class Auditable : Serializable {
     @Column(name = "last_modified_by")
     var lastModifiedBy: String? = null
 
-    @Version
+//    @Version
     @Column(nullable = false)
     var version : Long = 0
 

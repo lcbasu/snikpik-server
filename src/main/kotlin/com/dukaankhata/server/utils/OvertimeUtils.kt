@@ -9,6 +9,7 @@ import com.dukaankhata.server.entities.Overtime
 import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.PaymentType
 import com.dukaankhata.server.service.converter.OvertimeServiceConverter
+import com.dukaankhata.server.service.converter.PaymentServiceConverter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
@@ -24,6 +25,9 @@ class OvertimeUtils {
 
     @Autowired
     private lateinit var overtimeServiceConverter: OvertimeServiceConverter
+
+    @Autowired
+    private lateinit var paymentServiceConverter: PaymentServiceConverter
 
     fun getOvertime(overtimeId: Long): Overtime? =
         try {

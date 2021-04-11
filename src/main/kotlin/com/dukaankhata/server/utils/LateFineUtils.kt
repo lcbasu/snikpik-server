@@ -9,6 +9,7 @@ import com.dukaankhata.server.entities.LateFine
 import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.PaymentType
 import com.dukaankhata.server.service.converter.LateFineServiceConverter
+import com.dukaankhata.server.service.converter.PaymentServiceConverter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime

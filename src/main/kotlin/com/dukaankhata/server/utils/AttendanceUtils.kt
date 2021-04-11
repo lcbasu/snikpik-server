@@ -1,5 +1,7 @@
 package com.dukaankhata.server.utils
 
+import AttendancePunchData
+import AttendanceReportForEmployee
 import com.dukaankhata.server.dao.AttendanceByAdminRepository
 import com.dukaankhata.server.dao.AttendanceRepository
 import com.dukaankhata.server.dto.*
@@ -50,28 +52,33 @@ class AttendanceUtils {
     @Autowired
     private lateinit var attendanceServiceConverter: AttendanceServiceConverter
 
-    fun saveAttendance(requestContext: RequestContext, saveAttendanceRequest: SaveAttendanceRequest): Attendance? =
-        attendanceRepository.let {
-            val newAttendance = Attendance()
+    fun saveAttendance(requestContext: RequestContext, saveAttendanceRequest: SaveAttendanceRequest): Attendance? {
+        val attendance = Attendance()
 
-            newAttendance.forDate = saveAttendanceRequest.forDate
+        attendance.forDate = saveAttendanceRequest.forDate
 
-            newAttendance.punchBy = requestContext.user
-            newAttendance.punchAt = DateUtils.parseEpochInMilliseconds(saveAttendanceRequest.punchAt)
-            newAttendance.punchType = saveAttendanceRequest.punchType
+        attendance.punchBy = requestContext.user
+        attendance.punchAt = DateUtils.parseEpochInMilliseconds(saveAttendanceRequest.punchAt)
+        attendance.punchType = saveAttendanceRequest.punchType
 
-            newAttendance.selfieUrl = saveAttendanceRequest.selfieUrl
-            newAttendance.selfieType = saveAttendanceRequest.selfieType
+        attendance.selfieUrl = saveAttendanceRequest.selfieUrl
+        attendance.selfieType = saveAttendanceRequest.selfieType
 
-            newAttendance.locationLat = saveAttendanceRequest.locationLat
-            newAttendance.locationLong = saveAttendanceRequest.locationLong
-            newAttendance.locationName = saveAttendanceRequest.locationName
+        attendance.locationLat = saveAttendanceRequest.locationLat
+        attendance.locationLong = saveAttendanceRequest.locationLong
+        attendance.locationName = saveAttendanceRequest.locationName
 
-            newAttendance.employee = requestContext.employee
-            newAttendance.company = requestContext.company
+        attendance.employee = requestContext.employee
+        attendance.company = requestContext.company
+        val savedAttendance = attendanceRepository.save(attendance)
 
-            it.save(newAttendance)
+        // Because for today, we will always cover that in the job that will run tomorrow
+        if (savedAttendance.punchAt.toLocalDate().atStartOfDay().isBefore(DateUtils.dateTimeNow().toLocalDate().atStartOfDay())) {
+            employeeUtils.updateSalary(attendance.employee!!, DateUtils.toStringDate(savedAttendance.punchAt))
         }
+
+        return savedAttendance;
+    }
 
     fun getAttendanceByAdminKey(companyId: Long, employeeId: Long, forDate: String): AttendanceByAdminKey {
         val key = AttendanceByAdminKey()
@@ -111,71 +118,49 @@ class AttendanceUtils {
 
         val key = getAttendanceByAdminKey(companyId = company.id, employeeId = employee.id, forDate = markAttendanceRequest.forDate)
         val attendanceByAdmin = getAttendanceByAdmin(company, employee, markAttendanceRequest.forDate)
-        if (attendanceByAdmin != null) {
+
+        val savedAttendance = if (attendanceByAdmin != null) {
             // Already present so only update
             logger.debug("AttendanceByAdmin Already present so only update")
             attendanceByAdmin.addedBy = addedByUser
             attendanceByAdmin.workingMinutes = workingMinutes
             attendanceByAdmin.attendanceType = markAttendanceRequest.attendanceType
-            return attendanceByAdminRepository.save(attendanceByAdmin)
+            attendanceByAdminRepository.save(attendanceByAdmin)
+        } else {
+            // Save new one
+            logger.debug("Save new AttendanceByAdmin")
+            val newAttendance = AttendanceByAdmin()
+            newAttendance.id = getAttendanceByAdminKey(companyId = company.id, employeeId = employee.id, forDate = markAttendanceRequest.forDate)
+            newAttendance.attendanceType = markAttendanceRequest.attendanceType
+            newAttendance.workingMinutes = workingMinutes
+            newAttendance.employee = employee
+            newAttendance.company = company
+            newAttendance.addedBy = addedByUser
+            attendanceByAdminRepository.save(newAttendance)
         }
 
-        // Save new one
-        logger.debug("Save new AttendanceByAdmin")
-        val newAttendance = AttendanceByAdmin()
-        newAttendance.id = getAttendanceByAdminKey(companyId = company.id, employeeId = employee.id, forDate = markAttendanceRequest.forDate)
-        newAttendance.attendanceType = markAttendanceRequest.attendanceType
-        newAttendance.workingMinutes = workingMinutes
-        newAttendance.employee = employee
-        newAttendance.company = company
-        newAttendance.addedBy = addedByUser
-        return attendanceByAdminRepository.save(newAttendance)
+        // Because for today, we will always cover that in the job that will run tomorrow
+        if (DateUtils.parseStandardDate(markAttendanceRequest.forDate).toLocalDate().atStartOfDay().isBefore(DateUtils.dateTimeNow().toLocalDate().atStartOfDay())) {
+            employeeUtils.updateSalary(employee, markAttendanceRequest.forDate)
+        }
+
+        return savedAttendance
     }
 
-    fun getAttendanceSummary(requestContext: RequestContext, attendanceSummaryRequest: AttendanceSummaryRequest): AttendanceSummaryResponse? {
-        val addedByUser = requestContext.user
+    fun getAttendanceSummary(requestContext: RequestContext, attendanceSummaryRequest: AttendanceSummaryRequest): AttendanceSummaryResponse {
         val company = requestContext.company!!
-        val employee = requestContext.employee!!
 
         // Choosing a random date in middle to select correct start and end month
         val startDate = LocalDateTime.of(attendanceSummaryRequest.forYear, attendanceSummaryRequest.forMonth, 20, 0, 0, 0, 0)
         val startTime = startDate.with(TemporalAdjusters.firstDayOfMonth()).toLocalDate().atStartOfDay().minusMonths(2) // get data from past 2 months
         val endTime = startDate.with(TemporalAdjusters.lastDayOfMonth()).toLocalDate().atTime(LocalTime.MAX)
 
-
-
-        val attendances = attendanceRepository.getAllAttendancesBetweenGivenTimes(
-            companyId = company.id,
+        return attendanceServiceConverter.getAttendanceSummary(
+            company = company,
             startTime = startTime,
-            endTime = endTime
+            endTime = endTime,
+            attendanceReportForEmployees = getAttendanceReportForCompany(company, startTime, endTime)
         )
-
-        val attendancesByAdmin = attendanceByAdminRepository.getAllAttendancesByAdminBetweenGivenTimes(
-            companyId = company.id,
-            startTime = startTime,
-            endTime = endTime
-        )
-
-//        val holidays = holidayRepository.getAllHolidaysBetweenGivenTimes(
-//            companyId = company.id,
-//            startTime = startTime,
-//            endTime = endTime
-//        )
-//
-//        val overtimes = overtimeRepository.getAllOvertimesBetweenGivenTimes(
-//            companyId = company.id,
-//            startTime = startTime,
-//            endTime = endTime
-//        )
-//
-//        val lateFines = lateFineRepository.getAllLateFineBetweenGivenTimes(
-//            companyId = company.id,
-//            startTime = startTime,
-//            endTime = endTime
-//        )
-
-
-        TODO()
     }
 
     fun getAttendanceByCompanyAndDates(company: Company, forDates: Set<String>): List<Attendance> {
@@ -290,7 +275,7 @@ class AttendanceUtils {
 
             val punchedAttendances = async { findByCompanyAndForDate(company, forDate) }
             // get all employees who were on payroll that day
-            val employeesForDate = async { employeeUtils.getEmployeesForDate(company.id, forDate) }
+            val employeesForDate = async { employeeUtils.getEmployees(company, DateUtils.parseStandardDate(forDate)) }
 
             val attendancesByAdminForDate = async {
                 logger.debug("async for attendancesByAdminForDate")
@@ -421,9 +406,9 @@ class AttendanceUtils {
         }
     }
 
-    fun getAttendanceForSalary(employee: Employee,
-                               startTime: LocalDateTime,
-                               endTime: LocalDateTime): AttendanceForEmployeeSalary {
+    fun getAttendanceReportForEmployee(employee: Employee,
+                                       startTime: LocalDateTime,
+                                       endTime: LocalDateTime): AttendanceReportForEmployee {
         return runBlocking {
             val company = employee.company ?: error("Missing company for the employee")
             val companyWorkingMinutes = company.workingMinutes
@@ -506,7 +491,7 @@ class AttendanceUtils {
                     }
                 } else {
                     // No holiday or attendance by Admin
-                    logger.error("This only happens when no one arked the attendance")
+                    logger.error("This only happens when no one marked the attendance")
                     attendanceType = AttendanceType.ABSENT
                 }
                 allAttendanceTypes.add(attendanceType)
@@ -545,7 +530,7 @@ class AttendanceUtils {
                     lateFineAmountInPaisa += it.totalLateFineAmountInPaisa
                 }
             }
-            AttendanceForEmployeeSalary (
+            AttendanceReportForEmployee (
                 employee = employee,
                 startDate = startDate,
                 endDate = endDate,
@@ -561,6 +546,21 @@ class AttendanceUtils {
                 lateFineAmountInPaisa = lateFineAmountInPaisa,
                 companyWorkingMinutesPerDay = companyWorkingMinutes
             )
+        }
+    }
+
+    fun getAttendanceReportForCompany(company: Company,
+                                      startTime: LocalDateTime,
+                                      endTime: LocalDateTime): List<AttendanceReportForEmployee> {
+        return runBlocking {
+            employeeUtils.getEmployees(company, endTime).map {
+                async {
+                    logger.debug("Get attendance for employee: ${it.id}")
+                    getAttendanceReportForEmployee(it, startTime, endTime)
+                }
+            }.map {
+                it.await()
+            }
         }
     }
 }

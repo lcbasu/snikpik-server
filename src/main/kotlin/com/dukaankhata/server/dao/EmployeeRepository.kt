@@ -12,11 +12,11 @@ import java.time.LocalDateTime
 @Repository
 interface EmployeeRepository : JpaRepository<Employee?, Long?> {
 
-    @Query(value ="SELECT * FROM employee WHERE joined_at < :forDate and company_id = :companyId", nativeQuery = true)
-    fun getEmployeesForDate(
-        @Param("companyId") companyId: Long,
-        @Param("forDate") forDate: LocalDateTime
-    ): List<Employee>
-
     fun findByCompany(company: Company): List<Employee>
+
+    @Query(value ="SELECT * FROM employee WHERE joined_at <= :joinedBeforeDateTime and company_id = :companyId", nativeQuery = true)
+    fun getEmployees(
+        @Param("companyId") companyId: Long,
+        @Param("joinedBeforeDateTime") joinedBeforeDateTime: LocalDateTime,
+    ): List<Employee>
 }

@@ -86,7 +86,7 @@ class EmployeeServiceImpl : EmployeeService() {
         return employeeServiceConverter.getSavedEmployeeResponse(employee)
     }
 
-    override fun updateSalary(employeeId: Long): SavedEmployeeResponse? {
+    override fun updateSalary(employeeId: Long, forDate: String): SavedEmployeeResponse? {
         val requestContext = authUtils.validateRequest(
             employeeId = employeeId,
             requiredRoleTypes = authUtils.onlyAdminLevelRoles()
@@ -94,7 +94,7 @@ class EmployeeServiceImpl : EmployeeService() {
 
         val employee = requestContext.employee!!
 
-        employeeUtils.updateSalary(employee)
+        employeeUtils.updateSalary(employee, forDate)
 
         return employeeServiceConverter.getSavedEmployeeResponse(employee)
     }

@@ -29,9 +29,9 @@ class EmployeeController {
         return employeeService.removeEmployee(removeEmployeeRequest)
     }
 
-    @RequestMapping(value = ["/updateSalary/{employeeId}"], method = [RequestMethod.POST])
-    fun updateSalary(@PathVariable employeeId: Long): SavedEmployeeResponse? {
-        return employeeService.updateSalary(employeeId)
+    @RequestMapping(value = ["/updateSalary/{employeeId}/{forDate}"], method = [RequestMethod.POST])
+    fun updateSalary(@PathVariable employeeId: Long, @PathVariable forDate: String): SavedEmployeeResponse? {
+        return employeeService.updateSalary(employeeId, forDate)
     }
 
 }

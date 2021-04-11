@@ -23,8 +23,6 @@ class SpringSecurityAuditorAware : AuditorAware<String> {
             val uid = firebaseAuthUserPrincipal.getUid() ?: ""
             return Optional.of(phoneNumber + CommonUtils.STRING_SEPARATOR + uid)
         } catch (e: Exception) {
-            e.printStackTrace()
-            Sentry.captureException(e)
             return Optional.of("Un Authenticated Auditor")
         }
     }

@@ -32,7 +32,7 @@ class PaymentServiceImpl : PaymentService() {
             companyId = savePaymentRequest.companyId,
             requiredRoleTypes = authUtils.onlyAdminLevelRoles()
         )
-        return paymentUtils.savePaymentAndDependentData(
+        return paymentServiceConverter.getSavedPaymentResponse(paymentUtils.savePaymentAndDependentData(
             addedBy = requestContext.user,
             company = requestContext.company!!,
             employee = requestContext.employee!!,
@@ -40,7 +40,7 @@ class PaymentServiceImpl : PaymentService() {
             paymentType = savePaymentRequest.paymentType,
             amountInPaisa = savePaymentRequest.amountInPaisa,
             description = savePaymentRequest.description
-        )
+        ))
     }
 
     override fun getPaymentSummary(paymentSummaryRequest: PaymentSummaryRequest): PaymentSummaryResponse? {

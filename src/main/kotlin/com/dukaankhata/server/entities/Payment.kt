@@ -24,6 +24,11 @@ class Payment : Auditable() {
 
     var multiplierUsed: Int = 0
 
+    var companyOldAmountInPaisa: Long = 0
+    var companyNewAmountInPaisa: Long = 0
+    var employeeOldAmountInPaisa: Long = 0
+    var employeeNewAmountInPaisa: Long = 0
+
     var addedAt: LocalDateTime = DateUtils.dateTimeNow()
 
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)

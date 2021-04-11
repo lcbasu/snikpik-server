@@ -10,9 +10,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.time.DayOfWeek
-import java.time.LocalDateTime
-import java.time.temporal.TemporalAdjusters
 import java.util.*
 
 @Service
@@ -104,55 +101,21 @@ class SchedulerServiceImpl : SchedulerService() {
     }
 
     private fun getStartDateForEmployeeSalaryUpdate(employee: Employee): Date {
-        when (employee.salaryType) {
-            // Paid Monthly
-            SalaryType.MONTHLY, SalaryType.DAILY, SalaryType.PER_HOUR -> {
-                logger.info("Get Start Time to Run Schedule to Update salary on the monthly basis")
-                // This is used to set the schedule
-                val salaryCycleMonthDay = employee.salaryCycle.split("_")[1].toInt()
-                val now = DateUtils.dateTimeNow()
-                var startDateTime = LocalDateTime.of(now.year, now.month, salaryCycleMonthDay, 0, 0, 0, 0)
-                if (now.isAfter(startDateTime)) {
-                    startDateTime = startDateTime.plusMonths(1)
-                }
-                return Date(DateUtils.getEpoch(startDateTime) * 1000)
-            }
-            // Paid weekly
-            SalaryType.WEEKLY -> {
-                logger.info("Get Start Time to Run Schedule to Update salary on the weekly basis")
-                // Start on the next scheduled week day
-                val now = DateUtils.dateTimeNow()
-                val nextScheduleStartWeekDay = now.with(TemporalAdjusters.next(DayOfWeek.valueOf(employee.salaryCycle.split("_")[1])))
-                return Date(DateUtils.getEpoch(nextScheduleStartWeekDay) * 1000)
-            }
-            // No Schedule
-            SalaryType.ONE_TIME -> {
-                logger.error("===INVALID CASE===")
-                error("There should be NO schedule for this case. So in case you find one, un-schedule that job")
-            }
+        if (employee.salaryType == SalaryType.ONE_TIME) {
+            logger.error("===INVALID CASE===")
+            error("There should be NO schedule for this case. So in case you find one, un-schedule that job")
         }
+        val now = DateUtils.dateTimeNow()
+        return Date(DateUtils.getEpoch(now.plusMinutes(1)) * 1000)
     }
 
     private fun getScheduleForEmployeeSalaryUpdate(employee: Employee): CalendarIntervalScheduleBuilder? {
-        when (employee.salaryType) {
-            // Paid Monthly
-            SalaryType.MONTHLY, SalaryType.DAILY, SalaryType.PER_HOUR -> {
-                logger.info("Get Schedule to Update salary on the monthly basis")
-                return CalendarIntervalScheduleBuilder.calendarIntervalSchedule().withIntervalInMonths(1)
-            }
-
-            // Paid weekly
-            SalaryType.WEEKLY -> {
-                logger.info("Get Schedule to Update salary on the weekly basis")
-                return CalendarIntervalScheduleBuilder.calendarIntervalSchedule().withIntervalInWeeks(1)
-            }
-
-            // No Schedule
-            SalaryType.ONE_TIME -> {
-                logger.error("===INVALID CASE===")
-                error("There should be NO schedule for this case. So in case you find one, un-schedule that job")
-            }
+        if (employee.salaryType == SalaryType.ONE_TIME) {
+            logger.error("===INVALID CASE===")
+            error("There should be NO schedule for this case. So in case you find one, un-schedule that job")
         }
+        // Run this job everyday
+        return CalendarIntervalScheduleBuilder.calendarIntervalSchedule().withIntervalInDays(1)
     }
 
 }

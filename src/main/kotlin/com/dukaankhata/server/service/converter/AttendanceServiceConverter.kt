@@ -1,5 +1,6 @@
 package com.dukaankhata.server.service.converter
 
+import AttendanceReportForEmployee
 import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.entities.*
 import com.dukaankhata.server.enums.AttendanceType
@@ -9,6 +10,7 @@ import com.dukaankhata.server.enums.ValueUnitType
 import com.dukaankhata.server.utils.DateUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import java.time.LocalDateTime
 
 @Component
 class AttendanceServiceConverter {
@@ -137,7 +139,32 @@ class AttendanceServiceConverter {
             workingMinutes = attendanceByAdmin?.workingMinutes ?: 0)
     }
 
-    fun getAttendanceSummary(requestedByUser: User, company: Company, attendanceSummaryRequest: AttendanceSummaryRequest): AttendanceSummaryResponse {
-        TODO()
+    fun getAttendanceSummary(company: Company,
+                             startTime: LocalDateTime,
+                             endTime: LocalDateTime,
+                             attendanceReportForEmployees: List<AttendanceReportForEmployee>): AttendanceSummaryResponse {
+        return AttendanceSummaryResponse(
+            company = companyServiceConverter.getSavedCompanyResponse(company),
+            startTime = DateUtils.getEpoch(startTime),
+            endTime = DateUtils.getEpoch(endTime),
+            employeesReport = attendanceReportForEmployees.map {
+                AttendanceReportForEmployeeResponse(
+                    employee = employeeServiceConverter.getSavedEmployeeResponse(it.employee),
+                    startTime = DateUtils.getEpoch(startTime),
+                    endTime = DateUtils.getEpoch(endTime),
+                    totalDay = it.totalDay,
+                    presentDays = it.presentDays,
+                    absentDays = it.absentDays,
+                    halfDaysDays = it.halfDaysDays,
+                    paidHolidays = it.paidHolidays,
+                    nonPaidHolidays = it.nonPaidHolidays,
+                    overtimeMinutes = it.overtimeMinutes,
+                    overtimeAmountInPaisa = it.overtimeAmountInPaisa,
+                    lateFineMinutes = it.lateFineMinutes,
+                    lateFineAmountInPaisa = it.lateFineAmountInPaisa,
+                    companyWorkingMinutesPerDay = it.companyWorkingMinutesPerDay
+                )
+            }
+        )
     }
 }

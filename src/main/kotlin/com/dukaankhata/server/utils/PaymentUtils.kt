@@ -1,15 +1,15 @@
 package com.dukaankhata.server.utils
 
+import SalaryReversal
 import com.dukaankhata.server.dao.PaymentRepository
-import com.dukaankhata.server.dto.SavedPaymentResponse
 import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.entities.Payment
 import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.PaymentType
-import com.dukaankhata.server.service.converter.PaymentServiceConverter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Component
@@ -24,9 +24,6 @@ class PaymentUtils {
     @Autowired
     private lateinit var employeeUtils: EmployeeUtils
 
-    @Autowired
-    private lateinit var paymentServiceConverter: PaymentServiceConverter
-
     fun getPayment(paymentId: Long): Payment? =
         try {
             paymentRepository.findById(paymentId).get()
@@ -34,7 +31,14 @@ class PaymentUtils {
             null
         }
 
-    fun savePaymentAndDependentData(addedBy: User, company: Company, employee: Employee, forDate: String, paymentType: PaymentType, amountInPaisa: Long, description: String?) : SavedPaymentResponse {
+    fun getPaymentsForDate(employee: Employee, forDate: String): List<Payment> =
+        try {
+            paymentRepository.getPaymentsForDate(employee.id, forDate)
+        } catch (e: Exception) {
+            emptyList()
+        }
+
+    fun savePaymentAndDependentData(addedBy: User, company: Company, employee: Employee, forDate: String, paymentType: PaymentType, amountInPaisa: Long, description: String?) : Payment {
         val payment = savePaymentAtomic(
             addedBy = addedBy,
             company = company,
@@ -51,7 +55,13 @@ class PaymentUtils {
         // Update the company payment
         companyUtils.updateCompany(payment)
 
-        return paymentServiceConverter.getSavedPaymentResponse(payment)
+        return updatePaymentWithAuditDetails(payment)
+    }
+
+    fun updatePaymentWithAuditDetails(payment: Payment): Payment {
+        payment.companyNewAmountInPaisa = payment.company!!.totalDueAmountInPaisa
+        payment.employeeNewAmountInPaisa = payment.employee!!.balanceInPaisaTillNow
+        return paymentRepository.save(payment)
     }
 
     fun savePaymentAtomic(addedBy: User, company: Company, employee: Employee, forDate: String, paymentType: PaymentType, amountInPaisa: Long, description: String?) : Payment {
@@ -73,6 +83,7 @@ class PaymentUtils {
             PaymentType.PAYMENT_OPENING_BALANCE_ADVANCE -> 1
             PaymentType.PAYMENT_OPENING_BALANCE_PENDING -> -1
             PaymentType.PAYMENT_SALARY -> -1
+            PaymentType.PAYMENT_SALARY_REVERSAL -> 1 // Added back
             PaymentType.NONE -> 0
         }
 
@@ -86,10 +97,82 @@ class PaymentUtils {
         payment.forDate = forDate
         payment.multiplierUsed = multiplierUsed
         payment.addedAt = DateUtils.dateTimeNow()
+        payment.companyOldAmountInPaisa = company.totalDueAmountInPaisa
+        payment.employeeOldAmountInPaisa = employee.balanceInPaisaTillNow
         return paymentRepository.save(payment)
     }
 
     fun getAllPaymentsBetweenGivenTimes(companyId: Long, startTime: LocalDateTime, endTime: LocalDateTime): List<Payment> {
         return paymentRepository.getAllPaymentsBetweenGivenTimes(companyId, startTime, endTime)
+    }
+
+    fun updateSalary(employee: Employee, salaryAmountForDate: Long, forDate: String) {
+
+        // Get the last salary payment for that day. We will need to revert that
+        val lastSalaryPaymentForThatDay = getPaymentsForDate(employee, forDate)
+            .filter { it.paymentType == PaymentType.PAYMENT_SALARY }
+            .maxByOrNull { DateUtils.getEpoch(it.lastModifiedAt) }
+
+        val company = employee.company ?: error("Employee should always have the company")
+        if (lastSalaryPaymentForThatDay == null) {
+            // This is the fist salary payment so go ahead as is
+            // Add the new Salary Payment
+            val newPayment = savePaymentAndDependentData(
+                addedBy = company.user!!,
+                company = company,
+                employee = employee,
+                forDate = forDate,
+                paymentType = PaymentType.PAYMENT_SALARY,
+                amountInPaisa = salaryAmountForDate,
+                description = "Added by system for adding the salary"
+            )
+        } else {
+            // 1. Revert the last salary payment
+            // 2. Add the new Salary Payment
+            reCalculateSalary(
+                addedBy = company.user!!,
+                company = company,
+                employee = employee,
+                forDate = forDate,
+                lastSalaryPaymentForThatDay = lastSalaryPaymentForThatDay,
+                newSalaryAmount = salaryAmountForDate
+            )
+        }
+    }
+
+    @Transactional
+    fun reCalculateSalary(
+        lastSalaryPaymentForThatDay: Payment,
+        newSalaryAmount: Long,
+        forDate: String,
+        addedBy: User,
+        company: Company,
+        employee: Employee
+    ): SalaryReversal {
+
+        val revertOldPayment = savePaymentAndDependentData(
+            addedBy = addedBy,
+            company = company,
+            employee = employee,
+            forDate = forDate,
+            paymentType = PaymentType.PAYMENT_SALARY_REVERSAL,
+            amountInPaisa = lastSalaryPaymentForThatDay.amountInPaisa,
+            description = "Added by system for reverting the salary while Re-calculating the salary"
+        )
+
+        val newPayment = savePaymentAndDependentData(
+            addedBy = addedBy,
+            company = company,
+            employee = employee,
+            forDate = forDate,
+            paymentType = PaymentType.PAYMENT_SALARY,
+            amountInPaisa = newSalaryAmount,
+            description = "Added by system for adding the salary while Re-calculating the salary"
+        )
+
+        return SalaryReversal(
+            revertedSalaryPayment = revertOldPayment,
+            newSalaryPayment = newPayment
+        )
     }
 }
