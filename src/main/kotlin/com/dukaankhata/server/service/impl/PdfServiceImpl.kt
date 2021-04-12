@@ -1,0 +1,69 @@
+package com.dukaankhata.server.service.impl
+
+import com.dukaankhata.server.entities.Employee
+import com.dukaankhata.server.model.Student
+import com.dukaankhata.server.service.PdfService
+import com.dukaankhata.server.utils.DateUtils
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.core.io.ClassPathResource
+import org.springframework.stereotype.Service
+import org.thymeleaf.context.Context
+import org.thymeleaf.spring5.SpringTemplateEngine
+import org.xhtmlrenderer.pdf.ITextRenderer
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStream
+
+@Service
+class PdfServiceImpl: PdfService() {
+
+    @Autowired
+    private lateinit var templateEngine: SpringTemplateEngine
+
+    override fun generateSamplePdf(): File {
+        val context = Context()
+        context.setVariable("students", getStudents())
+        val html = renderHTMLUsingTemplate("pdf_students", context)
+        val htmlAssetsPath = "/pdf-resources/"
+        return renderPdf(html, htmlAssetsPath)
+    }
+
+    override fun generatePdfForSalarySlip(employee: Employee, startDate: String, endDate: String): File {
+        val context = Context()
+        context.setVariable("payments", getStudents())
+        val html = renderHTMLUsingTemplate("pdf_salary_slip", context)
+        val htmlAssetsPath = "/pdf-payment-resources/"
+        return renderPdf(html, htmlAssetsPath)
+    }
+
+    private fun renderHTMLUsingTemplate(templateName: String, contextWithVariablesValues: Context): String {
+        return templateEngine.process(templateName, contextWithVariablesValues)
+    }
+
+    private fun renderPdf(HTML: String, htmlAssetsPath: String, prefix: String? = null): File {
+        val fileNamePrefix = (prefix ?: "dk").plus("_").plus(DateUtils.dateTimeNow().toString())
+        val file = File.createTempFile(fileNamePrefix, ".pdf")
+        val outputStream: OutputStream = FileOutputStream(file)
+        val renderer = ITextRenderer(20f * 4f / 3f, 20)
+        renderer.setDocumentFromString(HTML, ClassPathResource(htmlAssetsPath).url.toExternalForm())
+        renderer.layout()
+        renderer.createPDF(outputStream)
+        outputStream.close()
+        file.deleteOnExit()
+        return file
+    }
+
+    private fun getStudents(): List<Student> {
+        return listOf(
+            Student(
+                id = 1,
+                name = "ABC",
+                lastName = "XYZ",
+                active = true,
+                birthday = DateUtils.dateTimeNow().toLocalDate(),
+                nationality = "IN",
+                university = "IIT-R"
+            )
+        )
+    }
+}

@@ -1,9 +1,6 @@
 package com.dukaankhata.server.controller
 
-import com.dukaankhata.server.dto.CompanyEmployeesResponse
-import com.dukaankhata.server.dto.RemoveEmployeeRequest
-import com.dukaankhata.server.dto.SaveEmployeeRequest
-import com.dukaankhata.server.dto.SavedEmployeeResponse
+import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.service.EmployeeService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
@@ -32,6 +29,11 @@ class EmployeeController {
     @RequestMapping(value = ["/updateSalary/{employeeId}/{forDate}"], method = [RequestMethod.POST])
     fun updateSalary(@PathVariable employeeId: Long, @PathVariable forDate: String): SavedEmployeeResponse? {
         return employeeService.updateSalary(employeeId, forDate)
+    }
+
+    @RequestMapping(value = ["/getSalarySlip/{employeeId}/{startDate}/{endDate}"], method = [RequestMethod.GET])
+    fun getSalarySlip(@PathVariable employeeId: Long, @PathVariable startDate: String, @PathVariable endDate: String): SalarySlipResponse? {
+        return employeeService.getSalarySlip(employeeId, startDate, endDate)
     }
 
 }

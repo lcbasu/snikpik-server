@@ -48,3 +48,11 @@ data class RemoveEmployeeRequest(
     val removalReasonType: RemovalReasonType,
     val description: String
 )
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SalarySlipResponse(
+    val employee: SavedEmployeeResponse,
+    val startDate: String,
+    val endDate: String,
+    val salarySlipUrl: String
+)

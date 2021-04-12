@@ -26,6 +26,8 @@ dependencies {
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools:2.3.8.RELEASE")
 
+	implementation("org.xhtmlrenderer:flying-saucer-pdf:9.1.20")
+	implementation("org.springframework.boot:spring-boot-starter-thymeleaf:2.2.6.RELEASE")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.4.2")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.4.2")
@@ -63,7 +65,6 @@ dependencies {
 	implementation("joda-time:joda-time:2.10.9")
 //	implementation("com.amazonaws:aws-java-sdk-ses:1.11.842")
 //	implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.1.RELEASE")
-//	implementation("org.springframework.boot:spring-boot-starter-thymeleaf:2.3.8.RELEASE")
 //	implementation("com.razorpay:razorpay-java:1.3.8")
 
 	runtimeOnly("org.flywaydb:flyway-gradle-plugin:7.3.1")
