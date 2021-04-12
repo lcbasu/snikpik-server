@@ -91,4 +91,12 @@ class LateFineUtils {
         }
     }
 
+    fun getLateFinesForEmployee(employee: Employee, datesList: List<String>): List<LateFine> {
+        return try {
+            lateFineRepository.getLateFinesForEmployee(employee.id, datesList)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
 }

@@ -147,10 +147,15 @@ class EmployeeUtils {
             startTime = startDateTimeForYesterday,
             endTime = endDateTimeForYesterday
         )
+
+        if (attendanceReportForEmployee == null) {
+            return 0L
+        }
+
         logger.debug(attendanceReportForEmployee.toString())
 
         val fullPayDays = attendanceReportForEmployee.presentDays + attendanceReportForEmployee.paidHolidays
-        val halfPayDays = attendanceReportForEmployee.halfDaysDays
+        val halfPayDays = attendanceReportForEmployee.halfDays
 
         val totalNumberOfDays = when (employee.salaryType) {
             SalaryType.WEEKLY -> 7
@@ -163,7 +168,10 @@ class EmployeeUtils {
                     YearMonth.of(dateToBeUsed.year, dateToBeUsed.monthValue).lengthOfMonth()
                 }
             }
-            SalaryType.ONE_TIME -> error("Salary can not be calculated for one time employees")
+            SalaryType.ONE_TIME -> {
+                logger.error("Salary can not be calculated for one time employees")
+                0L
+            }
         }
 
         val oneDaySalary = employee.salaryAmountInPaisa.toDouble() / totalNumberOfDays.toDouble()

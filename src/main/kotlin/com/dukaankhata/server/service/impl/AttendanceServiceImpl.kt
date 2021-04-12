@@ -5,10 +5,9 @@ import com.dukaankhata.server.service.AttendanceService
 import com.dukaankhata.server.service.converter.AttendanceServiceConverter
 import com.dukaankhata.server.utils.AttendanceUtils
 import com.dukaankhata.server.utils.AuthUtils
-import com.dukaankhata.server.utils.EmployeeUtils
+import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import kotlinx.coroutines.*
 
 @Service
 class AttendanceServiceImpl : AttendanceService() {
@@ -32,26 +31,13 @@ class AttendanceServiceImpl : AttendanceService() {
         return attendanceServiceConverter.getSavedAttendanceResponse(attendance)
     }
 
-    override fun getAttendances(getAttendancesRequest: GetAttendancesRequest): AttendancesResponse? {
-        val requestContext = authUtils.validateRequest(
-            companyId = getAttendancesRequest.companyId,
-            requiredRoleTypes = authUtils.allAccessRoles()
-        )
-        val attendances = attendanceUtils.getAttendanceByCompanyAndDates(
-            company = requestContext.company!!,
-            forDates = getAttendancesRequest.forDates
-        )
-
-        return attendanceServiceConverter.getAttendancesResponse(requestContext.company, attendances)
-    }
-
     override fun getAttendanceInfo(attendanceInfoRequest: AttendanceInfoRequest): AttendanceInfoResponse? {
         return runBlocking {
             val requestContext = authUtils.validateRequest(
                 companyId = attendanceInfoRequest.companyId,
                 requiredRoleTypes = authUtils.allAccessRoles()
             )
-            attendanceUtils.getAttendanceInfo(requestContext.company!!, attendanceInfoRequest.forDate)
+            attendanceUtils.getAttendanceInfoV2(requestContext.company!!, attendanceInfoRequest.forDate)
         }
     }
 
@@ -70,6 +56,17 @@ class AttendanceServiceImpl : AttendanceService() {
             requiredRoleTypes = authUtils.allAccessRoles()
         )
         return attendanceUtils.getAttendanceSummary(requestContext, attendanceSummaryRequest)
+    }
+
+    override fun getAttendanceReportForEmployee(employeeId: Long, forDate: String): AttendanceReportForEmployeeResponse? {
+        val requestContext = authUtils.validateRequest(
+            employeeId = employeeId,
+            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+        )
+
+        val employee = requestContext.employee!!
+
+        return attendanceServiceConverter.getAttendanceReportForEmployeeResponse(attendanceUtils.getAttendanceReportForEmployee(employee, forDate))
     }
 
 }

@@ -33,4 +33,10 @@ interface AttendanceRepository : JpaRepository<Attendance?, Long?> {
         @Param("endTime") endTime: LocalDateTime,
     ): List<Attendance>
 
+    @Query(value ="SELECT * FROM attendance WHERE for_date IN :datesList and employee_id = :employeeId", nativeQuery = true)
+    fun getAttendancesForEmployee(
+        @Param("employeeId") employeeId: Long,
+        @Param("datesList") datesList: List<String>
+    ): List<Attendance>
+
 }

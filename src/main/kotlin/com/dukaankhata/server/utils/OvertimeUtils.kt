@@ -90,4 +90,12 @@ class OvertimeUtils {
         }
     }
 
+    fun getOvertimesForEmployee(employee: Employee, datesList: List<String>): List<Overtime> {
+        return try {
+            overtimeRepository.getOvertimesForEmployee(employee.id, datesList)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
 }

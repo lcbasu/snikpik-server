@@ -2,7 +2,6 @@ package com.dukaankhata.server.controller
 
 import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.service.AttendanceService
-import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,11 +22,6 @@ class AttendanceController {
         return attendanceService.saveAttendance(saveAttendanceRequest)
     }
 
-    @RequestMapping(value = ["/getAttendances"], method = [RequestMethod.POST])
-    fun getAttendances(@RequestBody getAttendancesRequest: GetAttendancesRequest): AttendancesResponse? {
-        return attendanceService.getAttendances(getAttendancesRequest)
-    }
-
     @RequestMapping(value = ["/getAttendanceInfo"], method = [RequestMethod.POST])
     fun getAttendanceInfo(@RequestBody attendanceInfoRequest: AttendanceInfoRequest): AttendanceInfoResponse? {
         var response: AttendanceInfoResponse?
@@ -46,5 +40,10 @@ class AttendanceController {
     @RequestMapping(value = ["/getAttendanceSummary"], method = [RequestMethod.POST])
     fun getAttendanceSummary(@RequestBody attendanceSummaryRequest: AttendanceSummaryRequest): AttendanceSummaryResponse? {
         return attendanceService.getAttendanceSummary(attendanceSummaryRequest)
+    }
+
+    @RequestMapping(value = ["/getAttendanceReportForEmployee/{employeeId}/{forDate}"], method = [RequestMethod.GET])
+    fun getAttendanceReportForEmployee(@PathVariable employeeId: Long, @PathVariable forDate: String): AttendanceReportForEmployeeResponse? {
+        return attendanceService.getAttendanceReportForEmployee(employeeId, forDate)
     }
 }

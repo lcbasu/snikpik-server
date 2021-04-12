@@ -67,7 +67,7 @@ class AttendanceServiceConverter {
                                       workingMinutes: Int,
                                       attendanceType: AttendanceType,
                                       forDate: String,
-                                      metaData: List<AttendanceUnit>): EmployeeAttendanceResponse {
+                                      metaData: List<AttendanceUnit> = emptyList()): EmployeeAttendanceResponse {
         return EmployeeAttendanceResponse(
             employee = employeeServiceConverter.getSavedEmployeeResponse(employee),
             workingHoursInMinutes = workingMinutes,
@@ -155,7 +155,7 @@ class AttendanceServiceConverter {
                     totalDay = it.totalDay,
                     presentDays = it.presentDays,
                     absentDays = it.absentDays,
-                    halfDaysDays = it.halfDaysDays,
+                    halfDays = it.halfDays,
                     paidHolidays = it.paidHolidays,
                     nonPaidHolidays = it.nonPaidHolidays,
                     overtimeMinutes = it.overtimeMinutes,
@@ -165,6 +165,28 @@ class AttendanceServiceConverter {
                     companyWorkingMinutesPerDay = it.companyWorkingMinutesPerDay
                 )
             }
+        )
+    }
+
+    fun getAttendanceReportForEmployeeResponse(attendanceReportForEmployee: AttendanceReportForEmployee?): AttendanceReportForEmployeeResponse? {
+        if (attendanceReportForEmployee == null) {
+            return null
+        }
+        return AttendanceReportForEmployeeResponse(
+            employee = employeeServiceConverter.getSavedEmployeeResponse(attendanceReportForEmployee.employee),
+            startTime = DateUtils.getEpoch(DateUtils.parseStandardDate(attendanceReportForEmployee.startDate)),
+            endTime = DateUtils.getEpoch(DateUtils.parseStandardDate(attendanceReportForEmployee.endDate)),
+            totalDay = attendanceReportForEmployee.totalDay,
+            presentDays = attendanceReportForEmployee.presentDays,
+            absentDays = attendanceReportForEmployee.absentDays,
+            halfDays = attendanceReportForEmployee.halfDays,
+            paidHolidays = attendanceReportForEmployee.paidHolidays,
+            nonPaidHolidays = attendanceReportForEmployee.nonPaidHolidays,
+            overtimeMinutes = attendanceReportForEmployee.overtimeMinutes,
+            overtimeAmountInPaisa = attendanceReportForEmployee.overtimeAmountInPaisa,
+            lateFineMinutes = attendanceReportForEmployee.lateFineMinutes,
+            lateFineAmountInPaisa = attendanceReportForEmployee.lateFineAmountInPaisa,
+            companyWorkingMinutesPerDay = attendanceReportForEmployee.companyWorkingMinutesPerDay
         )
     }
 }

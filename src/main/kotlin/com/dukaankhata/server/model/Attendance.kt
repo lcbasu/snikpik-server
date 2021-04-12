@@ -9,7 +9,7 @@ data class AttendanceReportForEmployee (
     val totalDay: Int,
     val presentDays: Int,
     val absentDays: Int,
-    val halfDaysDays: Int,
+    val halfDays: Int,
     val paidHolidays: Int,
     val nonPaidHolidays: Int,
     val overtimeMinutes: Int,

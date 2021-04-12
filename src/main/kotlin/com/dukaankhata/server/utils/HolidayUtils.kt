@@ -73,4 +73,11 @@ class HolidayUtils {
             emptyList()
         }
 
+    fun getHolidayForEmployee(employee: Employee, datesList: List<String>): List<Holiday> =
+        try {
+            holidayRepository.getHolidayForEmployee(employee.id, datesList)
+        } catch (e: Exception) {
+            emptyList()
+        }
+
 }
