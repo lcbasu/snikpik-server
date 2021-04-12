@@ -4,6 +4,9 @@ import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.model.Student
 import com.dukaankhata.server.service.PdfService
 import com.dukaankhata.server.utils.DateUtils
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
@@ -20,32 +23,34 @@ class PdfServiceImpl: PdfService() {
     @Autowired
     private lateinit var templateEngine: SpringTemplateEngine
 
-    override fun generateSamplePdf(): File {
-        val context = Context()
-        context.setVariable("students", getStudents())
-        val html = renderHTMLUsingTemplate("pdf_students", context)
-        val htmlAssetsPath = "/pdf-resources/"
-        return renderPdf(html, htmlAssetsPath)
-    }
+    override fun generateSamplePdf(): File =
+        runBlocking {
+            val context = Context()
+            context.setVariable("students", getStudents())
+            val html = async { renderHTMLUsingTemplate("pdf_students", context) }
+            val htmlAssetsPath = "/pdf-resources/"
+            renderPdf(html, htmlAssetsPath)
+        }
 
-    override fun generatePdfForSalarySlip(employee: Employee, startDate: String, endDate: String): File {
-        val context = Context()
-        context.setVariable("payments", getStudents())
-        val html = renderHTMLUsingTemplate("pdf_salary_slip", context)
-        val htmlAssetsPath = "/pdf-payment-resources/"
-        return renderPdf(html, htmlAssetsPath)
-    }
+    override fun generatePdfForSalarySlip(employee: Employee, startDate: String, endDate: String): File =
+        runBlocking {
+            val context = Context()
+            context.setVariable("payments", getStudents())
+            val html = async { renderHTMLUsingTemplate("pdf_salary_slip", context) }
+            val htmlAssetsPath = "/pdf-payment-resources/"
+            renderPdf(html, htmlAssetsPath)
+        }
 
     private fun renderHTMLUsingTemplate(templateName: String, contextWithVariablesValues: Context): String {
         return templateEngine.process(templateName, contextWithVariablesValues)
     }
 
-    private fun renderPdf(HTML: String, htmlAssetsPath: String, prefix: String? = null): File {
+    private suspend fun renderPdf(HTML: Deferred<String>, htmlAssetsPath: String, prefix: String? = null): File {
         val fileNamePrefix = (prefix ?: "dk").plus("_").plus(DateUtils.dateTimeNow().toString())
         val file = File.createTempFile(fileNamePrefix, ".pdf")
         val outputStream: OutputStream = FileOutputStream(file)
         val renderer = ITextRenderer(20f * 4f / 3f, 20)
-        renderer.setDocumentFromString(HTML, ClassPathResource(htmlAssetsPath).url.toExternalForm())
+        renderer.setDocumentFromString(HTML.await(), ClassPathResource(htmlAssetsPath).url.toExternalForm())
         renderer.layout()
         renderer.createPDF(outputStream)
         outputStream.close()
