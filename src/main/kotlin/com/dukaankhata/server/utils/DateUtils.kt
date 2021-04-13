@@ -2,6 +2,9 @@ package com.dukaankhata.server.utils
 
 import java.time.*
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.*
+import kotlin.math.floor
 
 object DateUtils {
     private const val standardFormatter = "yyyy-MM-dd"
@@ -45,5 +48,22 @@ object DateUtils {
         }
         // datesUntil failed to build
         return allDates//toLocalDate(startDateTime).datesUntil(toLocalDate(endDateTime.plusDays(1))).toList()
+    }
+
+    fun getHourOrMinAsString(hourOrMin: Int): String {
+        return if (hourOrMin > 9) "$hourOrMin" else "0$hourOrMin"
+    }
+
+    fun getMinutesToHourString(minutes: Int): String {
+        val hours = floor(minutes.toDouble() / 60.0).toInt()
+        return getHourOrMinAsString(hours) + ":" + getHourOrMinAsString(minutes - (hours*60))
+    }
+
+    fun getDateNumber(strDate: String): Int {
+        return parseStandardDate(strDate).dayOfMonth
+    }
+
+    fun getWeekName(strDate: String): String {
+        return parseStandardDate(strDate).dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
     }
 }

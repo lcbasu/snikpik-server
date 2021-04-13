@@ -123,16 +123,6 @@ data class AttendanceUnit(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class EmployeeAttendanceSummaryResponse(
-    val employee: SavedEmployeeResponse,
-    // Could be different than start and end time of company if the employee was hired
-    // on a date which is different that some other employee
-    val startTime: Long,
-    val endTime: Long,
-    val aggregate: List<AttendanceUnit>
-)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
 data class AttendanceSummaryResponse (
     val company: SavedCompanyResponse,
     val startTime: Long,
@@ -156,4 +146,27 @@ data class AttendanceReportForEmployeeResponse (
     val lateFineMinutes: Int,
     val lateFineAmountInPaisa: Long,
     val companyWorkingMinutesPerDay: Int,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AttendanceSummaryForEmployeeRequest(
+    val employeeId: Long,
+    val forYear: Int,
+    val forMonth: Int,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AttendanceInfoDataResponse (
+    val attendanceType: AttendanceType,
+    val displayText: String,
+    val dateNumber: Int,
+    val dateText: String
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AttendanceSummaryForEmployeeResponse (
+    val employee: SavedEmployeeResponse,
+    // Key: forDate, Value: Type
+    val attendancesReport: Map<String, AttendanceInfoDataResponse>,
+    val attendanceTypeAggregate: List<AttendanceTypeAggregateResponse>,
 )

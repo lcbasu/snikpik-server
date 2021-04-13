@@ -1,7 +1,9 @@
 package com.dukaankhata.server.utils
 
+import AttendanceInfoData
 import AttendancePunchData
 import AttendanceReportForEmployee
+import ReportDuration
 import com.dukaankhata.server.dao.AttendanceByAdminRepository
 import com.dukaankhata.server.dao.AttendanceRepository
 import com.dukaankhata.server.dto.*
@@ -155,13 +157,9 @@ class AttendanceUtils {
         return savedAttendance
     }
 
-    // Get attendance Summary for 1 month instead of 3 months.
-    // Payment Summary gets summary for last 3 month.
-    fun getAttendanceSummary(requestContext: RequestContext, attendanceSummaryRequest: AttendanceSummaryRequest): AttendanceSummaryResponse {
-        val company = requestContext.company!!
-
+    private fun getReportDuration(forYear: Int, forMonth: Int): ReportDuration {
         // Choosing a random date in middle to select correct start and end month
-        val startDate = LocalDateTime.of(attendanceSummaryRequest.forYear, attendanceSummaryRequest.forMonth, 20, 0, 0, 0, 0)
+        val startDate = LocalDateTime.of(forYear, forMonth, 20, 0, 0, 0, 0)
 
         // First day of month
         val startTime = startDate.with(TemporalAdjusters.firstDayOfMonth()).toLocalDate().atStartOfDay()
@@ -171,12 +169,23 @@ class AttendanceUtils {
         if (endTime.isAfter(DateUtils.dateTimeNow())) {
             endTime = DateUtils.dateTimeNow()
         }
+        return ReportDuration(
+            startTime = startTime,
+            endTime = endTime
+        )
+    }
+
+    // Get attendance Summary for 1 month instead of 3 months.
+    // Payment Summary gets summary for last 3 month.
+    fun getAttendanceSummary(requestContext: RequestContext, attendanceSummaryRequest: AttendanceSummaryRequest): AttendanceSummaryResponse {
+        val company = requestContext.company ?: error("Company is required")
+        val reportDuration = getReportDuration(attendanceSummaryRequest.forYear, attendanceSummaryRequest.forMonth)
 
         return attendanceServiceConverter.getAttendanceSummary(
             company = company,
-            startTime = startTime,
-            endTime = endTime,
-            attendanceReportForEmployees = getAttendanceReportForCompany(company, startTime, endTime)
+            startTime = reportDuration.startTime,
+            endTime = reportDuration.endTime,
+            attendanceReportForEmployees = getAttendanceReportForCompany(company, reportDuration.startTime, reportDuration.endTime)
         )
     }
 
@@ -285,11 +294,102 @@ class AttendanceUtils {
         )
     }
 
+    fun getEmployeeAttendanceAggregateReport(employee: Employee, forYear: Int, forMonth: Int): List<AttendanceTypeAggregateResponse> {
+        val reportDuration = getReportDuration(forYear, forMonth)
+        return getEmployeeAttendanceAggregateReport(employee, reportDuration.startTime, reportDuration.endTime)
+    }
+
+    fun getEmployeeAttendanceAggregateReport(employee: Employee, startDateTime: LocalDateTime, endDateTime: LocalDateTime): List<AttendanceTypeAggregateResponse> {
+        return runBlocking {
+            val employeeAttendanceDetails = mutableListOf<EmployeeAttendanceResponse>()
+            val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(startDateTime, endDateTime).map { DateUtils.toStringDate(it) }
+
+            datesList.map { forDate ->
+                employeeAttendanceDetails.addAll(getEmployeeAttendanceResponse(employee, forDate))
+            }
+            val aggregateIds = mutableMapOf<AttendanceType, Int>()
+            employeeAttendanceDetails.map { emAtt ->
+                aggregateIds[emAtt.attendanceType] = aggregateIds.getOrDefault(emAtt.attendanceType, 0) + 1
+                emAtt.metaData.map { md ->
+                    aggregateIds[md.attendanceType] = aggregateIds.getOrDefault(md.attendanceType, 0) + 1
+                }
+            }
+            aggregateIds.map { attendanceServiceConverter.getAttendanceTypeAggregateResponse(it.key, it.value) }
+        }
+    }
+
+    suspend fun getEmployeeAttendanceResponse(employee: Employee, forDate: String): List<EmployeeAttendanceResponse> {
+        val employeeAttendanceDetails = mutableListOf<EmployeeAttendanceResponse>()
+        val attendanceReportForEmployee = getAttendanceReportForEmployee(employee, forDate)
+        attendanceReportForEmployee?.let { employeeReport ->
+            if (employeeReport.presentDays > 0) {
+                employeeAttendanceDetails.add(
+                    attendanceServiceConverter.getEmployeeAttendanceResponse(
+                        employee = employee,
+                        workingMinutes = employeeReport.companyWorkingMinutesPerDay,
+                        attendanceType = AttendanceType.PRESENT,
+                        forDate = forDate,
+                        metaData = getMetaData(employee, employeeReport)
+                    )
+                )
+            }
+
+            if (employeeReport.halfDays > 0) {
+                employeeAttendanceDetails.add(
+                    attendanceServiceConverter.getEmployeeAttendanceResponse(
+                        employee = employee,
+                        workingMinutes = employeeReport.companyWorkingMinutesPerDay/2,
+                        attendanceType = AttendanceType.HALF_DAY,
+                        forDate = forDate,
+                        metaData = getMetaData(employee, employeeReport)
+                    )
+                )
+            }
+
+            if (employeeReport.absentDays > 0) {
+                employeeAttendanceDetails.add(
+                    attendanceServiceConverter.getEmployeeAttendanceResponse(
+                        employee = employee,
+                        workingMinutes = 0,
+                        attendanceType = AttendanceType.ABSENT,
+                        forDate = forDate,
+                        metaData = getMetaData(employee, employeeReport)
+                    )
+                )
+            }
+
+            if (employeeReport.paidHolidays > 0) {
+                employeeAttendanceDetails.add(
+                    attendanceServiceConverter.getEmployeeAttendanceResponse(
+                        employee = employee,
+                        workingMinutes = 0,
+                        attendanceType = AttendanceType.HOLIDAY_PAID,
+                        forDate = forDate,
+                        metaData = getMetaData(employee, employeeReport)
+                    )
+                )
+            }
+
+            if (employeeReport.nonPaidHolidays > 0) {
+                employeeAttendanceDetails.add(
+                    attendanceServiceConverter.getEmployeeAttendanceResponse(
+                        employee = employee,
+                        workingMinutes = 0,
+                        attendanceType = AttendanceType.HOLIDAY_NON_PAID,
+                        forDate = forDate,
+                        metaData = getMetaData(employee, employeeReport)
+                    )
+                )
+            }
+        }
+        return employeeAttendanceDetails
+    }
+
     suspend fun getAttendanceInfoV2(company: Company, forDate: String): AttendanceInfoResponse? {
         return coroutineScope {
 
             val dateToBeUsed = DateUtils.parseStandardDate(forDate)
-            val startDateTime = dateToBeUsed.toLocalDate().atStartOfDay()
+//            val startDateTime = dateToBeUsed.toLocalDate().atStartOfDay()
             val endDateTime = dateToBeUsed.toLocalDate().atTime(LocalTime.MAX)
 
             val employeeAttendanceDetails = mutableListOf<EmployeeAttendanceResponse>()
@@ -299,90 +399,7 @@ class AttendanceUtils {
                 .map { employee ->
                     async {
                         logger.debug("Get attendance for employee: ${employee.id}")
-                        val attendanceReportForEmployee = getAttendanceReportForEmployee(employee, startDateTime, endDateTime)
-                        attendanceReportForEmployee?.let { employeeReport ->
-                            if (employeeReport.presentDays > 0) {
-                                employeeAttendanceDetails.add(
-                                    attendanceServiceConverter.getEmployeeAttendanceResponse(
-                                        employee = employee,
-                                        workingMinutes = employeeReport.companyWorkingMinutesPerDay,
-                                        attendanceType = AttendanceType.PRESENT,
-                                        forDate = forDate,
-                                        metaData = getMetaData(employee, employeeReport)
-                                    )
-                                )
-                            }
-
-                            if (employeeReport.halfDays > 0) {
-                                employeeAttendanceDetails.add(
-                                    attendanceServiceConverter.getEmployeeAttendanceResponse(
-                                        employee = employee,
-                                        workingMinutes = employeeReport.companyWorkingMinutesPerDay/2,
-                                        attendanceType = AttendanceType.HALF_DAY,
-                                        forDate = forDate,
-                                        metaData = getMetaData(employee, employeeReport)
-                                    )
-                                )
-                            }
-
-                            if (employeeReport.absentDays > 0) {
-                                employeeAttendanceDetails.add(
-                                    attendanceServiceConverter.getEmployeeAttendanceResponse(
-                                        employee = employee,
-                                        workingMinutes = 0,
-                                        attendanceType = AttendanceType.ABSENT,
-                                        forDate = forDate,
-                                        metaData = getMetaData(employee, employeeReport)
-                                    )
-                                )
-                            }
-
-                            if (employeeReport.paidHolidays > 0) {
-                                employeeAttendanceDetails.add(
-                                    attendanceServiceConverter.getEmployeeAttendanceResponse(
-                                        employee = employee,
-                                        workingMinutes = 0,
-                                        attendanceType = AttendanceType.HOLIDAY_PAID,
-                                        forDate = forDate,
-                                        metaData = getMetaData(employee, employeeReport)
-                                    )
-                                )
-                            }
-
-                            if (employeeReport.nonPaidHolidays > 0) {
-                                employeeAttendanceDetails.add(
-                                    attendanceServiceConverter.getEmployeeAttendanceResponse(
-                                        employee = employee,
-                                        workingMinutes = 0,
-                                        attendanceType = AttendanceType.HOLIDAY_NON_PAID,
-                                        forDate = forDate,
-                                        metaData = getMetaData(employee, employeeReport)
-                                    )
-                                )
-                            }
-//
-//                            if (employeeReport.overtimeMinutes > 0) {
-//                                employeeAttendanceDetails.add(
-//                                    attendanceServiceConverter.getEmployeeAttendanceResponse(
-//                                        employee = employee,
-//                                        workingMinutes = employeeReport.companyWorkingMinutesPerDay + employeeReport.overtimeMinutes,
-//                                        attendanceType = AttendanceType.OVERTIME,
-//                                        forDate = forDate
-//                                    )
-//                                )
-//                            }
-//
-//                            if (employeeReport.lateFineMinutes > 0) {
-//                                employeeAttendanceDetails.add(
-//                                    attendanceServiceConverter.getEmployeeAttendanceResponse(
-//                                        employee = employee,
-//                                        workingMinutes = employeeReport.companyWorkingMinutesPerDay - employeeReport.lateFineMinutes,
-//                                        attendanceType = AttendanceType.LATE_FINE,
-//                                        forDate = forDate
-//                                    )
-//                                )
-//                            }
-                        }
+                        employeeAttendanceDetails.addAll(getEmployeeAttendanceResponse(employee, forDate))
                     }
                 }.map {
                     it.await()
@@ -750,5 +767,62 @@ class AttendanceUtils {
                 it.await()
             }
         }
+    }
+
+    fun getAttendanceSummaryForEmployee(employee: Employee, forYear: Int, forMonth: Int): Map<String, AttendanceInfoData> {
+        val reportDuration = getReportDuration(forYear, forMonth)
+        val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(reportDuration.startTime, reportDuration.endTime).map { DateUtils.toStringDate(it) }
+        val attendancesReport = mutableMapOf<String, AttendanceInfoData>()
+        val company = employee.company ?: error("Company should always be present")
+        datesList.map { forDate ->
+            val attendanceReportForEmployee = getAttendanceReportForEmployee(employee, forDate)
+            attendanceReportForEmployee?.let { employeeReport ->
+                when {
+                    employeeReport.presentDays > 0 -> {
+                        attendancesReport[forDate] = AttendanceInfoData(
+                            attendanceType = AttendanceType.PRESENT,
+                            displayText = DateUtils.getMinutesToHourString(company.workingMinutes) + " Hrs",
+                            dateNumber = DateUtils.getDateNumber(forDate),
+                            dateText = DateUtils.getWeekName(forDate))
+                    }
+                    employeeReport.halfDays > 0 -> {
+                        attendancesReport[forDate] = AttendanceInfoData(
+                            attendanceType = AttendanceType.HALF_DAY,
+                            displayText = DateUtils.getMinutesToHourString(company.workingMinutes/2) + " Hrs",
+                            dateNumber = DateUtils.getDateNumber(forDate),
+                            dateText = DateUtils.getWeekName(forDate))
+                    }
+                    employeeReport.absentDays > 0 -> {
+                        attendancesReport[forDate] = AttendanceInfoData(
+                            attendanceType = AttendanceType.ABSENT,
+                            displayText = "0:00 Hrs",
+                            dateNumber = DateUtils.getDateNumber(forDate),
+                            dateText = DateUtils.getWeekName(forDate))
+                    }
+                    employeeReport.paidHolidays > 0 -> {
+                        attendancesReport[forDate] = AttendanceInfoData(
+                            attendanceType = AttendanceType.HOLIDAY_PAID,
+                            displayText = "On Paid Holiday",
+                            dateNumber = DateUtils.getDateNumber(forDate),
+                            dateText = DateUtils.getWeekName(forDate))
+                    }
+                    employeeReport.nonPaidHolidays > 0 -> {
+                        attendancesReport[forDate] = AttendanceInfoData(
+                            attendanceType = AttendanceType.HOLIDAY_NON_PAID,
+                            displayText = "On Un-Paid Holiday",
+                            dateNumber = DateUtils.getDateNumber(forDate),
+                            dateText = DateUtils.getWeekName(forDate))
+                    }
+                    else -> {
+                        attendancesReport[forDate] = AttendanceInfoData(
+                            attendanceType = AttendanceType.NONE,
+                            displayText = "Unknown",
+                            dateNumber = 7,
+                            dateText = DateUtils.getWeekName(forDate))
+                    }
+                }
+            }
+        }
+        return attendancesReport
     }
 }

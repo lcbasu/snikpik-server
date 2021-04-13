@@ -64,9 +64,21 @@ class AttendanceServiceImpl : AttendanceService() {
             requiredRoleTypes = authUtils.onlyAdminLevelRoles()
         )
 
-        val employee = requestContext.employee!!
+        val employee = requestContext.employee ?: error("Employee is required")
 
         return attendanceServiceConverter.getAttendanceReportForEmployeeResponse(attendanceUtils.getAttendanceReportForEmployee(employee, forDate))
+    }
+
+    override fun getAttendanceSummaryForEmployee(attendanceSummaryForEmployeeRequest: AttendanceSummaryForEmployeeRequest): AttendanceSummaryForEmployeeResponse? {
+        val requestContext = authUtils.validateRequest(
+            employeeId = attendanceSummaryForEmployeeRequest.employeeId,
+            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+        )
+
+        val employee = requestContext.employee ?: error("Employee is required")
+        val map = attendanceUtils.getAttendanceSummaryForEmployee(employee, attendanceSummaryForEmployeeRequest.forYear, attendanceSummaryForEmployeeRequest.forMonth)
+        val agg = attendanceUtils.getEmployeeAttendanceAggregateReport(employee, attendanceSummaryForEmployeeRequest.forYear, attendanceSummaryForEmployeeRequest.forMonth)
+        return attendanceServiceConverter.getAttendanceSummaryForEmployeeResponse(employee, map, agg)
     }
 
 }

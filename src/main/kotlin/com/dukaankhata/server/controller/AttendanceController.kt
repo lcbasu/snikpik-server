@@ -46,4 +46,9 @@ class AttendanceController {
     fun getAttendanceReportForEmployee(@PathVariable employeeId: Long, @PathVariable forDate: String): AttendanceReportForEmployeeResponse? {
         return attendanceService.getAttendanceReportForEmployee(employeeId, forDate)
     }
+
+    @RequestMapping(value = ["/getAttendanceSummaryForEmployee"], method = [RequestMethod.POST])
+    fun getAttendanceSummaryForEmployee(@RequestBody attendanceSummaryForEmployeeRequest: AttendanceSummaryForEmployeeRequest): AttendanceSummaryForEmployeeResponse? {
+        return attendanceService.getAttendanceSummaryForEmployee(attendanceSummaryForEmployeeRequest)
+    }
 }

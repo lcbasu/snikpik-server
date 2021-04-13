@@ -1,5 +1,6 @@
 package com.dukaankhata.server.service.converter
 
+import AttendanceInfoData
 import AttendanceReportForEmployee
 import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.entities.*
@@ -187,6 +188,27 @@ class AttendanceServiceConverter {
             lateFineMinutes = attendanceReportForEmployee.lateFineMinutes,
             lateFineAmountInPaisa = attendanceReportForEmployee.lateFineAmountInPaisa,
             companyWorkingMinutesPerDay = attendanceReportForEmployee.companyWorkingMinutesPerDay
+        )
+    }
+
+    fun getAttendanceSummaryForEmployeeResponse(employee: Employee, attendancesReport: Map<String, AttendanceInfoData>, attendanceTypeAggregate: List<AttendanceTypeAggregateResponse>): AttendanceSummaryForEmployeeResponse? {
+        val attendancesReportResponse = mutableMapOf<String, AttendanceInfoDataResponse>()
+        attendancesReport.map {
+            attendancesReportResponse.put(it.key, getAttendanceInfoDataResponse(it.value))
+        }
+        return AttendanceSummaryForEmployeeResponse(
+            employee = employeeServiceConverter.getSavedEmployeeResponse(employee),
+            attendancesReport = attendancesReportResponse,
+            attendanceTypeAggregate = attendanceTypeAggregate
+        )
+    }
+
+    fun getAttendanceInfoDataResponse(attendanceInfoData: AttendanceInfoData): AttendanceInfoDataResponse {
+        return AttendanceInfoDataResponse(
+            attendanceType = attendanceInfoData.attendanceType,
+            displayText = attendanceInfoData.displayText,
+            dateNumber = attendanceInfoData.dateNumber,
+            dateText = attendanceInfoData.dateText,
         )
     }
 }

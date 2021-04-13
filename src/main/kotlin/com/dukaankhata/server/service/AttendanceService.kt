@@ -8,4 +8,5 @@ abstract class AttendanceService {
     abstract fun markAttendance(markAttendanceRequest: MarkAttendanceRequest): SavedAttendanceByAdminResponse?
     abstract fun getAttendanceSummary(attendanceSummaryRequest: AttendanceSummaryRequest): AttendanceSummaryResponse?
     abstract fun getAttendanceReportForEmployee(employeeId: Long, forDate: String): AttendanceReportForEmployeeResponse?
+    abstract fun getAttendanceSummaryForEmployee(attendanceSummaryForEmployeeRequest: AttendanceSummaryForEmployeeRequest): AttendanceSummaryForEmployeeResponse?
 }

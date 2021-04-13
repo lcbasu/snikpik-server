@@ -24,3 +24,15 @@ data class AttendancePunchData (
     val totalMinutes: Int,
     val updatedAt: LocalDateTime
 )
+
+data class ReportDuration(
+    val startTime: LocalDateTime,
+    val endTime: LocalDateTime
+)
+
+data class AttendanceInfoData (
+    val attendanceType: AttendanceType,
+    val displayText: String,
+    val dateNumber: Int,
+    val dateText: String
+)
