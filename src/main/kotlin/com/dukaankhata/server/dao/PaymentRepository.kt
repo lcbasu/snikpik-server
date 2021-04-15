@@ -22,4 +22,10 @@ interface PaymentRepository : JpaRepository<Payment?, Long?> {
         @Param("forDate") forDate: String
     ): List<Payment>
 
+    @Query(value ="SELECT * FROM payment WHERE for_date IN :datesList and company_id = :companyId", nativeQuery = true)
+    fun getPayments(
+        @Param("companyId") companyId: Long,
+        @Param("datesList") datesList: List<String>
+    ): List<Payment>
+
 }

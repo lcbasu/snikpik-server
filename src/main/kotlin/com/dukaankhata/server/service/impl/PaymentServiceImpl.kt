@@ -49,17 +49,15 @@ class PaymentServiceImpl : PaymentService() {
             requiredRoleTypes = authUtils.onlyAdminLevelRoles()
         )
 
-        // Choosing a random date in middle to select correct start and end month
-        val startDate = LocalDateTime.of(paymentSummaryRequest.forYear, paymentSummaryRequest.forMonth, 20, 0, 0, 0, 0)
-        val startTime = startDate.with(TemporalAdjusters.firstDayOfMonth()).toLocalDate().atStartOfDay().minusMonths(2) // get data from past 2 months
-        val endTime = startDate.with(TemporalAdjusters.lastDayOfMonth()).toLocalDate().atTime(LocalTime.MAX)
+        val company = requestContext.company ?: error("Company is required")
 
-        val payments = paymentUtils.getAllPaymentsBetweenGivenTimes(
-            companyId = requestContext.company!!.id,
-            startTime = startTime,
-            endTime = endTime
+        val monthlyPaymentSummary = paymentUtils.getMonthlyPaymentSummary(
+            company = company,
+            forYear = paymentSummaryRequest.forYear,
+            forMonth = paymentSummaryRequest.forMonth
         )
-        return paymentServiceConverter.getPaymentSummary(requestContext.company, payments)
+        return paymentServiceConverter.getPaymentSummary(forYear = paymentSummaryRequest.forYear,
+            forMonth = paymentSummaryRequest.forMonth, requestContext.company, monthlyPaymentSummary)
     }
 
 }

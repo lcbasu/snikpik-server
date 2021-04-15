@@ -1,5 +1,6 @@
 package com.dukaankhata.server.dto
 
+import com.dukaankhata.server.enums.MonthlyPaymentType
 import com.dukaankhata.server.enums.PaymentType
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
@@ -34,24 +35,33 @@ data class PaymentSummaryRequest(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class MonthPayment(
+data class MonthPaymentResponse(
     val monthNumber: Int,
     val amount: Long,
-    //val payments: List<SavedPaymentResponse>
+    val monthlyPaymentType: MonthlyPaymentType,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class EmployeePaymentSummaryResponse(
     val employee: SavedEmployeeResponse,
+    val currentMonthNumber: Int,
+    val currentMonthSalary: Long,
+    val currentMonthPayments: Long,
+    val prevMonthNumber: Int,
+    val prevMonthClosing: Long,
     // For current and last 2 months
     // Only for the current employee
-    val monthlyPayments: List<MonthPayment>
+    val monthlyPayments: List<MonthPaymentResponse>
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class PaymentSummaryResponse(
     val company: SavedCompanyResponse,
-    // For current and last 2 months for the entire company
-    val monthlyPayments: List<MonthPayment>,
+    val currentMonthNumber: Int,
+    val currentMonthSalary: Long,
+    val currentMonthPayments: Long,
+    val prevMonthNumber: Int,
+    val prevMonthClosing: Long,
+    val monthlyPayments: List<MonthPaymentResponse>,
     val employeePayments: List<EmployeePaymentSummaryResponse>,
 )

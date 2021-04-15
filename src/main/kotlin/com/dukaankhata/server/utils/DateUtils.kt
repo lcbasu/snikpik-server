@@ -1,8 +1,10 @@
 package com.dukaankhata.server.utils
 
+import ReportDuration
 import java.time.*
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
+import java.time.temporal.TemporalAdjusters
 import java.util.*
 import kotlin.math.floor
 
@@ -65,5 +67,26 @@ object DateUtils {
 
     fun getWeekName(strDate: String): String {
         return parseStandardDate(strDate).dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
+    }
+
+    fun getRandomDateInMonth(forYear: Int, forMonth: Int): LocalDateTime {
+        return LocalDateTime.of(forYear, forMonth, 20, 0, 0, 0, 0)
+    }
+
+    fun getReportDuration(forYear: Int, forMonth: Int): ReportDuration {
+        // Choosing a random date in middle to select correct start and end month
+        val startDate = getRandomDateInMonth(forYear = forYear, forMonth = forMonth)
+        // First day of month
+        val startTime = startDate.with(TemporalAdjusters.firstDayOfMonth()).toLocalDate().atStartOfDay()
+
+        // Last day of month or today in case of current month
+        var endTime = startDate.with(TemporalAdjusters.lastDayOfMonth()).toLocalDate().atTime(LocalTime.MAX)
+        if (endTime.isAfter(DateUtils.dateTimeNow())) {
+            endTime = DateUtils.dateTimeNow()
+        }
+        return ReportDuration(
+            startTime = startTime,
+            endTime = endTime
+        )
     }
 }

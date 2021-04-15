@@ -157,29 +157,11 @@ class AttendanceUtils {
         return savedAttendance
     }
 
-    private fun getReportDuration(forYear: Int, forMonth: Int): ReportDuration {
-        // Choosing a random date in middle to select correct start and end month
-        val startDate = LocalDateTime.of(forYear, forMonth, 20, 0, 0, 0, 0)
-
-        // First day of month
-        val startTime = startDate.with(TemporalAdjusters.firstDayOfMonth()).toLocalDate().atStartOfDay()
-
-        // Last day of month or today in case of current month
-        var endTime = startDate.with(TemporalAdjusters.lastDayOfMonth()).toLocalDate().atTime(LocalTime.MAX)
-        if (endTime.isAfter(DateUtils.dateTimeNow())) {
-            endTime = DateUtils.dateTimeNow()
-        }
-        return ReportDuration(
-            startTime = startTime,
-            endTime = endTime
-        )
-    }
-
     // Get attendance Summary for 1 month instead of 3 months.
     // Payment Summary gets summary for last 3 month.
     fun getAttendanceSummary(requestContext: RequestContext, attendanceSummaryRequest: AttendanceSummaryRequest): AttendanceSummaryResponse {
         val company = requestContext.company ?: error("Company is required")
-        val reportDuration = getReportDuration(attendanceSummaryRequest.forYear, attendanceSummaryRequest.forMonth)
+        val reportDuration = DateUtils.getReportDuration(attendanceSummaryRequest.forYear, attendanceSummaryRequest.forMonth)
 
         return attendanceServiceConverter.getAttendanceSummary(
             company = company,
@@ -295,7 +277,7 @@ class AttendanceUtils {
     }
 
     fun getEmployeeAttendanceAggregateReport(employee: Employee, forYear: Int, forMonth: Int): List<AttendanceTypeAggregateResponse> {
-        val reportDuration = getReportDuration(forYear, forMonth)
+        val reportDuration = DateUtils.getReportDuration(forYear, forMonth)
         return getEmployeeAttendanceAggregateReport(employee, reportDuration.startTime, reportDuration.endTime)
     }
 
@@ -770,7 +752,7 @@ class AttendanceUtils {
     }
 
     fun getAttendanceSummaryForEmployee(employee: Employee, forYear: Int, forMonth: Int): Map<String, AttendanceInfoData> {
-        val reportDuration = getReportDuration(forYear, forMonth)
+        val reportDuration = DateUtils.getReportDuration(forYear, forMonth)
         val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(reportDuration.startTime, reportDuration.endTime).map { DateUtils.toStringDate(it) }
         val attendancesReport = mutableMapOf<String, AttendanceInfoData>()
         val company = employee.company ?: error("Company should always be present")
