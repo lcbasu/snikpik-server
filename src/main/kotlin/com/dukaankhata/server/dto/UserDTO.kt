@@ -25,3 +25,16 @@ data class RequestContext (
     val employee: Employee? = null,
     val userRoles: List<UserRole> = emptyList(),
 )
+
+data class VerifyPhoneResponse (
+    val valid: Boolean,
+    val numberInInterNationalFormat: String? = null,
+    val numberInNationalFormat: String? = null,
+    val countryCode: String? = null,
+    val callerName: String? = null,
+    val callerType: String? = null,
+    val carrierName: String? = null,
+    val carrierType: String? = null,
+    val mobileCountryCode: String? = null,
+    val mobileNetworkCode: String? = null,
+)

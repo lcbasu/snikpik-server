@@ -44,7 +44,7 @@ dependencies {
 	implementation("ch.qos.logback:logback-classic:1.2.3")
 	implementation("ch.qos.logback:logback-core:1.2.3")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.3.8.RELEASE")
-//	implementation("com.twilio.sdk:twilio:7.47.2")
+	implementation("com.twilio.sdk:twilio:8.10.0")
 //	implementation("org.apache.tika:tika-core:1.4")
 //	implementation("commons-io:commons-io:2.7")
 	implementation("org.hibernate:hibernate-envers:5.4.27.Final")
