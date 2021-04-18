@@ -1,5 +1,6 @@
 package com.dukaankhata.server.entities
 
+import com.dukaankhata.server.enums.DKShopStatus
 import com.dukaankhata.server.enums.SalaryPaymentSchedule
 import javax.persistence.*
 
@@ -19,4 +20,18 @@ class Company : Auditable() {
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     var user: User? = null;
+
+    // DK Store related fields
+    @Enumerated(EnumType.STRING)
+    var dkShopStatus: DKShopStatus = DKShopStatus.ONLINE
+
+    var address: String = "" // Address object
+
+    var username: String = ""
+
+    var totalOrderAmountInPaisa: Long = 0
+    var totalStoreViewCount: Long = 0
+    var totalOrdersCount: Long = 0
+    var totalProductsViewCount: Long = 0
+
 }
