@@ -15,9 +15,9 @@ class UniqueIdGeneratorUtils {
     private lateinit var uniqueIdRepository: UniqueIdRepository
 
     @Transactional
-    fun getUniqueId(prefix: String?): String? {
+    fun getUniqueId(prefix: String? = null, maxLength: Int? = 10): String? {
         // Create a new UUID
-        var currentId = getCurrentId(prefix)
+        var currentId = getRandomId(prefix, maxLength)
 
         // Check in DB and regenerate of required
         try {
@@ -25,7 +25,7 @@ class UniqueIdGeneratorUtils {
             var existingResult = uniqueIdRepository.findById(currentId)
             var currentTryoutCount = 1
             while (existingResult.isPresent && currentTryoutCount < maximumTryout) {
-                currentId = getCurrentId(prefix)
+                currentId = getRandomId(prefix, maxLength)
                 existingResult = uniqueIdRepository.findById(currentId)
                 currentTryoutCount += 1
             }
@@ -41,9 +41,14 @@ class UniqueIdGeneratorUtils {
         return null
     }
 
-    private fun getCurrentId(prefix: String?): String {
-        val currentUuid = generateUUIDString(UUID.randomUUID())
-        return (prefix?.let { it + currentUuid } ?: currentUuid).toUpperCase()
+    private fun getRandomId(prefix: String? = null, maxLength: Int? = null): String {
+        val randomUuidOriginal = generateUUIDString(UUID.randomUUID())
+        val randomUuid = if (maxLength != null && randomUuidOriginal.length > maxLength) {
+            randomUuidOriginal.substring(0, maxLength - 1)
+        } else {
+            randomUuidOriginal
+        }
+        return (prefix?.let { it + randomUuid } ?: randomUuid).toUpperCase()
     }
 
     // https://stackoverflow.com/a/50275487
