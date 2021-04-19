@@ -1,14 +1,9 @@
 package com.dukaankhata.server.controller
 
-import com.dukaankhata.server.dto.SavedUserResponse
-import com.dukaankhata.server.dto.UserRoleResponse
-import com.dukaankhata.server.dto.VerifyPhoneResponse
+import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("user")
@@ -29,5 +24,10 @@ class UserController {
     @RequestMapping(value = ["/verifyPhone/{phoneNumber}"], method = [RequestMethod.GET])
     fun verifyPhone(@PathVariable phoneNumber: String): VerifyPhoneResponse? {
         return userService.verifyPhone(phoneNumber)
+    }
+
+    @RequestMapping(value = ["/saveAddress"], method = [RequestMethod.POST])
+    fun saveAddress(@RequestBody saveUserAddressRequest: SaveUserAddressRequest): SavedUserAddressResponse? {
+        return userService.saveAddress(saveUserAddressRequest)
     }
 }

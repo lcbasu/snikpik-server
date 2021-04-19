@@ -5,7 +5,7 @@ import com.dukaankhata.server.enums.RoleType
 import com.dukaankhata.server.enums.SalaryType
 import com.dukaankhata.server.service.EmployeeService
 import com.dukaankhata.server.service.PdfService
-import com.dukaankhata.server.service.SchedulerService
+import com.dukaankhata.server.service.schedule.EmployeeSalaryUpdateSchedulerService
 import com.dukaankhata.server.service.converter.EmployeeServiceConverter
 import com.dukaankhata.server.utils.AuthUtils
 import com.dukaankhata.server.utils.CompanyUtils
@@ -33,7 +33,7 @@ class EmployeeServiceImpl : EmployeeService() {
     private lateinit var employeeUtils: EmployeeUtils
 
     @Autowired
-    private lateinit var schedulerService: SchedulerService
+    private lateinit var employeeSalaryUpdateSchedulerService: EmployeeSalaryUpdateSchedulerService
 
     @Autowired
     private lateinit var pdfService: PdfService
@@ -57,7 +57,7 @@ class EmployeeServiceImpl : EmployeeService() {
             ?: error("Unable to save user role for the employee")
 
         if (employee.salaryType != SalaryType.ONE_TIME) {
-            schedulerService.scheduleEmployeeSalaryUpdate(employee);
+            employeeSalaryUpdateSchedulerService.scheduleEmployeeSalaryUpdate(employee);
         }
 
         return employeeServiceConverter.getSavedEmployeeResponse(employee);
@@ -82,7 +82,7 @@ class EmployeeServiceImpl : EmployeeService() {
     override fun removeEmployee(removeEmployeeRequest: RemoveEmployeeRequest): SavedEmployeeResponse? {
         val employee = employeeUtils.removeEmployee(removeEmployeeRequest)
         if (employee.salaryType != SalaryType.ONE_TIME) {
-            schedulerService.unScheduleEmployeeSalaryUpdate(employee);
+            employeeSalaryUpdateSchedulerService.unScheduleEmployeeSalaryUpdate(employee);
         }
         return employeeServiceConverter.getSavedEmployeeResponse(employee)
     }

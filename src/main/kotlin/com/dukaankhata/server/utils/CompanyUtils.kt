@@ -1,10 +1,11 @@
 package com.dukaankhata.server.utils
 
 import com.dukaankhata.server.dao.CompanyRepository
+import com.dukaankhata.server.entities.Address
 import com.dukaankhata.server.entities.Company
-import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.entities.Payment
 import com.dukaankhata.server.entities.User
+import com.dukaankhata.server.enums.DKShopStatus
 import com.dukaankhata.server.enums.SalaryPaymentSchedule
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -43,4 +44,54 @@ class CompanyUtils {
         newCompany.totalDueAmountInPaisa = 0
         return companyRepository.save(newCompany)
     }
+
+    fun isUsernameAvailable(username: String): Boolean {
+        return try {
+            companyRepository.findByUsername(username) == null
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+    fun saveUsername(company: Company, username: String): Company? {
+        return try {
+            company.username = username
+            companyRepository.save(company)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun takeShopOffline(company: Company): Company? {
+        return try {
+            company.dkShopStatus = DKShopStatus.OFFLINE
+            companyRepository.save(company)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun takeShopOnline(company: Company): Company? {
+        return try {
+            company.dkShopStatus = DKShopStatus.ONLINE
+            companyRepository.save(company)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun updateCompanyDefaultAddress(company: Company, address: Address): Company? {
+        return try {
+            company.defaultAddressId = address.id
+            return companyRepository.save(company)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
 }

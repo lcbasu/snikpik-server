@@ -23,15 +23,17 @@ class Company : Auditable() {
 
     // DK Store related fields
     @Enumerated(EnumType.STRING)
-    var dkShopStatus: DKShopStatus = DKShopStatus.ONLINE
+    var dkShopStatus: DKShopStatus? = DKShopStatus.ONLINE
 
-    var address: String = "" // Address object
+    var address: String? = "" // Address object
 
-    var username: String = ""
+//    @Column(unique = true)
+    var username: String? = ""
 
-    var totalOrderAmountInPaisa: Long = 0
-    var totalStoreViewCount: Long = 0
-    var totalOrdersCount: Long = 0
-    var totalProductsViewCount: Long = 0
+    var totalOrderAmountInPaisa: Long? = 0
+    var totalStoreViewCount: Long? = 0
+    var totalOrdersCount: Long? = 0
+    var totalProductsViewCount: Long? = 0
 
+    var defaultAddressId: Long = -1 // Address table Id
 }

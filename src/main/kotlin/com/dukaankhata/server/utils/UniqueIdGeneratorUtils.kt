@@ -15,7 +15,7 @@ class UniqueIdGeneratorUtils {
     private lateinit var uniqueIdRepository: UniqueIdRepository
 
     @Transactional
-    fun getUniqueId(prefix: String? = null, maxLength: Int? = 10): String? {
+    fun getUniqueId(prefix: String? = null, maxLength: Int? = 10): String {
         // Create a new UUID
         var currentId = getRandomId(prefix, maxLength)
 
@@ -38,7 +38,7 @@ class UniqueIdGeneratorUtils {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        return null
+        error("Failed to generate Unique ID")
     }
 
     private fun getRandomId(prefix: String? = null, maxLength: Int? = null): String {

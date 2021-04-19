@@ -2,10 +2,7 @@ package com.dukaankhata.server.utils
 
 import com.dukaankhata.server.dao.UserRepository
 import com.dukaankhata.server.dto.RequestContext
-import com.dukaankhata.server.entities.Company
-import com.dukaankhata.server.entities.Employee
-import com.dukaankhata.server.entities.User
-import com.dukaankhata.server.entities.UserRole
+import com.dukaankhata.server.entities.*
 import com.dukaankhata.server.enums.Gender
 import com.dukaankhata.server.enums.RoleType
 import com.dukaankhata.server.model.FirebaseAuthUser
@@ -17,7 +14,7 @@ import org.springframework.stereotype.Component
 class AuthUtils {
 
     @Autowired
-    var userRepository: UserRepository? = null
+    private lateinit var userRepository: UserRepository
 
     @Autowired
     private lateinit var companyUtils: CompanyUtils
@@ -41,7 +38,7 @@ class AuthUtils {
     fun getRequestUserEntity(): User? {
         val firebaseAuthUserPrincipal = getFirebaseAuthUser()
         val phoneNumber = firebaseAuthUserPrincipal?.getPhoneNumber() ?: ""
-        userRepository?.let {
+        userRepository.let {
             val user = it.findById(phoneNumber)
             if (user.isPresent && user.get().id.isNotEmpty()) {
                 return user.get()
@@ -51,7 +48,7 @@ class AuthUtils {
     }
 
     fun updateUserUid(id: String, uid: String): User? {
-        return userRepository?.let {
+        return userRepository.let {
             val userOptional = it.findById(id)
             if (userOptional.isPresent) {
                 val user = userOptional.get()
@@ -63,9 +60,8 @@ class AuthUtils {
         }
     }
 
-
     fun createUser(phoneNumber: String, fullName: String, uid: String): User? {
-        return userRepository?.let { val newUser = User()
+        return userRepository.let { val newUser = User()
             newUser.id = phoneNumber
             newUser.fullName = fullName
             newUser.gender = Gender.MALE
@@ -75,14 +71,14 @@ class AuthUtils {
     }
 
     fun getOrCreateUserByPhoneNumber(phoneNumber: String): User? {
-        return userRepository?.let {
+        return userRepository.let {
             return getUserByPhoneNumber(phoneNumber) ?:
             createUser(phoneNumber = phoneNumber, fullName = phoneNumber, uid = "")
         }
     }
 
     fun getUserByPhoneNumber(phoneNumber: String): User? {
-        return userRepository?.let {
+        return userRepository.let {
             val userOptional = it.findById(phoneNumber)
             return if (userOptional.isPresent && userOptional.get().id.isNotEmpty()) {
                 userOptional.get()
@@ -185,5 +181,15 @@ class AuthUtils {
 
     fun onlyAdminLevelRoles(): Set<RoleType> {
         return setOf(RoleType.EMPLOYER, RoleType.EMPLOYEE_ADMIN)
+    }
+
+    fun updateUserDefaultAddress(user: User, address: Address): User? {
+        try {
+            user.defaultAddressId = address.id
+            return userRepository.save(user)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
     }
 }

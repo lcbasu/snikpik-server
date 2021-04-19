@@ -15,4 +15,6 @@ class User : Auditable() {
     var fullName: String = ""
     @Enumerated(EnumType.STRING)
     var gender: Gender = Gender.DO_NOT_SAY
+
+    var defaultAddressId: Long = -1 // Address table Id
 }

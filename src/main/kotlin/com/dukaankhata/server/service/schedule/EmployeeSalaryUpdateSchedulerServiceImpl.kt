@@ -1,9 +1,9 @@
-package com.dukaankhata.server.service.impl
+package com.dukaankhata.server.service.schedule
 
 import com.dukaankhata.server.entities.Employee
+import com.dukaankhata.server.enums.JobGroupType
 import com.dukaankhata.server.enums.SalaryType
 import com.dukaankhata.server.jobs.EmployeeSalaryUpdateJob
-import com.dukaankhata.server.service.SchedulerService
 import com.dukaankhata.server.utils.DateUtils
 import org.quartz.*
 import org.slf4j.Logger
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class SchedulerServiceImpl : SchedulerService() {
+class EmployeeSalaryUpdateSchedulerServiceImpl : EmployeeSalaryUpdateSchedulerService() {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
@@ -72,7 +72,7 @@ class SchedulerServiceImpl : SchedulerService() {
 
     private fun getEmployeeSalaryUpdateJobKey(employee: Employee): JobKey {
         val id: String = employee.id.toString()
-        return JobKey(id, "EmployeeSalaryUpdate-Job")
+        return JobKey(id, JobGroupType.EmployeeSalaryUpdate_Job.name)
     }
 
     private fun getEmployeeSalaryUpdateTrigger(employee: Employee, jobDetail: JobDetail): Trigger {
@@ -89,7 +89,7 @@ class SchedulerServiceImpl : SchedulerService() {
             .newTrigger()
             .forJob(jobDetail.key)
             .withIdentity(triggerKey)
-            .withDescription("Workspace Subscription Renewal Trigger")
+            .withDescription("Employee Salary Update Trigger")
             .startAt(getStartDateForEmployeeSalaryUpdate(employee))
             .withSchedule(getScheduleForEmployeeSalaryUpdate(employee))
             .build()
@@ -97,7 +97,7 @@ class SchedulerServiceImpl : SchedulerService() {
 
     private fun getEmployeeSalaryUpdateTriggerKey(employee: Employee): TriggerKey {
         val id: String = employee.id.toString()
-        return TriggerKey(id, "EmployeeSalaryUpdate-Trigger")
+        return TriggerKey(id, JobGroupType.EmployeeSalaryUpdate_Trigger.name)
     }
 
     private fun getStartDateForEmployeeSalaryUpdate(employee: Employee): Date {

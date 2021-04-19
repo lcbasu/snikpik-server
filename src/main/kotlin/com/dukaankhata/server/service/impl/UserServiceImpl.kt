@@ -1,10 +1,9 @@
 package com.dukaankhata.server.service.impl
 
-import com.dukaankhata.server.dto.SavedUserResponse
-import com.dukaankhata.server.dto.UserRoleResponse
-import com.dukaankhata.server.dto.VerifyPhoneResponse
+import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.service.UserService
 import com.dukaankhata.server.service.converter.UserServiceConverter
+import com.dukaankhata.server.utils.AddressUtils
 import com.dukaankhata.server.utils.AuthUtils
 import com.dukaankhata.server.utils.UserRoleUtils
 import com.twilio.rest.lookups.v1.PhoneNumber
@@ -22,6 +21,9 @@ class UserServiceImpl : UserService() {
     private lateinit var userRoleUtils: UserRoleUtils
 
     @Autowired
+    private lateinit var addressUtils: AddressUtils
+
+    @Autowired
     private lateinit var userServiceConverter: UserServiceConverter
 
     // Save data using the auth token credentials
@@ -36,7 +38,7 @@ class UserServiceImpl : UserService() {
         } else if (user.uid.isBlank()) {
             user = authUtils.updateUserUid(user.id, uid)
         }
-        return userServiceConverter.getSavedUserResponse(user)
+        return user!!.getSavedUserResponse()
     }
 
     override fun getUser(): SavedUserResponse? {
@@ -64,6 +66,21 @@ class UserServiceImpl : UserService() {
         }
         return VerifyPhoneResponse(
             valid = false
+        )
+    }
+
+    override fun saveAddress(saveUserAddressRequest: SaveUserAddressRequest): SavedUserAddressResponse? {
+        val requestContext = authUtils.validateRequest()
+
+        val user = requestContext.user ?: error("User is required")
+
+        val userAddress = addressUtils.saveUserAddress(user, saveUserAddressRequest.name, saveUserAddressRequest.address) ?: error("Error while saving user address")
+        val newAddress = userAddress.address ?: error("Address should always be present for userAddress")
+        val updatedUser = authUtils.updateUserDefaultAddress(user, newAddress) ?: error("Error while updating default address for user")
+
+        return SavedUserAddressResponse(
+            user = updatedUser.getSavedUserResponse(),
+            address = newAddress.toSavedAddressResponse()
         )
     }
 }

@@ -11,7 +11,6 @@ import java.time.LocalDateTime
 import javax.persistence.Column
 import javax.persistence.EntityListeners
 import javax.persistence.MappedSuperclass
-import javax.persistence.Version
 
 @MappedSuperclass
 @EntityListeners(value = [AuditingEntityListener::class])
@@ -21,7 +20,7 @@ abstract class Auditable : Serializable {
     var createdAt: LocalDateTime = DateUtils.dateTimeNow()
 
     @CreatedBy
-    @Column(name = "created_by")
+    @Column(name = "created_by", updatable = false)
     var createdBy: String? = null
 
     @LastModifiedDate

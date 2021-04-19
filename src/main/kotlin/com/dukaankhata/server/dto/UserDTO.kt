@@ -38,3 +38,26 @@ data class VerifyPhoneResponse (
     val mobileCountryCode: String? = null,
     val mobileNetworkCode: String? = null,
 )
+
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SaveUserAddressRequest(
+    val name: String = "",
+    val address: SaveAddressRequest,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SavedUserAddressResponse(
+    val user: SavedUserResponse,
+    val address: SavedAddressResponse,
+)
+
+fun User.getSavedUserResponse(): SavedUserResponse {
+    this.apply {
+        return SavedUserResponse(
+            serverId = id ?: "",
+            name = fullName ?: "",
+            uid = uid ?: "",
+            phoneNumber = id ?: "")
+    }
+}
