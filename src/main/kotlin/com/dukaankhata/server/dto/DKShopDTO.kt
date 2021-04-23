@@ -50,6 +50,7 @@ data class SavedCompanyAddressResponse(
 // Sending all data so that searching is easier
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ShopViewForCustomerResponse(
+    val user: SavedUserResponse,
     val company: SavedCompanyResponse,
     val allProducts: List<SavedProductResponse>,
     val bestsellerProductsIds: Set<String>,

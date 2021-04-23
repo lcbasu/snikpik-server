@@ -112,4 +112,11 @@ class ProductUtils {
             .filterNot { it.id == productId }
     }
 
+    fun getProduct(productId: String): Product? =
+        try {
+            productRepository.findById(productId).get()
+        } catch (e: Exception) {
+            null
+        }
+
 }

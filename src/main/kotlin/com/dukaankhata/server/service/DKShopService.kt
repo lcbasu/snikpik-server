@@ -12,5 +12,5 @@ abstract class DKShopService {
     abstract fun getShopViewForCustomer(username: String): ShopViewForCustomerResponse
     abstract fun getRelatedProducts(productId: String): RelatedProductsResponse?
     abstract fun updateCartRequest(updateCartRequest: UpdateCartRequest): SavedProductOrderResponse?
-    abstract fun handleNonLoggedInUser(): SavedUserResponse?
+    abstract fun getActiveProductOrderBag(shopUsername: String): SavedProductOrderResponse?
 }

@@ -52,7 +52,7 @@ data class SavedUserAddressResponse(
     val address: SavedAddressResponse,
 )
 
-fun User.getSavedUserResponse(): SavedUserResponse {
+fun User.toSavedUserResponse(): SavedUserResponse {
     this.apply {
         return SavedUserResponse(
             serverId = id ?: "",

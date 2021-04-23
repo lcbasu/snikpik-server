@@ -6,16 +6,16 @@ import javax.persistence.*
 class CartItem : Auditable() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0
+    var id: Long = -1
 
-    val totalUnits: Long = 0
+    var totalUnits: Long = 0
 
     // Copying these 2 fields from product as the product prices can change in future
-    val taxPerUnitInPaisa: Long = 0
-    val pricePerUnitInPaisa: Long = 0
+    var taxPerUnitInPaisa: Long = 0
+    var pricePerUnitInPaisa: Long = 0
 
-    val totalTaxInPaisa: Long = 0 // totalUnits * product.taxPerUnitInPaisa
-    val totalPriceWithoutTaxInPaisa: Long = 0 // totalUnits * product.pricePerUnitInPaisa
+    var totalTaxInPaisa: Long = 0 // totalUnits * product.taxPerUnitInPaisa
+    var totalPriceWithoutTaxInPaisa: Long = 0 // totalUnits * product.pricePerUnitInPaisa
 
     // This cart item will ALWAYS belong to a cart
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)

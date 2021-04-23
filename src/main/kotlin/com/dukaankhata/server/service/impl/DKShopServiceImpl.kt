@@ -33,6 +33,9 @@ class DKShopServiceImpl : DKShopService() {
     @Autowired
     private lateinit var takeShopOnlineSchedulerService: TakeShopOnlineSchedulerService
 
+    @Autowired
+    private lateinit var productOrderUtils: ProductOrderUtils
+
 
     override fun saveUsername(saveUsernameRequest: SaveUsernameRequest): SaveUsernameResponse? {
         val requestContext = authUtils.validateRequest(
@@ -108,6 +111,7 @@ class DKShopServiceImpl : DKShopService() {
             // Only logged in user
             // Not signed in user also gets logged in as the anonymous user
             // So that no one else can make the api calls, unless logged in
+            // Or on our websites
             val requestContext = authUtils.validateRequest()
 
             val user = requestContext.user
@@ -136,6 +140,7 @@ class DKShopServiceImpl : DKShopService() {
             )
 
             ShopViewForCustomerResponse(
+                user = user.toSavedUserResponse(),
                 company = company.toSavedCompanyResponse(),
                 allProducts = allProducts.map { it.toSavedProductResponse() },
                 bestsellerProductsIds = bestsellerProducts.await().map { it.id }.toSet(),
@@ -156,10 +161,31 @@ class DKShopServiceImpl : DKShopService() {
     }
 
     override fun updateCartRequest(updateCartRequest: UpdateCartRequest): SavedProductOrderResponse? {
-        TODO("Not yet implemented")
+        val requestContext = authUtils.validateRequest()
+
+        val user = requestContext.user
+        val product = productUtils.getProduct(updateCartRequest.productId) ?: error("Product is required")
+        val company = product.company ?: error("Every product should always belong to a company")
+        val activeProductOrderBag = productOrderUtils.getOrCreateActiveProductOrderBag(
+            company = company,
+            user = user)
+        val updatedCartData = cartItemUtils.updateCartAndDependentOrder(
+            company = company,
+            user = user,
+            product = product,
+            productOrder = activeProductOrderBag,
+            cartItemUpdateAction = updateCartRequest.action)
+        return updatedCartData.updatedProductOrder.toSavedProductOrderResponse(updatedCartData.productOrderCartItems)
     }
 
-    override fun handleNonLoggedInUser(): SavedUserResponse? {
-        TODO("Not yet implemented")
+    override fun getActiveProductOrderBag(shopUsername: String): SavedProductOrderResponse? {
+        val requestContext = authUtils.validateRequest()
+        val user = requestContext.user
+        val company = companyUtils.getCompany(shopUsername) ?: error("Shop username is required")
+        val activeProductOrderBag = productOrderUtils.getActiveProductOrderBag(
+            company = company,
+            user = user)
+        val cartItems = activeProductOrderBag?.let { cartItemUtils.getCartItems(it) } ?: emptyList()
+        return activeProductOrderBag?.toSavedProductOrderResponse(cartItems)
     }
 }

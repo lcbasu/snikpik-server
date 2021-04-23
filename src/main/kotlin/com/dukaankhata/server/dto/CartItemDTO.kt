@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateCartRequest(
-    val productId: Long,
+    val productId: String,
     val action: CartItemUpdateAction
 )
 
@@ -23,7 +23,7 @@ data class SavedCartItemResponse(
 )
 
 
-fun CartItem.toSavedProductResponse(): SavedCartItemResponse {
+fun CartItem.toSavedCartItemResponse(): SavedCartItemResponse {
     this.apply {
         return SavedCartItemResponse(
             serverId = id.toString(),

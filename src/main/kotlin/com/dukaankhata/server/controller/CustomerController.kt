@@ -2,6 +2,7 @@ package com.dukaankhata.server.controller
 
 import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.service.DKShopService
+import com.dukaankhata.server.utils.AuthUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 
@@ -10,6 +11,9 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("customer")
 class CustomerController {
+
+    @Autowired
+    private lateinit var authUtils: AuthUtils
 
     // IMPORTANT
     // To get single prodcut view,
@@ -23,24 +27,31 @@ class CustomerController {
     @Autowired
     private lateinit var dkShopService: DKShopService
 
-    // Create a account for non-logged in user
-    @RequestMapping(value = ["/handleNonLoggedInUser"], method = [RequestMethod.POST])
-    fun handleNonLoggedInUser(): SavedUserResponse? {
-        return dkShopService.handleNonLoggedInUser()
-    }
-
     @RequestMapping(value = ["/getShopViewForCustomer/{username}"], method = [RequestMethod.GET])
     fun getShopViewForCustomer(@PathVariable username: String): ShopViewForCustomerResponse? {
+        customerPreChecks()
         return dkShopService.getShopViewForCustomer(username)
     }
 
     @RequestMapping(value = ["/getRelatedProducts/{productId}"], method = [RequestMethod.GET])
     fun getRelatedProducts(@PathVariable productId: String): RelatedProductsResponse? {
+        customerPreChecks()
         return dkShopService.getRelatedProducts(productId)
     }
 
-    @RequestMapping(value = ["/updateCart"], method = [RequestMethod.GET])
+    @RequestMapping(value = ["/updateCart"], method = [RequestMethod.POST])
     fun updateCart(@RequestBody updateCartRequest: UpdateCartRequest): SavedProductOrderResponse? {
+        customerPreChecks()
         return dkShopService.updateCartRequest(updateCartRequest)
+    }
+
+    @RequestMapping(value = ["/getActiveProductOrderBag/{shopUsername}"], method = [RequestMethod.GET])
+    fun getActiveProductOrderBag(@PathVariable shopUsername: String): SavedProductOrderResponse? {
+        customerPreChecks()
+        return dkShopService.getActiveProductOrderBag(shopUsername)
+    }
+
+    private fun customerPreChecks() {
+        authUtils.makeSureThePublicRequestHasUserEntity()
     }
 }

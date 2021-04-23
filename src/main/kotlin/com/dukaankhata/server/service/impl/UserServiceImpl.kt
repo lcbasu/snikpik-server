@@ -36,10 +36,10 @@ class UserServiceImpl : UserService() {
         if (uid.isNotBlank() && uid.isNotEmpty() && (user.uid?.isBlank() == true || user.uid?.isEmpty() == true)) {
             user = authUtils.updateUserUid(user.id, uid)
         }
-        return user.getSavedUserResponse()
+        return user.toSavedUserResponse()
     }
 
-    override fun getUser(): SavedUserResponse? = authUtils.getRequestUserEntity()?.getSavedUserResponse()
+    override fun getUser(): SavedUserResponse? = authUtils.getRequestUserEntity()?.toSavedUserResponse()
 
     override fun getUserRoles(phoneNumber: String): UserRoleResponse? {
         val user = authUtils.getUserByMobile(phoneNumber);
@@ -75,7 +75,7 @@ class UserServiceImpl : UserService() {
         val updatedUser = authUtils.updateUserDefaultAddress(user, newAddress) ?: error("Error while updating default address for user")
 
         return SavedUserAddressResponse(
-            user = updatedUser.getSavedUserResponse(),
+            user = updatedUser.toSavedUserResponse(),
             address = newAddress.toSavedAddressResponse()
         )
     }

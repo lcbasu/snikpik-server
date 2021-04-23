@@ -25,8 +25,6 @@ class Company : Auditable() {
     @Enumerated(EnumType.STRING)
     var dkShopStatus: DKShopStatus? = DKShopStatus.ONLINE
 
-    var address: String? = "" // Address object
-
 //    @Column(unique = true)
     var username: String? = ""
 

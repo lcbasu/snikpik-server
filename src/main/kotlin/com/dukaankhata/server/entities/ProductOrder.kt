@@ -11,17 +11,19 @@ class ProductOrder : Auditable() {
 
     // Copying it here even thought we have discount ID so that
     // totalPricePayableInPaisa calculation is faster
-    val discountInPaisa: Long = 0
-    val deliveryChargeInPaisa: Long = 0
-    val totalTaxInPaisa: Long = 0
-    val totalPriceWithoutTaxInPaisa: Long = 0
-    val totalPricePayableInPaisa: Long = 0 // (totalPriceWithoutTaxInPaisa + taxInPaisa + deliveryChargeInPaisa) - discountInPaisa
-
-    var deliveryAddress: String = "" // Address object
+    var discountInPaisa: Long = 0
+    var deliveryChargeInPaisa: Long = 0
+    var totalTaxInPaisa: Long = 0
+    var totalPriceWithoutTaxInPaisa: Long = 0
+    var totalPricePayableInPaisa: Long = 0 // (totalPriceWithoutTaxInPaisa + taxInPaisa + deliveryChargeInPaisa) - discountInPaisa
 
     // All orders starts from DRAFT
     @Enumerated(EnumType.STRING)
-    var productOrderStatus: ProductOrderStatus = ProductOrderStatus.DRAFT
+    var orderStatus: ProductOrderStatus = ProductOrderStatus.DRAFT
+
+    @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @JoinColumn(name = "address_id")
+    var address: Address? = null;
 
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinColumn(name = "discount_id")

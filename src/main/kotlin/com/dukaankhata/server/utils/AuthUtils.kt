@@ -6,6 +6,7 @@ import com.dukaankhata.server.entities.*
 import com.dukaankhata.server.enums.ReadableIdPrefix
 import com.dukaankhata.server.enums.RoleType
 import com.dukaankhata.server.model.FirebaseAuthUser
+import io.sentry.Sentry
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,6 +32,21 @@ class AuthUtils {
 
     @Autowired
     private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+
+    /**
+     * IMPORTANT: Call this very very carefully and only for Public Anonymous User kind of URL requests
+     * */
+    fun makeSureThePublicRequestHasUserEntity(): User {
+        val requestingUser = getRequestUserEntity()
+        if (requestingUser == null) {
+            val uid = getFirebaseAuthUser()?.getUid() ?: error("User needs to be logged in through phone number or anonymously.")
+            logger.warn("Creating user for anonymous user with uid: $uid")
+            Sentry.captureMessage("Creating user for anonymous user with uid: $uid")
+            return createUser(uid = uid)
+        }
+        return requestingUser
+
+    }
 
     fun getFirebaseAuthUser(): FirebaseAuthUser? {
         var firebaseAuthUserPrincipal: FirebaseAuthUser? = null
@@ -68,8 +84,7 @@ class AuthUtils {
             // ensure that the number is unique
             val user = getUserByMobile(phoneNumber)
             if (user != null) {
-                logger.error("User already has an account for mobile: $phoneNumber")
-                return user
+                error("User already has an account for mobile: $phoneNumber")
             }
         }
 
@@ -77,8 +92,7 @@ class AuthUtils {
             // ensure that the uis is unique
             val user = getUserByUid(uid)
             if (user != null) {
-                logger.error("User already has an account for uid: $uid")
-                return user
+                error("User already has an account for uid: $uid")
             }
         }
 
@@ -104,14 +118,10 @@ class AuthUtils {
 
     fun getUserByUid(uid: String) = userRepository.findByUid(uid)
 
-
     // requiredRoleTypes: Any of the role present in the set is ok. So we follow OR and not the AND
+    // isPublic Should always be set in the controller
     fun validateRequest(companyId: Long = -1, employeeId: Long = -1, requiredRoleTypes: Set<RoleType> = emptySet()): RequestContext {
-        val requestingUser = getRequestUserEntity()
-
-        if (requestingUser == null) {
-            error("User is required to be logged in!");
-        }
+        val requestingUser = getRequestUserEntity() ?: error("User is required to be logged in!")
 
         var company: Company? = null
         var userRoles: List<UserRole> = emptyList()
