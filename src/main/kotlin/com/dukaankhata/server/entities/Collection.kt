@@ -12,6 +12,9 @@ class Collection : Auditable() {
     var subTitle: String? = ""
     var mediaDetails: String = "" // MediaDetails object -> Multiple Images or videos
 
+    var totalOrderAmountInPaisa: Long? = 0
+    var totalViewsCount: Long? = 0
+
     // Keeping Company reference in all the models
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")

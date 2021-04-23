@@ -45,6 +45,11 @@ data class AddProductsToCollectionResponse(
     val products: List<SavedProductResponse>
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class RelatedProductsResponse(
+    val products: List<SavedProductResponse>
+)
+
 fun Product.toSavedProductResponse(): SavedProductResponse {
     this.apply {
         return SavedProductResponse(

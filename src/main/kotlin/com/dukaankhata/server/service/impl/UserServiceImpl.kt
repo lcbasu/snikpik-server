@@ -32,21 +32,17 @@ class UserServiceImpl : UserService() {
         val phoneNumber = firebaseAuthUserPrincipal?.getPhoneNumber() ?: ""
         val uid = firebaseAuthUserPrincipal?.getUid() ?: ""
         // if already saved then return that value or save a new one
-        var user = authUtils.getRequestUserEntity()
-        if (user == null) {
-            user = authUtils.createUser(phoneNumber = phoneNumber, fullName = phoneNumber, uid = uid)
-        } else if (user.uid.isBlank()) {
+        var user = authUtils.getRequestUserEntity() ?: authUtils.createUser(phoneNumber = phoneNumber, fullName = phoneNumber, uid = uid)
+        if (uid.isNotBlank() && uid.isNotEmpty() && (user.uid?.isBlank() == true || user.uid?.isEmpty() == true)) {
             user = authUtils.updateUserUid(user.id, uid)
         }
-        return user!!.getSavedUserResponse()
+        return user.getSavedUserResponse()
     }
 
-    override fun getUser(): SavedUserResponse? {
-        TODO("Not yet implemented")
-    }
+    override fun getUser(): SavedUserResponse? = authUtils.getRequestUserEntity()?.getSavedUserResponse()
 
     override fun getUserRoles(phoneNumber: String): UserRoleResponse? {
-        val user = authUtils.getUserByPhoneNumber(phoneNumber);
+        val user = authUtils.getUserByMobile(phoneNumber);
         val userRoles = user?.let { userRoleUtils.getUserRolesForUser(it) } ?: emptyList()
         return userServiceConverter.getUserRolesResponse(userRoles)
     }

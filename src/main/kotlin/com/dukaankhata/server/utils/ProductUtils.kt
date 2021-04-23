@@ -35,7 +35,7 @@ class ProductUtils {
     fun saveProduct(company: Company, user: User, saveProductRequest: SaveProductRequest) : Product? {
         try {
             val newProduct = Product()
-            newProduct.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.PRD.getPrefix())
+            newProduct.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.PRD.name)
             newProduct.addedBy = user
             newProduct.company = company
             newProduct.title = saveProductRequest.title
@@ -69,6 +69,47 @@ class ProductUtils {
             productCollection.addedBy = user
             productCollectionRepository.save(productCollection)
         }
+    }
+
+    fun getProductCollections(collectionIds: Set<String>, productIds: Set<String>): List<ProductCollection> =
+        try {
+            productCollectionRepository.getProductCollections(productIds = productIds, collectionIds = collectionIds)
+        } catch (e: Exception) {
+            emptyList()
+        }
+
+    fun getProducts(company: Company): List<Product> =
+        try {
+            productRepository.findAllByCompany(company)
+        } catch (e: Exception) {
+            emptyList()
+        }
+
+    fun getBestSellerProducts(products: List<Product>, takeMaxSize: Int = 10): List<Product> {
+        return products
+            .sortedBy { it.totalOrderAmountInPaisa }
+            .sortedBy { it.totalViewsCount }
+            .sortedBy { it.totalUnitsOrdersCount }
+            .take(takeMaxSize)
+    }
+
+    fun getProductsOrderedInPast(cartItems: List<CartItem>): List<Product> {
+        return cartItems
+            .filter { it.productOrder != null }
+            .mapNotNull { it.product }
+            .filter { it.productStatus == ProductStatus.ACTIVE }
+    }
+
+    // Until we have the Data Science built in
+    // We can return products that are part of some collection
+    // where this product is also present
+    fun getRelatedProducts(productId: String): List<Product> {
+        val currentProductCollection = getProductCollections(collectionIds = emptySet(), productIds = setOf(productId))
+        val allCollectionsIds = currentProductCollection.mapNotNull { it.collection }.map { it.id }.toSet()
+        val allProductCollections = getProductCollections(collectionIds = allCollectionsIds, productIds = emptySet())
+        return allProductCollections
+            .mapNotNull { it.product }
+            .filterNot { it.id == productId }
     }
 
 }

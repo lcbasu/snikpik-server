@@ -29,7 +29,7 @@ class CollectionUtils {
     fun saveCollection(company: Company, user: User, saveCollectionRequest: SaveCollectionRequest) : Collection? {
         try {
             val newCollection = Collection()
-            newCollection.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.CLC.getPrefix())
+            newCollection.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.CLC.name)
             newCollection.addedBy = user
             newCollection.company = company
             newCollection.title = saveCollectionRequest.title
@@ -42,4 +42,17 @@ class CollectionUtils {
         }
     }
 
+    fun getCollections(company: Company): List<Collection> =
+        try {
+            collectionRepository.findAllByCompany(company)
+        } catch (e: Exception) {
+            emptyList()
+        }
+
+    fun getBestSellerCollections(collections: List<Collection>, takeMaxSize: Int = 10): List<Collection> {
+        return collections
+            .sortedBy { it.totalOrderAmountInPaisa }
+            .sortedBy { it.totalViewsCount }
+            .take(takeMaxSize)
+    }
 }

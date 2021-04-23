@@ -28,6 +28,10 @@ class Product : Auditable() {
 
     var totalUnitInStock: Long = 0
 
+    var totalOrderAmountInPaisa: Long? = 0
+    var totalViewsCount: Long? = 0
+    var totalUnitsOrdersCount: Long? = 0
+
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
 //    @MapsId("company_id")
     @JoinColumn(name = "company_id")

@@ -45,9 +45,18 @@ class CompanyUtils {
         return companyRepository.save(newCompany)
     }
 
+    fun getCompany(username: String): Company? {
+        return try {
+            return companyRepository.findByUsername(username)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
     fun isUsernameAvailable(username: String): Boolean {
         return try {
-            companyRepository.findByUsername(username) == null
+            getCompany(username) == null
         } catch (e: Exception) {
             e.printStackTrace()
             false

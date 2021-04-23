@@ -19,8 +19,8 @@ class SpringSecurityAuditorAware : AuditorAware<String> {
             if (firebaseAuthUserPrincipal == null) {
                 return Optional.of("")
             }
-            val phoneNumber = firebaseAuthUserPrincipal.getPhoneNumber() ?: ""
-            val uid = firebaseAuthUserPrincipal.getUid() ?: ""
+            val phoneNumber = firebaseAuthUserPrincipal.getPhoneNumber() ?: "NO_PHONE_NUMBER"
+            val uid = firebaseAuthUserPrincipal.getUid() ?: "NO_UID"
             return Optional.of(phoneNumber + CommonUtils.STRING_SEPARATOR + uid)
         } catch (e: Exception) {
             return Optional.of("Un Authenticated Auditor")

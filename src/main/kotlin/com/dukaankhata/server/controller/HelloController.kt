@@ -15,12 +15,12 @@ class HelloController {
 
     @RequestMapping("/")
     fun index(): String? {
-        return "Greetings from Spring Boot!"
+        return "Greetings from DukaanKhata!"
     }
 
     @RequestMapping("/public/{id}")
     fun public(@PathVariable id: String): String? {
-        return "Greetings from Public endpoint! $id"
+        return "Greetings from DukaanKhata! $id"
     }
 
     @RequestMapping(value = ["/getUniqueId/{prefix}"], method = [RequestMethod.GET])

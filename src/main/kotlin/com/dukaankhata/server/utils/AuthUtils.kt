@@ -3,15 +3,19 @@ package com.dukaankhata.server.utils
 import com.dukaankhata.server.dao.UserRepository
 import com.dukaankhata.server.dto.RequestContext
 import com.dukaankhata.server.entities.*
-import com.dukaankhata.server.enums.Gender
+import com.dukaankhata.server.enums.ReadableIdPrefix
 import com.dukaankhata.server.enums.RoleType
 import com.dukaankhata.server.model.FirebaseAuthUser
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 
 @Component
 class AuthUtils {
+
+    private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     @Autowired
     private lateinit var userRepository: UserRepository
@@ -25,6 +29,9 @@ class AuthUtils {
     @Autowired
     private lateinit var userRoleUtils: UserRoleUtils
 
+    @Autowired
+    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+
     fun getFirebaseAuthUser(): FirebaseAuthUser? {
         var firebaseAuthUserPrincipal: FirebaseAuthUser? = null
         val securityContext = SecurityContextHolder.getContext()
@@ -37,17 +44,12 @@ class AuthUtils {
 
     fun getRequestUserEntity(): User? {
         val firebaseAuthUserPrincipal = getFirebaseAuthUser()
-        val phoneNumber = firebaseAuthUserPrincipal?.getPhoneNumber() ?: ""
-        userRepository.let {
-            val user = it.findById(phoneNumber)
-            if (user.isPresent && user.get().id.isNotEmpty()) {
-                return user.get()
-            }
-        }
-        return null
+        val mobile = firebaseAuthUserPrincipal?.getPhoneNumber() ?: ""
+        val uid = firebaseAuthUserPrincipal?.getUid() ?: ""
+        return userRepository.findByMobile(mobile) ?: userRepository.findByUid(uid)
     }
 
-    fun updateUserUid(id: String, uid: String): User? {
+    fun updateUserUid(id: String, uid: String): User {
         return userRepository.let {
             val userOptional = it.findById(id)
             if (userOptional.isPresent) {
@@ -60,33 +62,47 @@ class AuthUtils {
         }
     }
 
-    fun createUser(phoneNumber: String, fullName: String, uid: String): User? {
-        return userRepository.let { val newUser = User()
-            newUser.id = phoneNumber
-            newUser.fullName = fullName
-            newUser.gender = Gender.MALE
-            newUser.uid = uid
-            it.save(newUser)
+    fun createUser(phoneNumber: String? = null, fullName: String? = null, uid: String? = null): User {
+
+        if (phoneNumber != null && phoneNumber.isNotBlank() && phoneNumber.isNotEmpty()) {
+            // ensure that the number is unique
+            val user = getUserByMobile(phoneNumber)
+            if (user != null) {
+                logger.error("User already has an account for mobile: $phoneNumber")
+                return user
+            }
         }
+
+        if (uid != null && uid.isNotBlank() && uid.isNotEmpty()) {
+            // ensure that the uis is unique
+            val user = getUserByUid(uid)
+            if (user != null) {
+                logger.error("User already has an account for uid: $uid")
+                return user
+            }
+        }
+
+        val newUser = User()
+        newUser.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.USR.name)
+        newUser.mobile = phoneNumber
+        newUser.fullName = fullName
+        newUser.uid = uid
+
+        return userRepository.save(newUser)
     }
 
     fun getOrCreateUserByPhoneNumber(phoneNumber: String): User? {
-        return userRepository.let {
-            return getUserByPhoneNumber(phoneNumber) ?:
-            createUser(phoneNumber = phoneNumber, fullName = phoneNumber, uid = "")
-        }
+        return getUserByMobile(phoneNumber) ?:
+        createUser(phoneNumber = phoneNumber, fullName = phoneNumber, uid = "")
     }
 
-    fun getUserByPhoneNumber(phoneNumber: String): User? {
-        return userRepository.let {
-            val userOptional = it.findById(phoneNumber)
-            return if (userOptional.isPresent && userOptional.get().id.isNotEmpty()) {
-                userOptional.get()
-            } else {
-                null
-            }
-        }
+    fun getOrCreateUserByUid(uid: String): User? {
+        return getUserByUid(uid) ?: createUser(uid = uid)
     }
+
+    fun getUserByMobile(mobile: String) = userRepository.findByMobile(mobile)
+
+    fun getUserByUid(uid: String) = userRepository.findByUid(uid)
 
 
     // requiredRoleTypes: Any of the role present in the set is ok. So we follow OR and not the AND

@@ -5,7 +5,8 @@ import com.dukaankhata.server.entities.UniqueId
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import java.util.*
+import java.util.UUID
+import kotlin.math.abs
 
 
 @Component
@@ -15,9 +16,10 @@ class UniqueIdGeneratorUtils {
     private lateinit var uniqueIdRepository: UniqueIdRepository
 
     @Transactional
-    fun getUniqueId(prefix: String? = null, maxLength: Int? = 10): String {
+    fun getUniqueId(prefix: String? = null, onlyNumbers: Boolean? = false, minLength: Int? = 10, maxLength: Int? = 10): String {
+
         // Create a new UUID
-        var currentId = getRandomId(prefix, maxLength)
+        var currentId = getRandomId(prefix, onlyNumbers, minLength, maxLength)
 
         // Check in DB and regenerate of required
         try {
@@ -25,7 +27,7 @@ class UniqueIdGeneratorUtils {
             var existingResult = uniqueIdRepository.findById(currentId)
             var currentTryoutCount = 1
             while (existingResult.isPresent && currentTryoutCount < maximumTryout) {
-                currentId = getRandomId(prefix, maxLength)
+                currentId = getRandomId(prefix, onlyNumbers, minLength, maxLength)
                 existingResult = uniqueIdRepository.findById(currentId)
                 currentTryoutCount += 1
             }
@@ -41,23 +43,44 @@ class UniqueIdGeneratorUtils {
         error("Failed to generate Unique ID")
     }
 
-    private fun getRandomId(prefix: String? = null, maxLength: Int? = null): String {
-        val randomUuidOriginal = generateUUIDString(UUID.randomUUID())
-        val randomUuid = if (maxLength != null && randomUuidOriginal.length > maxLength) {
-            randomUuidOriginal.substring(0, maxLength - 1)
-        } else {
-            randomUuidOriginal
+    private fun getRandomId(prefix: String? = null, onlyNumbers: Boolean?, minLength: Int? = null, maxLength: Int? = null): String {
+        if (minLength != null && maxLength != null && minLength > maxLength) {
+            error("Min length is greater than max length for UUID generation.")
         }
+        val randomUuidOriginal = generateUUIDString(UUID.randomUUID(), onlyNumbers)
+
+        var randomUuid = randomUuidOriginal
+
+        if (minLength != null && randomUuidOriginal.length < minLength) {
+            while (randomUuid.length < minLength) {
+                randomUuid += generateUUIDString(UUID.randomUUID(), onlyNumbers)
+            }
+        }
+
+        if (maxLength != null && randomUuid.length > maxLength) {
+            randomUuid = randomUuid.substring(0, maxLength - 1)
+        }
+
         return (prefix?.let { it + randomUuid } ?: randomUuid).toUpperCase()
     }
 
     // https://stackoverflow.com/a/50275487
-    fun generateUUIDString(uuid: UUID): String {
-        return digits(uuid.mostSignificantBits shr 32, 8) +
-            digits(uuid.mostSignificantBits shr 16, 4) +
-            digits(uuid.mostSignificantBits, 4) +
-            digits(uuid.leastSignificantBits shr 48, 4) +
-            digits(uuid.leastSignificantBits, 12)
+    fun generateUUIDString(uuid: UUID, onlyNumbers: Boolean?): String {
+        val isOnlyNumbersAskedFor = onlyNumbers?.let { it } ?: false
+        return if (isOnlyNumbersAskedFor) {
+            //java.lang.String.format("%040d", BigInteger(uuid.toString().replace("-", ""), 16))
+            abs(((uuid.mostSignificantBits shr 32) +
+                (uuid.mostSignificantBits shr 16) +
+                uuid.mostSignificantBits +
+                (uuid.leastSignificantBits shr 48) +
+                uuid.leastSignificantBits)).toString()
+        } else {
+            digits(uuid.mostSignificantBits shr 32, 8) +
+                digits(uuid.mostSignificantBits shr 16, 4) +
+                digits(uuid.mostSignificantBits, 4) +
+                digits(uuid.leastSignificantBits shr 48, 4) +
+                digits(uuid.leastSignificantBits, 12)
+        }
     }
 
     /** Returns val represented by the specified number of hex digits.  */

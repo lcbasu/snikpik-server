@@ -1,20 +1,23 @@
 package com.dukaankhata.server.entities
 
-import com.dukaankhata.server.enums.Gender
 import javax.persistence.Entity
-import javax.persistence.EnumType
-import javax.persistence.Enumerated
 import javax.persistence.Id
 
 @Entity
 class User : Auditable() {
-    // Phone Number with country code
-    @Id
-    var id: String = ""
-    var uid: String = ""
-    var fullName: String = ""
-    @Enumerated(EnumType.STRING)
-    var gender: Gender = Gender.DO_NOT_SAY
 
-    var defaultAddressId: Long = -1 // Address table Id
+    @Id
+    var id: String = "" // ID generated with prefix: USR
+
+    // Only add mobile numbers when it is unique
+    // Not adding a unique constraint on this field
+    // as not all users would signup immediately
+    // like the customers who we signup anonymously
+    // without them having to do anything
+    // unless they make the order
+    var mobile: String? = "" // Phone Number with country code
+    var uid: String? = ""
+    var fullName: String? = ""
+
+    var defaultAddressId: Long? = -1 // Address table Id
 }
