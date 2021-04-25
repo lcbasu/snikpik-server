@@ -58,6 +58,6 @@ fun User.toSavedUserResponse(): SavedUserResponse {
             serverId = id ?: "",
             name = fullName ?: "",
             uid = uid ?: "",
-            phoneNumber = id ?: "")
+            phoneNumber = mobile ?: "")
     }
 }
