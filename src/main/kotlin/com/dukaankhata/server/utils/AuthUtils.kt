@@ -2,10 +2,12 @@ package com.dukaankhata.server.utils
 
 import com.dukaankhata.server.dao.UserRepository
 import com.dukaankhata.server.dto.RequestContext
+import com.dukaankhata.server.dto.VerifyPhoneResponse
 import com.dukaankhata.server.entities.*
 import com.dukaankhata.server.enums.ReadableIdPrefix
 import com.dukaankhata.server.enums.RoleType
 import com.dukaankhata.server.model.FirebaseAuthUser
+import com.twilio.rest.lookups.v1.PhoneNumber
 import io.sentry.Sentry
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -62,7 +64,16 @@ class AuthUtils {
         val firebaseAuthUserPrincipal = getFirebaseAuthUser()
         val mobile = firebaseAuthUserPrincipal?.getPhoneNumber() ?: ""
         val uid = firebaseAuthUserPrincipal?.getUid() ?: ""
-        return userRepository.findByMobile(mobile) ?: userRepository.findByUid(uid)
+        // if both are empty then we need to create a new account
+        // as this is the case of
+        if (mobile.isBlank() && uid.isBlank()) {
+            return null
+        }
+        var existingUser : User? = if (mobile.isNotBlank()) userRepository.findByMobile(mobile) else null
+        if (existingUser == null && uid.isNotBlank()) {
+            existingUser = userRepository.findByUid(uid)
+        }
+        return existingUser
     }
 
     fun updateUserUid(id: String, uid: String): User {
@@ -78,13 +89,35 @@ class AuthUtils {
         }
     }
 
-    fun createUser(phoneNumber: String? = null, fullName: String? = null, uid: String? = null): User {
+    private fun isAnonymous(uid: String? = null, phoneNumber: String? = null): Boolean {
+        return !(uid != null && uid.isNotBlank() && phoneNumber != null && phoneNumber.isNotBlank())
+    }
 
-        if (phoneNumber != null && phoneNumber.isNotBlank() && phoneNumber.isNotEmpty()) {
+    fun getSanitizePhoneNumber(phoneNumber: String?): String? {
+        var sanitizePhoneNumber = phoneNumber
+        if (sanitizePhoneNumber != null) {
+            // To long is for removing the leading Zeros
+            sanitizePhoneNumber = sanitizePhoneNumber
+                .filter { it.isDigit() }
+        }
+        if (phoneNumber != null && phoneNumber.startsWith("+")) {
+            sanitizePhoneNumber = "+$sanitizePhoneNumber"
+        }
+        return sanitizePhoneNumber
+    }
+
+    fun createUser(phoneNumber: String? = null, fullName: String? = null, uid: String? = null): User {
+        val sanitizePhoneNumber = getSanitizePhoneNumber(phoneNumber) ?: ""
+
+        if (sanitizePhoneNumber.isNotBlank() && sanitizePhoneNumber.startsWith("+").not()) {
+            error("Phone number has to be with internation format and should start with +")
+        }
+
+        if (sanitizePhoneNumber.isNotBlank() && sanitizePhoneNumber.isNotEmpty()) {
             // ensure that the number is unique
-            val user = getUserByMobile(phoneNumber)
+            val user = getUserByMobile(sanitizePhoneNumber)
             if (user != null) {
-                error("User already has an account for mobile: $phoneNumber")
+                error("User already has an account for mobile: $sanitizePhoneNumber")
             }
         }
 
@@ -96,18 +129,43 @@ class AuthUtils {
             }
         }
 
+        var countryCode = ""
+        if (sanitizePhoneNumber.isNotBlank()) {
+            try {
+                val verifyPhoneResponse = getVerifiedPhoneResponse(sanitizePhoneNumber)
+                if (verifyPhoneResponse.valid.not()) {
+                    logger.error("Invalid phone number: $sanitizePhoneNumber")
+                } else {
+                    // To long is for removing the leading Zeros
+                    if (verifyPhoneResponse.valid && verifyPhoneResponse.numberInNationalFormat != null) {
+                        val phoneNumberWithOnlyDigits = verifyPhoneResponse.numberInNationalFormat
+                            .filter { it.isDigit() }
+                            .toLong()
+                            .toString()
+                        countryCode = sanitizePhoneNumber.replace(phoneNumberWithOnlyDigits, "")
+                    }
+                }
+            } catch (e: NumberFormatException) {
+                logger.error("Failed to get country code for $sanitizePhoneNumber")
+                e.printStackTrace()
+            }
+        }
+
         val newUser = User()
         newUser.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.USR.name)
-        newUser.mobile = phoneNumber
+        newUser.mobile = sanitizePhoneNumber
+        newUser.countryCode = countryCode
         newUser.fullName = fullName
         newUser.uid = uid
+        newUser.anonymous = isAnonymous(uid = uid, phoneNumber = sanitizePhoneNumber)
 
         return userRepository.save(newUser)
     }
 
     fun getOrCreateUserByPhoneNumber(phoneNumber: String): User? {
-        return getUserByMobile(phoneNumber) ?:
-        createUser(phoneNumber = phoneNumber, fullName = phoneNumber, uid = "")
+        val sanitizePhoneNumber = getSanitizePhoneNumber(phoneNumber) ?: return null
+        return getUserByMobile(sanitizePhoneNumber) ?:
+        createUser(phoneNumber = sanitizePhoneNumber, fullName = phoneNumber, uid = "")
     }
 
     fun getOrCreateUserByUid(uid: String): User? {
@@ -216,6 +274,24 @@ class AuthUtils {
         } catch (e: Exception) {
             e.printStackTrace()
             return null
+        }
+    }
+
+    fun getVerifiedPhoneResponse(phoneNumber: String): VerifyPhoneResponse {
+        return try {
+            val result = PhoneNumber.fetcher(com.twilio.type.PhoneNumber(phoneNumber)).fetch()
+            VerifyPhoneResponse(
+                valid = true,
+                countryCode = result.countryCode,
+                numberInNationalFormat = result.nationalFormat,
+                numberInInterNationalFormat = result.phoneNumber.toString()
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Sentry.captureException(e)
+            VerifyPhoneResponse(
+                valid = false
+            )
         }
     }
 }

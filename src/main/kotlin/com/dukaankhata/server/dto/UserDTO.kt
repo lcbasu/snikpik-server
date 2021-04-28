@@ -11,7 +11,9 @@ data class SavedUserResponse(
     val serverId: String,
     val name: String,
     val uid: String,
+    val anonymous: Boolean,
     val phoneNumber: String,
+    val countryCode: String,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -58,6 +60,8 @@ fun User.toSavedUserResponse(): SavedUserResponse {
             serverId = id ?: "",
             name = fullName ?: "",
             uid = uid ?: "",
-            phoneNumber = mobile ?: "")
+            anonymous = anonymous,
+            phoneNumber = mobile ?: "",
+            countryCode = countryCode ?: "")
     }
 }

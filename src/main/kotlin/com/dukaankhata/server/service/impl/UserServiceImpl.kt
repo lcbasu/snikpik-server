@@ -6,8 +6,6 @@ import com.dukaankhata.server.service.converter.UserServiceConverter
 import com.dukaankhata.server.utils.AddressUtils
 import com.dukaankhata.server.utils.AuthUtils
 import com.dukaankhata.server.utils.UserRoleUtils
-import com.twilio.rest.lookups.v1.PhoneNumber
-import io.sentry.Sentry
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -48,21 +46,7 @@ class UserServiceImpl : UserService() {
     }
 
     override fun verifyPhone(phoneNumber: String): VerifyPhoneResponse? {
-        try {
-            val result = PhoneNumber.fetcher(com.twilio.type.PhoneNumber(phoneNumber)).fetch()
-            return VerifyPhoneResponse(
-                valid = true,
-                countryCode = result.countryCode,
-                numberInNationalFormat = result.nationalFormat,
-                numberInInterNationalFormat = result.phoneNumber.toString()
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Sentry.captureException(e)
-        }
-        return VerifyPhoneResponse(
-            valid = false
-        )
+        return authUtils.getVerifiedPhoneResponse(phoneNumber)
     }
 
     override fun saveAddress(saveUserAddressRequest: SaveUserAddressRequest): SavedUserAddressResponse? {

@@ -16,7 +16,9 @@ class User : Auditable() {
     // without them having to do anything
     // unless they make the order
     var mobile: String? = "" // Phone Number with country code
+    var countryCode: String? = "" // Country code
     var uid: String? = ""
+    var anonymous: Boolean = true
     var fullName: String? = ""
 
     var defaultAddressId: Long? = -1 // Address table Id
