@@ -12,18 +12,19 @@ import kotlin.math.abs
 @Component
 class UniqueIdGeneratorUtils {
 
+    val maximumTryout = 10
+
     @Autowired
     private lateinit var uniqueIdRepository: UniqueIdRepository
 
     @Transactional
-    fun getUniqueId(prefix: String? = null, onlyNumbers: Boolean? = false, minLength: Int? = 10, maxLength: Int? = 10): String {
+    fun getUniqueId(prefix: String? = null, onlyNumbers: Boolean? = false, minLength: Int? = 15, maxLength: Int? = 15): String {
 
         // Create a new UUID
         var currentId = getRandomId(prefix, onlyNumbers, minLength, maxLength)
 
         // Check in DB and regenerate of required
         try {
-            val maximumTryout = 10
             var existingResult = uniqueIdRepository.findById(currentId)
             var currentTryoutCount = 1
             while (existingResult.isPresent && currentTryoutCount < maximumTryout) {

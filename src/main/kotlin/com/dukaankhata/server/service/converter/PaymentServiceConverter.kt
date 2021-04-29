@@ -21,7 +21,7 @@ class PaymentServiceConverter {
 
     fun getSavedPaymentResponse(payment: Payment?): SavedPaymentResponse {
         return SavedPaymentResponse(
-            serverId = payment?.id ?: -1L,
+            serverId = payment?.id ?: "",
             employee = employeeServiceConverter.getSavedEmployeeResponse(payment?.employee),
             company = companyServiceConverter.getSavedCompanyResponse(payment?.company),
             forDate = payment?.forDate ?: "",

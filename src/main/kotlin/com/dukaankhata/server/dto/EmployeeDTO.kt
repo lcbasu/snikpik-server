@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 data class SaveEmployeeRequest(
     val name: String,
     val phoneNumber: String,
-    val companyId: Long,
+    val companyId: String,
     val salaryType: SalaryType,
     val salaryCycle: String,
     val salaryAmountInPaisa: Long,
@@ -44,7 +44,7 @@ data class CompanyEmployeesResponse(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class RemoveEmployeeRequest(
-    val employeeId: Long,
+    val employeeId: String,
     val removalReasonType: RemovalReasonType,
     val description: String
 )

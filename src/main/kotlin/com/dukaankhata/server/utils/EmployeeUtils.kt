@@ -8,10 +8,7 @@ import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.entities.Payment
 import com.dukaankhata.server.entities.User
-import com.dukaankhata.server.enums.OpeningBalanceType
-import com.dukaankhata.server.enums.PaymentType
-import com.dukaankhata.server.enums.SalaryPaymentSchedule
-import com.dukaankhata.server.enums.SalaryType
+import com.dukaankhata.server.enums.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -35,7 +32,10 @@ class EmployeeUtils {
     @Autowired
     private lateinit var attendanceUtils: AttendanceUtils
 
-    fun getEmployee(employeeId: Long): Employee? =
+    @Autowired
+    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+
+    fun getEmployee(employeeId: String): Employee? =
         try {
             employeeRepository.findById(employeeId).get()
         } catch (e: Exception) {
@@ -57,6 +57,7 @@ class EmployeeUtils {
 
     fun saveEmployee(createdByUser: User, createdForUser: User, company: Company, saveEmployeeRequest: SaveEmployeeRequest) : Employee {
         val newEmployee = Employee()
+        newEmployee.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.EMP.name)
         newEmployee.name = saveEmployeeRequest.name
         newEmployee.balanceInPaisaTillNow = 0
 //        newEmployee.openingBalanceInPaisa = saveEmployeeRequest.openingBalanceInPaisa

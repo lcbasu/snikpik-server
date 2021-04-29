@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveProductRequest(
-    val companyId: Long,
+    val companyId: String,
     val mediaDetails: MediaDetails,
     var title: String = "",
     var productUnit: ProductUnit,
@@ -33,7 +33,7 @@ data class SavedProductResponse(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AddProductsToCollectionRequest(
-    val companyId: Long,
+    val companyId: String,
     val collectionId: String,
     val productIds: Set<String>
 )

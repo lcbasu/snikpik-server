@@ -11,8 +11,8 @@ import javax.persistence.*
 class Attendance : Auditable() {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = -1
+    @Column(unique = true)
+    var id: String = ""
 
     var forDate: String = ""
 

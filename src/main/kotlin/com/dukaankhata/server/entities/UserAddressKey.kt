@@ -11,5 +11,5 @@ class UserAddressKey: Serializable {
     var userId: String = ""
 
     @Column(name = "address_id")
-    var addressId: Long = -1
+    var addressId: String = ""
 }

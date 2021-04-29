@@ -10,7 +10,7 @@ class UserRoleKey: Serializable {
     var userId: String = ""
 
     @Column(name = "company_id")
-    var companyId: Long = -1
+    var companyId: String = ""
 
     @Column(name = "role_type")
     var roleType: String = ""

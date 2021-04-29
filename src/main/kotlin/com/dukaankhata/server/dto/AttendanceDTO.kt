@@ -8,8 +8,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveAttendanceRequest(
-    val employeeId: Long,
-    val companyId: Long,
+    val employeeId: String,
+    val companyId: String,
     val forDate: String,
     val punchAt: Long,
     val punchType: PunchType,
@@ -39,7 +39,7 @@ data class SavedAttendanceResponse(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class GetAttendancesRequest(
-    val companyId: Long,
+    val companyId: String,
     val forDates: Set<String>
 )
 
@@ -78,7 +78,7 @@ data class AttendanceTypeAggregateResponse(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AttendanceInfoRequest(
-    val companyId: Long,
+    val companyId: String,
     val forDate: String
 )
 
@@ -93,7 +93,7 @@ data class AttendanceInfoResponse(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class MarkAttendanceRequest(
     val attendanceType: AttendanceType,
-    val employeeId: Long,
+    val employeeId: String,
     val forDate: String,
 )
 
@@ -110,7 +110,7 @@ data class SavedAttendanceByAdminResponse(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AttendanceSummaryRequest(
-    val companyId: Long,
+    val companyId: String,
     val forYear: Int,
     val forMonth: Int,
 )
@@ -150,7 +150,7 @@ data class AttendanceReportForEmployeeResponse (
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AttendanceSummaryForEmployeeRequest(
-    val employeeId: Long,
+    val employeeId: String,
     val forYear: Int,
     val forMonth: Int,
 )

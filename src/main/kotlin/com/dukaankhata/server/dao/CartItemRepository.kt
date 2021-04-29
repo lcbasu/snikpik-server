@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 
 @Repository
-interface CartItemRepository : JpaRepository<CartItem?, Long?> {
+interface CartItemRepository : JpaRepository<CartItem?, String?> {
     @Query(value ="SELECT * FROM cart_item WHERE product_id IN :productIds and added_by_user_id = :userId", nativeQuery = true)
     fun getCartItemsForUserForProducts(
         @Param("userId") userId: String,

@@ -1,6 +1,6 @@
 create table employee
 (
-    id               bigint auto_increment primary key,
+    id                  varchar(255)    not null primary key,
     name           varchar(255)    null,
     phone_number              varchar(255)    null,
     salary_type              varchar(255)    null,
@@ -12,7 +12,7 @@ create table employee
     left_at             datetime        null,
     created_for_user_id                    varchar(255) null,
     created_by_user_id                    varchar(255) null,
-    company_id                    bigint null,
+    company_id                    varchar(255) null,
 
     constraint fk_employee_created_for_user_id
         foreign key (created_for_user_id) references user (id),

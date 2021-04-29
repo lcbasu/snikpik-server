@@ -1,7 +1,7 @@
 create table user_role
 (
     user_id                     varchar(255) not null,
-    company_id                  bigint       not null,
+    company_id                  varchar(255)       not null,
     role_type                   varchar(255) not null,
     primary key (user_id, company_id, role_type),
     constraint fk_user_role_company

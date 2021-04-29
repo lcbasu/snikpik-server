@@ -9,8 +9,8 @@ import javax.persistence.*
 class Note : Auditable() {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = -1
+    @Column(unique = true)
+    var id: String = ""
 
     var forDate: String = ""
 

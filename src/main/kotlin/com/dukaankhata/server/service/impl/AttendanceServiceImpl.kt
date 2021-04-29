@@ -58,7 +58,7 @@ class AttendanceServiceImpl : AttendanceService() {
         return attendanceUtils.getAttendanceSummary(requestContext, attendanceSummaryRequest)
     }
 
-    override fun getAttendanceReportForEmployee(employeeId: Long, forDate: String): AttendanceReportForEmployeeResponse? {
+    override fun getAttendanceReportForEmployee(employeeId: String, forDate: String): AttendanceReportForEmployeeResponse? {
         val requestContext = authUtils.validateRequest(
             employeeId = employeeId,
             requiredRoleTypes = authUtils.onlyAdminLevelRoles()

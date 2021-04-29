@@ -8,8 +8,8 @@ import javax.persistence.*
 class LateFine : Auditable() {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = -1
+    @Column(unique = true)
+    var id: String = ""
 
     var forDate: String = ""
 

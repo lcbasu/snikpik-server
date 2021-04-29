@@ -22,7 +22,7 @@ class EmployeeSalaryUpdateJob: QuartzJobBean() {
     }
 
     private fun updateSalary(jobDataMap: JobDataMap) {
-        val employeeId = jobDataMap.getLong("id")
+        val employeeId = jobDataMap.getString("id")
         val employee: Employee = employeeUtils.getEmployee(employeeId) ?: error("Could not find employee for employeeId: $employeeId")
         employeeUtils.updateSalary(employee)
         logger.info("Salary updated for employeeId: ${employee.id}")

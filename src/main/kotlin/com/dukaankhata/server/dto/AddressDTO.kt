@@ -34,7 +34,7 @@ data class SavedAddressResponse(
 fun Address.toSavedAddressResponse(): SavedAddressResponse {
     this.apply {
         return SavedAddressResponse(
-            serverId = id.toString(),
+            serverId = id,
             line1 = line1 ?: "",
             line2 = line2 ?: "",
             zipcode = zipcode ?: "",

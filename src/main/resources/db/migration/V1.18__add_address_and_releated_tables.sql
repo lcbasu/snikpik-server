@@ -1,6 +1,6 @@
 create table address
 (
-    id               bigint auto_increment primary key,
+    id                  varchar(255)    not null primary key,
     line1           varchar(255)    null,
     line2           varchar(255)    null,
     zipcode           varchar(255)    null,
@@ -22,8 +22,8 @@ create table address
 
 create table company_address
 (
-    company_id                  bigint       not null,
-    address_id                  bigint       not null,
+    company_id                  varchar(255)       not null,
+    address_id                  varchar(255)       not null,
     primary key (company_id, address_id),
 
     name           varchar(255)    null,
@@ -50,7 +50,7 @@ create table company_address
 create table user_address
 (
     user_id                  varchar(255) not null,
-    address_id               bigint       not null,
+    address_id               varchar(255)       not null,
     primary key (user_id, address_id),
 
     name           varchar(255)    null,

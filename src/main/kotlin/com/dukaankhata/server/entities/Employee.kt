@@ -9,8 +9,8 @@ import javax.persistence.*
 @Entity
 class Employee : Auditable() {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0
+    @Column(unique = true)
+    var id: String = ""
     var name: String = ""
     var phoneNumber: String = ""
 

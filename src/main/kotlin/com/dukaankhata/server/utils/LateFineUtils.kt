@@ -8,8 +8,8 @@ import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.entities.LateFine
 import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.PaymentType
+import com.dukaankhata.server.enums.ReadableIdPrefix
 import com.dukaankhata.server.service.converter.LateFineServiceConverter
-import com.dukaankhata.server.service.converter.PaymentServiceConverter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
@@ -26,7 +26,10 @@ class LateFineUtils {
     @Autowired
     private lateinit var lateFineServiceConverter: LateFineServiceConverter
 
-    fun getLateFine(lateFineId: Long): LateFine? =
+    @Autowired
+    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+
+    fun getLateFine(lateFineId: String): LateFine? =
         try {
             lateFineRepository.findById(lateFineId).get()
         } catch (e: Exception) {
@@ -38,6 +41,7 @@ class LateFineUtils {
         val hourlyLateFineWageInPaisa = 5L // TODO: Update based on salary
 
         val lateFine = LateFine()
+        lateFine.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.LFN.name)
         lateFine.company = company
         lateFine.employee = employee
         lateFine.addedBy = addedBy

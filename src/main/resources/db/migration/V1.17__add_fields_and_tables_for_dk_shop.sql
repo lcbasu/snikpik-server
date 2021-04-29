@@ -24,7 +24,7 @@ create table product
     price_per_unit_in_paisa             bigint       null,
     total_unit_in_stock             bigint       null,
 
-    company_id                    bigint not null,
+    company_id                    varchar(255) not null,
     added_by_user_id           varchar(255) not null,
 
     constraint fk_product_company_id
@@ -43,7 +43,7 @@ create table product
 
 create table discount
 (
-    id               bigint auto_increment primary key,
+    id                  varchar(255)    not null primary key,
     promo_code           varchar(255)    null,
     discount_type           varchar(255)    null,
     discount_amount             bigint       null,
@@ -57,7 +57,7 @@ create table discount
     start_at             datetime        null,
     end_at             datetime        null,
 
-    company_id                    bigint not null,
+    company_id                    varchar(255) not null,
     added_by_user_id           varchar(255) not null,
 
     constraint fk_discount_company_id
@@ -88,8 +88,8 @@ create table product_order
 
     order_status           varchar(255)    null,
 
-    discount_id                    bigint not null,
-    company_id                    bigint not null,
+    discount_id                    varchar(255) not null,
+    company_id                    varchar(255) not null,
     added_by_user_id           varchar(255) not null,
 
     constraint fk_order_discount_id
@@ -111,7 +111,7 @@ create table product_order
 
 create table cart_item
 (
-    id               bigint auto_increment primary key,
+    id                  varchar(255)    not null primary key,
 
     total_units             bigint       null,
     tax_per_unit_in_paisa             bigint       null,
@@ -121,7 +121,7 @@ create table cart_item
 
     product_order_id                    varchar(255) not null,
     product_id                    varchar(255) not null,
-    company_id                    bigint not null,
+    company_id                    varchar(255) not null,
     added_by_user_id           varchar(255) not null,
 
     constraint fk_cart_item_product_order_id
@@ -152,7 +152,7 @@ create table collection
     sub_title           varchar(255)    null,
     media_details             text null,
 
-    company_id                    bigint not null,
+    company_id                    varchar(255) not null,
     added_by_user_id           varchar(255) not null,
 
     constraint fk_collection_company_id
@@ -171,7 +171,7 @@ create table collection
 
 create table company_customer
 (
-    company_id                  bigint       not null,
+    company_id                  varchar(255)       not null,
     user_id                     varchar(255) not null,
     primary key (company_id, user_id),
 
@@ -197,7 +197,7 @@ create table company_customer
 
 create table extra_charge_delivery
 (
-    company_id                  bigint       not null,
+    company_id                  varchar(255)       not null,
     delivery_type                     varchar(255) not null,
     primary key (company_id, delivery_type),
 
@@ -222,7 +222,7 @@ create table extra_charge_delivery
 
 create table extra_charge_tax
 (
-    company_id                  bigint       not null,
+    company_id                  varchar(255)       not null,
     tax_type                     varchar(255) not null,
     primary key (company_id, tax_type),
 
@@ -250,7 +250,7 @@ create table product_collection
     product_id                  varchar(255) not null,
     primary key (collection_id, product_id),
 
-    company_id                    bigint not null,
+    company_id                    varchar(255) not null,
     added_by_user_id           varchar(255) not null,
 
     constraint fk_product_collection_collection_id

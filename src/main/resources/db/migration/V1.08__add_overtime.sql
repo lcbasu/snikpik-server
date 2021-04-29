@@ -1,6 +1,6 @@
 create table overtime
 (
-    id               bigint auto_increment primary key,
+    id                  varchar(255)    not null primary key,
     for_date           varchar(255)    not null,
     added_at             datetime        not null,
 
@@ -8,8 +8,8 @@ create table overtime
     total_overtime_amount_in_paisa             bigint       not null,
     total_overtime_minutes             int       not null,
 
-    employee_id                    bigint not null,
-    company_id                    bigint not null,
+    employee_id                    varchar(255) not null,
+    company_id                    varchar(255) not null,
     added_by_user_id           varchar(255)    not null,
 
     constraint fk_overtime_added_by_user_id

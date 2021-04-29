@@ -22,7 +22,7 @@ class TakeShopOnlineJob: QuartzJobBean() {
     }
 
     private fun takeShopOnline(jobDataMap: JobDataMap) {
-        val companyId = jobDataMap.getLong("id")
+        val companyId = jobDataMap.getString("id")
         val company: Company = companyUtils.getCompany(companyId) ?: error("Could not find company for companyId: $companyId")
         companyUtils.takeShopOnline(company)
         logger.info("Shop taken online for companyId: ${company.id}")

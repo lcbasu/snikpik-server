@@ -17,7 +17,7 @@ class EmployeeController {
     }
 
     @RequestMapping(value = ["/getCompanyEmployees/{companyServerId}"], method = [RequestMethod.GET])
-    fun getCompanyEmployees(@PathVariable companyServerId: Long): CompanyEmployeesResponse? {
+    fun getCompanyEmployees(@PathVariable companyServerId: String): CompanyEmployeesResponse? {
         return employeeService.getCompanyEmployees(companyServerId)
     }
 
@@ -27,12 +27,12 @@ class EmployeeController {
     }
 
     @RequestMapping(value = ["/updateSalary/{employeeId}/{forDate}"], method = [RequestMethod.POST])
-    fun updateSalary(@PathVariable employeeId: Long, @PathVariable forDate: String): SavedEmployeeResponse? {
+    fun updateSalary(@PathVariable employeeId: String, @PathVariable forDate: String): SavedEmployeeResponse? {
         return employeeService.updateSalary(employeeId, forDate)
     }
 
     @RequestMapping(value = ["/getSalarySlip/{employeeId}/{startDate}/{endDate}"], method = [RequestMethod.GET])
-    fun getSalarySlip(@PathVariable employeeId: Long, @PathVariable startDate: String, @PathVariable endDate: String): SalarySlipResponse? {
+    fun getSalarySlip(@PathVariable employeeId: String, @PathVariable startDate: String, @PathVariable endDate: String): SalarySlipResponse? {
         return employeeService.getSalarySlip(employeeId, startDate, endDate)
     }
 

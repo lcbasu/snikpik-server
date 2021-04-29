@@ -3,7 +3,6 @@ package com.dukaankhata.server.utils
 import AttendanceInfoData
 import AttendancePunchData
 import AttendanceReportForEmployee
-import ReportDuration
 import com.dukaankhata.server.dao.AttendanceByAdminRepository
 import com.dukaankhata.server.dao.AttendanceRepository
 import com.dukaankhata.server.dto.*
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Component
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.temporal.TemporalAdjusters
 
 @Component
 class AttendanceUtils {
@@ -48,6 +46,9 @@ class AttendanceUtils {
     @Autowired
     private lateinit var attendanceServiceConverter: AttendanceServiceConverter
 
+    @Autowired
+    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+
     fun saveAttendance(requestContext: RequestContext, saveAttendanceRequest: SaveAttendanceRequest): Attendance? {
 
         val employee = requestContext.employee ?: error("Employee is required")
@@ -58,7 +59,7 @@ class AttendanceUtils {
         }
 
         val attendance = Attendance()
-
+        attendance.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.ATN.name)
         attendance.forDate = saveAttendanceRequest.forDate
 
         attendance.punchBy = requestContext.user
@@ -84,7 +85,7 @@ class AttendanceUtils {
         return savedAttendance;
     }
 
-    fun getAttendanceByAdminKey(companyId: Long, employeeId: Long, forDate: String): AttendanceByAdminKey {
+    fun getAttendanceByAdminKey(companyId: String, employeeId: String, forDate: String): AttendanceByAdminKey {
         val key = AttendanceByAdminKey()
         key.companyId = companyId
         key.employeeId = employeeId
@@ -185,8 +186,8 @@ class AttendanceUtils {
                                                      forDate: String,
                                                      attendancesByAdminForDate: List<AttendanceByAdmin>,
                                                      holidayForDate: List<Holiday>,
-                                                     overtimes: Map<Long?, List<Overtime>>,
-                                                     lateFines: Map<Long?, List<LateFine>>): EmployeeAttendanceResponse {
+                                                     overtimes: Map<String?, List<Overtime>>,
+                                                     lateFines: Map<String?, List<LateFine>>): EmployeeAttendanceResponse {
         var totalWorkingMinute = 0
         var attendanceType: AttendanceType = AttendanceType.ABSENT
         // Attendance by Admin takes the highest priority
@@ -518,7 +519,7 @@ class AttendanceUtils {
         }
     }
 
-    private fun getMetaData(employee: Employee, overtimes: Map<Long?, List<Overtime>>, lateFines: Map<Long?, List<LateFine>>): List<AttendanceUnit> {
+    private fun getMetaData(employee: Employee, overtimes: Map<String?, List<Overtime>>, lateFines: Map<String?, List<LateFine>>): List<AttendanceUnit> {
         val metaData = mutableListOf<AttendanceUnit>()
         overtimes.getOrDefault(employee.id, emptyList()).map {
             metaData.add(

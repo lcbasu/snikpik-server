@@ -9,6 +9,7 @@ import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.entities.Payment
 import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.PaymentType
+import com.dukaankhata.server.enums.ReadableIdPrefix
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -28,7 +29,10 @@ class PaymentUtils {
     @Autowired
     private lateinit var employeeUtils: EmployeeUtils
 
-    fun getPayment(paymentId: Long): Payment? =
+    @Autowired
+    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+
+    fun getPayment(paymentId: String): Payment? =
         try {
             paymentRepository.findById(paymentId).get()
         } catch (e: Exception) {
@@ -92,6 +96,7 @@ class PaymentUtils {
         }
 
         val payment = Payment()
+        payment.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.PMT.name)
         payment.company = company
         payment.employee = employee
         payment.paymentType = paymentType
@@ -106,14 +111,14 @@ class PaymentUtils {
         return paymentRepository.save(payment)
     }
 
-    fun getAllPaymentsBetweenGivenTimes(companyId: Long, startTime: LocalDateTime, endTime: LocalDateTime): List<Payment> =
+    fun getAllPaymentsBetweenGivenTimes(companyId: String, startTime: LocalDateTime, endTime: LocalDateTime): List<Payment> =
         try {
             paymentRepository.getAllPaymentsBetweenGivenTimes(companyId, startTime, endTime)
         } catch (e: Exception) {
             emptyList()
         }
 
-    fun getPayments(companyId: Long, datesList: List<String>): List<Payment> =
+    fun getPayments(companyId: String, datesList: List<String>): List<Payment> =
         try {
             paymentRepository.getPayments(companyId, datesList)
         } catch (e: Exception) {

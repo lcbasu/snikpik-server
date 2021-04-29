@@ -16,7 +16,7 @@ class HolidayUtils {
     @Autowired
     private lateinit var employeeUtils: EmployeeUtils
 
-    fun getHolidayKey(companyId: Long, employeeId: Long, forDate: String): HolidayKey {
+    fun getHolidayKey(companyId: String, employeeId: String, forDate: String): HolidayKey {
         val key = HolidayKey()
         key.companyId = companyId
         key.employeeId = employeeId

@@ -11,6 +11,7 @@ class Product : Auditable() {
     @Id
     @Column(unique = true)
     var id: String = ""
+
     var title: String = ""
 
     var mediaDetails: String = "" // MediaDetails object -> Multiple Images or videos

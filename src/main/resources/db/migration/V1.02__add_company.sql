@@ -1,6 +1,6 @@
 create table company
 (
-    id               bigint auto_increment primary key,
+    id                  varchar(255)    not null primary key,
     name           varchar(255)    null,
     location              varchar(255)    null,
     salary_payment_schedule              varchar(255)    null,

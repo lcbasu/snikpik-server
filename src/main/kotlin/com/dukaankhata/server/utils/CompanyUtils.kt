@@ -6,6 +6,7 @@ import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.Payment
 import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.DKShopStatus
+import com.dukaankhata.server.enums.ReadableIdPrefix
 import com.dukaankhata.server.enums.SalaryPaymentSchedule
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -16,7 +17,10 @@ class CompanyUtils {
     @Autowired
     private lateinit var companyRepository: CompanyRepository
 
-    fun getCompany(companyId: Long): Company? =
+    @Autowired
+    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+
+    fun getCompany(companyId: String): Company? =
         try {
             companyRepository.findById(companyId).get()
         } catch (e: Exception) {
@@ -36,6 +40,7 @@ class CompanyUtils {
 
     fun saveCompany(user: User, name: String, location: String, salaryPaymentSchedule: SalaryPaymentSchedule, workingMinutes: Int): Company {
         val newCompany = Company()
+        newCompany.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.COM.name)
         newCompany.user = user
         newCompany.name = name
         newCompany.location = location
@@ -45,7 +50,7 @@ class CompanyUtils {
         return companyRepository.save(newCompany)
     }
 
-    fun getCompany(username: String): Company? {
+    fun getCompanyByUsername(username: String): Company? {
         return try {
             return companyRepository.findByUsername(username)
         } catch (e: Exception) {
@@ -56,7 +61,7 @@ class CompanyUtils {
 
     fun isUsernameAvailable(username: String): Boolean {
         return try {
-            getCompany(username) == null
+            getCompanyByUsername(username) == null
         } catch (e: Exception) {
             e.printStackTrace()
             false

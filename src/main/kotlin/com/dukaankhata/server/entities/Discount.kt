@@ -14,8 +14,9 @@ import javax.persistence.*
 @Entity
 class Discount : Auditable() {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0
+    @Column(unique = true)
+    var id: String = ""
+
     var promoCode: String = ""
 
     @Enumerated(EnumType.STRING)

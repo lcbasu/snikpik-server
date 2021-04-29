@@ -1,6 +1,6 @@
 create table attendance
 (
-    id               bigint auto_increment primary key,
+    id                  varchar(255)    not null primary key,
     for_date           varchar(255)    null,
     punch_at             datetime        null,
     punch_type           varchar(255)    null,
@@ -12,8 +12,8 @@ create table attendance
     location_long           double    null,
     location_name           varchar(255)    null,
 
-    employee_id                    bigint null,
-    company_id                    bigint null,
+    employee_id                    varchar(255) null,
+    company_id                    varchar(255) null,
 
 
     constraint fk_attendance_punch_by_user_id

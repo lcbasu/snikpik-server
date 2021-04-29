@@ -5,6 +5,7 @@ import com.dukaankhata.server.dao.CompanyAddressRepository
 import com.dukaankhata.server.dao.UserAddressRepository
 import com.dukaankhata.server.dto.SaveAddressRequest
 import com.dukaankhata.server.entities.*
+import com.dukaankhata.server.enums.ReadableIdPrefix
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,9 +24,13 @@ class AddressUtils {
     @Autowired
     private lateinit var userAddressRepository: UserAddressRepository
 
+    @Autowired
+    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+
     fun saveAddress(saveAddressRequest: SaveAddressRequest): Address? {
         try {
             val newAddress = Address()
+            newAddress.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.ADR.name)
             newAddress.line1 = saveAddressRequest.line1
             newAddress.line2 = saveAddressRequest.line2
             newAddress.zipcode = saveAddressRequest.zipcode
@@ -36,7 +41,7 @@ class AddressUtils {
             newAddress.latitude = saveAddressRequest.latitude
             newAddress.longitude = saveAddressRequest.longitude
             newAddress.phone = saveAddressRequest.phone
-            return addressRepository.saveAndFlush(newAddress)
+            return addressRepository.save(newAddress)
         } catch (e: Exception) {
             logger.error("Failed to save saveAddress")
             e.printStackTrace()
@@ -56,7 +61,7 @@ class AddressUtils {
             companyAddress.name = name
             companyAddress.company = company
             companyAddress.address = newAddress
-            return companyAddressRepository.saveAndFlush(companyAddress)
+            return companyAddressRepository.save(companyAddress)
         } catch (e: Exception) {
             logger.error("Failed to save companyAddress")
             e.printStackTrace()
@@ -76,7 +81,7 @@ class AddressUtils {
             userAddress.name = name
             userAddress.user = user
             userAddress.address = newAddress
-            return userAddressRepository.saveAndFlush(userAddress)
+            return userAddressRepository.save(userAddress)
         } catch (e: Exception) {
             logger.error("Failed to save userAddress")
             e.printStackTrace()

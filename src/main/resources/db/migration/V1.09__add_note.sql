@@ -1,12 +1,12 @@
 create table note
 (
-    id               bigint auto_increment primary key,
+    id                  varchar(255)    not null primary key,
     for_date           varchar(255)    not null,
     added_at             datetime        not null,
     description           varchar(255)    not null,
 
-    employee_id                    bigint not null,
-    company_id                    bigint not null,
+    employee_id                    varchar(255) not null,
+    company_id                    varchar(255) not null,
     added_by_user_id           varchar(255)    not null,
 
     constraint fk_note_added_by_user_id

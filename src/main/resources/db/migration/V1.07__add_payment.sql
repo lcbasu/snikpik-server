@@ -1,6 +1,6 @@
 create table payment
 (
-    id               bigint auto_increment primary key,
+    id                  varchar(255)    not null primary key,
     for_date           varchar(255)    not null DEFAULT '',
     added_at             datetime        not null DEFAULT CURRENT_TIMESTAMP,
     payment_type           varchar(255)    not null DEFAULT '',
@@ -8,8 +8,8 @@ create table payment
     amount_in_paisa             bigint       null,
     multiplier_used             int       null,
 
-    employee_id                    bigint not null,
-    company_id                    bigint not null,
+    employee_id                    varchar(255) not null,
+    company_id                    varchar(255) not null,
     added_by_user_id           varchar(255) not null,
 
     constraint fk_payment_added_by_user_id

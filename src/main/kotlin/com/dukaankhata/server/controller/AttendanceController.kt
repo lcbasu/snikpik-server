@@ -43,7 +43,7 @@ class AttendanceController {
     }
 
     @RequestMapping(value = ["/getAttendanceReportForEmployee/{employeeId}/{forDate}"], method = [RequestMethod.GET])
-    fun getAttendanceReportForEmployee(@PathVariable employeeId: Long, @PathVariable forDate: String): AttendanceReportForEmployeeResponse? {
+    fun getAttendanceReportForEmployee(@PathVariable employeeId: String, @PathVariable forDate: String): AttendanceReportForEmployeeResponse? {
         return attendanceService.getAttendanceReportForEmployee(employeeId, forDate)
     }
 

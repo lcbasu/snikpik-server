@@ -1,7 +1,7 @@
 create table attendance_by_admin
 (
-    company_id                  bigint       not null,
-    employee_id                  bigint       not null,
+    company_id                  varchar(255)       not null,
+    employee_id                  varchar(255)       not null,
     for_date                   varchar(255) not null,
 
     working_minutes             bigint       not null,

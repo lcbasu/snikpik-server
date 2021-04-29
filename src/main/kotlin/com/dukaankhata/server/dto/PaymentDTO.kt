@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SavePaymentRequest(
-    val employeeId: Long,
-    val companyId: Long,
+    val employeeId: String,
+    val companyId: String,
     val forDate: String,
     val paymentType: PaymentType,
     val amountInPaisa: Long,
@@ -18,7 +18,7 @@ data class SavePaymentRequest(
 data class SavedPaymentResponse(
     val employee: SavedEmployeeResponse,
     val company: SavedCompanyResponse,
-    val serverId: Long,
+    val serverId: String,
     val forDate: String,
     val paymentType: PaymentType,
     val amountInPaisa: Long,
@@ -29,7 +29,7 @@ data class SavedPaymentResponse(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class PaymentSummaryRequest(
-    val companyId: Long,
+    val companyId: String,
     val forYear: Int,
     val forMonth: Int,
 )

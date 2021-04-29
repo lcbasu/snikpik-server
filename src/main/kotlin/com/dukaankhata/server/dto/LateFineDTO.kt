@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveLateFineRequest(
-    val employeeId: Long,
-    val companyId: Long,
+    val employeeId: String,
+    val companyId: String,
     val forDate: String,
     val totalLateFineMinutes: Int,
 )

@@ -63,7 +63,7 @@ class EmployeeServiceImpl : EmployeeService() {
         return employeeServiceConverter.getSavedEmployeeResponse(employee);
     }
 
-    override fun getCompanyEmployees(companyServerId: Long): CompanyEmployeesResponse? {
+    override fun getCompanyEmployees(companyServerId: String): CompanyEmployeesResponse? {
         val requestingUser = authUtils.getRequestUserEntity()
         val company = companyUtils.getCompany(companyServerId)
         if (requestingUser == null || company == null) {
@@ -87,7 +87,7 @@ class EmployeeServiceImpl : EmployeeService() {
         return employeeServiceConverter.getSavedEmployeeResponse(employee)
     }
 
-    override fun updateSalary(employeeId: Long, forDate: String): SavedEmployeeResponse? {
+    override fun updateSalary(employeeId: String, forDate: String): SavedEmployeeResponse? {
         val requestContext = authUtils.validateRequest(
             employeeId = employeeId,
             requiredRoleTypes = authUtils.onlyAdminLevelRoles()
@@ -100,7 +100,7 @@ class EmployeeServiceImpl : EmployeeService() {
         return employeeServiceConverter.getSavedEmployeeResponse(employee)
     }
 
-    override fun getSalarySlip(employeeId: Long, startDate: String, endDate: String): SalarySlipResponse? {
+    override fun getSalarySlip(employeeId: String, startDate: String, endDate: String): SalarySlipResponse? {
         val requestContext = authUtils.validateRequest(
             employeeId = employeeId,
             requiredRoleTypes = authUtils.onlyAdminLevelRoles()

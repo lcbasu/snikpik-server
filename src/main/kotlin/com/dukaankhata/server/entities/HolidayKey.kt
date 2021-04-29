@@ -7,10 +7,10 @@ import javax.persistence.Embeddable
 @Embeddable
 class HolidayKey: Serializable {
     @Column(name = "company_id")
-    var companyId: Long = -1
+    var companyId: String = ""
 
     @Column(name = "employee_id")
-    var employeeId: Long = -1
+    var employeeId: String = ""
 
     @Column(name = "for_date")
     var forDate: String = ""

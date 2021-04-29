@@ -4,6 +4,7 @@ import UpdatedCartData
 import com.dukaankhata.server.dao.CartItemRepository
 import com.dukaankhata.server.entities.*
 import com.dukaankhata.server.enums.CartItemUpdateAction
+import com.dukaankhata.server.enums.ReadableIdPrefix
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -17,6 +18,8 @@ class CartItemUtils {
     @Autowired
     private lateinit var productOrderUtils: ProductOrderUtils
 
+    @Autowired
+    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
 
     fun getCartItemsForUserForProducts(userId: String, productIds: Set<String>): List<CartItem> =
         try {
@@ -41,6 +44,8 @@ class CartItemUtils {
                           product: Product,
                           productOrder: ProductOrder): CartItem {
         val newCartItem = CartItem()
+
+        newCartItem.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.CRT.name)
 
         newCartItem.product = product
         newCartItem.productOrder = productOrder

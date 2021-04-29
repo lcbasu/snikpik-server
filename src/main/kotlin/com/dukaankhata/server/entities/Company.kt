@@ -7,8 +7,8 @@ import javax.persistence.*
 @Entity
 class Company : Auditable() {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0
+    @Column(unique = true)
+    var id: String = ""
     var name: String = ""
     var location: String = ""
     var workingMinutes: Int = 0
@@ -33,5 +33,5 @@ class Company : Auditable() {
     var totalOrdersCount: Long? = 0
     var totalProductsViewCount: Long? = 0
 
-    var defaultAddressId: Long = -1 // Address table Id
+    var defaultAddressId: String? = "" // Address table Id
 }

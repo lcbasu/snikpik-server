@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveCollectionRequest(
-    val companyId: Long,
+    val companyId: String,
     var title: String = "",
     var subTitle: String?,
     val mediaDetails: MediaDetails,

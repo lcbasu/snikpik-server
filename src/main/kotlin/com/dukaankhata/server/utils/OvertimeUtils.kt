@@ -8,6 +8,7 @@ import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.entities.Overtime
 import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.PaymentType
+import com.dukaankhata.server.enums.ReadableIdPrefix
 import com.dukaankhata.server.service.converter.OvertimeServiceConverter
 import com.dukaankhata.server.service.converter.PaymentServiceConverter
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,7 +30,10 @@ class OvertimeUtils {
     @Autowired
     private lateinit var paymentServiceConverter: PaymentServiceConverter
 
-    fun getOvertime(overtimeId: Long): Overtime? =
+    @Autowired
+    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+
+    fun getOvertime(overtimeId: String): Overtime? =
         try {
             overtimeRepository.findById(overtimeId).get()
         } catch (e: Exception) {
@@ -38,6 +42,7 @@ class OvertimeUtils {
 
     fun saveOvertime(addedBy: User, company: Company, employee: Employee, forDate: String, saveOvertimeRequest: SaveOvertimeRequest) : SavedOvertimeResponse {
         val overtime = Overtime()
+        overtime.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.OVT.name)
         overtime.company = company
         overtime.employee = employee
         overtime.addedBy = addedBy

@@ -116,7 +116,7 @@ class DKShopServiceImpl : DKShopService() {
 
             val user = requestContext.user
 
-            val company = companyUtils.getCompany(username) ?: error("Username not found")
+            val company = companyUtils.getCompanyByUsername(username) ?: error("Username not found")
 
             val allProductsFuture = async { productUtils.getProducts(company) }
             val allCollectionsFuture = async { collectionUtils.getCollections(company) }
@@ -181,7 +181,7 @@ class DKShopServiceImpl : DKShopService() {
     override fun getActiveProductOrderBag(shopUsername: String): SavedProductOrderResponse? {
         val requestContext = authUtils.validateRequest()
         val user = requestContext.user
-        val company = companyUtils.getCompany(shopUsername) ?: error("Shop username is required")
+        val company = companyUtils.getCompanyByUsername(shopUsername) ?: error("Shop username is required")
         val activeProductOrderBag = productOrderUtils.getActiveProductOrderBag(
             company = company,
             user = user)

@@ -7,7 +7,7 @@ import javax.persistence.Embeddable
 @Embeddable
 class CompanyCustomerKey: Serializable {
     @Column(name = "company_id")
-    var companyId: Long = -1
+    var companyId: String = ""
 
     @Column(name = "user_id")
     var userId: String = ""

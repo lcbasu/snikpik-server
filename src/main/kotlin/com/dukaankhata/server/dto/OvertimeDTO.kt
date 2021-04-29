@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveOvertimeRequest(
-    val employeeId: Long,
-    val companyId: Long,
+    val employeeId: String,
+    val companyId: String,
     val forDate: String,
     val hourlyOvertimeWageInPaisa: Long,
     val totalOvertimeMinutes: Int,

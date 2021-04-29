@@ -10,7 +10,7 @@ import javax.persistence.Enumerated
 @Embeddable
 class ExtraChargeTaxKey: Serializable {
     @Column(name = "company_id")
-    var companyId: Long = -1
+    var companyId: String = ""
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tax_type")

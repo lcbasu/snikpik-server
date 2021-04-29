@@ -8,8 +8,8 @@ import javax.persistence.Embeddable
 class CompanyAddressKey: Serializable {
 
     @Column(name = "company_id")
-    var companyId: Long = -1
+    var companyId: String = ""
 
     @Column(name = "address_id")
-    var addressId: Long = -1
+    var addressId: String = ""
 }

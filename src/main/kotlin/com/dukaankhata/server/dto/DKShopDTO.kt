@@ -11,7 +11,7 @@ data class UsernameAvailableResponse(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveUsernameRequest(
-    val companyId: Long,
+    val companyId: String,
     val username: String,
 )
 
@@ -23,7 +23,7 @@ data class SaveUsernameResponse(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TakeShopOfflineRequest(
-    val companyId: Long,
+    val companyId: String,
     val takeShopOnlineAfter: TakeShopOnlineAfter,
 )
 
@@ -35,7 +35,7 @@ data class TakeShopOfflineResponse(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveCompanyAddressRequest(
-    val companyId: Long,
+    val companyId: String,
     val name: String = "",
     val address: SaveAddressRequest,
 )

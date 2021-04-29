@@ -7,6 +7,7 @@ import javax.persistence.*
 class ProductOrder : Auditable() {
 
     @Id
+    @Column(unique = true)
     var id: String = ""
 
     // Copying it here even thought we have discount ID so that

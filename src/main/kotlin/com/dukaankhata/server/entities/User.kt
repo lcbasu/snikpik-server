@@ -1,5 +1,6 @@
 package com.dukaankhata.server.entities
 
+import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Id
 
@@ -7,6 +8,7 @@ import javax.persistence.Id
 class User : Auditable() {
 
     @Id
+    @Column(unique = true)
     var id: String = "" // ID generated with prefix: USR
 
     // Only add mobile numbers when it is unique
@@ -21,5 +23,5 @@ class User : Auditable() {
     var anonymous: Boolean = true
     var fullName: String? = ""
 
-    var defaultAddressId: Long? = -1 // Address table Id
+    var defaultAddressId: String? = "" // Address table Id
 }

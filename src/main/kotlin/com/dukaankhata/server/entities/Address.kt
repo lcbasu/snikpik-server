@@ -1,15 +1,12 @@
 package com.dukaankhata.server.entities
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
-import javax.persistence.Id
+import javax.persistence.*
 
 @Entity
 class Address : Auditable() {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = -1
+    @Column(unique = true)
+    var id: String = ""
     var line1: String? = null
     var line2: String? = null
     var zipcode: String? = null
