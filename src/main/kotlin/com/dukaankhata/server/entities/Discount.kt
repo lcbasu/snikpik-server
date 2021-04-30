@@ -21,9 +21,9 @@ class Discount : Auditable() {
 
     @Enumerated(EnumType.STRING)
     var discountType: DiscountType = DiscountType.ABSOLUTE
-    var discountAmount: Long = 0 // 0 rupees or 0 percentage
+    var discountAmount: Long = 0 // 100 rupees flat discount or 10% Discount with min order and max amount defined
 
-    // Constarins
+    // Constraints
     // Max and Min
     var minOrderValueInPaisa: Long = 0
     var maxDiscountAmountInPaisa: Long = 0
@@ -34,10 +34,10 @@ class Discount : Auditable() {
 
     // Time
     var startAt: LocalDateTime = DateUtils.dateTimeNow()
-    var endAt: LocalDateTime = DateUtils.dateTimeNow().plusDays(1)
+    var endAt: LocalDateTime = DateUtils.dateTimeNow().plusWeeks(1) // Default to a week
 
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    @MapsId("company_id")
+//    @MapsId("company_id")
     @JoinColumn(name = "company_id")
     var company: Company? = null;
 

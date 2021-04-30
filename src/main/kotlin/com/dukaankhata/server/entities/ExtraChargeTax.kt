@@ -8,7 +8,7 @@ class ExtraChargeTax : Auditable() {
     @EmbeddedId
     var id: ExtraChargeTaxKey? = null
 
-    val taxPercentage: Int = 0
+    var taxPercentage: Double = 0.0
 
     // Keeping Company reference in all the models
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)

@@ -27,6 +27,13 @@ class AddressUtils {
     @Autowired
     private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
 
+    fun getAddress(addressId: String): Address? =
+        try {
+            addressRepository.findById(addressId).get()
+        } catch (e: Exception) {
+            null
+        }
+
     fun saveAddress(saveAddressRequest: SaveAddressRequest): Address? {
         try {
             val newAddress = Address()
@@ -70,22 +77,27 @@ class AddressUtils {
     }
 
     fun saveUserAddress(user: User, name: String, saveAddressRequest: SaveAddressRequest): UserAddress? {
-        try {
+        return try {
             val newAddress = saveAddress(saveAddressRequest) ?: error("Address should be saved")
-            val userAddressKey = UserAddressKey()
-            userAddressKey.addressId = newAddress.id
-            userAddressKey.userId = user.id
-
             val userAddress = UserAddress()
-            userAddress.id = userAddressKey
+            userAddress.id = getUserAddressKey(userId = user.id, addressId = newAddress.id)
             userAddress.name = name
             userAddress.user = user
             userAddress.address = newAddress
-            return userAddressRepository.save(userAddress)
+            userAddressRepository.save(userAddress)
         } catch (e: Exception) {
             logger.error("Failed to save userAddress")
             e.printStackTrace()
-            return null
+            null
         }
     }
+
+    fun getUserAddressKey(userId: String, addressId: String): UserAddressKey {
+        val key = UserAddressKey()
+        key.userId = userId
+        key.addressId = addressId
+        return key
+    }
+
+    fun getUserAddresses(user: User) = userAddressRepository.findAllByUser(user)
 }

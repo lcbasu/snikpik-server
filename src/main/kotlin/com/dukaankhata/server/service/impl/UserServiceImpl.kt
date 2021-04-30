@@ -63,4 +63,16 @@ class UserServiceImpl : UserService() {
             address = newAddress.toSavedAddressResponse()
         )
     }
+
+    override fun getAddresses(): UserAddressesResponse {
+        val requestContext = authUtils.validateRequest()
+        val user = requestContext.user
+        val userAddresses = addressUtils.getUserAddresses(user)
+        return UserAddressesResponse(
+            user = user.toSavedUserResponse(),
+            addresses = userAddresses.mapNotNull {
+                it.address?.toSavedAddressResponse()
+            }
+        )
+    }
 }

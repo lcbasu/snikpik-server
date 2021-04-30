@@ -6,3 +6,9 @@ data class UpdatedCartData (
     val updatedProductOrder: ProductOrder,
     val productOrderCartItems: List<CartItem>
 )
+
+data class MigratedCartData (
+    val fromProductOrder: ProductOrder,
+    val toProductOrder: ProductOrder,
+    val migratedCartItems: List<CartItem>
+)

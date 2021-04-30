@@ -46,6 +46,12 @@ data class SavedCompanyAddressResponse(
     val address: SavedAddressResponse,
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SavedActiveDiscountsResponse(
+    val company: SavedCompanyResponse,
+    val discounts: List<SavedDiscountResponse>,
+)
+
 // Arrange this accordingly on the home page
 // Sending all data so that searching is easier
 @JsonIgnoreProperties(ignoreUnknown = true)

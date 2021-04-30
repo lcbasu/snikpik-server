@@ -22,6 +22,12 @@ data class SavedCartItemResponse(
     val product: SavedProductResponse?
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class MigrateCartRequest(
+    val companyId: String,
+    val fromUserId: String,
+    val toUserId: String,
+)
 
 fun CartItem.toSavedCartItemResponse(): SavedCartItemResponse {
     this.apply {

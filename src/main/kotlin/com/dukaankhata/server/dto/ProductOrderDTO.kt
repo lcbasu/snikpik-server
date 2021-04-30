@@ -15,7 +15,9 @@ data class SavedProductOrderResponse(
     val totalPricePayableInPaisa: Long = 0,
 //    var deliveryAddress: SavedAddressResponse,
     var orderStatus: ProductOrderStatus = ProductOrderStatus.DRAFT,
-    var cartItems: List<SavedCartItemResponse> = emptyList()
+    var cartItems: List<SavedCartItemResponse> = emptyList(),
+    var discount: SavedDiscountResponse? = null,
+    var address: SavedAddressResponse? = null
 )
 
 fun ProductOrder.toSavedProductOrderResponse(): SavedProductOrderResponse {

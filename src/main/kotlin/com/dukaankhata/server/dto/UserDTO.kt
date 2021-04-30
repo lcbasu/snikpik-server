@@ -41,7 +41,6 @@ data class VerifyPhoneResponse (
     val mobileNetworkCode: String? = null,
 )
 
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveUserAddressRequest(
     val name: String = "",
@@ -52,6 +51,11 @@ data class SaveUserAddressRequest(
 data class SavedUserAddressResponse(
     val user: SavedUserResponse,
     val address: SavedAddressResponse,
+)
+
+data class UserAddressesResponse(
+    val user: SavedUserResponse,
+    val addresses: List<SavedAddressResponse>
 )
 
 fun User.toSavedUserResponse(): SavedUserResponse {

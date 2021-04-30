@@ -8,8 +8,15 @@ class ExtraChargeDelivery : Auditable() {
     @EmbeddedId
     var id: ExtraChargeDeliveryKey? = null
 
-    val deliveryChargePerOrder: Long = 0
-    val deliveryChargeFreeAbove: Long = 0
+    /**
+     * In Paisa
+     * */
+    var deliveryChargePerOrder: Long = 0
+
+    /**
+     * In Paisa
+     * */
+    var deliveryChargeFreeAbove: Long = 0
 
     // Keeping Company reference in all the models
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)

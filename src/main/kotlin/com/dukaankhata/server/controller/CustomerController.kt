@@ -42,7 +42,13 @@ class CustomerController {
     @RequestMapping(value = ["/updateCart"], method = [RequestMethod.POST])
     fun updateCart(@RequestBody updateCartRequest: UpdateCartRequest): SavedProductOrderResponse? {
         customerPreChecks()
-        return dkShopService.updateCartRequest(updateCartRequest)
+        return dkShopService.updateCart(updateCartRequest)
+    }
+
+    @RequestMapping(value = ["/migrateCart"], method = [RequestMethod.POST])
+    fun migrateCart(@RequestBody migrateCartRequest: MigrateCartRequest): SavedProductOrderResponse? {
+        customerPreChecks()
+        return dkShopService.migrateCart(migrateCartRequest)
     }
 
     @RequestMapping(value = ["/getActiveProductOrderBag/{shopUsername}"], method = [RequestMethod.GET])

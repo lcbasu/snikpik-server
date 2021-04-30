@@ -11,6 +11,11 @@ abstract class DKShopService {
     abstract fun saveAddress(saveCompanyAddressRequest: SaveCompanyAddressRequest): SavedCompanyAddressResponse?
     abstract fun getShopViewForCustomer(username: String): ShopViewForCustomerResponse
     abstract fun getRelatedProducts(productId: String): RelatedProductsResponse?
-    abstract fun updateCartRequest(updateCartRequest: UpdateCartRequest): SavedProductOrderResponse?
+    abstract fun updateCart(updateCartRequest: UpdateCartRequest): SavedProductOrderResponse?
     abstract fun getActiveProductOrderBag(shopUsername: String): SavedProductOrderResponse?
+    abstract fun getActiveDiscounts(companyId: String): SavedActiveDiscountsResponse
+    abstract fun saveOrUpdateExtraChargeDelivery(saveExtraChargeDeliveryRequest: SaveExtraChargeDeliveryRequest): SavedExtraChargeDeliveryResponse
+    abstract fun getExtraCharges(companyId: String): SavedExtraChargesResponse
+    abstract fun saveOrUpdateExtraChargeTax(saveExtraChargeTaxRequest: SaveExtraChargeTaxRequest): SavedExtraChargeTaxResponse
+    abstract fun migrateCart(migrateCartRequest: MigrateCartRequest): SavedProductOrderResponse
 }

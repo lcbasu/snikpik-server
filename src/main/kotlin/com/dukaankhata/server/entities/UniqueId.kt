@@ -9,4 +9,4 @@ class UniqueId(
     @Id
     @Column(unique = true)
     var id: String = ""
-)
+) : Auditable()

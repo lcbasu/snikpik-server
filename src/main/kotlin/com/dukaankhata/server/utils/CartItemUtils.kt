@@ -1,5 +1,6 @@
 package com.dukaankhata.server.utils
 
+import MigratedCartData
 import UpdatedCartData
 import com.dukaankhata.server.dao.CartItemRepository
 import com.dukaankhata.server.entities.*
@@ -132,6 +133,25 @@ class CartItemUtils {
                 cartItem = existingCartItem,
                 cartItemUpdateAction = cartItemUpdateAction
             )
+        }
+    }
+
+    fun migrateCart(fromProductOrder: ProductOrder, toProductOrder: ProductOrder): MigratedCartData {
+        val fromProductOrderCartItems = getCartItems(fromProductOrder)
+        val migratedCartItems = migrateCartItems(fromProductOrderCartItems, toProductOrder)
+        val updatedProductOrder = productOrderUtils.updateProductOrder(toProductOrder, fromProductOrderCartItems)
+        return MigratedCartData(
+            fromProductOrder = fromProductOrder,
+            toProductOrder = updatedProductOrder,
+            migratedCartItems = migratedCartItems
+        )
+    }
+
+    private fun migrateCartItems(fromProductOrderCartItems: List<CartItem>, toProductOrder: ProductOrder): List<CartItem> {
+        return fromProductOrderCartItems.map { cartItem ->
+            cartItem.addedBy = toProductOrder.addedBy
+            cartItem.productOrder = toProductOrder
+            cartItemRepository.saveAndFlush(cartItem)
         }
     }
 }

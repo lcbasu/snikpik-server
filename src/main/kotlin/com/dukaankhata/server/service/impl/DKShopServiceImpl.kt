@@ -36,6 +36,14 @@ class DKShopServiceImpl : DKShopService() {
     @Autowired
     private lateinit var productOrderUtils: ProductOrderUtils
 
+    @Autowired
+    private lateinit var discountUtils: DiscountUtils
+
+    @Autowired
+    private lateinit var extraChargeDeliveryUtils: ExtraChargeDeliveryUtils
+
+    @Autowired
+    private lateinit var extraChargeTaxUtils: ExtraChargeTaxUtils
 
     override fun saveUsername(saveUsernameRequest: SaveUsernameRequest): SaveUsernameResponse? {
         val requestContext = authUtils.validateRequest(
@@ -160,7 +168,7 @@ class DKShopServiceImpl : DKShopService() {
         )
     }
 
-    override fun updateCartRequest(updateCartRequest: UpdateCartRequest): SavedProductOrderResponse? {
+    override fun updateCart(updateCartRequest: UpdateCartRequest): SavedProductOrderResponse? {
         val requestContext = authUtils.validateRequest()
 
         val user = requestContext.user
@@ -187,5 +195,81 @@ class DKShopServiceImpl : DKShopService() {
             user = user)
         val cartItems = activeProductOrderBag?.let { cartItemUtils.getCartItems(it) } ?: emptyList()
         return activeProductOrderBag?.toSavedProductOrderResponse(cartItems)
+    }
+
+    override fun getActiveDiscounts(companyId: String): SavedActiveDiscountsResponse {
+        val requestContext = authUtils.validateRequest(
+            companyId = companyId
+        )
+        val company = requestContext.company ?: error("Company is required")
+        val activeDiscounts = discountUtils.getActiveDiscounts(company)
+        return SavedActiveDiscountsResponse(
+            company = company.toSavedCompanyResponse(),
+            discounts = activeDiscounts.map { it.toSavedDiscountResponse() }
+        )
+    }
+
+    override fun saveOrUpdateExtraChargeDelivery(saveExtraChargeDeliveryRequest: SaveExtraChargeDeliveryRequest): SavedExtraChargeDeliveryResponse {
+        val requestContext = authUtils.validateRequest(
+            companyId = saveExtraChargeDeliveryRequest.companyId
+        )
+        val company = requestContext.company ?: error("Company is required")
+        val ed = extraChargeDeliveryUtils.saveOrUpdateExtraChargeDelivery(
+            addedBy = requestContext.user,
+            company = company,
+            saveExtraChargeDeliveryRequest = saveExtraChargeDeliveryRequest
+        )
+        return ed.toSavedExtraChargeDeliveryResponse()
+    }
+
+    override fun saveOrUpdateExtraChargeTax(saveExtraChargeTaxRequest: SaveExtraChargeTaxRequest): SavedExtraChargeTaxResponse {
+        val requestContext = authUtils.validateRequest(
+            companyId = saveExtraChargeTaxRequest.companyId
+        )
+        val company = requestContext.company ?: error("Company is required")
+        val et = extraChargeTaxUtils.saveOrUpdateExtraChargeTax(
+            addedBy = requestContext.user,
+            company = company,
+            saveExtraChargeTaxRequest = saveExtraChargeTaxRequest
+        )
+        return et.toSavedExtraChargeTaxResponse()
+    }
+
+    override fun migrateCart(migrateCartRequest: MigrateCartRequest): SavedProductOrderResponse {
+        val requestContext = authUtils.validateRequest(
+            companyId = migrateCartRequest.companyId
+        )
+        val user = requestContext.user
+        if (user.id != migrateCartRequest.toUserId) {
+            error("Cart can only be migrated for users who logged in through phone number " +
+                "and want to move their non-logged in cart to logged in cart")
+        }
+        val company = requestContext.company ?: error("Company is required")
+        val fromUser = authUtils.getUser(migrateCartRequest.fromUserId) ?: error("From user is required")
+        val fromProductOrder = productOrderUtils.getActiveProductOrderBag(company, fromUser) ?: error("Product order not found to migrate from.")
+
+        val toProductOrder = productOrderUtils.getOrCreateActiveProductOrderBag(
+            company = company,
+            user = user)
+        val migratedCartData = cartItemUtils.migrateCart(
+            fromProductOrder = fromProductOrder,
+            toProductOrder = toProductOrder)
+        return migratedCartData.toProductOrder.toSavedProductOrderResponse(migratedCartData.migratedCartItems)
+    }
+
+    override fun getExtraCharges(companyId: String): SavedExtraChargesResponse {
+        val requestContext = authUtils.validateRequest(
+            companyId = companyId
+        )
+        val company = requestContext.company ?: error("Company is required")
+        val eds = extraChargeDeliveryUtils.getExtraChargeDeliveries(company)
+        val ets = extraChargeTaxUtils.getExtraChargeTaxes(company)
+
+        return SavedExtraChargesResponse(
+            company = company.toSavedCompanyResponse(),
+            charges =
+            eds.map { it.toSavedExtraChargeDeliveryResponse() } +
+                ets.map { it.toSavedExtraChargeTaxResponse() }
+        )
     }
 }

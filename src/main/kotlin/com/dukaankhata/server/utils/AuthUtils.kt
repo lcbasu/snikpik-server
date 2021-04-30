@@ -35,6 +35,13 @@ class AuthUtils {
     @Autowired
     private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
 
+    fun getUser(userId: String): User? =
+        try {
+            userRepository.findById(userId).get()
+        } catch (e: Exception) {
+            null
+        }
+
     /**
      * IMPORTANT: Call this very very carefully and only for Public Anonymous User kind of URL requests
      * */
@@ -184,50 +191,12 @@ class AuthUtils {
         var company: Company? = null
         var userRoles: List<UserRole> = emptyList()
         if (companyId != null && companyId.isNotBlank()) {
-            company = companyUtils.getCompany(companyId)
-            if (company == null) {
-                error("Company is required!");
-            }
+            company = companyUtils.getCompany(companyId) ?: error("Company is required!")
 
-            userRoles = userRoleUtils.getUserRolesForUserAndCompany(
-                user = requestingUser,
-                company = company
-            ) ?: emptyList()
-
-            if (userRoles.isEmpty()) {
-                error("Only employers, admin, or employees of the company can perform this operation");
-            }
-
-            val currentUserRoles = mutableSetOf<RoleType>()
-
-            userRoles.map {
-                val roleType = it.id?.roleType
-                if (roleType != null) {
-                    currentUserRoles.add(RoleType.valueOf(roleType))
-                }
-            }
-
-            val common = currentUserRoles.intersect(requiredRoleTypes)
-
-            if (common.isEmpty()) {
-                error("Use doe not have the required access");
-            }
-        }
-
-        var employee: Employee? = null
-        if (employeeId != null && employeeId.isNotBlank()) {
-            employee = employeeUtils.getEmployee(employeeId)
-            if (employee == null) {
-                error("Employee is required");
-            }
-
-            // If only employee id is provided
-            if (companyId == null || companyId.isBlank()) {
-                company = employee.company
-
+            if (requiredRoleTypes.isNotEmpty()) {
                 userRoles = userRoleUtils.getUserRolesForUserAndCompany(
                     user = requestingUser,
-                    company = employee.company!!
+                    company = company
                 ) ?: emptyList()
 
                 if (userRoles.isEmpty()) {
@@ -247,6 +216,42 @@ class AuthUtils {
 
                 if (common.isEmpty()) {
                     error("Use doe not have the required access");
+                }
+            }
+        }
+
+        var employee: Employee? = null
+        if (employeeId != null && employeeId.isNotBlank()) {
+            employee = employeeUtils.getEmployee(employeeId) ?: error("Employee is required")
+
+            // If only employee id is provided
+            if (companyId == null || companyId.isBlank()) {
+                company = employee.company
+
+                if (requiredRoleTypes.isNotEmpty()) {
+                    userRoles = userRoleUtils.getUserRolesForUserAndCompany(
+                        user = requestingUser,
+                        company = employee.company!!
+                    ) ?: emptyList()
+
+                    if (userRoles.isEmpty()) {
+                        error("Only employers, admin, or employees of the company can perform this operation");
+                    }
+
+                    val currentUserRoles = mutableSetOf<RoleType>()
+
+                    userRoles.map {
+                        val roleType = it.id?.roleType
+                        if (roleType != null) {
+                            currentUserRoles.add(RoleType.valueOf(roleType))
+                        }
+                    }
+
+                    val common = currentUserRoles.intersect(requiredRoleTypes)
+
+                    if (common.isEmpty()) {
+                        error("Use doe not have the required access");
+                    }
                 }
             }
         }

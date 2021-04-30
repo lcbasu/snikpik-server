@@ -7,12 +7,10 @@ enum class ReadableIdPrefix {
     USR, // User
     ADR, // Address
     ATN, // Attendance
-    ATA, // Attendance By Admin
     CRT, // Cart Item
     COM, // Company
-    DIS, // Discount
+    DCT, // Discount
     EMP, // Employee
-    HOL, // Holiday
     LFN, // Late Fine
     NTE, // Note
     OVT, // Overtime

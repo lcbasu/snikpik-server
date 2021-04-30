@@ -30,4 +30,9 @@ class UserController {
     fun saveAddress(@RequestBody saveUserAddressRequest: SaveUserAddressRequest): SavedUserAddressResponse? {
         return userService.saveAddress(saveUserAddressRequest)
     }
+
+    @RequestMapping(value = ["/getAddresses"], method = [RequestMethod.GET])
+    fun getAddresses(): UserAddressesResponse {
+        return userService.getAddresses()
+    }
 }

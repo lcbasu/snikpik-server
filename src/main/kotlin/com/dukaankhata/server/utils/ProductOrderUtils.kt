@@ -19,6 +19,16 @@ class ProductOrderUtils {
     @Autowired
     private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
 
+    @Autowired
+    private lateinit var addressUtils: AddressUtils
+
+    fun getProductOrder(productOrderId: String): ProductOrder? =
+        try {
+            productOrderRepository.findById(productOrderId).get()
+        } catch (e: Exception) {
+            null
+        }
+
     fun getProductOrders(company: Company, user: User, productOrderStatus: ProductOrderStatus) =
         productOrderRepository.findAllByCompanyAndAddedByAndOrderStatus(company, user, productOrderStatus)
 
@@ -45,14 +55,15 @@ class ProductOrderUtils {
         newProductOrder.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.ORD.name)
         newProductOrder.addedBy = user
         newProductOrder.company = company
+        newProductOrder.address = user.defaultAddressId?.let { addressUtils.getAddress(it) }
         return productOrderRepository.save(newProductOrder)
     }
 
-    fun updateProductOrder(productOrder: ProductOrder, productOrderCartItems: List<CartItem>): ProductOrder {
+    fun updateProductOrder(productOrder: ProductOrder, cartItems: List<CartItem>): ProductOrder {
         productOrder.totalTaxInPaisa = 0
         productOrder.totalPriceWithoutTaxInPaisa = 0
 
-        productOrderCartItems.map { cartItem ->
+        cartItems.map { cartItem ->
             productOrder.totalTaxInPaisa += cartItem.totalTaxInPaisa
             productOrder.totalPriceWithoutTaxInPaisa += cartItem.totalPriceWithoutTaxInPaisa
         }
