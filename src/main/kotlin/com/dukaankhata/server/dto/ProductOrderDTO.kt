@@ -1,8 +1,8 @@
 package com.dukaankhata.server.dto
 
-import com.dukaankhata.server.entities.CartItem
 import com.dukaankhata.server.entities.ProductOrder
 import com.dukaankhata.server.enums.ProductOrderStatus
+import com.dukaankhata.server.utils.CartItemUtils
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -20,21 +20,15 @@ data class SavedProductOrderResponse(
     var address: SavedAddressResponse? = null
 )
 
-fun ProductOrder.toSavedProductOrderResponse(): SavedProductOrderResponse {
-    this.apply {
-        return SavedProductOrderResponse(
-            serverId = id,
-            discountInPaisa = discountInPaisa,
-            deliveryChargeInPaisa = deliveryChargeInPaisa,
-            totalTaxInPaisa = totalTaxInPaisa,
-            totalPriceWithoutTaxInPaisa = totalPriceWithoutTaxInPaisa,
-            totalPricePayableInPaisa = totalPricePayableInPaisa,
-            orderStatus = orderStatus,
-        )
-    }
-}
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class MigratedProductOrderResponse(
+    val fromUser: SavedUserResponse,
+    val toUser: SavedUserResponse,
+    val fromProductOrders: List<SavedProductOrderResponse>,
+    val toProductOrders: List<SavedProductOrderResponse>,
+)
 
-fun ProductOrder.toSavedProductOrderResponse(cartItems: List<CartItem>): SavedProductOrderResponse {
+fun ProductOrder.toSavedProductOrderResponse(cartItemUtils: CartItemUtils): SavedProductOrderResponse {
     this.apply {
         return SavedProductOrderResponse(
             serverId = id,
@@ -44,7 +38,7 @@ fun ProductOrder.toSavedProductOrderResponse(cartItems: List<CartItem>): SavedPr
             totalPriceWithoutTaxInPaisa = totalPriceWithoutTaxInPaisa,
             totalPricePayableInPaisa = totalPricePayableInPaisa,
             orderStatus = orderStatus,
-            cartItems = cartItems.filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse() }
+            cartItems = cartItemUtils.getCartItems(this).filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse() }
         )
     }
 }

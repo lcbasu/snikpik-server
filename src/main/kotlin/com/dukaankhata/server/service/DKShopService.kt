@@ -17,5 +17,5 @@ abstract class DKShopService {
     abstract fun saveOrUpdateExtraChargeDelivery(saveExtraChargeDeliveryRequest: SaveExtraChargeDeliveryRequest): SavedExtraChargeDeliveryResponse
     abstract fun getExtraCharges(companyId: String): SavedExtraChargesResponse
     abstract fun saveOrUpdateExtraChargeTax(saveExtraChargeTaxRequest: SaveExtraChargeTaxRequest): SavedExtraChargeTaxResponse
-    abstract fun migrateCart(migrateCartRequest: MigrateCartRequest): SavedProductOrderResponse
+    abstract fun migrateCart(migrateCartRequest: MigrateCartRequest): MigratedProductOrderResponse
 }

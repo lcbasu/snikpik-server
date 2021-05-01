@@ -46,7 +46,7 @@ class CustomerController {
     }
 
     @RequestMapping(value = ["/migrateCart"], method = [RequestMethod.POST])
-    fun migrateCart(@RequestBody migrateCartRequest: MigrateCartRequest): SavedProductOrderResponse? {
+    fun migrateCart(@RequestBody migrateCartRequest: MigrateCartRequest): MigratedProductOrderResponse? {
         customerPreChecks()
         return dkShopService.migrateCart(migrateCartRequest)
     }

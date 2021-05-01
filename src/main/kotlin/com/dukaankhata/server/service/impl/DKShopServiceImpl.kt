@@ -183,7 +183,7 @@ class DKShopServiceImpl : DKShopService() {
             product = product,
             productOrder = activeProductOrderBag,
             cartItemUpdateAction = updateCartRequest.action)
-        return updatedCartData.updatedProductOrder.toSavedProductOrderResponse(updatedCartData.productOrderCartItems)
+        return updatedCartData.updatedProductOrder.toSavedProductOrderResponse(cartItemUtils)
     }
 
     override fun getActiveProductOrderBag(shopUsername: String): SavedProductOrderResponse? {
@@ -194,7 +194,7 @@ class DKShopServiceImpl : DKShopService() {
             company = company,
             user = user)
         val cartItems = activeProductOrderBag?.let { cartItemUtils.getCartItems(it) } ?: emptyList()
-        return activeProductOrderBag?.toSavedProductOrderResponse(cartItems)
+        return activeProductOrderBag?.toSavedProductOrderResponse(cartItemUtils)
     }
 
     override fun getActiveDiscounts(companyId: String): SavedActiveDiscountsResponse {
@@ -235,26 +235,41 @@ class DKShopServiceImpl : DKShopService() {
         return et.toSavedExtraChargeTaxResponse()
     }
 
-    override fun migrateCart(migrateCartRequest: MigrateCartRequest): SavedProductOrderResponse {
-        val requestContext = authUtils.validateRequest(
-            companyId = migrateCartRequest.companyId
-        )
-        val user = requestContext.user
-        if (user.id != migrateCartRequest.toUserId) {
+    override fun migrateCart(migrateCartRequest: MigrateCartRequest): MigratedProductOrderResponse {
+        val requestContext = authUtils.validateRequest()
+        val toUser = requestContext.user
+        if (toUser.id != migrateCartRequest.toUserId) {
             error("Cart can only be migrated for users who logged in through phone number " +
                 "and want to move their non-logged in cart to logged in cart")
         }
-        val company = requestContext.company ?: error("Company is required")
         val fromUser = authUtils.getUser(migrateCartRequest.fromUserId) ?: error("From user is required")
-        val fromProductOrder = productOrderUtils.getActiveProductOrderBag(company, fromUser) ?: error("Product order not found to migrate from.")
 
-        val toProductOrder = productOrderUtils.getOrCreateActiveProductOrderBag(
-            company = company,
-            user = user)
-        val migratedCartData = cartItemUtils.migrateCart(
-            fromProductOrder = fromProductOrder,
-            toProductOrder = toProductOrder)
-        return migratedCartData.toProductOrder.toSavedProductOrderResponse(migratedCartData.migratedCartItems)
+        val fromProductOrders = productOrderUtils.getActiveProductOrderBag(fromUser)
+
+        if (fromProductOrders.isEmpty()) {
+            error("Current user does not have any active bag for any company")
+        }
+
+        val fromProductOrdersResponse = mutableListOf<SavedProductOrderResponse>()
+        val toProductOrdersResponse = mutableListOf<SavedProductOrderResponse>()
+
+        fromProductOrders.map { fromProductOrder ->
+            val company = fromProductOrder.company ?: error("Order: ${fromProductOrder.id} does not have company")
+            val toProductOrder = productOrderUtils.getOrCreateActiveProductOrderBag(
+                company = company,
+                user = toUser)
+            val migratedCartData = cartItemUtils.migrateCart(
+                fromProductOrder = fromProductOrder,
+                toProductOrder = toProductOrder)
+            fromProductOrdersResponse.add(migratedCartData.fromProductOrder.toSavedProductOrderResponse(cartItemUtils))
+            toProductOrdersResponse.add(migratedCartData.toProductOrder.toSavedProductOrderResponse(cartItemUtils))
+        }
+        return MigratedProductOrderResponse(
+            fromUser = fromUser.toSavedUserResponse(),
+            toUser = toUser.toSavedUserResponse(),
+            fromProductOrders = fromProductOrdersResponse,
+            toProductOrders = toProductOrdersResponse
+        )
     }
 
     override fun getExtraCharges(companyId: String): SavedExtraChargesResponse {

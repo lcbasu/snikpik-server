@@ -24,7 +24,6 @@ data class SavedCartItemResponse(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class MigrateCartRequest(
-    val companyId: String,
     val fromUserId: String,
     val toUserId: String,
 )

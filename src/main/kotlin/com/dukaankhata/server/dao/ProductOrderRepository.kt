@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface ProductOrderRepository : JpaRepository<ProductOrder?, String?> {
     fun findAllByCompanyAndAddedByAndOrderStatus(company: Company, user: User, orderStatus: ProductOrderStatus): List<ProductOrder>
+    fun findAllByAddedByAndOrderStatus(user: User, orderStatus: ProductOrderStatus): List<ProductOrder>
 }

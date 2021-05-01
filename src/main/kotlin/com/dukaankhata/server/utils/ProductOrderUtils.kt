@@ -32,6 +32,20 @@ class ProductOrderUtils {
     fun getProductOrders(company: Company, user: User, productOrderStatus: ProductOrderStatus) =
         productOrderRepository.findAllByCompanyAndAddedByAndOrderStatus(company, user, productOrderStatus)
 
+    fun getProductOrders(user: User, productOrderStatus: ProductOrderStatus) =
+        productOrderRepository.findAllByAddedByAndOrderStatus(user, productOrderStatus)
+
+    fun getActiveProductOrderBag(user: User): List<ProductOrder> {
+        val draftOrders = getProductOrders(user, ProductOrderStatus.DRAFT)
+
+        val companies = draftOrders.filterNot { it.company == null }.groupBy { it.company }
+
+        if (companies.size != draftOrders.size) {
+            error("User has incorrect active bags for one or more companies")
+        }
+        return draftOrders
+    }
+
     fun getActiveProductOrderBag(company: Company, user: User): ProductOrder? {
         val draftOrders = getProductOrders(company, user, ProductOrderStatus.DRAFT)
 
