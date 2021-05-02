@@ -18,4 +18,10 @@ abstract class DKShopService {
     abstract fun getExtraCharges(companyId: String): SavedExtraChargesResponse
     abstract fun saveOrUpdateExtraChargeTax(saveExtraChargeTaxRequest: SaveExtraChargeTaxRequest): SavedExtraChargeTaxResponse
     abstract fun migrateCart(migrateCartRequest: MigrateCartRequest): MigratedProductOrderResponse
+    abstract fun productOrderUpdateByCustomer(productOrderUpdateByCustomerRequest: ProductOrderUpdateByCustomerRequest): SavedProductOrderResponse
+    abstract fun placeProductOrder(placeProductOrderRequest: PlaceProductOrderRequest): SavedProductOrderResponse
+    abstract fun getProductOrder(productOrderId: String): SavedProductOrderResponse
+    abstract fun productOrderUpdateBySeller(productOrderUpdateBySellerRequest: ProductOrderUpdateBySellerRequest): SavedProductOrderResponse
+    abstract fun approveProductOrderUpdateByCustomer(productOrderUpdateApprovalRequest: ProductOrderUpdateApprovalRequest): SavedProductOrderResponse
+    abstract fun approveProductOrderUpdateBySeller(productOrderUpdateApprovalRequest: ProductOrderUpdateApprovalRequest): SavedProductOrderResponse
 }

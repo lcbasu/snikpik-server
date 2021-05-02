@@ -22,6 +22,13 @@ class CartItemUtils {
     @Autowired
     private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
 
+    fun getCartItem(cartItemId: String): CartItem? =
+        try {
+            cartItemRepository.findById(cartItemId).get()
+        } catch (e: Exception) {
+            null
+        }
+
     fun getCartItemsForUserForProducts(userId: String, productIds: Set<String>): List<CartItem> =
         try {
             cartItemRepository.getCartItemsForUserForProducts(userId, productIds)
@@ -74,22 +81,8 @@ class CartItemUtils {
             CartItemUpdateAction.ADD -> 1
             CartItemUpdateAction.REMOVE -> -1
         }
-        val product = cartItem.product ?: error("Cart Items should always have product")
-        cartItem.totalUnits = cartItem.totalUnits + unitsToAdd
-
-        if (cartItem.totalUnits <= 0L) {
-            cartItem.taxPerUnitInPaisa = 0
-            cartItem.pricePerUnitInPaisa = 0
-            cartItem.totalTaxInPaisa = 0
-            cartItem.totalPriceWithoutTaxInPaisa = 0
-        } else {
-            cartItem.taxPerUnitInPaisa = product.taxPerUnitInPaisa
-            cartItem.pricePerUnitInPaisa = product.pricePerUnitInPaisa
-            cartItem.totalTaxInPaisa = product.taxPerUnitInPaisa * cartItem.totalUnits
-            cartItem.totalPriceWithoutTaxInPaisa = product.pricePerUnitInPaisa * cartItem.totalUnits
-        }
-
-        return cartItemRepository.save(cartItem)
+        val newCount = cartItem.totalUnits + unitsToAdd
+        return updateProductInCart(cartItem, newCount)
     }
 
     @Transactional
@@ -153,5 +146,32 @@ class CartItemUtils {
             cartItem.productOrder = toProductOrder
             cartItemRepository.saveAndFlush(cartItem)
         }
+    }
+
+    fun updateProductInCart(cartItemId: String, newCount: Long): CartItem {
+        val cartItem = getCartItem(cartItemId) ?: error("Unable to get cart items for id: $cartItemId")
+        return updateProductInCart(cartItem, newCount)
+    }
+
+    private fun updateProductInCart(cartItem: CartItem, newCount: Long): CartItem {
+        if (newCount <= 0L) {
+            cartItem.totalUnits = 0
+            cartItem.taxPerUnitInPaisa = 0
+            cartItem.pricePerUnitInPaisa = 0
+            cartItem.totalTaxInPaisa = 0
+            cartItem.totalPriceWithoutTaxInPaisa = 0
+        } else {
+            // TODO: Fix This.
+            // Right now if the product price is updated while the order is being updated,
+            // The customer will see a different price for cart item than what he actually paid for
+            val product = cartItem.product ?: error("Cart Items should always have product")
+            cartItem.totalUnits = newCount
+            cartItem.taxPerUnitInPaisa = product.taxPerUnitInPaisa
+            cartItem.pricePerUnitInPaisa = product.pricePerUnitInPaisa
+            cartItem.totalTaxInPaisa = product.taxPerUnitInPaisa * cartItem.totalUnits
+            cartItem.totalPriceWithoutTaxInPaisa = product.pricePerUnitInPaisa * cartItem.totalUnits
+        }
+
+        return cartItemRepository.save(cartItem)
     }
 }

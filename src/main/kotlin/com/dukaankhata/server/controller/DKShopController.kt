@@ -1,7 +1,6 @@
 package com.dukaankhata.server.controller
 
 import com.dukaankhata.server.dto.*
-import com.dukaankhata.server.enums.ExtraChargeType
 import com.dukaankhata.server.service.DKShopService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
@@ -51,5 +50,15 @@ class DKShopController {
     @RequestMapping(value = ["/getExtraCharges/{companyId}"], method = [RequestMethod.GET])
     fun getExtraCharges(@PathVariable companyId: String): SavedExtraChargesResponse {
         return dkShopService.getExtraCharges(companyId)
+    }
+
+    @RequestMapping(value = ["/productOrderUpdateBySeller"], method = [RequestMethod.POST])
+    fun productOrderUpdateBySeller(@RequestBody productOrderUpdateBySellerRequest: ProductOrderUpdateBySellerRequest): SavedProductOrderResponse {
+        return dkShopService.productOrderUpdateBySeller(productOrderUpdateBySellerRequest)
+    }
+
+    @RequestMapping(value = ["/approveProductOrderUpdateBySeller"], method = [RequestMethod.POST])
+    fun approveProductOrderUpdateBySeller(@RequestBody productOrderUpdateApprovalRequest: ProductOrderUpdateApprovalRequest): SavedProductOrderResponse {
+        return dkShopService.approveProductOrderUpdateBySeller(productOrderUpdateApprovalRequest)
     }
 }

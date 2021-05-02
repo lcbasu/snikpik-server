@@ -100,4 +100,5 @@ class AddressUtils {
     }
 
     fun getUserAddresses(user: User) = userAddressRepository.findAllByUser(user)
+    fun getIsUserAddressValid(user: User, address: Address) = userAddressRepository.existsById(getUserAddressKey(userId = user.id, addressId = address.id))
 }

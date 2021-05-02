@@ -14,7 +14,7 @@ enum class ProductOrderStatus {
     // Customer can Accept or Reject
     // Accept -> Go to ACCEPTED_BY_CUSTOMER
     // Reject -> Go to REJECTED_BY_CUSTOMER
-    PENDING_CUSTOMER_APPROVAL, // Marked by System for Customer
+    PENDING_CUSTOMER_APPROVAL, // Marked by System for Customer whenever the Seller modifies the order like Delivery Cost for example
     // Marked by Customer
     ACCEPTED_BY_CUSTOMER,
     // Marked by Customer
@@ -27,31 +27,49 @@ enum class ProductOrderStatus {
 
 
 
-    // Owner
+    // Seller
 
-    // Once Owner accepts the PLACED or ACCEPTED_BY_CUSTOMER ProductOrder
-    // Marked by Owner
-    ACCEPTED_BY_OWNER,
+    PENDING_SELLER_APPROVAL, // Marked by System for Seller whenever the Customer modifies the order like Address for example
+
+    // Once Seller accepts the PLACED or ACCEPTED_BY_CUSTOMER ProductOrder
+    // Marked by Seller
+    ACCEPTED_BY_SELLER,
 
     // Once owner starts the delivery of the ProductOrder
-    // Marked by Owner
-    SHIPPED_BY_OWNER,
+    // Marked by Seller
+    SHIPPED_BY_SELLER,
 
     // Once the productOrder is delivered to the customer
-    // Marked by Owner
-    DELIVERED_BY_OWNER,
+    // Marked by Seller
+    DELIVERED_BY_SELLER,
 
     // Once the productOrder was failed to be delivered
-    // Marked by Owner
-    FAILED_TO_DELIVER_BY_OWNER,
+    // Marked by Seller
+    FAILED_TO_DELIVER_BY_SELLER,
 
 
     // No further Action
 
-    // Marked by Owner
-    REJECTED_BY_OWNER,
-    // Marked by Owner
-    CANCELLED_BY_OWNER,
-    // Marked by Owner
+    /**
+     *
+     * What is the difference between REJECTED_BY_SELLER and CANCELLED_BY_SELLER
+     *
+     * They seem like same thing.
+     *
+     * REJECTED_BY_CUSTOMER & CANCELLED_BY_CUSTOMER makes sense
+     * REJECTED_BY_CUSTOMER -> Customer Rejected the modifications made by the seller
+     * CANCELLED_BY_CUSTOMER -> Customer just wants to cancel the order
+     *
+     *
+     * But there are no scenario where CANCELLED_BY_SELLER would happen a
+     *
+     *
+     * */
+
+    // Marked by Seller
+    REJECTED_BY_SELLER,
+    // Marked by Seller
+    CANCELLED_BY_SELLER,
+    // Marked by Seller
     RETURNED_TO_OWNER, // In case the Customer refused to accepts the productOrder
 }

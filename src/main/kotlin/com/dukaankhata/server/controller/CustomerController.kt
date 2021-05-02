@@ -57,6 +57,30 @@ class CustomerController {
         return dkShopService.getActiveProductOrderBag(shopUsername)
     }
 
+    @RequestMapping(value = ["/getProductOrder/{productOrderId}"], method = [RequestMethod.GET])
+    fun getProductOrder(@PathVariable productOrderId: String): SavedProductOrderResponse {
+        customerPreChecks()
+        return dkShopService.getProductOrder(productOrderId)
+    }
+
+    @RequestMapping(value = ["/productOrderUpdateByCustomer"], method = [RequestMethod.POST])
+    fun productOrderUpdateByCustomer(@RequestBody productOrderUpdateByCustomerRequest: ProductOrderUpdateByCustomerRequest): SavedProductOrderResponse {
+        customerPreChecks()
+        return dkShopService.productOrderUpdateByCustomer(productOrderUpdateByCustomerRequest)
+    }
+
+    @RequestMapping(value = ["/approveProductOrderUpdateByCustomer"], method = [RequestMethod.POST])
+    fun approveProductOrderUpdateByCustomer(@RequestBody productOrderUpdateApprovalRequest: ProductOrderUpdateApprovalRequest): SavedProductOrderResponse {
+        customerPreChecks()
+        return dkShopService.approveProductOrderUpdateByCustomer(productOrderUpdateApprovalRequest)
+    }
+
+    @RequestMapping(value = ["/placeProductOrder"], method = [RequestMethod.POST])
+    fun placeProductOrder(@RequestBody placeProductOrderRequest: PlaceProductOrderRequest): SavedProductOrderResponse {
+        customerPreChecks()
+        return dkShopService.placeProductOrder(placeProductOrderRequest)
+    }
+
     private fun customerPreChecks() {
         authUtils.makeSureThePublicRequestHasUserEntity()
     }

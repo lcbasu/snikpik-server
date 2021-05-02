@@ -18,6 +18,11 @@ class ProductOrder : Auditable() {
     var totalPriceWithoutTaxInPaisa: Long = 0
     var totalPricePayableInPaisa: Long = 0 // (totalPriceWithoutTaxInPaisa + taxInPaisa + deliveryChargeInPaisa) - discountInPaisa
 
+    // Whether by Seller or by Customer, we keep only one update object at any time
+    var productOrderUpdate: String = ""
+//    var productOrderUpdateBySeller: String = ""
+//    var productOrderUpdateByCustomer: String = ""
+
     // All orders starts from DRAFT
     @Enumerated(EnumType.STRING)
     var orderStatus: ProductOrderStatus = ProductOrderStatus.DRAFT

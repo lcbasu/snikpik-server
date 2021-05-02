@@ -193,7 +193,6 @@ class DKShopServiceImpl : DKShopService() {
         val activeProductOrderBag = productOrderUtils.getActiveProductOrderBag(
             company = company,
             user = user)
-        val cartItems = activeProductOrderBag?.let { cartItemUtils.getCartItems(it) } ?: emptyList()
         return activeProductOrderBag?.toSavedProductOrderResponse(cartItemUtils)
     }
 
@@ -270,6 +269,56 @@ class DKShopServiceImpl : DKShopService() {
             fromProductOrders = fromProductOrdersResponse,
             toProductOrders = toProductOrdersResponse
         )
+    }
+
+    override fun productOrderUpdateByCustomer(productOrderUpdateByCustomerRequest: ProductOrderUpdateByCustomerRequest): SavedProductOrderResponse {
+        val requestContext = authUtils.validateRequest()
+        val updatedProductOrder = productOrderUtils.productOrderUpdateByCustomer(
+            user = requestContext.user,
+            productOrderUpdateByCustomerRequest = productOrderUpdateByCustomerRequest)
+        return updatedProductOrder.toSavedProductOrderResponse(cartItemUtils)
+    }
+
+    override fun placeProductOrder(placeProductOrderRequest: PlaceProductOrderRequest): SavedProductOrderResponse {
+        val requestContext = authUtils.validateRequest()
+        val updatedProductOrder = productOrderUtils.placeProductOrder(
+            user = requestContext.user,
+            productOrderId = placeProductOrderRequest.productOrderId)
+        return updatedProductOrder.toSavedProductOrderResponse(cartItemUtils)
+    }
+
+    override fun getProductOrder(productOrderId: String): SavedProductOrderResponse {
+        val requestContext = authUtils.validateRequest()
+        val productOrder = productOrderUtils.getProductOrder(productOrderId) ?: error("Product order not found for id: $productOrderId")
+        val orderedUser = productOrder.addedBy ?: error("Product order with id: $productOrderId, does not have user")
+        if (requestContext.user.id != orderedUser.id) {
+            error("Only the customer can get the details of their order")
+        }
+        return productOrder.toSavedProductOrderResponse(cartItemUtils)
+    }
+
+    override fun productOrderUpdateBySeller(productOrderUpdateBySellerRequest: ProductOrderUpdateBySellerRequest): SavedProductOrderResponse {
+        val requestContext = authUtils.validateRequest()
+        val updatedProductOrder = productOrderUtils.productOrderUpdateBySeller(
+            user = requestContext.user,
+            productOrderUpdateBySellerRequest = productOrderUpdateBySellerRequest)
+        return updatedProductOrder.toSavedProductOrderResponse(cartItemUtils)
+    }
+
+    override fun approveProductOrderUpdateByCustomer(productOrderUpdateApprovalRequest: ProductOrderUpdateApprovalRequest): SavedProductOrderResponse {
+        val requestContext = authUtils.validateRequest()
+        val updatedProductOrder = productOrderUtils.approveProductOrderUpdateByCustomer(
+            user = requestContext.user,
+            productOrderId = productOrderUpdateApprovalRequest.productOrderId)
+        return updatedProductOrder.toSavedProductOrderResponse(cartItemUtils)
+    }
+
+    override fun approveProductOrderUpdateBySeller(productOrderUpdateApprovalRequest: ProductOrderUpdateApprovalRequest): SavedProductOrderResponse {
+        val requestContext = authUtils.validateRequest()
+        val updatedProductOrder = productOrderUtils.approveProductOrderUpdateBySeller(
+            user = requestContext.user,
+            productOrderId = productOrderUpdateApprovalRequest.productOrderId)
+        return updatedProductOrder.toSavedProductOrderResponse(cartItemUtils)
     }
 
     override fun getExtraCharges(companyId: String): SavedExtraChargesResponse {
