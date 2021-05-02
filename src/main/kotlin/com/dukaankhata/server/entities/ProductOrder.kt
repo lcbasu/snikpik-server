@@ -19,7 +19,7 @@ class ProductOrder : Auditable() {
     var totalPricePayableInPaisa: Long = 0 // (totalPriceWithoutTaxInPaisa + taxInPaisa + deliveryChargeInPaisa) - discountInPaisa
 
     // Whether by Seller or by Customer, we keep only one update object at any time
-    var productOrderUpdate: String = ""
+    var productOrderStateBeforeUpdate: String = ""
 //    var productOrderUpdateBySeller: String = ""
 //    var productOrderUpdateByCustomer: String = ""
 

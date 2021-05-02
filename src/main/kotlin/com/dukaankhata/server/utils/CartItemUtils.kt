@@ -99,7 +99,7 @@ class CartItemUtils {
             cartItemUpdateAction = cartItemUpdateAction
         )
         val productOrderCartItems = getCartItems(productOrder)
-        val updatedProductOrder = productOrderUtils.updateProductOrder(productOrder, productOrderCartItems)
+        val updatedProductOrder = productOrderUtils.refreshProductOrder(productOrder)
         return UpdatedCartData(
             updatedCartItem = updatedCartItem,
             updatedProductOrder = updatedProductOrder,
@@ -132,7 +132,7 @@ class CartItemUtils {
     fun migrateCart(fromProductOrder: ProductOrder, toProductOrder: ProductOrder): MigratedCartData {
         val fromProductOrderCartItems = getCartItems(fromProductOrder)
         val migratedCartItems = migrateCartItems(fromProductOrderCartItems, toProductOrder)
-        val updatedProductOrder = productOrderUtils.updateProductOrder(toProductOrder, fromProductOrderCartItems)
+        val updatedProductOrder = productOrderUtils.refreshProductOrder(toProductOrder)
         return MigratedCartData(
             fromProductOrder = fromProductOrder,
             toProductOrder = updatedProductOrder,

@@ -4,7 +4,6 @@ import com.dukaankhata.server.dao.ProductOrderRepository
 import com.dukaankhata.server.dto.ProductOrderUpdateByCustomerRequest
 import com.dukaankhata.server.dto.ProductOrderUpdateBySellerRequest
 import com.dukaankhata.server.dto.ProductOrderUpdateRequest
-import com.dukaankhata.server.entities.CartItem
 import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.ProductOrder
 import com.dukaankhata.server.entities.User
@@ -13,13 +12,13 @@ import com.dukaankhata.server.enums.ProductOrderStatus
 import com.dukaankhata.server.enums.ProductOrderUpdateType
 import com.dukaankhata.server.enums.ReadableIdPrefix
 import com.dukaankhata.server.model.OrderStateTransitionOutput
-import com.dukaankhata.server.model.ProductOrderUpdate
+import com.dukaankhata.server.model.ProductOrderStateBeforeUpdate
 import com.dukaankhata.server.model.convertToString
-import com.dukaankhata.server.model.getProductOrderUpdate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 @Component
 class ProductOrderUtils {
@@ -89,27 +88,14 @@ class ProductOrderUtils {
         return productOrderRepository.save(newProductOrder)
     }
 
-    fun updateProductOrder(productOrder: ProductOrder, cartItems: List<CartItem>): ProductOrder {
+    fun refreshProductOrder(productOrder: ProductOrder): ProductOrder {
         productOrder.totalTaxInPaisa = 0
         productOrder.totalPriceWithoutTaxInPaisa = 0
-
-        cartItems.map { cartItem ->
+        cartItemUtils.getCartItems(productOrder).map { cartItem ->
             productOrder.totalTaxInPaisa += cartItem.totalTaxInPaisa
             productOrder.totalPriceWithoutTaxInPaisa += cartItem.totalPriceWithoutTaxInPaisa
         }
-
         productOrder.totalPricePayableInPaisa = (productOrder.totalPriceWithoutTaxInPaisa + productOrder.totalTaxInPaisa + productOrder.deliveryChargeInPaisa) - productOrder.discountInPaisa
-        return productOrderRepository.save(productOrder)
-    }
-
-    fun updateProductOrderAddress(user: User, newAddressId: String, productOrderId: String): ProductOrder {
-        val address = addressUtils.getAddress(newAddressId) ?: error("Address id: $newAddressId does not have any address")
-        val isUserAddressValid = addressUtils.getIsUserAddressValid(user, address)
-        if (!isUserAddressValid) {
-            error("Address doe not belong to the user.")
-        }
-        val productOrder = getProductOrder(productOrderId) ?: error("No product order found for id: $productOrderId")
-        productOrder.address = address
         return productOrderRepository.save(productOrder)
     }
 
@@ -321,145 +307,92 @@ class ProductOrderUtils {
     }
 
     fun productOrderUpdateByCustomer(user: User, productOrderUpdateByCustomerRequest: ProductOrderUpdateByCustomerRequest): ProductOrder {
-        return sendProductOrderUpdateForApproval(user, productOrderUpdateByCustomerRequest, ProductOrderStatus.PENDING_SELLER_APPROVAL)
+        return modifyProductOrder(user, productOrderUpdateByCustomerRequest, ProductOrderStatus.PENDING_SELLER_APPROVAL)
     }
 
     fun productOrderUpdateBySeller(user: User, productOrderUpdateBySellerRequest: ProductOrderUpdateBySellerRequest): ProductOrder {
-        return sendProductOrderUpdateForApproval(user, productOrderUpdateBySellerRequest, ProductOrderStatus.PENDING_CUSTOMER_APPROVAL)
+        return modifyProductOrder(user, productOrderUpdateBySellerRequest, ProductOrderStatus.PENDING_CUSTOMER_APPROVAL)
     }
 
-    fun sendProductOrderUpdateForApproval(user: User, productOrderUpdateRequest: ProductOrderUpdateRequest, newStatus: ProductOrderStatus): ProductOrder {
+    fun modifyProductOrder(user: User, productOrderUpdateRequest: ProductOrderUpdateRequest, newStatus: ProductOrderStatus): ProductOrder {
         val productOrderId = productOrderUpdateRequest.productOrderId ?: error("Product id is required")
         val productOrder = getProductOrder(productOrderId) ?: error("No product order found for id: $productOrderId")
         val isOrderTransitionPossible = getIsOrderTransitionPossible(productOrder, newStatus)
         return if (isOrderTransitionPossible.transitionPossible) {
-            val productOrderUpdate = getProductOrderUpdateForApproval(productOrder, productOrderUpdateRequest)
-            val productOrderUpdateStr = productOrderUpdate.convertToString()
-            if (productOrderUpdateStr.isBlank()) {
-                error("No delta update was created for the updated order with orderId: $productOrderId")
-            }
-            productOrder.productOrderUpdate = productOrderUpdateStr
-            productOrderRepository.save(productOrder)
-            // Nothing except productOrderUpdate field in ProductOrder entity should change
-            // unless approved by the Seller
-            transitionStateTo(productOrder, newStatus)
+            val updatedProductOrder = saveOldStateAndUpdateProductOrder(productOrder, productOrderUpdateRequest)
+            transitionStateTo(updatedProductOrder, newStatus)
         } else {
             error(isOrderTransitionPossible.errorMessage)
         }
     }
 
-    fun getProductOrderUpdateForApproval(productOrder: ProductOrder, productOrderUpdateRequest: ProductOrderUpdateRequest): ProductOrderUpdate {
-
-        var toBeUpdatedToTotalTaxInPaisa: Long? = null
-        var toBeUpdatedToTotalPriceWithoutTaxInPaisa: Long? = null
-        var toBeUpdatedToTotalPricePayableInPaisa: Long? = null
-
-        var toBeUpdatedToDeliveryChargeInPaisa: Long? = null
-        var toBeUpdatedToAddressId: String? = null
-        val toBeUpdatedToCartUpdates = productOrderUpdateRequest.newCartUpdates
+    @Transactional
+    fun saveOldStateAndUpdateProductOrder(productOrder: ProductOrder, productOrderUpdateRequest: ProductOrderUpdateRequest): ProductOrder {
 
         val productOrderId = productOrderUpdateRequest.productOrderId ?: error("Product id is required")
         if (productOrder.id != productOrderId) {
-            error("Product order being updated and requested product id to be updated are not same")
+            error("Product order being updated and the product id to be updated are not same. productOrder.id: ${productOrder.id} & productOrderId: $productOrderId")
         }
+
+        val productOrderAddress = productOrder.address ?: error("Product order does ot hav address")
+        val productOrderCartItems = cartItemUtils.getCartItems(productOrder)
+
+        val productOrderStateBeforeUpdate = ProductOrderStateBeforeUpdate(
+            addressId = productOrderAddress.id,
+            cartItems = productOrderCartItems.associateBy({it.id}, {it.totalUnits}),
+            deliveryChargeInPaisa = productOrder.deliveryChargeInPaisa,
+            totalTaxInPaisa = productOrder.totalTaxInPaisa,
+            totalPriceWithoutTaxInPaisa = productOrder.totalPriceWithoutTaxInPaisa,
+            totalPricePayableInPaisa = productOrder.totalPricePayableInPaisa,
+        )
+
+        productOrder.productOrderStateBeforeUpdate = productOrderStateBeforeUpdate.convertToString()
 
         when (productOrderUpdateRequest.type) {
             ProductOrderUpdateType.BY_SELLER -> {
                 val productOrderUpdateBySellerRequest = productOrderUpdateRequest as ProductOrderUpdateBySellerRequest
                 productOrderUpdateBySellerRequest.newDeliveryChargeInPaisa?.let {
                     if (productOrder.deliveryChargeInPaisa != it) {
-                        toBeUpdatedToDeliveryChargeInPaisa = it
+                        productOrder.deliveryChargeInPaisa = it
                     }
                 }
             }
             ProductOrderUpdateType.BY_CUSTOMER -> {
                 val productOrderUpdateByCustomerRequest = productOrderUpdateRequest as ProductOrderUpdateByCustomerRequest
                 productOrderUpdateByCustomerRequest.newAddressId?.let {
-                    if (productOrder.address?.id != it) {
-                        addressUtils.getAddress(it) ?: error("Address does not exist for id: $it")
-                        toBeUpdatedToAddressId = it
+                    if (productOrderAddress.id != it) {
+                        val address = addressUtils.getAddress(it) ?: error("Address does not exist for id: $it")
+                        val user = productOrder.addedBy ?: error("User does not exist for product order with id: ${productOrder.id}")
+                        val isUserAddressValid = addressUtils.getIsUserAddressValid(user, address)
+                        if (!isUserAddressValid) {
+                            error("Address doe not belong to the user.")
+                        }
+                        productOrder.address = address
                     }
                 }
             }
         }
 
-        val cartAfterUpdateWillLookLike = mutableMapOf<String, Long>()
-        if (toBeUpdatedToCartUpdates.isNotEmpty()) {
-            val currentCartItems = cartItemUtils.getCartItems(productOrder)
-            currentCartItems.map {
-                val updatedCount = toBeUpdatedToCartUpdates.getOrDefault(it.id, -1L)
+        if (productOrderUpdateRequest.newCartUpdates.isNotEmpty()) {
+            productOrderCartItems.map {
+                val updatedCount = productOrderUpdateRequest.newCartUpdates.getOrDefault(it.id, -1L)
                 if (updatedCount >= 0) {
-                    cartAfterUpdateWillLookLike[it.id] = updatedCount
-                } else {
-                    cartAfterUpdateWillLookLike[it.id] = it.totalUnits
+                    cartItemUtils.updateProductInCart(it.id, updatedCount)
                 }
             }
         }
-
-        if (cartAfterUpdateWillLookLike.isNotEmpty()) {
-            val newDeliveryCharge = toBeUpdatedToDeliveryChargeInPaisa ?: productOrder.deliveryChargeInPaisa
-            var totalTaxInPaisa = 0L
-            var totalPriceWithoutTaxInPaisa = 0L
-
-            cartAfterUpdateWillLookLike.map { cartItemEntry ->
-                val cartItem = cartItemUtils.getCartItem(cartItemEntry.key) ?: error("Unable to get cart item for id: ${cartItemEntry.key}")
-                val product = cartItem.product ?: error("Cart Items should always have product. Cart id: ${cartItem.id}")
-                val totalUnits = cartItemEntry.value
-                if (totalUnits <= 0L) {
-                    totalTaxInPaisa += 0
-                    totalPriceWithoutTaxInPaisa += 0
-                } else {
-                    totalTaxInPaisa += product.taxPerUnitInPaisa * totalUnits
-                    totalPriceWithoutTaxInPaisa += product.pricePerUnitInPaisa * totalUnits
-                }
-            }
-            // TODO: Check if the discount is applicable for the new rder value
-            // A discount might have the clause that if the order value is below a certain
-            // amount then remove the discount
-            toBeUpdatedToTotalTaxInPaisa = totalTaxInPaisa
-            toBeUpdatedToTotalPriceWithoutTaxInPaisa = totalPriceWithoutTaxInPaisa
-            toBeUpdatedToTotalPricePayableInPaisa = (totalPriceWithoutTaxInPaisa + totalTaxInPaisa + newDeliveryCharge) - productOrder.discountInPaisa
-        } else if (toBeUpdatedToDeliveryChargeInPaisa != null) {
-            // Only the delivery amount is updated and not the cart items
-            val newDeliveryCharge = toBeUpdatedToDeliveryChargeInPaisa ?: error("Delivery charge has to be present in this case")
-            toBeUpdatedToTotalPricePayableInPaisa = (productOrder.totalPriceWithoutTaxInPaisa + productOrder.totalTaxInPaisa + newDeliveryCharge) - productOrder.discountInPaisa
-        }
-        val productOrderUpdate = ProductOrderUpdate(
-            newTotalTaxInPaisa = toBeUpdatedToTotalTaxInPaisa,
-            newTotalPriceWithoutTaxInPaisa = toBeUpdatedToTotalPriceWithoutTaxInPaisa,
-            newTotalPricePayableInPaisa = toBeUpdatedToTotalPricePayableInPaisa,
-            newDeliveryChargeInPaisa = toBeUpdatedToDeliveryChargeInPaisa,
-            newAddressId = toBeUpdatedToAddressId,
-            newCartUpdates = toBeUpdatedToCartUpdates,
-        )
-
-        when (productOrderUpdateRequest.type) {
-            ProductOrderUpdateType.BY_SELLER -> {
-                // newCartUpdates or newDeliveryChargeInPaisa MUST have some value otherwise the update failed
-                if (productOrderUpdate.newCartUpdates.isEmpty() && productOrderUpdate.newDeliveryChargeInPaisa == null) {
-                    error("Product update for seller failed")
-                }
-            }
-            ProductOrderUpdateType.BY_CUSTOMER -> {
-                // newCartUpdates or newAddressId MUST have some value otherwise the update failed
-                if (productOrderUpdate.newCartUpdates.isEmpty() && productOrderUpdate.newAddressId == null) {
-                    error("Product update for customer failed")
-                }
-            }
-        }
-
-        return productOrderUpdate
+        return refreshProductOrder(productOrder)
     }
 
-    fun approveProductOrderUpdateByCustomer(user: User, productOrderId: String): ProductOrder {
-        return applyProductOrderUpdate(user, productOrderId, ProductOrderApprovalBy.BY_CUSTOMER)
+    fun approveProductOrderUpdateByCustomer(productOrderId: String): ProductOrder {
+        return approveProductOrderUpdate(productOrderId, ProductOrderApprovalBy.BY_CUSTOMER)
     }
 
-    fun approveProductOrderUpdateBySeller(user: User, productOrderId: String): ProductOrder {
-        return applyProductOrderUpdate(user, productOrderId, ProductOrderApprovalBy.BY_SELLER)
+    fun approveProductOrderUpdateBySeller(productOrderId: String): ProductOrder {
+        return approveProductOrderUpdate(productOrderId, ProductOrderApprovalBy.BY_SELLER)
     }
 
-    fun applyProductOrderUpdate(user: User, productOrderId: String, type: ProductOrderApprovalBy): ProductOrder {
+    fun approveProductOrderUpdate(productOrderId: String, type: ProductOrderApprovalBy): ProductOrder {
         val productOrder = getProductOrder(productOrderId) ?: error("No product order found for id: $productOrderId")
 
         val newStatus = when (type) {
@@ -471,63 +404,14 @@ class ProductOrderUtils {
             }
         }
 
-        val productOrderUpdate = productOrder.getProductOrderUpdate()
-
-        if (newStatus == ProductOrderStatus.ACCEPTED_BY_SELLER) {
-            // newCartUpdates or newAddressId MUST have some value which was updated by the customer
-            // and needs to be Approved by the Seller
-            if (productOrderUpdate.newCartUpdates.isEmpty() && productOrderUpdate.newAddressId == null) {
-                error("Product update for customer failed")
-            }
-        } else if (newStatus == ProductOrderStatus.ACCEPTED_BY_SELLER) {
-            // newCartUpdates or newDeliveryChargeInPaisa MUST have some value
-            // which was updated by the seller and should be Approved by the customer
-            if (productOrderUpdate.newCartUpdates.isEmpty() && productOrderUpdate.newDeliveryChargeInPaisa == null) {
-                error("Product update for seller failed")
-            }
-        } else {
-            error("Incorrect productOrderUpdate for productOrderId: $productOrderId. Can not be approved.")
-        }
-
         val isOrderTransitionPossible = getIsOrderTransitionPossible(productOrder, newStatus)
         return if (isOrderTransitionPossible.transitionPossible) {
-            val updatedProductOrder = applyProductOrderUpdate(productOrder, productOrderUpdate)
+            // Remove the update as all the pending update has been approved
+            productOrder.productOrderStateBeforeUpdate = ""
+            val updatedProductOrder = productOrderRepository.save(productOrder)
             transitionStateTo(updatedProductOrder, newStatus)
         } else {
             error(isOrderTransitionPossible.errorMessage)
         }
-    }
-
-    private fun applyProductOrderUpdate(productOrder: ProductOrder, productOrderUpdate: ProductOrderUpdate): ProductOrder {
-
-        productOrderUpdate.newTotalTaxInPaisa?.let {
-            productOrder.totalTaxInPaisa = it
-        }
-
-        productOrderUpdate.newTotalPriceWithoutTaxInPaisa?.let {
-            productOrder.totalPriceWithoutTaxInPaisa = it
-        }
-
-        productOrderUpdate.newAddressId?.let {
-            val address = addressUtils.getAddress(it) ?: error("Address does not exist for id: $it")
-            productOrder.address = address
-        }
-
-        productOrderUpdate.newDeliveryChargeInPaisa?.let {
-            productOrder.deliveryChargeInPaisa = it
-        }
-
-        productOrderUpdate.newTotalPricePayableInPaisa?.let {
-            productOrder.totalPricePayableInPaisa = it
-        }
-
-        if (productOrderUpdate.newCartUpdates.isNotEmpty()) {
-            productOrderUpdate.newCartUpdates.map {
-                val cartItemId = it.key
-                val newCount = it.value
-                cartItemUtils.updateProductInCart(cartItemId, newCount)
-            }
-        }
-        return productOrderRepository.save(productOrder)
     }
 }

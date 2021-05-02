@@ -308,16 +308,14 @@ class DKShopServiceImpl : DKShopService() {
     override fun approveProductOrderUpdateByCustomer(productOrderUpdateApprovalRequest: ProductOrderUpdateApprovalRequest): SavedProductOrderResponse {
         val requestContext = authUtils.validateRequest()
         val updatedProductOrder = productOrderUtils.approveProductOrderUpdateByCustomer(
-            user = requestContext.user,
-            productOrderId = productOrderUpdateApprovalRequest.productOrderId)
+            productOrderUpdateApprovalRequest.productOrderId)
         return updatedProductOrder.toSavedProductOrderResponse(cartItemUtils)
     }
 
     override fun approveProductOrderUpdateBySeller(productOrderUpdateApprovalRequest: ProductOrderUpdateApprovalRequest): SavedProductOrderResponse {
         val requestContext = authUtils.validateRequest()
         val updatedProductOrder = productOrderUtils.approveProductOrderUpdateBySeller(
-            user = requestContext.user,
-            productOrderId = productOrderUpdateApprovalRequest.productOrderId)
+            productOrderUpdateApprovalRequest.productOrderId)
         return updatedProductOrder.toSavedProductOrderResponse(cartItemUtils)
     }
 

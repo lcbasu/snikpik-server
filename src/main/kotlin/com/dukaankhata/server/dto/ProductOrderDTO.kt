@@ -3,8 +3,8 @@ package com.dukaankhata.server.dto
 import com.dukaankhata.server.entities.ProductOrder
 import com.dukaankhata.server.enums.ProductOrderStatus
 import com.dukaankhata.server.enums.ProductOrderUpdateType
-import com.dukaankhata.server.model.ProductOrderUpdate
-import com.dukaankhata.server.model.getProductOrderUpdate
+import com.dukaankhata.server.model.ProductOrderStateBeforeUpdate
+import com.dukaankhata.server.model.getProductOrderStateBeforeUpdate
 import com.dukaankhata.server.utils.CartItemUtils
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
@@ -32,15 +32,15 @@ data class ProductOrderUpdateBySellerRequest(
     val newDeliveryChargeInPaisa: Long? = null,
 ): ProductOrderUpdateRequest(ProductOrderUpdateType.BY_SELLER)
 
-data class ProductOrderUpdateResponse(
-    val newTotalTaxInPaisa: Long?, // -> INDIRECTLY UPDATED
-    val newTotalPriceWithoutTaxInPaisa: Long?, // -> INDIRECTLY UPDATED
-    val newTotalPricePayableInPaisa: Long?, // -> INDIRECTLY UPDATED
+data class ProductOrderStateBeforeUpdateResponse(
+    val addressId: String,
 
-    val newDeliveryChargeInPaisa: Long?, // -> DIRECTLY UPDATED
-    val newAddressId: String?, // -> DIRECTLY UPDATED
-    // Cart ID to -> New Count
-    val newCartUpdates: Map<String, Long> = emptyMap() // -> DIRECTLY UPDATED
+    val cartItems: Map<String, Long>,
+    val deliveryChargeInPaisa: Long,
+
+    val totalTaxInPaisa: Long,
+    val totalPriceWithoutTaxInPaisa: Long,
+    val totalPricePayableInPaisa: Long,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -56,14 +56,11 @@ data class SavedProductOrderResponse(
     val totalTaxInPaisa: Long = 0,
     val totalPriceWithoutTaxInPaisa: Long = 0,
     val totalPricePayableInPaisa: Long = 0,
-//    var deliveryAddress: SavedAddressResponse,
     var orderStatus: ProductOrderStatus = ProductOrderStatus.DRAFT,
     var cartItems: List<SavedCartItemResponse> = emptyList(),
     var discount: SavedDiscountResponse? = null,
     var address: SavedAddressResponse? = null,
-    var productOrderUpdateResponse: ProductOrderUpdateResponse? = null,
-//    var productOrderUpdateBySellerResponse: ProductOrderUpdateResponse? = null,
-//    var productOrderUpdateByCustomerResponse: ProductOrderUpdateResponse? = null
+    var productOrderStateBeforeUpdateResponse: ProductOrderStateBeforeUpdateResponse? = null,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -87,21 +84,20 @@ fun ProductOrder.toSavedProductOrderResponse(cartItemUtils: CartItemUtils): Save
             cartItems = cartItemUtils.getCartItems(this).filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse() },
             address = address?.let { it.toSavedAddressResponse() },
             discount = discount?.let { it.toSavedDiscountResponse() },
-            productOrderUpdateResponse = productOrderUpdate?.let { getProductOrderUpdate().toProductOrderUpdateResponse() }
+            productOrderStateBeforeUpdateResponse = productOrderStateBeforeUpdate?.let { getProductOrderStateBeforeUpdate().toProductOrderUpdateResponse() }
         )
     }
 }
 
-fun ProductOrderUpdate.toProductOrderUpdateResponse(): ProductOrderUpdateResponse {
+fun ProductOrderStateBeforeUpdate.toProductOrderUpdateResponse(): ProductOrderStateBeforeUpdateResponse {
     this.apply {
-        return ProductOrderUpdateResponse(
-            newTotalTaxInPaisa = newTotalTaxInPaisa,
-            newTotalPriceWithoutTaxInPaisa = newTotalPriceWithoutTaxInPaisa,
-            newTotalPricePayableInPaisa = newTotalPricePayableInPaisa,
-//            newDiscountInPaisa = newDiscountInPaisa,
-            newDeliveryChargeInPaisa = newDeliveryChargeInPaisa,
-            newAddressId = newAddressId,
-            newCartUpdates = newCartUpdates,
+        return ProductOrderStateBeforeUpdateResponse(
+            addressId = addressId,
+            cartItems = cartItems,
+            deliveryChargeInPaisa = deliveryChargeInPaisa,
+            totalTaxInPaisa = totalTaxInPaisa,
+            totalPriceWithoutTaxInPaisa = totalPriceWithoutTaxInPaisa,
+            totalPricePayableInPaisa = totalPricePayableInPaisa,
         )
     }
 }

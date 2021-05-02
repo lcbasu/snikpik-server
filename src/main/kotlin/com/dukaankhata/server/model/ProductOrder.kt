@@ -15,25 +15,26 @@ data class OrderStateTransitionOutput(
  * they have been updated, otherwise it will be null
  *
  * */
-data class ProductOrderUpdate(
-    val newTotalTaxInPaisa: Long?, // -> INDIRECTLY UPDATED
-    val newTotalPriceWithoutTaxInPaisa: Long?, // -> INDIRECTLY UPDATED
-    val newTotalPricePayableInPaisa: Long?, // -> INDIRECTLY UPDATED
+data class ProductOrderStateBeforeUpdate(
 
-    val newDeliveryChargeInPaisa: Long?, // -> DIRECTLY UPDATED
-    val newAddressId: String?, // -> DIRECTLY UPDATED
-    // Cart ID to -> New Count
-    val newCartUpdates: Map<String, Long> = emptyMap() // -> DIRECTLY UPDATED
+    val addressId: String,
+
+    val cartItems: Map<String, Long>,
+    val deliveryChargeInPaisa: Long,
+
+    val totalTaxInPaisa: Long,
+    val totalPriceWithoutTaxInPaisa: Long,
+    val totalPricePayableInPaisa: Long,
 )
 
-fun ProductOrderUpdate.convertToString(): String {
+fun ProductOrderStateBeforeUpdate.convertToString(): String {
     this.apply {
         return jacksonObjectMapper().writeValueAsString(this)
     }
 }
 
-fun ProductOrder.getProductOrderUpdate(): ProductOrderUpdate {
+fun ProductOrder.getProductOrderStateBeforeUpdate(): ProductOrderStateBeforeUpdate {
     this.apply {
-        return jacksonObjectMapper().readValue(productOrderUpdate, ProductOrderUpdate::class.java)
+        return jacksonObjectMapper().readValue(productOrderStateBeforeUpdate, ProductOrderStateBeforeUpdate::class.java)
     }
 }
