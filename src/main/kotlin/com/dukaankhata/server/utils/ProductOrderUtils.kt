@@ -1,16 +1,14 @@
 package com.dukaankhata.server.utils
 
 import com.dukaankhata.server.dao.ProductOrderRepository
+import com.dukaankhata.server.dto.ProductOrderStatusUpdateRequest
 import com.dukaankhata.server.dto.ProductOrderUpdateByCustomerRequest
 import com.dukaankhata.server.dto.ProductOrderUpdateBySellerRequest
 import com.dukaankhata.server.dto.ProductOrderUpdateRequest
 import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.ProductOrder
 import com.dukaankhata.server.entities.User
-import com.dukaankhata.server.enums.ProductOrderApprovalBy
-import com.dukaankhata.server.enums.ProductOrderStatus
-import com.dukaankhata.server.enums.ProductOrderUpdateType
-import com.dukaankhata.server.enums.ReadableIdPrefix
+import com.dukaankhata.server.enums.*
 import com.dukaankhata.server.model.OrderStateTransitionOutput
 import com.dukaankhata.server.model.ProductOrderStateBeforeUpdate
 import com.dukaankhata.server.model.convertToString
@@ -134,12 +132,19 @@ class ProductOrderUtils {
                 )
             }
             ProductOrderStatus.PENDING_CUSTOMER_APPROVAL -> {
-                if (productOrder.orderStatus == ProductOrderStatus.PLACED) {
+                if (productOrder.orderStatus == ProductOrderStatus.PLACED ||
+                    productOrder.orderStatus == ProductOrderStatus.ACCEPTED_BY_SELLER ||
+                    productOrder.orderStatus == ProductOrderStatus.ACCEPTED_BY_CUSTOMER ||
+
+                    // if the earlier change was rejected by the customer or the seller
+                    // and the seller has modified the order and sent to customer for approval again
+                    productOrder.orderStatus == ProductOrderStatus.REJECTED_BY_CUSTOMER ||
+                    productOrder.orderStatus == ProductOrderStatus.REJECTED_BY_SELLER) {
                     OrderStateTransitionOutput(
                         transitionPossible = true
                     )
                 } else {
-                    val errorMessage = "Can only move to $newStatus, from PLACED state and if some changes have been made by the seller"
+                    val errorMessage = "Can only move to $newStatus, from if seller has made some changes and the order has not been shipped."
                     logger.error(errorMessage)
                     OrderStateTransitionOutput(
                         transitionPossible = false,
@@ -192,7 +197,12 @@ class ProductOrderUtils {
             ProductOrderStatus.PENDING_SELLER_APPROVAL -> {
                 if (productOrder.orderStatus == ProductOrderStatus.PLACED ||
                     productOrder.orderStatus == ProductOrderStatus.ACCEPTED_BY_SELLER ||
-                    productOrder.orderStatus == ProductOrderStatus.ACCEPTED_BY_CUSTOMER) {
+                    productOrder.orderStatus == ProductOrderStatus.ACCEPTED_BY_CUSTOMER ||
+
+                    // if the earlier change was rejected by the customer or the seller
+                    // and the customer has modified the order and sent to seller for approval again
+                    productOrder.orderStatus == ProductOrderStatus.REJECTED_BY_CUSTOMER ||
+                    productOrder.orderStatus == ProductOrderStatus.REJECTED_BY_SELLER) {
                     OrderStateTransitionOutput(
                         transitionPossible = true
                     )
@@ -264,12 +274,14 @@ class ProductOrderUtils {
                 }
             }
             ProductOrderStatus.REJECTED_BY_SELLER -> {
-                if (productOrder.orderStatus == ProductOrderStatus.PLACED || productOrder.orderStatus == ProductOrderStatus.ACCEPTED_BY_CUSTOMER) {
+                if (productOrder.orderStatus == ProductOrderStatus.PLACED ||
+                    productOrder.orderStatus == ProductOrderStatus.ACCEPTED_BY_CUSTOMER ||
+                    productOrder.orderStatus == ProductOrderStatus.PENDING_SELLER_APPROVAL) {
                     OrderStateTransitionOutput(
                         transitionPossible = true
                     )
                 } else {
-                    val errorMessage = "Can only move to $newStatus, if customer has placed the order or has accepted the earlier modification made by the seller."
+                    val errorMessage = "Can only move to $newStatus, if customer has placed the order or earlier modifications has been accepted by the customer or there is a pending approval to be approved by seller."
                     logger.error(errorMessage)
                     OrderStateTransitionOutput(
                         transitionPossible = false,
@@ -306,17 +318,15 @@ class ProductOrderUtils {
         }
     }
 
-    fun productOrderUpdateByCustomer(user: User, productOrderUpdateByCustomerRequest: ProductOrderUpdateByCustomerRequest): ProductOrder {
-        return modifyProductOrder(user, productOrderUpdateByCustomerRequest, ProductOrderStatus.PENDING_SELLER_APPROVAL)
-    }
-
-    fun productOrderUpdateBySeller(user: User, productOrderUpdateBySellerRequest: ProductOrderUpdateBySellerRequest): ProductOrder {
-        return modifyProductOrder(user, productOrderUpdateBySellerRequest, ProductOrderStatus.PENDING_CUSTOMER_APPROVAL)
-    }
-
-    fun modifyProductOrder(user: User, productOrderUpdateRequest: ProductOrderUpdateRequest, newStatus: ProductOrderStatus): ProductOrder {
+    fun productOrderUpdate(user: User, productOrderUpdateRequest: ProductOrderUpdateRequest): ProductOrder {
         val productOrderId = productOrderUpdateRequest.productOrderId ?: error("Product id is required")
         val productOrder = getProductOrder(productOrderId) ?: error("No product order found for id: $productOrderId")
+
+        val newStatus = when (productOrderUpdateRequest.updatedBy) {
+            ProductOrderUpdatedBy.BY_SELLER -> ProductOrderStatus.PENDING_CUSTOMER_APPROVAL
+            ProductOrderUpdatedBy.BY_CUSTOMER -> ProductOrderStatus.PENDING_SELLER_APPROVAL
+        }
+
         val isOrderTransitionPossible = getIsOrderTransitionPossible(productOrder, newStatus)
         return if (isOrderTransitionPossible.transitionPossible) {
             val updatedProductOrder = saveOldStateAndUpdateProductOrder(productOrder, productOrderUpdateRequest)
@@ -348,8 +358,8 @@ class ProductOrderUtils {
 
         productOrder.productOrderStateBeforeUpdate = productOrderStateBeforeUpdate.convertToString()
 
-        when (productOrderUpdateRequest.type) {
-            ProductOrderUpdateType.BY_SELLER -> {
+        when (productOrderUpdateRequest.updatedBy) {
+            ProductOrderUpdatedBy.BY_SELLER -> {
                 val productOrderUpdateBySellerRequest = productOrderUpdateRequest as ProductOrderUpdateBySellerRequest
                 productOrderUpdateBySellerRequest.newDeliveryChargeInPaisa?.let {
                     if (productOrder.deliveryChargeInPaisa != it) {
@@ -357,7 +367,7 @@ class ProductOrderUtils {
                     }
                 }
             }
-            ProductOrderUpdateType.BY_CUSTOMER -> {
+            ProductOrderUpdatedBy.BY_CUSTOMER -> {
                 val productOrderUpdateByCustomerRequest = productOrderUpdateRequest as ProductOrderUpdateByCustomerRequest
                 productOrderUpdateByCustomerRequest.newAddressId?.let {
                     if (productOrderAddress.id != it) {
@@ -384,25 +394,28 @@ class ProductOrderUtils {
         return refreshProductOrder(productOrder)
     }
 
-    fun approveProductOrderUpdateByCustomer(productOrderId: String): ProductOrder {
-        return approveProductOrderUpdate(productOrderId, ProductOrderApprovalBy.BY_CUSTOMER)
-    }
+    fun productOrderUpdateApproval(user: User, productOrderStatusUpdateRequest: ProductOrderStatusUpdateRequest): ProductOrder {
+        val productOrder = getProductOrder(productOrderStatusUpdateRequest.productOrderId) ?: error("No product order found for id: ${productOrderStatusUpdateRequest.productOrderId}")
 
-    fun approveProductOrderUpdateBySeller(productOrderId: String): ProductOrder {
-        return approveProductOrderUpdate(productOrderId, ProductOrderApprovalBy.BY_SELLER)
-    }
-
-    fun approveProductOrderUpdate(productOrderId: String, type: ProductOrderApprovalBy): ProductOrder {
-        val productOrder = getProductOrder(productOrderId) ?: error("No product order found for id: $productOrderId")
-
-        val newStatus = when (type) {
-            ProductOrderApprovalBy.BY_SELLER -> {
-                ProductOrderStatus.ACCEPTED_BY_SELLER
+        val newStatus = when (productOrderStatusUpdateRequest.updatedBy) {
+            ProductOrderUpdatedBy.BY_SELLER -> {
+                when (productOrderStatusUpdateRequest.updateType) {
+                    ProductOrderUpdateType.ACCEPT -> ProductOrderStatus.ACCEPTED_BY_SELLER
+                    ProductOrderUpdateType.REJECT -> ProductOrderStatus.REJECTED_BY_SELLER
+                    ProductOrderUpdateType.CANCEL -> ProductOrderStatus.CANCELLED_BY_SELLER
+                }
             }
-            ProductOrderApprovalBy.BY_CUSTOMER -> {
-                ProductOrderStatus.ACCEPTED_BY_CUSTOMER
+            ProductOrderUpdatedBy.BY_CUSTOMER -> {
+                when (productOrderStatusUpdateRequest.updateType) {
+                    ProductOrderUpdateType.ACCEPT -> ProductOrderStatus.ACCEPTED_BY_CUSTOMER
+                    ProductOrderUpdateType.REJECT -> ProductOrderStatus.REJECTED_BY_CUSTOMER
+                    ProductOrderUpdateType.CANCEL -> ProductOrderStatus.CANCELLED_BY_CUSTOMER
+                }
             }
         }
+
+        // TODO: Add user role level checks on who can update what
+        //val productOrderUser = productOrder.addedBy ?: error("Product order is missing user. productOrderId: ${productOrder.id}")
 
         val isOrderTransitionPossible = getIsOrderTransitionPossible(productOrder, newStatus)
         return if (isOrderTransitionPossible.transitionPossible) {

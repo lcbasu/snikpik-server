@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*
 
 // ALL calls for customer will be routed here
 // In the app, login all the people as Anonymous users the moment they visit the store
+
+// ANONYMOUS or Logged in through Mobile both APIs
 @RestController
 @RequestMapping("customer")
 class CustomerController {
@@ -61,24 +63,6 @@ class CustomerController {
     fun getProductOrder(@PathVariable productOrderId: String): SavedProductOrderResponse {
         customerPreChecks()
         return dkShopService.getProductOrder(productOrderId)
-    }
-
-    @RequestMapping(value = ["/productOrderUpdateByCustomer"], method = [RequestMethod.POST])
-    fun productOrderUpdateByCustomer(@RequestBody productOrderUpdateByCustomerRequest: ProductOrderUpdateByCustomerRequest): SavedProductOrderResponse {
-        customerPreChecks()
-        return dkShopService.productOrderUpdateByCustomer(productOrderUpdateByCustomerRequest)
-    }
-
-    @RequestMapping(value = ["/approveProductOrderUpdateByCustomer"], method = [RequestMethod.POST])
-    fun approveProductOrderUpdateByCustomer(@RequestBody productOrderUpdateApprovalRequest: ProductOrderUpdateApprovalRequest): SavedProductOrderResponse {
-        customerPreChecks()
-        return dkShopService.approveProductOrderUpdateByCustomer(productOrderUpdateApprovalRequest)
-    }
-
-    @RequestMapping(value = ["/placeProductOrder"], method = [RequestMethod.POST])
-    fun placeProductOrder(@RequestBody placeProductOrderRequest: PlaceProductOrderRequest): SavedProductOrderResponse {
-        customerPreChecks()
-        return dkShopService.placeProductOrder(placeProductOrderRequest)
     }
 
     private fun customerPreChecks() {

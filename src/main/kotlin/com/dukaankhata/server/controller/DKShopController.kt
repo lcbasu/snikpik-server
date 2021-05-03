@@ -51,14 +51,4 @@ class DKShopController {
     fun getExtraCharges(@PathVariable companyId: String): SavedExtraChargesResponse {
         return dkShopService.getExtraCharges(companyId)
     }
-
-    @RequestMapping(value = ["/productOrderUpdateBySeller"], method = [RequestMethod.POST])
-    fun productOrderUpdateBySeller(@RequestBody productOrderUpdateBySellerRequest: ProductOrderUpdateBySellerRequest): SavedProductOrderResponse {
-        return dkShopService.productOrderUpdateBySeller(productOrderUpdateBySellerRequest)
-    }
-
-    @RequestMapping(value = ["/approveProductOrderUpdateBySeller"], method = [RequestMethod.POST])
-    fun approveProductOrderUpdateBySeller(@RequestBody productOrderUpdateApprovalRequest: ProductOrderUpdateApprovalRequest): SavedProductOrderResponse {
-        return dkShopService.approveProductOrderUpdateBySeller(productOrderUpdateApprovalRequest)
-    }
 }

@@ -1,6 +1,6 @@
 package com.dukaankhata.server.enums
 
-enum class ProductOrderApprovalBy {
+enum class ProductOrderUpdatedBy {
     BY_SELLER,
     BY_CUSTOMER
 }

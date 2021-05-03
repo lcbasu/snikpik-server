@@ -3,34 +3,48 @@ package com.dukaankhata.server.dto
 import com.dukaankhata.server.entities.ProductOrder
 import com.dukaankhata.server.enums.ProductOrderStatus
 import com.dukaankhata.server.enums.ProductOrderUpdateType
+import com.dukaankhata.server.enums.ProductOrderUpdatedBy
 import com.dukaankhata.server.model.ProductOrderStateBeforeUpdate
 import com.dukaankhata.server.model.getProductOrderStateBeforeUpdate
 import com.dukaankhata.server.utils.CartItemUtils
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-open class ProductOrderUpdateApprovalRequest(
+open class ProductOrderStatusUpdateRequest(
     val productOrderId: String,
+    val updatedBy: ProductOrderUpdatedBy,
+    val updateType: ProductOrderUpdateType
 )
 
+//@JsonTypeInfo(
+//    use = JsonTypeInfo.Id.NAME,
+//    include = JsonTypeInfo.As.PROPERTY,
+//    property = "type"
+//)
+//@JsonSubTypes(
+//    JsonSubTypes.Type(value = ProductOrderUpdateByCustomerRequest::class, name = "ProductOrderUpdateByCustomerRequest"),
+//    JsonSubTypes.Type(value = ProductOrderUpdateBySellerRequest::class, name = "ProductOrderUpdateBySellerRequest")
+//)
 @JsonIgnoreProperties(ignoreUnknown = true)
 open class ProductOrderUpdateRequest(
-    val type: ProductOrderUpdateType,
+    val updatedBy: ProductOrderUpdatedBy,
     val productOrderId: String? = null,
     // Cart ID to -> New Count
     // Can be updated by both Seller and Customer
     val newCartUpdates: Map<String, Long> = emptyMap()
 )
 
+//@JsonTypeName("ProductOrderUpdateByCustomerRequest")
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ProductOrderUpdateByCustomerRequest(
     val newAddressId: String? = null,
-): ProductOrderUpdateRequest(ProductOrderUpdateType.BY_CUSTOMER)
+): ProductOrderUpdateRequest(ProductOrderUpdatedBy.BY_CUSTOMER)
 
+//@JsonTypeName("ProductOrderUpdateBySellerRequest")
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ProductOrderUpdateBySellerRequest(
     val newDeliveryChargeInPaisa: Long? = null,
-): ProductOrderUpdateRequest(ProductOrderUpdateType.BY_SELLER)
+): ProductOrderUpdateRequest(ProductOrderUpdatedBy.BY_SELLER)
 
 data class ProductOrderStateBeforeUpdateResponse(
     val addressId: String,
@@ -84,7 +98,7 @@ fun ProductOrder.toSavedProductOrderResponse(cartItemUtils: CartItemUtils): Save
             cartItems = cartItemUtils.getCartItems(this).filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse() },
             address = address?.let { it.toSavedAddressResponse() },
             discount = discount?.let { it.toSavedDiscountResponse() },
-            productOrderStateBeforeUpdateResponse = productOrderStateBeforeUpdate?.let { getProductOrderStateBeforeUpdate().toProductOrderUpdateResponse() }
+            productOrderStateBeforeUpdateResponse = productOrderStateBeforeUpdate?.let { getProductOrderStateBeforeUpdate()?.toProductOrderUpdateResponse() }
         )
     }
 }

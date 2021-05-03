@@ -33,8 +33,17 @@ fun ProductOrderStateBeforeUpdate.convertToString(): String {
     }
 }
 
-fun ProductOrder.getProductOrderStateBeforeUpdate(): ProductOrderStateBeforeUpdate {
+fun ProductOrder.getProductOrderStateBeforeUpdate(): ProductOrderStateBeforeUpdate? {
     this.apply {
-        return jacksonObjectMapper().readValue(productOrderStateBeforeUpdate, ProductOrderStateBeforeUpdate::class.java)
+        return try {
+            if (productOrderStateBeforeUpdate.isNotBlank()) {
+                jacksonObjectMapper().readValue(productOrderStateBeforeUpdate, ProductOrderStateBeforeUpdate::class.java)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 }
