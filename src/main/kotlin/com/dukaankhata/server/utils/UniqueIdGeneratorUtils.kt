@@ -13,12 +13,14 @@ import kotlin.math.abs
 class UniqueIdGeneratorUtils {
 
     val maximumTryout = 10
+    val uuidMinLength = 30
+    val uuidMaxLength = 30
 
     @Autowired
     private lateinit var uniqueIdRepository: UniqueIdRepository
 
     @Transactional
-    fun getUniqueId(prefix: String? = null, onlyNumbers: Boolean? = false, minLength: Int? = 15, maxLength: Int? = 15): String {
+    fun getUniqueId(prefix: String? = null, onlyNumbers: Boolean? = false, minLength: Int? = uuidMinLength, maxLength: Int? = uuidMaxLength): String {
 
         // Create a new UUID
         var currentId = getRandomId(prefix, onlyNumbers, minLength, maxLength)
@@ -48,6 +50,7 @@ class UniqueIdGeneratorUtils {
         if (minLength != null && maxLength != null && minLength > maxLength) {
             error("Min length is greater than max length for UUID generation.")
         }
+
         val randomUuidOriginal = generateUUIDString(UUID.randomUUID(), onlyNumbers)
 
         var randomUuid = randomUuidOriginal
@@ -58,11 +61,13 @@ class UniqueIdGeneratorUtils {
             }
         }
 
-        if (maxLength != null && randomUuid.length > maxLength) {
-            randomUuid = randomUuid.substring(0, maxLength - 1)
-        }
+        val uuid = (prefix?.let { it + randomUuid } ?: randomUuid).toUpperCase()
 
-        return (prefix?.let { it + randomUuid } ?: randomUuid).toUpperCase()
+        if (maxLength != null && uuid.length > maxLength) {
+            return uuid.substring(0, maxLength - 1)
+        }
+        return uuid
+
     }
 
     // https://stackoverflow.com/a/50275487

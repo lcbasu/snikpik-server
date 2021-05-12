@@ -10,6 +10,8 @@ import com.dukaankhata.server.entities.Payment
 import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.PaymentType
 import com.dukaankhata.server.enums.ReadableIdPrefix
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -125,6 +127,13 @@ class PaymentUtils {
             emptyList()
         }
 
+    fun getPaymentsForEmployee(employeeId: String, datesList: List<String>): List<Payment> =
+        try {
+            paymentRepository.getPaymentsForEmployee(employeeId, datesList)
+        } catch (e: Exception) {
+            emptyList()
+        }
+
     fun updateSalary(employee: Employee, salaryAmountForDate: Long, forDate: String) {
 
         // Get the last salary payment for that day. We will need to revert that
@@ -196,22 +205,42 @@ class PaymentUtils {
     }
 
     fun getMonthlyPaymentSummary(company: Company, forYear: Int, forMonth: Int): List<MonthPayment> {
-
         val reportDuration = DateUtils.getReportDuration(forYear, forMonth)
-
         val startTime = reportDuration.startTime.minusMonths(goBackMonths)
         val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(startTime, reportDuration.endTime).map { DateUtils.toStringDate(it) }
+        val payments = getPayments(companyId = company.id, datesList = datesList)
+        return runBlocking {
+            val employees = employeeUtils.getEmployees(company, reportDuration.endTime)
+            val monthPayments = mutableListOf<MonthPayment>()
 
-        val payments = getPayments(companyId = company.id, datesList = datesList).groupBy { it.forDate }
-        val allEmployees = employeeUtils.getEmployees(company, reportDuration.endTime)
+            employees.map { employee ->
+                async {
+                    getMonthlyPaymentSummary(listOf(employee), payments, datesList)
+                }
+            }.map {
+                val result = it.await()
+                monthPayments.addAll(result)
+            }
+            monthPayments
+        }
+    }
 
+    fun getMonthlyPaymentSummary(employee: Employee, forYear: Int, forMonth: Int): List<MonthPayment> {
+        val reportDuration = DateUtils.getReportDuration(forYear, forMonth)
+        val startTime = reportDuration.startTime.minusMonths(goBackMonths)
+        val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(startTime, reportDuration.endTime).map { DateUtils.toStringDate(it) }
+        val payments = getPaymentsForEmployee(employeeId = employee.id, datesList = datesList)
+        return getMonthlyPaymentSummary(listOf(employee), payments, datesList)
+    }
+
+    fun getMonthlyPaymentSummary(employees: List<Employee>, payments: List<Payment>, datesList: List<String>): List<MonthPayment> {
+        val groupedPayments = payments.groupBy { it.forDate }
         val dailyPayments = mutableListOf<DailyPayment>()
-
-        allEmployees.map { employee ->
+        employees.map { employee ->
             datesList.map { forDate ->
                 var paymentsAmount = 0L
                 var salaryAmount = 0L
-                val employeePaymentsForDate = payments.getOrDefault(forDate, emptyList()).filter { it.employee?.id == employee.id }
+                val employeePaymentsForDate = groupedPayments.getOrDefault(forDate, emptyList()).filter { it.employee?.id == employee.id }
                 if (employeePaymentsForDate.isEmpty()) {
                     dailyPayments.add(
                         DailyPayment(
