@@ -26,6 +26,7 @@ dependencies {
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools:2.3.8.RELEASE")
 
+	implementation("com.nimbusds:nimbus-jose-jwt:9.9.3")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.0")
 	implementation("org.xhtmlrenderer:flying-saucer-pdf:9.1.20")
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf:2.2.6.RELEASE")
