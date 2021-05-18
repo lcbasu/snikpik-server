@@ -1,9 +1,6 @@
 package com.dukaankhata.server.controller
 
-import com.dukaankhata.server.dto.PaymentSummaryRequest
-import com.dukaankhata.server.dto.PaymentSummaryResponse
-import com.dukaankhata.server.dto.SavePaymentRequest
-import com.dukaankhata.server.dto.SavedPaymentResponse
+import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.service.PaymentService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestBody
@@ -22,8 +19,13 @@ class PaymentController {
         return paymentService.savePayment(savePaymentRequest)
     }
 
-    @RequestMapping(value = ["/getPaymentSummary"], method = [RequestMethod.POST])
-    fun getPaymentSummary(@RequestBody paymentSummaryRequest: PaymentSummaryRequest): PaymentSummaryResponse? {
-        return paymentService.getPaymentSummary(paymentSummaryRequest)
+    @RequestMapping(value = ["/getCompanyPaymentReport"], method = [RequestMethod.POST])
+    fun getCompanyPaymentReport(@RequestBody companyPaymentReportRequest: CompanyPaymentReportRequest): CompanyPaymentReportResponse? {
+        return paymentService.getCompanyPaymentReport(companyPaymentReportRequest)
+    }
+
+    @RequestMapping(value = ["/getEmployeePaymentDetails"], method = [RequestMethod.POST])
+    fun getEmployeePaymentDetails(@RequestBody employeePaymentDetailsRequest: EmployeePaymentDetailsRequest): EmployeePaymentDetailsResponse? {
+        return paymentService.getEmployeePaymentDetails(employeePaymentDetailsRequest)
     }
 }

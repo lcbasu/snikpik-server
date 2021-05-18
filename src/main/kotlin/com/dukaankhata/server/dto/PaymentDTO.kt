@@ -28,8 +28,15 @@ data class SavedPaymentResponse(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class PaymentSummaryRequest(
+data class CompanyPaymentReportRequest(
     val companyId: String,
+    val forYear: Int,
+    val forMonth: Int,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class EmployeePaymentDetailsRequest(
+    val employeeId: String,
     val forYear: Int,
     val forMonth: Int,
 )
@@ -42,20 +49,18 @@ data class MonthPaymentResponse(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class EmployeePaymentSummaryResponse(
+data class EmployeePaymentReportResponse(
     val employee: SavedEmployeeResponse,
     val currentMonthNumber: Int,
     val currentMonthSalary: Long,
     val currentMonthPayments: Long,
     val prevMonthNumber: Int,
     val prevMonthClosing: Long,
-    // For current and last 2 months
-    // Only for the current employee
     val monthlyPayments: List<MonthPaymentResponse>
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class PaymentSummaryResponse(
+data class CompanyPaymentReportResponse(
     val company: SavedCompanyResponse,
     val currentMonthNumber: Int,
     val currentMonthSalary: Long,
@@ -63,5 +68,18 @@ data class PaymentSummaryResponse(
     val prevMonthNumber: Int,
     val prevMonthClosing: Long,
     val monthlyPayments: List<MonthPaymentResponse>,
-    val employeePayments: List<EmployeePaymentSummaryResponse>,
+    val employeePayments: List<EmployeePaymentReportResponse>,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class EmployeePaymentDetailsResponse(
+    val employee: SavedEmployeeResponse,
+    val currentMonthNumber: Int,
+    val currentMonthWorkingStartDate: Long,
+    val currentMonthWorkingEndDate: Long,
+    val currentMonthWorkingDays: Int,
+    val currentMonthActualSalary: Long,
+    val currentMonthPaidSalary: Long,
+    val currentMonthPayments: Long,
+    val monthlyPayments: List<MonthPaymentResponse>
 )

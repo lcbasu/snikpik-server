@@ -1,11 +1,9 @@
 package com.dukaankhata.server.service
 
-import com.dukaankhata.server.dto.PaymentSummaryRequest
-import com.dukaankhata.server.dto.PaymentSummaryResponse
-import com.dukaankhata.server.dto.SavePaymentRequest
-import com.dukaankhata.server.dto.SavedPaymentResponse
+import com.dukaankhata.server.dto.*
 
 abstract class PaymentService {
     abstract fun savePayment(savePaymentRequest: SavePaymentRequest): SavedPaymentResponse?
-    abstract fun getPaymentSummary(paymentSummaryRequest: PaymentSummaryRequest): PaymentSummaryResponse?
+    abstract fun getCompanyPaymentReport(companyPaymentReportRequest: CompanyPaymentReportRequest): CompanyPaymentReportResponse?
+    abstract fun getEmployeePaymentDetails(employeePaymentDetailsRequest: EmployeePaymentDetailsRequest): EmployeePaymentDetailsResponse?
 }

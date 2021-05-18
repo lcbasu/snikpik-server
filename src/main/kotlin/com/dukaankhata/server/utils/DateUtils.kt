@@ -77,7 +77,7 @@ object DateUtils {
         // Choosing a random date in middle to select correct start and end month
         val startDate = getRandomDateInMonth(forYear = forYear, forMonth = forMonth)
         // First day of month
-        val startTime = startDate.with(TemporalAdjusters.firstDayOfMonth()).toLocalDate().atStartOfDay()
+        val startTime = getStartDateForMonthWithDate(startDate)
 
         // Last day of month or today in case of current month
         var endTime = startDate.with(TemporalAdjusters.lastDayOfMonth()).toLocalDate().atTime(LocalTime.MAX)
@@ -88,5 +88,9 @@ object DateUtils {
             startTime = startTime,
             endTime = endTime
         )
+    }
+
+    fun getStartDateForMonthWithDate(withDate: LocalDateTime) : LocalDateTime {
+        return withDate.with(TemporalAdjusters.firstDayOfMonth()).toLocalDate().atStartOfDay()
     }
 }

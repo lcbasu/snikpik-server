@@ -1,6 +1,7 @@
 package com.dukaankhata.server.utils
 
 import AttendanceReportForEmployee
+import EmployeeWorkingDetailsForMonthWithDate
 import com.dukaankhata.server.dao.EmployeeRepository
 import com.dukaankhata.server.dto.RemoveEmployeeRequest
 import com.dukaankhata.server.dto.SaveEmployeeRequest
@@ -188,5 +189,49 @@ class EmployeeUtils {
                 0L
             }
         }
+    }
+
+    fun getEmployeeWorkingDetailsForMonthWithDate(employee: Employee, withDate: LocalDateTime): EmployeeWorkingDetailsForMonthWithDate {
+
+        val monthStartDate = DateUtils.getStartDateForMonthWithDate(withDate)
+        employee.joinedAt
+
+        val startDateTime = if (monthStartDate.isAfter(employee.joinedAt)) {
+            monthStartDate
+        } else {
+            employee.joinedAt
+        }
+        val now = DateUtils.dateTimeNow()
+        val endDateTime = if (employee.leftAt != null && now.isAfter(employee.leftAt)) {
+            employee.leftAt!!
+        } else {
+            now
+        }
+
+        val attendanceReportForEmployee = attendanceUtils.getAttendanceReportForEmployee(
+            employee = employee,
+            startTime = startDateTime,
+            endTime = endDateTime
+        )
+
+        val workingDays = attendanceReportForEmployee?.let {
+            it.presentDays + it.halfDays
+        } ?: -1
+
+        return EmployeeWorkingDetailsForMonthWithDate(
+            employee = employee,
+        withDate = withDate,
+        startDateTime = startDateTime,
+        endDateTime = endDateTime,
+        workingDays = workingDays,
+        )
+    }
+
+    fun getEmployeeWorkingStartDateFromThisDate(fromDate: LocalDateTime): LocalDateTime {
+        return DateUtils.dateTimeNow()
+    }
+
+    fun getEmployeeWorkingEndDateFromThisDate(fromDate: LocalDateTime): LocalDateTime {
+        return DateUtils.dateTimeNow()
     }
 }

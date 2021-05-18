@@ -1,8 +1,11 @@
 package com.dukaankhata.server.dto
 
+import com.dukaankhata.server.entities.Company
+import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.enums.OpeningBalanceType
 import com.dukaankhata.server.enums.RemovalReasonType
 import com.dukaankhata.server.enums.SalaryType
+import com.dukaankhata.server.utils.DateUtils
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -56,3 +59,22 @@ data class SalarySlipResponse(
     val endDate: String,
     val salarySlipUrl: String
 )
+
+
+fun Employee.toSavedEmployeeResponse(): SavedEmployeeResponse {
+    this.apply {
+        return SavedEmployeeResponse(
+            serverId = id,
+            name = name,
+            phoneNumber = phoneNumber,
+            companyId = company?.id ?: "-1",
+            salaryType = salaryType,
+            salaryCycle = salaryCycle,
+            salaryAmountInPaisa = salaryAmountInPaisa,
+            balanceInPaisaTillNow = balanceInPaisaTillNow,
+            isActive = leftAt == null,
+            joinedAt = DateUtils.getEpoch(joinedAt),
+            leftAt = DateUtils.getEpoch(leftAt)
+        )
+    }
+}

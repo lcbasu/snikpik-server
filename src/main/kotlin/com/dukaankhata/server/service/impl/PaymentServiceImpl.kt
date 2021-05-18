@@ -1,9 +1,6 @@
 package com.dukaankhata.server.service.impl
 
-import com.dukaankhata.server.dto.PaymentSummaryRequest
-import com.dukaankhata.server.dto.PaymentSummaryResponse
-import com.dukaankhata.server.dto.SavePaymentRequest
-import com.dukaankhata.server.dto.SavedPaymentResponse
+import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.service.PaymentService
 import com.dukaankhata.server.service.converter.PaymentServiceConverter
 import com.dukaankhata.server.utils.AuthUtils
@@ -40,9 +37,9 @@ class PaymentServiceImpl : PaymentService() {
         ))
     }
 
-    override fun getPaymentSummary(paymentSummaryRequest: PaymentSummaryRequest): PaymentSummaryResponse? {
+    override fun getCompanyPaymentReport(companyPaymentReportRequest: CompanyPaymentReportRequest): CompanyPaymentReportResponse? {
         val requestContext = authUtils.validateRequest(
-            companyId = paymentSummaryRequest.companyId,
+            companyId = companyPaymentReportRequest.companyId,
             requiredRoleTypes = authUtils.onlyAdminLevelRoles()
         )
 
@@ -50,11 +47,27 @@ class PaymentServiceImpl : PaymentService() {
 
         val monthlyPaymentSummary = paymentUtils.getMonthlyPaymentSummary(
             company = company,
-            forYear = paymentSummaryRequest.forYear,
-            forMonth = paymentSummaryRequest.forMonth
+            forYear = companyPaymentReportRequest.forYear,
+            forMonth = companyPaymentReportRequest.forMonth
         )
-        return paymentServiceConverter.getPaymentSummary(forYear = paymentSummaryRequest.forYear,
-            forMonth = paymentSummaryRequest.forMonth, requestContext.company, monthlyPaymentSummary)
+        return paymentUtils.getCompanyPaymentReport(forYear = companyPaymentReportRequest.forYear,
+            forMonth = companyPaymentReportRequest.forMonth, requestContext.company, monthlyPaymentSummary)
+    }
+
+    override fun getEmployeePaymentDetails(employeePaymentDetailsRequest: EmployeePaymentDetailsRequest): EmployeePaymentDetailsResponse? {
+        val requestContext = authUtils.validateRequest(
+            employeeId = employeePaymentDetailsRequest.employeeId,
+            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+        )
+        val employee = requestContext.employee ?: error("Employee is required")
+        val monthlyPaymentSummary = paymentUtils.getMonthlyPaymentSummary(
+            employee, forYear = employeePaymentDetailsRequest.forYear, forMonth = employeePaymentDetailsRequest.forMonth
+        )
+        return paymentUtils.getEmployeePaymentDetails(
+            employee,
+            forYear = employeePaymentDetailsRequest.forYear,
+            forMonth = employeePaymentDetailsRequest.forMonth,
+            monthlyPaymentSummary)
     }
 
 }
