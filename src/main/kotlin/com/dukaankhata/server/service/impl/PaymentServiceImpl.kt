@@ -70,4 +70,16 @@ class PaymentServiceImpl : PaymentService() {
             monthlyPaymentSummary)
     }
 
+    override fun getEmployeeCompletePaymentDetails(employeeCompletePaymentDetailsRequest: EmployeeCompletePaymentDetailsRequest): EmployeeCompletePaymentDetailsResponse? {
+        val requestContext = authUtils.validateRequest(
+            employeeId = employeeCompletePaymentDetailsRequest.employeeId,
+            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+        )
+        val employee = requestContext.employee ?: error("Employee is required")
+        return paymentUtils.getEmployeeCompletePaymentDetails(
+            employee,
+            forYear = employeeCompletePaymentDetailsRequest.forYear,
+            forMonth = employeeCompletePaymentDetailsRequest.forMonth)
+    }
+
 }

@@ -227,59 +227,73 @@ class PaymentUtils {
         }
     }
 
-    fun getMonthlyPaymentSummary(employees: List<Employee>, payments: List<Payment>, datesList: List<String>): List<MonthPayment> {
+    fun getDailyPayments(employee: Employee, payments: List<Payment>, datesList: List<String>): List<DailyPayment> {
         val groupedPayments = payments.groupBy { it.forDate }
         val dailyPayments = mutableListOf<DailyPayment>()
-        employees.map { employee ->
-            datesList.map { forDate ->
-                var paymentsAmount = 0L
-                var salaryAmount = 0L
-                val employeePaymentsForDate = groupedPayments.getOrDefault(forDate, emptyList()).filter { it.employee?.id == employee.id }
-                if (employeePaymentsForDate.isEmpty()) {
-                    dailyPayments.add(
-                        DailyPayment(
-                            employee = employee,
-                            forDate = forDate,
-                            paymentsAmount = paymentsAmount,
-                            salaryAmount = salaryAmount
-                        )
+        datesList.map { forDate ->
+            var paymentsAmount = 0L
+            var salaryAmount = 0L
+            val employeePaymentsForDate = groupedPayments.getOrDefault(forDate, emptyList()).filter { it.employee?.id == employee.id }
+            if (employeePaymentsForDate.isEmpty()) {
+                dailyPayments.add(
+                    DailyPayment(
+                        employee = employee,
+                        forDate = forDate,
+                        paymentsAmount = paymentsAmount,
+                        salaryAmount = salaryAmount,
+                        payments = emptyList()
                     )
-                } else {
-                    // If not empty then calculate based on the actual values
-                    employeePaymentsForDate.groupBy { it.paymentType }.map { employeePaymentsForEachType ->
-                        val paymentType = employeePaymentsForEachType.key
-                        val allPayments = employeePaymentsForEachType.value
+                )
+            } else {
+                // If not empty then calculate based on the actual values
+                val allPaymentsForThatDay = mutableListOf<Payment>()
+                employeePaymentsForDate.groupBy { it.paymentType }.map { employeePaymentsForEachType ->
+                    val paymentType = employeePaymentsForEachType.key
+                    val allPayments = employeePaymentsForEachType.value
 
-                        if (paymentType == PaymentType.NONE || paymentType == PaymentType.PAYMENT_SALARY_REVERSAL) {
-                            // Do nothing
-                            allPayments
-                        } else if (paymentType == PaymentType.PAYMENT_SALARY) {
-                            // Get the last entry for that day and use it. DO NOT use all the entries as all the previous ones for that day have been REVERSED
-                            val lastSalaryPaymentForThatDay = allPayments.maxByOrNull { DateUtils.getEpoch(it.lastModifiedAt) }
-                            salaryAmount += lastSalaryPaymentForThatDay?.let { it.amountInPaisa * it.multiplierUsed } ?: 0
-                        } else {
-                            // Add all remaining as the payment for that day
-                            allPayments.map {
-                                paymentsAmount += (it.amountInPaisa * it.multiplierUsed)
-                            }
+                    if (paymentType == PaymentType.NONE || paymentType == PaymentType.PAYMENT_SALARY_REVERSAL) {
+                        // Do nothing
+                        allPayments
+                    } else if (paymentType == PaymentType.PAYMENT_SALARY) {
+                        // Get the last entry for that day and use it. DO NOT use all the entries as all the previous ones for that day have been REVERSED
+                        val lastSalaryPaymentForThatDay = allPayments.maxByOrNull { DateUtils.getEpoch(it.lastModifiedAt) }
+                        lastSalaryPaymentForThatDay?.let {
+                            allPaymentsForThatDay.add(it)
                         }
+                        salaryAmount += lastSalaryPaymentForThatDay?.let { it.amountInPaisa * it.multiplierUsed } ?: 0
+                    } else {
+                        // Add all remaining as the payment for that day
+                        allPayments.map {
+                            paymentsAmount += (it.amountInPaisa * it.multiplierUsed)
+                        }
+                        allPaymentsForThatDay.addAll(allPayments)
                     }
-                    dailyPayments.add(
-                        DailyPayment(
-                            employee = employee,
-                            forDate = forDate,
-                            paymentsAmount = paymentsAmount,
-                            salaryAmount = salaryAmount
-                        )
-                    )
                 }
+                dailyPayments.add(
+                    DailyPayment(
+                        employee = employee,
+                        forDate = forDate,
+                        paymentsAmount = paymentsAmount,
+                        salaryAmount = salaryAmount,
+                        payments = allPaymentsForThatDay
+                    )
+                )
             }
+        }
+        return dailyPayments
+    }
+
+    fun getMonthlyPaymentSummary(employees: List<Employee>, payments: List<Payment>, datesList: List<String>): List<MonthPayment> {
+        val dailyPayments = mutableListOf<DailyPayment>()
+        employees.map { employee ->
+            dailyPayments.addAll(getDailyPayments(employee, payments, datesList))
         }
 
         val monthPayments = mutableListOf<MonthPayment>()
 
         dailyPayments.groupBy { it.employee }.map { employeeDailyPayments ->
-            employeeDailyPayments.value.groupBy { DateUtils.parseStandardDate(it.forDate).monthValue }.map { employeePaymentsForMonth ->
+            employeeDailyPayments.value.groupBy { "${DateUtils.parseStandardDate(it.forDate).monthValue}${CommonUtils.STRING_SEPARATOR}${DateUtils.parseStandardDate(it.forDate).year}" }.map { employeePaymentsForMonth ->
+                val (monthNumber, yearNumber) = employeePaymentsForMonth.key.split(CommonUtils.STRING_SEPARATOR)
                 var salaryAmountForMonth = 0L
                 var paymentAmountForMonth = 0L
                 employeePaymentsForMonth.value.map {
@@ -289,7 +303,8 @@ class PaymentUtils {
                 monthPayments.add(
                     MonthPayment(
                         employee = employeeDailyPayments.key,
-                        monthNumber = employeePaymentsForMonth.key,
+                        yearNumber = yearNumber.toInt(),
+                        monthNumber = monthNumber.toInt(),
                         actualSalary = employeeDailyPayments.key.salaryAmountInPaisa,
                         paymentsAmount = paymentAmountForMonth,
                         salaryAmount = salaryAmountForMonth,
@@ -312,17 +327,20 @@ class PaymentUtils {
     fun getCompanyPaymentReport(forYear: Int, forMonth: Int, company: Company, monthlyPayments: List<MonthPayment>): CompanyPaymentReportResponse {
         val companyResponse = company.toSavedCompanyResponse()
         val randomDateInMonth = DateUtils.getRandomDateInMonth(forYear = forYear, forMonth = forMonth)
-        val prevMonthNumber = randomDateInMonth.minusMonths(1).monthValue
+        val prevMonthMonthNumber = randomDateInMonth.minusMonths(1).monthValue
+        val prevMonthYearNumber = randomDateInMonth.minusMonths(1).year
 
         val employeePaymentsResponse = monthlyPayments.groupBy { it.employee }.map { forEmployee ->
             val employeeMonthlyPayments = getMonthlyPaymentsResponse(forEmployee.value)
             EmployeePaymentReportResponse(
                 employee = forEmployee.key.toSavedEmployeeResponse(),
+                currentYearNumber = forYear,
                 currentMonthNumber = forMonth,
-                currentMonthSalary = getTotalAMount(employeeMonthlyPayments, forMonth, MonthlyPaymentType.SALARY),
-                currentMonthPayments = getTotalAMount(employeeMonthlyPayments, forMonth, MonthlyPaymentType.PAYMENT),
-                prevMonthNumber = prevMonthNumber,
-                prevMonthClosing = getTotalAMount(employeeMonthlyPayments, prevMonthNumber, MonthlyPaymentType.CLOSING),
+                currentMonthSalary = getTotalAMount(employeeMonthlyPayments, forMonth, forYear, MonthlyPaymentType.SALARY),
+                currentMonthPayments = getTotalAMount(employeeMonthlyPayments, forMonth, forYear, MonthlyPaymentType.PAYMENT),
+                prevMonthMonthNumber = prevMonthMonthNumber,
+                prevMonthYearNumber = prevMonthYearNumber,
+                prevMonthClosing = getTotalAMount(employeeMonthlyPayments, prevMonthMonthNumber, prevMonthYearNumber, MonthlyPaymentType.CLOSING),
                 monthlyPayments = employeeMonthlyPayments,
             )
         }
@@ -330,19 +348,21 @@ class PaymentUtils {
         val companyMonthlyPayments = getMonthlyPaymentsResponse(monthlyPayments)
         return CompanyPaymentReportResponse(
             company = companyResponse,
+            currentYearNumber = forYear,
             currentMonthNumber = forMonth,
-            currentMonthSalary = getTotalAMount(companyMonthlyPayments, forMonth, MonthlyPaymentType.SALARY),
-            currentMonthPayments = getTotalAMount(companyMonthlyPayments, forMonth, MonthlyPaymentType.PAYMENT),
-            prevMonthNumber = prevMonthNumber,
-            prevMonthClosing = getTotalAMount(companyMonthlyPayments, prevMonthNumber, MonthlyPaymentType.CLOSING),
+            currentMonthSalary = getTotalAMount(companyMonthlyPayments, forMonth, forYear, MonthlyPaymentType.SALARY),
+            currentMonthPayments = getTotalAMount(companyMonthlyPayments, forMonth, forYear, MonthlyPaymentType.PAYMENT),
+            prevMonthMonthNumber = prevMonthMonthNumber,
+            prevMonthYearNumber = prevMonthYearNumber,
+            prevMonthClosing = getTotalAMount(companyMonthlyPayments, prevMonthMonthNumber, prevMonthYearNumber, MonthlyPaymentType.CLOSING),
             monthlyPayments = companyMonthlyPayments,
             employeePayments = employeePaymentsResponse
         )
     }
 
-    fun getTotalAMount(monthlyPayments: List<MonthPaymentResponse>, forMonth: Int, monthlyPaymentType: MonthlyPaymentType): Long {
+    fun getTotalAMount(monthlyPayments: List<MonthPaymentResponse>, forMonth: Int, forYear: Int, monthlyPaymentType: MonthlyPaymentType): Long {
         var sum = 0L
-        monthlyPayments.filter { it.monthNumber == forMonth && it.monthlyPaymentType == monthlyPaymentType }.map {
+        monthlyPayments.filter { it.monthNumber == forMonth && it.yearNumber == forYear && it.monthlyPaymentType == monthlyPaymentType }.map {
             sum += it.amount
         }
         return sum
@@ -352,28 +372,33 @@ class PaymentUtils {
 
         val monthPaymentResponse = mutableListOf<MonthPaymentResponse>()
 
-        monthlyPayments.groupBy { it.monthNumber }.map { forMonth ->
+        monthlyPayments.groupBy { "${it.monthNumber}${CommonUtils.STRING_SEPARATOR}${it.yearNumber}" }.map { forMonthAndYear ->
             var salary = 0L
             var closing = 0L
             var payments = 0L
 
-            forMonth.value.map {
+            forMonthAndYear.value.map {
                 salary += it.salaryAmount
                 payments += it.paymentsAmount
                 closing += it.closingBalance
             }
+
+            val (monthNumber, yearNumber) = forMonthAndYear.key.split(CommonUtils.STRING_SEPARATOR)
             monthPaymentResponse.add(MonthPaymentResponse(
-                monthNumber = forMonth.key,
+                yearNumber = yearNumber.toInt(),
+                monthNumber = monthNumber.toInt(),
                 amount = salary,
                 monthlyPaymentType = MonthlyPaymentType.SALARY
             ))
             monthPaymentResponse.add(MonthPaymentResponse(
-                monthNumber = forMonth.key,
+                yearNumber = yearNumber.toInt(),
+                monthNumber = monthNumber.toInt(),
                 amount = payments,
                 monthlyPaymentType = MonthlyPaymentType.PAYMENT
             ))
             monthPaymentResponse.add(MonthPaymentResponse(
-                monthNumber = forMonth.key,
+                yearNumber = yearNumber.toInt(),
+                monthNumber = monthNumber.toInt(),
                 amount = closing,
                 monthlyPaymentType = MonthlyPaymentType.CLOSING
             ))
@@ -387,14 +412,72 @@ class PaymentUtils {
         val employeeWorkingDetailsForMonthWithDate = employeeUtils.getEmployeeWorkingDetailsForMonthWithDate(employee, DateUtils.dateTimeNow())
         return EmployeePaymentDetailsResponse(
             employee = employee.toSavedEmployeeResponse(),
+            currentYearNumber = forYear,
             currentMonthNumber = forMonth,
             currentMonthWorkingStartDate = DateUtils.getEpoch(employeeWorkingDetailsForMonthWithDate.startDateTime),
             currentMonthWorkingEndDate = DateUtils.getEpoch(employeeWorkingDetailsForMonthWithDate.endDateTime),
             currentMonthWorkingDays = employeeWorkingDetailsForMonthWithDate.workingDays,
             currentMonthActualSalary = employee.salaryAmountInPaisa,
-            currentMonthPaidSalary = getTotalAMount(monthlyPaymentsResponse, forMonth, MonthlyPaymentType.SALARY),
-            currentMonthPayments = getTotalAMount(monthlyPaymentsResponse, forMonth, MonthlyPaymentType.PAYMENT),
+            currentMonthPaidSalary = getTotalAMount(monthlyPaymentsResponse, forMonth, forYear, MonthlyPaymentType.SALARY),
+            currentMonthPayments = getTotalAMount(monthlyPaymentsResponse, forMonth, forYear, MonthlyPaymentType.PAYMENT),
             monthlyPayments = monthlyPaymentsResponse
+        )
+    }
+
+    fun getEmployeeCompletePaymentDetails(employee: Employee, forYear: Int, forMonth: Int): EmployeeCompletePaymentDetailsResponse? {
+        val randomDateInMonth = DateUtils.getRandomDateInMonth(forYear = forYear, forMonth = forMonth)
+        val employeeWorkingDetailsForMonthWithDate = employeeUtils.getEmployeeWorkingDetailsForMonthWithDate(employee, randomDateInMonth)
+        val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(employeeWorkingDetailsForMonthWithDate.startDateTime, employeeWorkingDetailsForMonthWithDate.endDateTime).map { DateUtils.toStringDate(it) }
+        val payments = getPaymentsForEmployee(employeeId = employee.id, datesList = datesList)
+        val monthlyPayments = getMonthlyPaymentSummary(listOf(employee), payments, datesList)
+        val dailyPayments = getDailyPayments(employee, payments, datesList)
+        val monthlyPaymentsResponse = getMonthlyPaymentsResponse(monthlyPayments)
+
+        val randomDateInLastMonth = randomDateInMonth.minusMonths(1)
+        val prevMonthDatesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(DateUtils.getStartDateForMonthWithDate(randomDateInLastMonth), DateUtils.getLastDateForMonthWithDate(randomDateInLastMonth)).map { DateUtils.toStringDate(it) }
+        val prevMonthPayments = getPaymentsForEmployee(employeeId = employee.id, datesList = prevMonthDatesList)
+        val prevMonthMonthlyPayments = getMonthlyPaymentSummary(listOf(employee), prevMonthPayments, datesList)
+
+        val prevMonthMonthlyPaymentsResponse = getMonthlyPaymentsResponse(prevMonthMonthlyPayments)
+        val prevMonthMonthNumber = randomDateInLastMonth.monthValue
+        val prevMonthYearNumber = randomDateInLastMonth.year
+
+        return EmployeeCompletePaymentDetailsResponse(
+            employee = employee.toSavedEmployeeResponse(),
+            currentYearNumber = forYear,
+            currentMonthNumber = forMonth,
+            currentMonthWorkingStartDate = DateUtils.getEpoch(employeeWorkingDetailsForMonthWithDate.startDateTime),
+            currentMonthWorkingEndDate = DateUtils.getEpoch(employeeWorkingDetailsForMonthWithDate.endDateTime),
+            currentMonthWorkingDays = employeeWorkingDetailsForMonthWithDate.workingDays,
+            currentMonthActualSalary = employee.salaryAmountInPaisa,
+            currentMonthPaidSalary = getTotalAMount(monthlyPaymentsResponse, forMonth, forYear, MonthlyPaymentType.SALARY),
+            currentMonthPayments = getTotalAMount(monthlyPaymentsResponse, forMonth, forYear, MonthlyPaymentType.PAYMENT),
+            prevMonthMonthNumber = prevMonthMonthNumber,
+            prevMonthYearNumber = prevMonthYearNumber,
+            prevMonthClosing = getTotalAMount(prevMonthMonthlyPaymentsResponse, prevMonthMonthNumber, prevMonthYearNumber, MonthlyPaymentType.CLOSING),
+            dailyPayments = dailyPayments.map { dailyPayment ->
+                DailyPaymentResponse(
+                    employeeId = employee.id,
+                    forDate = dailyPayment.forDate,
+                    dateNumber = DateUtils.getDateNumber(dailyPayment.forDate),
+                    dateText = DateUtils.getWeekName(dailyPayment.forDate),
+                    salaryAmount = dailyPayment.salaryAmount,
+                    paymentsAmount = dailyPayment.paymentsAmount,
+                    payments = dailyPayment.payments.map { payment ->
+                        PaymentMiniDetailsResponse(
+                            employeeId = employee.id,
+                            companyId = employee.company?.id ?: "",
+                            serverId = payment.id,
+                            forDate = payment.forDate,
+                            paymentType = payment.paymentType,
+                            amountInPaisa = payment.amountInPaisa,
+                            multiplierUsed = payment.multiplierUsed,
+                            addedAt = DateUtils.getEpoch(payment.addedAt),
+                            description = payment.description,
+                        )
+                    }
+                )
+            }
         )
     }
 }

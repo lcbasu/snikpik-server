@@ -194,29 +194,24 @@ class EmployeeUtils {
     fun getEmployeeWorkingDetailsForMonthWithDate(employee: Employee, withDate: LocalDateTime): EmployeeWorkingDetailsForMonthWithDate {
 
         val monthStartDate = DateUtils.getStartDateForMonthWithDate(withDate)
-        employee.joinedAt
 
         val startDateTime = if (monthStartDate.isAfter(employee.joinedAt)) {
             monthStartDate
         } else {
             employee.joinedAt
         }
+        var endDateTime = DateUtils.getLastDateForMonthWithDate(withDate)
         val now = DateUtils.dateTimeNow()
-        val endDateTime = if (employee.leftAt != null && now.isAfter(employee.leftAt)) {
-            employee.leftAt!!
-        } else {
-            now
+
+        if (endDateTime.isAfter(now)) {
+            endDateTime = now
         }
 
-        val attendanceReportForEmployee = attendanceUtils.getAttendanceReportForEmployee(
-            employee = employee,
-            startTime = startDateTime,
-            endTime = endDateTime
-        )
+        if (employee.leftAt != null && now.isAfter(employee.leftAt)) {
+            endDateTime = employee.leftAt!!
+        }
 
-        val workingDays = attendanceReportForEmployee?.let {
-            it.presentDays + it.halfDays
-        } ?: -1
+        val workingDays = getEmployeeWorkingDays(employee, startDateTime, endDateTime)
 
         return EmployeeWorkingDetailsForMonthWithDate(
             employee = employee,
@@ -225,6 +220,19 @@ class EmployeeUtils {
         endDateTime = endDateTime,
         workingDays = workingDays,
         )
+    }
+
+    private fun getEmployeeWorkingDays(employee: Employee, startDateTime: LocalDateTime, endDateTime: LocalDateTime): Int {
+
+        val attendanceReportForEmployee = attendanceUtils.getAttendanceReportForEmployee(
+            employee = employee,
+            startTime = startDateTime,
+            endTime = endDateTime
+        )
+
+        return attendanceReportForEmployee?.let {
+            it.presentDays + it.halfDays
+        } ?: -1
     }
 
     fun getEmployeeWorkingStartDateFromThisDate(fromDate: LocalDateTime): LocalDateTime {

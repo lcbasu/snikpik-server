@@ -8,6 +8,7 @@ data class SalaryReversal (
 
 data class MonthPayment(
     val employee: Employee,
+    val yearNumber: Int,
     val monthNumber: Int,
     // This might change from month to month ro date to date
     // TODO: So add a table to keep track of all salary updates and
@@ -23,4 +24,5 @@ data class DailyPayment(
     val forDate: String,
     val salaryAmount: Long,
     val paymentsAmount: Long,
+    val payments: List<Payment>,
 )

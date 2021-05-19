@@ -28,4 +28,9 @@ class PaymentController {
     fun getEmployeePaymentDetails(@RequestBody employeePaymentDetailsRequest: EmployeePaymentDetailsRequest): EmployeePaymentDetailsResponse? {
         return paymentService.getEmployeePaymentDetails(employeePaymentDetailsRequest)
     }
+
+    @RequestMapping(value = ["/getEmployeeCompletePaymentDetails"], method = [RequestMethod.POST])
+    fun getEmployeeCompletePaymentDetails(@RequestBody employeeCompletePaymentDetailsRequest: EmployeeCompletePaymentDetailsRequest): EmployeeCompletePaymentDetailsResponse? {
+        return paymentService.getEmployeeCompletePaymentDetails(employeeCompletePaymentDetailsRequest)
+    }
 }

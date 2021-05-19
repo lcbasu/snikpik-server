@@ -75,12 +75,12 @@ object DateUtils {
 
     fun getReportDuration(forYear: Int, forMonth: Int): ReportDuration {
         // Choosing a random date in middle to select correct start and end month
-        val startDate = getRandomDateInMonth(forYear = forYear, forMonth = forMonth)
+        val randomDateInMonth = getRandomDateInMonth(forYear = forYear, forMonth = forMonth)
         // First day of month
-        val startTime = getStartDateForMonthWithDate(startDate)
+        val startTime = getStartDateForMonthWithDate(randomDateInMonth)
 
         // Last day of month or today in case of current month
-        var endTime = startDate.with(TemporalAdjusters.lastDayOfMonth()).toLocalDate().atTime(LocalTime.MAX)
+        var endTime = getLastDateForMonthWithDate(randomDateInMonth)
         if (endTime.isAfter(DateUtils.dateTimeNow())) {
             endTime = DateUtils.dateTimeNow()
         }
@@ -92,5 +92,9 @@ object DateUtils {
 
     fun getStartDateForMonthWithDate(withDate: LocalDateTime) : LocalDateTime {
         return withDate.with(TemporalAdjusters.firstDayOfMonth()).toLocalDate().atStartOfDay()
+    }
+
+    fun getLastDateForMonthWithDate(withDate: LocalDateTime) : LocalDateTime {
+        return withDate.with(TemporalAdjusters.lastDayOfMonth()).toLocalDate().atTime(LocalTime.MAX)
     }
 }
