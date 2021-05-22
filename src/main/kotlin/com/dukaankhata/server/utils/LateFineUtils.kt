@@ -3,13 +3,13 @@ package com.dukaankhata.server.utils
 import com.dukaankhata.server.dao.LateFineRepository
 import com.dukaankhata.server.dto.SaveLateFineRequest
 import com.dukaankhata.server.dto.SavedLateFineResponse
+import com.dukaankhata.server.dto.toSavedLateFineResponse
 import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.entities.LateFine
 import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.PaymentType
 import com.dukaankhata.server.enums.ReadableIdPrefix
-import com.dukaankhata.server.service.converter.LateFineServiceConverter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
@@ -22,9 +22,6 @@ class LateFineUtils {
 
     @Autowired
     private lateinit var paymentUtils: PaymentUtils
-
-    @Autowired
-    private lateinit var lateFineServiceConverter: LateFineServiceConverter
 
     @Autowired
     private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
@@ -68,7 +65,7 @@ class LateFineUtils {
             description = "Added by system for attendance late fine",
         )
 
-        return lateFineServiceConverter.getSavedLateFineResponse(savedLateFine, savedPaymentResponse)
+        return savedLateFine.toSavedLateFineResponse(savedPaymentResponse)
     }
 
     fun getAllLateFineForDate(company: Company, forDate: String): List<LateFine> {

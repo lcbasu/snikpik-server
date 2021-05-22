@@ -3,9 +3,9 @@ package com.dukaankhata.server.service.impl
 import com.dukaankhata.server.dto.SaveCompanyRequest
 import com.dukaankhata.server.dto.SavedCompanyResponse
 import com.dukaankhata.server.dto.UserCompaniesResponse
+import com.dukaankhata.server.dto.toSavedCompanyResponse
 import com.dukaankhata.server.enums.RoleType
 import com.dukaankhata.server.service.CompanyService
-import com.dukaankhata.server.service.converter.CompanyServiceConverter
 import com.dukaankhata.server.utils.AuthUtils
 import com.dukaankhata.server.utils.CompanyUtils
 import com.dukaankhata.server.utils.UserRoleUtils
@@ -24,9 +24,6 @@ class CompanyServiceImpl : CompanyService() {
     @Autowired
     private lateinit var userRoleUtils: UserRoleUtils
 
-    @Autowired
-    private lateinit var companyServiceConverter: CompanyServiceConverter
-
     override fun saveCompany(saveCompanyRequest: SaveCompanyRequest): SavedCompanyResponse? {
         val user = authUtils.getRequestUserEntity() ?: return null
         val company = companyUtils.saveCompany(
@@ -43,7 +40,7 @@ class CompanyServiceImpl : CompanyService() {
                 ?: error("Unable to save user role while creating company")
         }
 
-        return companyServiceConverter.getSavedCompanyResponse(company);
+        return company.toSavedCompanyResponse();
     }
 
     override fun getCompany(): SavedCompanyResponse? {
@@ -53,6 +50,6 @@ class CompanyServiceImpl : CompanyService() {
     override fun getUserCompanies(phoneNumber: String): UserCompaniesResponse? {
         val user = authUtils.getUserByMobile(phoneNumber);
         val companies = user?.let { companyUtils.findByUser(it) } ?: emptyList()
-        return companyServiceConverter.getCompaniesResponse(companies)
+        return UserCompaniesResponse(companies = companies.map { it.toSavedCompanyResponse() })
     }
 }

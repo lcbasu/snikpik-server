@@ -1,6 +1,5 @@
 package com.dukaankhata.server.dto
 
-import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.enums.OpeningBalanceType
 import com.dukaankhata.server.enums.RemovalReasonType
@@ -44,6 +43,11 @@ data class CompanyEmployeesResponse(
     val employees: List<SavedEmployeeResponse>
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class UpdateEmployeeJoiningDateRequest(
+    val employeeId: String,
+    val newJoiningTime: Long
+)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class RemoveEmployeeRequest(

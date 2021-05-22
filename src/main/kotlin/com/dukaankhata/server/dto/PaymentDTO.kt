@@ -1,8 +1,10 @@
 package com.dukaankhata.server.dto
 
 import com.dukaankhata.server.entities.Employee
+import com.dukaankhata.server.entities.Payment
 import com.dukaankhata.server.enums.MonthlyPaymentType
 import com.dukaankhata.server.enums.PaymentType
+import com.dukaankhata.server.utils.DateUtils
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -137,3 +139,17 @@ data class EmployeeCompletePaymentDetailsResponse(
     val prevMonthClosing: Long,
     val dailyPayments: List<DailyPaymentResponse>
 )
+
+fun Payment.toSavedPaymentResponse(): SavedPaymentResponse {
+    return SavedPaymentResponse(
+        serverId = id ?: "",
+        employee = employee!!.toSavedEmployeeResponse(),
+        company = company!!.toSavedCompanyResponse(),
+        forDate = forDate ?: "",
+        paymentType = paymentType ?: PaymentType.NONE,
+        description = description,
+        amountInPaisa = amountInPaisa ?: 0,
+        multiplierUsed = multiplierUsed ?: 0,
+        addedAt = DateUtils.getEpoch(addedAt),
+    )
+}

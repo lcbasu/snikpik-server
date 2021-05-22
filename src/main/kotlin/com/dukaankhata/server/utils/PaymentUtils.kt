@@ -14,6 +14,8 @@ import com.dukaankhata.server.enums.PaymentType
 import com.dukaankhata.server.enums.ReadableIdPrefix
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -21,6 +23,8 @@ import java.time.LocalDateTime
 
 @Component
 class PaymentUtils {
+
+    private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     private val GO_BACK_MONTHS = 2L
 
@@ -60,6 +64,8 @@ class PaymentUtils {
             amountInPaisa = amountInPaisa,
             description = description
         )
+
+        logger.info("Payment saved for ${employee.id} for $forDate with amountInPaisa: $amountInPaisa and type: $paymentType. description: $description, addedBy: $addedBy")
 
         // Update the employee payment
         employeeUtils.updateEmployee(payment)
@@ -156,6 +162,7 @@ class PaymentUtils {
                 amountInPaisa = salaryAmountForDate,
                 description = "Added by system for adding the salary"
             )
+            logger.info("Salary ADDED for employeeId: ${employee.id} with newSalaryAmount: $salaryAmountForDate for $forDate")
         } else {
             // 1. Revert the last salary payment
             // 2. Add the new Salary Payment
@@ -167,7 +174,10 @@ class PaymentUtils {
                 lastSalaryPaymentForThatDay = lastSalaryPaymentForThatDay,
                 newSalaryAmount = salaryAmountForDate
             )
+            logger.info("Salary RE-CALCULATED for employeeId: ${employee.id} with newSalaryAmount: $salaryAmountForDate and lastSalaryPaymentForThatDay: $lastSalaryPaymentForThatDay for $forDate")
         }
+
+
     }
 
     @Transactional

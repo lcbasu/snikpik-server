@@ -1,9 +1,12 @@
 package com.dukaankhata.server.dto
 
+import com.dukaankhata.server.entities.Attendance
+import com.dukaankhata.server.entities.AttendanceByAdmin
 import com.dukaankhata.server.enums.AttendanceType
 import com.dukaankhata.server.enums.PunchType
 import com.dukaankhata.server.enums.SelfieType
 import com.dukaankhata.server.enums.ValueUnitType
+import com.dukaankhata.server.utils.DateUtils
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -170,3 +173,33 @@ data class AttendanceSummaryForEmployeeResponse (
     val attendancesReport: Map<String, AttendanceInfoDataResponse>,
     val attendanceTypeAggregate: List<AttendanceTypeAggregateResponse>,
 )
+
+
+fun Attendance.toSavedAttendanceResponse(): SavedAttendanceResponse {
+    this.apply {
+        return SavedAttendanceResponse(
+            serverId = id,
+            employee = employee!!.toSavedEmployeeResponse(),
+            company = company!!.toSavedCompanyResponse(),
+            forDate = forDate,
+            punchAt = DateUtils.getEpoch(punchAt),
+            punchType = punchType,
+            punchBy = punchBy?.id ?: "",
+            selfieUrl = selfieUrl ?: "",
+            selfieType = selfieType ?: SelfieType.NONE,
+            locationLat = locationLat ?: 0.0,
+            locationLong = locationLong ?: 0.0,
+            locationName = locationName ?: "")
+    }
+}
+
+fun AttendanceByAdmin.toSavedAttendanceByAdminResponse(): SavedAttendanceByAdminResponse {
+    return SavedAttendanceByAdminResponse(
+        serverId = id?.companyId.toString() + "__" + id?.employeeId.toString() + "__" + id?.forDate,
+        employee = employee!!.toSavedEmployeeResponse(),
+        company = company!!.toSavedCompanyResponse(),
+        forDate = id?.forDate ?: "",
+        attendanceType = attendanceType,
+        addedBy = addedBy?.id ?: "",
+        workingMinutes = workingMinutes)
+}

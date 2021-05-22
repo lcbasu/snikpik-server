@@ -6,7 +6,6 @@ import com.dukaankhata.server.enums.SalaryType
 import com.dukaankhata.server.service.EmployeeService
 import com.dukaankhata.server.service.PdfService
 import com.dukaankhata.server.service.schedule.EmployeeSalaryUpdateSchedulerService
-import com.dukaankhata.server.service.converter.EmployeeServiceConverter
 import com.dukaankhata.server.utils.AuthUtils
 import com.dukaankhata.server.utils.CompanyUtils
 import com.dukaankhata.server.utils.EmployeeUtils
@@ -22,9 +21,6 @@ class EmployeeServiceImpl : EmployeeService() {
 
     @Autowired
     private lateinit var companyUtils: CompanyUtils
-
-    @Autowired
-    private lateinit var employeeServiceConverter: EmployeeServiceConverter
 
     @Autowired
     private lateinit var userRoleUtils: UserRoleUtils
@@ -60,7 +56,7 @@ class EmployeeServiceImpl : EmployeeService() {
             employeeSalaryUpdateSchedulerService.scheduleEmployeeSalaryUpdate(employee);
         }
 
-        return employeeServiceConverter.getSavedEmployeeResponse(employee);
+        return employee.toSavedEmployeeResponse();
     }
 
     override fun getCompanyEmployees(companyServerId: String): CompanyEmployeesResponse? {
@@ -73,7 +69,12 @@ class EmployeeServiceImpl : EmployeeService() {
         // Return the list of employees, only for employer and admin employees
         val validRoles = userRoles.filter { it.id?.roleType == RoleType.EMPLOYER.name || it.id?.roleType == RoleType.EMPLOYEE_ADMIN.name }
         return if (validRoles.isNotEmpty()) {
-            employeeServiceConverter.getCompanyEmployeesResponse(company, employeeUtils.findByCompany(company) ?: emptyList());
+            val employees = employeeUtils.findByCompany(company) ?: emptyList()
+            return CompanyEmployeesResponse(
+                company = company.toSavedCompanyResponse(),
+                employees = employees.map {
+                    it.toSavedEmployeeResponse()
+                })
         } else {
             null
         }
@@ -84,7 +85,7 @@ class EmployeeServiceImpl : EmployeeService() {
         if (employee.salaryType != SalaryType.ONE_TIME) {
             employeeSalaryUpdateSchedulerService.unScheduleEmployeeSalaryUpdate(employee);
         }
-        return employeeServiceConverter.getSavedEmployeeResponse(employee)
+        return employee.toSavedEmployeeResponse()
     }
 
     override fun updateSalary(employeeId: String, forDate: String): SavedEmployeeResponse? {
@@ -93,11 +94,11 @@ class EmployeeServiceImpl : EmployeeService() {
             requiredRoleTypes = authUtils.onlyAdminLevelRoles()
         )
 
-        val employee = requestContext.employee!!
+        val employee = requestContext.employee ?: error("Employee mpt found for $employeeId")
 
         employeeUtils.updateSalary(employee, forDate)
 
-        return employeeServiceConverter.getSavedEmployeeResponse(employee)
+        return employee.toSavedEmployeeResponse()
     }
 
     override fun getSalarySlip(employeeId: String, startDate: String, endDate: String): SalarySlipResponse? {
@@ -108,10 +109,19 @@ class EmployeeServiceImpl : EmployeeService() {
         val employee = requestContext.employee!!
         val v = pdfService.generateSamplePdf()
         return SalarySlipResponse(
-            employee = employeeServiceConverter.getSavedEmployeeResponse(employee),
+            employee = employee.toSavedEmployeeResponse(),
             startDate = startDate,
             endDate = endDate,
             salarySlipUrl = "URL"
         )
+    }
+
+    override fun updateEmployeeJoiningDate(updateEmployeeJoiningDateRequest: UpdateEmployeeJoiningDateRequest): SavedEmployeeResponse? {
+        val requestContext = authUtils.validateRequest(
+            employeeId = updateEmployeeJoiningDateRequest.employeeId,
+            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+        )
+        val employee = requestContext.employee ?: error("Employee mpt found for ${updateEmployeeJoiningDateRequest.employeeId}")
+        return employeeUtils.updateEmployeeJoiningDate(employee, updateEmployeeJoiningDateRequest.newJoiningTime).toSavedEmployeeResponse()
     }
 }

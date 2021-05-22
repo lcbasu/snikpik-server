@@ -32,7 +32,7 @@ class HolidayUtils {
             null
         }
 
-    fun saveOrUpdateHoliday(addedBy: User, company: Company, employee: Employee, forDate: String, holidayType: HolidayType) : Holiday? {
+    fun saveOrUpdateHoliday(addedBy: User, company: Company, employee: Employee, forDate: String, holidayType: HolidayType) : Holiday {
         val key = getHolidayKey(companyId = company.id, employeeId = employee.id, forDate = forDate)
         val holidayOptional = holidayRepository.findById(key)
         val savedHoliday = if (holidayOptional.isPresent) {

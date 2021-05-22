@@ -242,4 +242,9 @@ class EmployeeUtils {
     fun getEmployeeWorkingEndDateFromThisDate(fromDate: LocalDateTime): LocalDateTime {
         return DateUtils.dateTimeNow()
     }
+
+    fun updateEmployeeJoiningDate(employee: Employee, newJoiningTime: Long): Employee {
+        employee.joinedAt = DateUtils.parseEpochInMilliseconds(newJoiningTime)
+        return employeeRepository.save(employee)
+    }
 }

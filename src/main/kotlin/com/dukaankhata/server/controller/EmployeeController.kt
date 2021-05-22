@@ -31,6 +31,11 @@ class EmployeeController {
         return employeeService.updateSalary(employeeId, forDate)
     }
 
+    @RequestMapping(value = ["/updateEmployeeJoiningDate"], method = [RequestMethod.POST])
+    fun updateEmployeeJoiningDate(@RequestBody updateEmployeeJoiningDateRequest: UpdateEmployeeJoiningDateRequest): SavedEmployeeResponse? {
+        return employeeService.updateEmployeeJoiningDate(updateEmployeeJoiningDateRequest)
+    }
+
     @RequestMapping(value = ["/getSalarySlip/{employeeId}/{startDate}/{endDate}"], method = [RequestMethod.GET])
     fun getSalarySlip(@PathVariable employeeId: String, @PathVariable startDate: String, @PathVariable endDate: String): SalarySlipResponse? {
         return employeeService.getSalarySlip(employeeId, startDate, endDate)

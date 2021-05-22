@@ -28,7 +28,7 @@ class AttendanceServiceImpl : AttendanceService() {
             requiredRoleTypes = authUtils.allAccessRoles()
         )
         val attendance = attendanceUtils.saveAttendance(requestContext, saveAttendanceRequest)
-        return attendanceServiceConverter.getSavedAttendanceResponse(attendance)
+        return attendance?.toSavedAttendanceResponse()
     }
 
     override fun getAttendanceInfo(attendanceInfoRequest: AttendanceInfoRequest): AttendanceInfoResponse? {
@@ -47,7 +47,7 @@ class AttendanceServiceImpl : AttendanceService() {
             requiredRoleTypes = authUtils.onlyAdminLevelRoles()
         )
         val attendance = attendanceUtils.markAttendance(requestContext, markAttendanceRequest)
-        return attendanceServiceConverter.getSavedAttendanceByAdminResponse(attendance)
+        return attendance.toSavedAttendanceByAdminResponse()
     }
 
     override fun getAttendanceSummary(attendanceSummaryRequest: AttendanceSummaryRequest): AttendanceSummaryResponse? {

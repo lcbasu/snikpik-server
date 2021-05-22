@@ -19,7 +19,7 @@ class NoteUtils {
     @Autowired
     private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
 
-    fun saveNote(addedBy: User, company: Company, employee: Employee, saveNoteRequest: SaveNoteRequest): Note? {
+    fun saveNote(addedBy: User, company: Company, employee: Employee, saveNoteRequest: SaveNoteRequest): Note {
         val newNote = Note()
         newNote.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.NTE.name)
         newNote.forDate = saveNoteRequest.forDate
