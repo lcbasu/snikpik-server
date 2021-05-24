@@ -20,8 +20,8 @@ class SwaggerConfiguration {
             "DukaanKhata APIs that power mobile, web and workers.",
             "1.0",
             "Terms of service",
-            Contact("DukaanKhata Engineering", "www.dukaankhata.com", "salloszraj@gmail.com"),
-            "License of API",
+            Contact("DukaanKhata Engineering", "www.dukaankhata.com", "hello@dukaankhata.com"),
+            "Private Non-Shareable Code. Legally protected.",
             "www.dukaankhata.com",
             Collections.emptyList())
     }
