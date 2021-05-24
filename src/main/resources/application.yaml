@@ -64,21 +64,15 @@ security:
     - Cache-Control
     - Id-Token
   allowed-public-apis:
+    - /swagger-ui.html
+    - /swagger-resources/*
+    - /webjars/*
+    - /documentation/*
     - /actuator/*
     - /error/*
     - /favicon.ico
     - /session/login
     - /public/*
-    - /public/*
-    - /whats_app_bot/twilio_callback
-    - /whats_app_bot/twilio_status_callback
-    - /survey/get_sharing_data
-    - /survey/get_survey_public
-    - /workspace/get_workspace_invitation_details
-    - /telegram_bot/test
-    - /telegram_bot/hello_world
-    - /telegram_bot/web_hook_callback
-    - /fb_messenger_bot/web_hook_callback
   exposed-headers:
     - X-Xsrf-Token
 
@@ -118,3 +112,14 @@ logging:
 twilio:
   account-sid: ${TWILIO_ACCOUNT_SID}
   auth-token: ${TWILIO_AUTH_TOKEN}
+
+#springfox:
+#  documentation:
+#    swaggerUi:
+#      baseUrl: /documentation
+#    openApi:
+#      v3:
+#        path: /documentation/v3/api-docs
+#    swagger:
+#      v2:
+#        path: /documentation/v2/api-docs
