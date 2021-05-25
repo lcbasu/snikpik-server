@@ -37,7 +37,7 @@ class CognitoJwtAutoConfiguration {
     fun configurableJWTProcessor(): ConfigurableJWTProcessor<SecurityContext>? {
         val resourceRetriever: ResourceRetriever = DefaultResourceRetriever(connectionTimeout, readTimeout)
         //https://cognito-idp.{region}.amazonaws.com/{userPoolId}/.well-known/jwks.json.
-        val jwkSetURL = URL("https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_RKZFH4zFL/.well-known/jwks.json")
+        val jwkSetURL = URL("https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_lIoW4O3di/.well-known/jwks.json")
         //Creates the JSON Web Key (JWK)
         val keySource: JWKSource<SecurityContext> = RemoteJWKSet(jwkSetURL, resourceRetriever)
         val jwtProcessor: ConfigurableJWTProcessor<SecurityContext> = DefaultJWTProcessor()

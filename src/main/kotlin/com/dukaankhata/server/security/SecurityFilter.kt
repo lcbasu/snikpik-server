@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse
 @Component
 class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) : OncePerRequestFilter() {
 
-    val issuerUrl = "https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_RKZFH4zFL"
+    val issuerUrl = "https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_lIoW4O3di"
 
     @Autowired
     var securityService: SecurityService? = null
