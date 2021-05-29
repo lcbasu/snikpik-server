@@ -51,4 +51,9 @@ class DKShopController {
     fun getExtraCharges(@PathVariable companyId: String): SavedExtraChargesResponse {
         return dkShopService.getExtraCharges(companyId)
     }
+
+    @RequestMapping(value = ["/getShopCompleteData/{companyId}"], method = [RequestMethod.GET])
+    fun getShopCompleteData(@PathVariable companyId: String): ShopCompleteDataResponse {
+        return dkShopService.getShopCompleteData(companyId)
+    }
 }

@@ -22,13 +22,13 @@ data class SavedCompanyResponse(
     val workingMinutes: Int,
     val totalDueAmountInPaisa: Long,
     val userId: String,
-    var dkShopStatus: DKShopStatus,
-    var username: String,
-    var totalOrderAmountInPaisa: Long,
-    var totalStoreViewCount: Long,
-    var totalOrdersCount: Long,
-    var totalProductsViewCount: Long,
-    var defaultAddressId: String,
+    val dkShopStatus: DKShopStatus,
+    val username: String,
+    val totalOrderAmountInPaisa: Long,
+    val totalStoreViewCount: Long,
+    val totalOrdersCount: Long,
+    val totalProductsViewCount: Long,
+    val defaultAddressId: String,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

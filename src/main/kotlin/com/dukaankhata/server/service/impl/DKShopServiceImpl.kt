@@ -9,6 +9,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.util.concurrent.CompletableFuture
 
 @Service
 class DKShopServiceImpl : DKShopService() {
@@ -279,6 +280,41 @@ class DKShopServiceImpl : DKShopService() {
             error("Only the customer can get the details of their order")
         }
         return productOrder.toSavedProductOrderResponse(cartItemUtils)
+    }
+
+    override fun getShopCompleteData(companyId: String): ShopCompleteDataResponse {
+        return runBlocking {
+            val requestContext = authUtils.validateRequest(
+                companyId = companyId
+            )
+            val company = requestContext.company ?: error("Company is required")
+
+            val productsFuture = async { productUtils.getProducts(company) }
+
+            val collections = collectionUtils.getCollections(company)
+
+            val productCollections = productUtils.getProductCollections(collectionIds = collections.map { it.id }.toSet()).mapNotNull { pc ->
+                async {
+                    if (pc.collection != null && pc.product != null) {
+                        ProductCollectionResponse(
+                            serverId = pc.collection!!.id + CommonUtils.STRING_SEPARATOR + pc.product!!.id,
+                            company = company.toSavedCompanyResponse(),
+                            collection = pc.collection!!.toSavedCollectionResponse(),
+                            product = pc.product!!.toSavedProductResponse(),
+                        )
+                    } else {
+                        null
+                    }
+                }
+            }.mapNotNull { it.await() }
+
+            ShopCompleteDataResponse(
+                company = company.toSavedCompanyResponse(),
+                products = productsFuture.await().map { it.toSavedProductResponse() },
+                collections = collections.map { it.toSavedCollectionResponse() },
+                productCollections = productCollections
+            )
+        }
     }
 
     override fun getExtraCharges(companyId: String): SavedExtraChargesResponse {

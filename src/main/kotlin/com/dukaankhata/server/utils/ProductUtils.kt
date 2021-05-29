@@ -71,7 +71,7 @@ class ProductUtils {
         }
     }
 
-    fun getProductCollections(collectionIds: Set<String>, productIds: Set<String>): List<ProductCollection> =
+    fun getProductCollections(collectionIds: Set<String> = emptySet(), productIds: Set<String> = emptySet()): List<ProductCollection> =
         try {
             productCollectionRepository.getProductCollections(productIds = productIds, collectionIds = collectionIds)
         } catch (e: Exception) {

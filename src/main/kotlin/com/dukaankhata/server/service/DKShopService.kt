@@ -19,4 +19,5 @@ abstract class DKShopService {
     abstract fun saveOrUpdateExtraChargeTax(saveExtraChargeTaxRequest: SaveExtraChargeTaxRequest): SavedExtraChargeTaxResponse
     abstract fun migrateCart(migrateCartRequest: MigrateCartRequest): MigratedProductOrderResponse
     abstract fun getProductOrder(productOrderId: String): SavedProductOrderResponse
+    abstract fun getShopCompleteData(companyId: String): ShopCompleteDataResponse
 }

@@ -65,3 +65,18 @@ data class ShopViewForCustomerResponse(
     val bestsellerCollectionsIds: Set<String>,
     val collectionsIdsOrderedFromInPast: Set<String>,
 )
+
+data class ProductCollectionResponse(
+    val serverId: String,
+    val company: SavedCompanyResponse,
+    val collection: SavedCollectionResponse,
+    val product: SavedProductResponse
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ShopCompleteDataResponse(
+    val company: SavedCompanyResponse,
+    val products: List<SavedProductResponse>,
+    val collections: List<SavedCollectionResponse>,
+    val productCollections: List<ProductCollectionResponse>,
+)
