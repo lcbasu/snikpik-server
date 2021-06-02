@@ -5,15 +5,24 @@ import com.dukaankhata.server.service.AttendanceService
 import com.dukaankhata.server.service.converter.AttendanceServiceConverter
 import com.dukaankhata.server.utils.AttendanceUtils
 import com.dukaankhata.server.utils.AuthUtils
+import com.dukaankhata.server.utils.CacheUtils
+import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
 class AttendanceServiceImpl : AttendanceService() {
 
+    private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
+
     @Autowired
     private lateinit var authUtils: AuthUtils
+
+    @Autowired
+    private lateinit var cacheUtils: CacheUtils
 
     @Autowired
     private lateinit var attendanceUtils: AttendanceUtils
@@ -70,15 +79,21 @@ class AttendanceServiceImpl : AttendanceService() {
     }
 
     override fun getAttendanceSummaryForEmployee(attendanceSummaryForEmployeeRequest: AttendanceSummaryForEmployeeRequest): AttendanceSummaryForEmployeeResponse? {
-        val requestContext = authUtils.validateRequest(
-            employeeId = attendanceSummaryForEmployeeRequest.employeeId,
-            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
-        )
+        return runBlocking {
+            val requestContext = authUtils.validateRequest(
+                employeeId = attendanceSummaryForEmployeeRequest.employeeId,
+                requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+            )
+            val employee = requestContext.employee ?: error("Employee is required")
 
-        val employee = requestContext.employee ?: error("Employee is required")
-        val map = attendanceUtils.getAttendanceSummaryForEmployee(employee, attendanceSummaryForEmployeeRequest.forYear, attendanceSummaryForEmployeeRequest.forMonth)
-        val agg = attendanceUtils.getEmployeeAttendanceAggregateReport(employee, attendanceSummaryForEmployeeRequest.forYear, attendanceSummaryForEmployeeRequest.forMonth)
-        return attendanceServiceConverter.getAttendanceSummaryForEmployeeResponse(employee, map, agg)
+            val responseFromCache = cacheUtils.getAttendanceSummaryForEmployee(attendanceSummaryForEmployeeRequest).await()
+
+            responseFromCache?.let {
+                // Return the cached value
+                logger.info("Retuning values for getAttendanceSummaryForEmployee from cache")
+                it
+            } ?: attendanceUtils.getAttendanceSummaryForEmployee(employee = employee, forYear = attendanceSummaryForEmployeeRequest.forYear, forMonth = attendanceSummaryForEmployeeRequest.forMonth)
+        }
     }
 
 }

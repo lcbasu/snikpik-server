@@ -752,7 +752,21 @@ class AttendanceUtils {
         }
     }
 
-    fun getAttendanceSummaryForEmployee(employee: Employee, forYear: Int, forMonth: Int): Map<String, AttendanceInfoData> {
+    fun getAttendanceSummaryForEmployee(employee: Employee, forYear: Int, forMonth: Int): AttendanceSummaryForEmployeeResponse? {
+        val map = getAttendanceSummaryMapForEmployee(employee, forYear, forMonth)
+        val agg = getEmployeeAttendanceAggregateReport(employee, forYear, forMonth)
+        return attendanceServiceConverter.getAttendanceSummaryForEmployeeResponse(employee, map, agg)
+    }
+
+    // Used by cache call
+    fun getAttendanceSummaryForEmployee(employeeId: String, forYear: Int, forMonth: Int): AttendanceSummaryForEmployeeResponse? {
+        val employee = employeeUtils.getEmployee(employeeId) ?: error("Employee not found for employeeId: $employeeId")
+        val map = getAttendanceSummaryMapForEmployee(employee, forYear, forMonth)
+        val agg = getEmployeeAttendanceAggregateReport(employee, forYear, forMonth)
+        return attendanceServiceConverter.getAttendanceSummaryForEmployeeResponse(employee, map, agg)
+    }
+
+    private fun getAttendanceSummaryMapForEmployee(employee: Employee, forYear: Int, forMonth: Int): Map<String, AttendanceInfoData> {
         val reportDuration = DateUtils.getReportDuration(forYear, forMonth)
         val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(reportDuration.startTime, reportDuration.endTime).map { DateUtils.toStringDate(it) }
         val attendancesReport = mutableMapOf<String, AttendanceInfoData>()
