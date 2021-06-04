@@ -113,6 +113,11 @@ twilio:
   account-sid: ${TWILIO_ACCOUNT_SID}
   auth-token: ${TWILIO_AUTH_TOKEN}
 
+unsplash:
+  client-id: ${UNSPLASH_CLIENT_ID}
+  access-key: ${UNSPLASH_ACCESS_KEY}
+  secret-key: ${UNSPLASH_SECRET_KEY}
+
 #springfox:
 #  documentation:
 #    swaggerUi:
