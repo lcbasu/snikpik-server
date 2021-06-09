@@ -118,6 +118,11 @@ unsplash:
   access-key: ${UNSPLASH_ACCESS_KEY}
   secret-key: ${UNSPLASH_SECRET_KEY}
 
+pdf:
+  salary-slip:
+    template-name: salary_slip
+    variable-name: salarySlip
+
 #springfox:
 #  documentation:
 #    swaggerUi:

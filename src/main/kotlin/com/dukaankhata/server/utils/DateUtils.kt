@@ -97,4 +97,8 @@ object DateUtils {
     fun getLastDateForMonthWithDate(withDate: LocalDateTime) : LocalDateTime {
         return withDate.with(TemporalAdjusters.lastDayOfMonth()).toLocalDate().atTime(LocalTime.MAX)
     }
+
+    fun toDate(fromLocalDateTime: LocalDateTime): Date {
+        return Date.from(fromLocalDateTime.atZone(ZoneId.of(standardTimeZoneId)).toInstant())
+    }
 }

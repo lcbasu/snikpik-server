@@ -63,6 +63,7 @@ dependencies {
 	implementation("org.hibernate.validator:hibernate-validator:6.1.5.Final")
 	implementation("joda-time:joda-time:2.10.9")
 	implementation("com.github.ben-manes.caffeine:caffeine:2.5.5")
+	implementation("com.amazonaws:aws-java-sdk:1.11.1000")
 //	implementation("org.springframework.boot:spring-boot-starter-mail:2.3.8.RELEASE")
 //	implementation("io.sentry:sentry-spring:1.7.30")
 //	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.0")

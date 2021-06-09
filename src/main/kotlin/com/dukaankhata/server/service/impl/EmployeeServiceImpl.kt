@@ -4,7 +4,6 @@ import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.enums.RoleType
 import com.dukaankhata.server.enums.SalaryType
 import com.dukaankhata.server.service.EmployeeService
-import com.dukaankhata.server.service.PdfService
 import com.dukaankhata.server.service.schedule.EmployeeSalaryUpdateSchedulerService
 import com.dukaankhata.server.utils.AuthUtils
 import com.dukaankhata.server.utils.CompanyUtils
@@ -30,9 +29,6 @@ class EmployeeServiceImpl : EmployeeService() {
 
     @Autowired
     private lateinit var employeeSalaryUpdateSchedulerService: EmployeeSalaryUpdateSchedulerService
-
-    @Autowired
-    private lateinit var pdfService: PdfService
 
     override fun saveEmployee(saveEmployeeRequest: SaveEmployeeRequest): SavedEmployeeResponse? {
         val createdByUser = authUtils.getRequestUserEntity()
@@ -107,13 +103,7 @@ class EmployeeServiceImpl : EmployeeService() {
             requiredRoleTypes = authUtils.onlyAdminLevelRoles()
         )
         val employee = requestContext.employee!!
-        val v = pdfService.generateSamplePdf()
-        return SalarySlipResponse(
-            employee = employee.toSavedEmployeeResponse(),
-            startDate = startDate,
-            endDate = endDate,
-            salarySlipUrl = "URL"
-        )
+        return employeeUtils.generatePdfForSalarySlip(employee, startDate, endDate)
     }
 
     override fun updateEmployeeJoiningDate(updateEmployeeJoiningDateRequest: UpdateEmployeeJoiningDateRequest): SavedEmployeeResponse? {

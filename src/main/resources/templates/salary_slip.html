@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Salary Slip</title>
+    <!-- Bootstrap -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+</head>
+<body>
+<div class="container">
+
+    <h1>Salary Slip</h1>
+    <h4 th:text="${salarySlip.employeeName}"></h4>
+
+    <div class="table-responsive">
+        <table class="table">
+            <tr>
+                <th>Date Time</th>
+                <th>Payment Type</th>
+                <th>Description</th>
+                <th>Amount</th>
+            </tr>
+            <tr th:each="paymentDetail : ${salarySlip.paymentDetails}">
+                <td th:text="${paymentDetail.dateTime}"></td>
+                <td th:text="${paymentDetail.type}"></td>
+                <td th:text="${paymentDetail.description}"></td>
+                <td th:text="${paymentDetail.amount}"></td>
+            </tr>
+        </table>
+        <table class="table table-bordered">
+            <tr>
+                <td>Total Payment</td>
+                <td th:text="${salarySlip.totalPaymentAmount}"></td>
+            </tr>
+            <tr>
+                <td>Total Deduction</td>
+                <td th:text="${salarySlip.totalDeductionsAmount}"></td>
+            </tr>
+        </table>
+    </div>
+    <h4 th:text="${salarySlip.employerName}"></h4>
+    <h4 th:text="${salarySlip.employerContact}"></h4>
+    <a href="https://dukaankhata.com"><span>Powered By DukaanKhata</span></a>
+</div>
+
+</body>
+</html>

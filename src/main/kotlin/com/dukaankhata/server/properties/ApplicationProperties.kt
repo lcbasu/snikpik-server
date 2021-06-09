@@ -49,3 +49,9 @@ data class TwilioProperties(var accountSid: String? = null, var authToken: Strin
 @ConstructorBinding
 @ConfigurationProperties("unsplash")
 data class UnsplashProperties(var clientId: String, var accessKey: String, val secretKey: String)
+
+@ConstructorBinding
+@ConfigurationProperties("pdf")
+data class PdfProperties(val salarySlip: SalarySlipProperties) {
+    data class SalarySlipProperties(var templateName: String, var variableName: String)
+}

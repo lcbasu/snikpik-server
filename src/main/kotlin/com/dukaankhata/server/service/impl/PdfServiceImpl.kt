@@ -1,6 +1,5 @@
 package com.dukaankhata.server.service.impl
 
-import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.model.Student
 import com.dukaankhata.server.service.PdfService
 import com.dukaankhata.server.utils.DateUtils
@@ -32,12 +31,12 @@ class PdfServiceImpl: PdfService() {
             renderPdf(html, htmlAssetsPath)
         }
 
-    override fun generatePdfForSalarySlip(employee: Employee, startDate: String, endDate: String): File =
+    override fun generatePdfForData(templateName: String, variableName: String, dataForVariableName: Any): File =
         runBlocking {
             val context = Context()
-            context.setVariable("payments", getStudents())
-            val html = async { renderHTMLUsingTemplate("pdf_salary_slip", context) }
-            val htmlAssetsPath = "/pdf-payment-resources/"
+            context.setVariable(variableName, dataForVariableName)
+            val html = async { renderHTMLUsingTemplate(templateName, context) }
+            val htmlAssetsPath = "/pdf-resources/"
             renderPdf(html, htmlAssetsPath)
         }
 

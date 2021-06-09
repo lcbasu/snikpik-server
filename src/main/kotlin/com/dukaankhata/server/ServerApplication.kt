@@ -12,7 +12,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 	AwsProperties::class,
 	PaymentProperties::class,
 	TwilioProperties::class,
-	UnsplashProperties::class)
+	UnsplashProperties::class,
+	PdfProperties::class)
 @EnableSwagger2
 class ServerApplication
 

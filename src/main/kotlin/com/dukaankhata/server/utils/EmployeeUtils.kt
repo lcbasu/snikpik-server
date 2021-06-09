@@ -4,12 +4,17 @@ import AttendanceReportForEmployee
 import EmployeeWorkingDetailsForMonthWithDate
 import com.dukaankhata.server.dao.EmployeeRepository
 import com.dukaankhata.server.dto.RemoveEmployeeRequest
+import com.dukaankhata.server.dto.SalarySlipResponse
 import com.dukaankhata.server.dto.SaveEmployeeRequest
+import com.dukaankhata.server.dto.toSavedEmployeeResponse
 import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.entities.Payment
 import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.*
+import com.dukaankhata.server.model.SalarySlipForHTML
+import com.dukaankhata.server.properties.PdfProperties
+import com.dukaankhata.server.service.PdfService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -35,6 +40,15 @@ class EmployeeUtils {
 
     @Autowired
     private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+
+    @Autowired
+    private lateinit var pdfService: PdfService
+
+    @Autowired
+    private lateinit var pdfProperties: PdfProperties
+
+    @Autowired
+    private lateinit var cloudUploadDownloadUtils: CloudUploadDownloadUtils
 
     fun getEmployee(employeeId: String): Employee? =
         try {
@@ -246,5 +260,36 @@ class EmployeeUtils {
     fun updateEmployeeJoiningDate(employee: Employee, newJoiningTime: Long): Employee {
         employee.joinedAt = DateUtils.parseEpochInMilliseconds(newJoiningTime)
         return employeeRepository.save(employee)
+    }
+
+    fun generatePdfForSalarySlip(employee: Employee, startDate: String, endDate: String): SalarySlipResponse? {
+        val pdfFile = pdfService.generatePdfForData(
+            templateName = pdfProperties.salarySlip.templateName,
+            variableName = pdfProperties.salarySlip.variableName,
+            dataForVariableName = getSalarySlipForHTML()
+        )
+        val company = employee.company ?: error("Company is missing")
+        val publicUrl = cloudUploadDownloadUtils.uploadFile(
+            pdfFile,
+            "dukaankhata-user-uploads",
+            "company/${company.id}/salarySlip/${employee.id}",
+            "${employee.id}_salary_slip_${DateUtils.dateTimeNow().toString()}.pdf"
+        )
+        return SalarySlipResponse(
+            employee = employee.toSavedEmployeeResponse(),
+            startDate = startDate,
+            endDate = endDate,
+            salarySlipUrl = publicUrl
+        )
+    }
+    private fun getSalarySlipForHTML(): SalarySlipForHTML {
+        return SalarySlipForHTML(
+            employeeName = "asd",
+            paymentDetails = emptyList(),
+            totalPaymentAmount = "sadas",
+            totalDeductionsAmount = "asda",
+            employerName = "asda",
+            employerContact = "g",
+        )
     }
 }
