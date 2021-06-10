@@ -9,7 +9,7 @@ global:
   application_name: dukaankhata-eb-prod-app
   default_ec2_keyname: dukaankhata-eb-prod
   default_platform: arn:aws:elasticbeanstalk:ap-south-1::platform/Java 8 running on
-    64bit Amazon Linux/2.11.4
+    64bit Amazon Linux/2.11.8
   default_region: ap-south-1
   include_git_submodules: false
   instance_profile: null
