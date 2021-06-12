@@ -3,6 +3,7 @@ package com.dukaankhata.server.security
 import com.dukaankhata.server.enums.CredentialType
 import com.dukaankhata.server.model.Credentials
 import com.dukaankhata.server.model.FirebaseAuthUser
+import com.dukaankhata.server.properties.AwsProperties
 import com.dukaankhata.server.properties.SecurityProperties
 import com.dukaankhata.server.service.SecurityService
 import com.google.firebase.auth.FirebaseAuth
@@ -27,19 +28,17 @@ import javax.servlet.http.HttpServletResponse
 @Component
 class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) : OncePerRequestFilter() {
 
-    val issuerUrl = "https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_lIoW4O3di"
+    @Autowired
+    private lateinit var securityService: SecurityService
 
     @Autowired
-    var securityService: SecurityService? = null
+    private lateinit var awsProperties: AwsProperties
 
     @Autowired
-    var restSecProps: SecurityProperties? = null
+    private lateinit var cookieUtils: CookieUtils
 
     @Autowired
-    var cookieUtils: CookieUtils? = null
-
-    @Autowired
-    var securityProps: SecurityProperties? = null
+    private lateinit var securityProps: SecurityProperties
 
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
@@ -95,7 +94,7 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
                          */
 
                         if (!isIssuedCorrectly(claimsSet)) {
-                            error("Issuer ${claimsSet.issuer} in JWT token doesn't match cognito idp $issuerUrl")
+                            error("Issuer ${claimsSet.issuer} in JWT token doesn't match cognito idp ${awsProperties.amplify.wellKnownIssuer}")
                         }
 
                         if (!isIdToken(claimsSet)) {
@@ -147,7 +146,7 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
      * @return boolean
      */
     private fun isIssuedCorrectly(claimsSet: JWTClaimsSet): Boolean {
-        return claimsSet.issuer == issuerUrl
+        return claimsSet.issuer == awsProperties.amplify.wellKnownIssuer
     }
 
     /**

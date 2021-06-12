@@ -5,7 +5,17 @@ import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConstructorBinding
 @ConfigurationProperties("aws")
-data class AwsProperties(var awsKey: String? = null, var awsSecret: String? = null)
+data class AwsProperties(var awsKey: String? = null, var awsSecret: String? = null, var amplify: AmplifyProperties) {
+    /**
+     *
+     * Example:
+     *
+     * wellKnownIssuer: https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_lIoW4O3di
+     * wellKnownUrlEndpoint: https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_lIoW4O3di/.well-known/jwks.json
+     *
+     * */
+    data class AmplifyProperties(var wellKnownIssuer: String, var wellKnownUrlEndpoint: String)
+}
 
 @ConstructorBinding
 @ConfigurationProperties("payments")

@@ -1,5 +1,6 @@
 package com.dukaankhata.server.config
 
+import com.dukaankhata.server.properties.AwsProperties
 import com.dukaankhata.server.security.SecurityFilter
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.jwk.source.JWKSource
@@ -10,6 +11,7 @@ import com.nimbusds.jose.util.DefaultResourceRetriever
 import com.nimbusds.jose.util.ResourceRetriever
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor
 import com.nimbusds.jwt.proc.DefaultJWTProcessor
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -21,11 +23,10 @@ import java.net.URL
 @ConditionalOnClass(SecurityFilter::class)
 class CognitoJwtAutoConfiguration {
 
-    private val userNameField = "cognito:username"
-    private val groupsField = "cognito:groups"
+    @Autowired
+    private lateinit var awsProperties: AwsProperties
     private val connectionTimeout = 2000
     private val readTimeout = 2000
-    private val httpHeader = "Authorization"
 
     /**
      * Method that exposes the cognito configuration.
@@ -37,7 +38,7 @@ class CognitoJwtAutoConfiguration {
     fun configurableJWTProcessor(): ConfigurableJWTProcessor<SecurityContext>? {
         val resourceRetriever: ResourceRetriever = DefaultResourceRetriever(connectionTimeout, readTimeout)
         //https://cognito-idp.{region}.amazonaws.com/{userPoolId}/.well-known/jwks.json.
-        val jwkSetURL = URL("https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_lIoW4O3di/.well-known/jwks.json")
+        val jwkSetURL = URL(awsProperties.amplify.wellKnownUrlEndpoint)
         //Creates the JSON Web Key (JWK)
         val keySource: JWKSource<SecurityContext> = RemoteJWKSet(jwkSetURL, resourceRetriever)
         val jwtProcessor: ConfigurableJWTProcessor<SecurityContext> = DefaultJWTProcessor()
