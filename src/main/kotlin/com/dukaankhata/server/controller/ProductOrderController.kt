@@ -3,10 +3,7 @@ package com.dukaankhata.server.controller
 import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.service.ProductOrderService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 // ONLY Authenticated with Phone number APIs
 @RestController
@@ -34,5 +31,15 @@ class ProductOrderController {
     @RequestMapping(value = ["/productOrderUpdateStatusUpdate"], method = [RequestMethod.POST])
     fun productOrderUpdateStatusUpdate(@RequestBody productOrderStatusUpdateRequest: ProductOrderStatusUpdateRequest): SavedProductOrderResponse {
         return productOrderService.productOrderUpdateStatusUpdate(productOrderStatusUpdateRequest)
+    }
+
+    @RequestMapping(value = ["/getAll/{companyId}"], method = [RequestMethod.GET])
+    fun getAllProductOrders(@PathVariable companyId: String): AllProductOrdersResponse {
+        return productOrderService.getAllProductOrders(companyId)
+    }
+
+    @RequestMapping(value = ["/getAllProductOrderCards/{companyId}"], method = [RequestMethod.GET])
+    fun getAllProductOrderCards(@PathVariable companyId: String): AllProductOrderCardsResponse {
+        return productOrderService.getAllProductOrderCards(companyId)
     }
 }

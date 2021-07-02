@@ -39,6 +39,9 @@ class CartItemUtils {
     fun getCartItems(productOrder: ProductOrder) =
         cartItemRepository.findAllByProductOrder(productOrder)
 
+    fun getCartItemsCount(productOrder: ProductOrder) =
+        cartItemRepository.countAllByProductOrder(productOrder)
+
     fun getCartItem(product: Product, productOrder: ProductOrder): CartItem? {
         val cartItems = cartItemRepository.findAllByProductAndProductOrder(product, productOrder)
         if (cartItems.size > 1) {

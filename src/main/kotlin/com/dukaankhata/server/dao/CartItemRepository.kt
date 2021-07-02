@@ -25,4 +25,5 @@ interface CartItemRepository : JpaRepository<CartItem?, String?> {
 
 
     fun findAllByProductOrder(productOrder: ProductOrder): List<CartItem>
+    fun countAllByProductOrder(productOrder: ProductOrder): Long
 }

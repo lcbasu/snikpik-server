@@ -40,4 +40,28 @@ class ProductOrderServiceImpl : ProductOrderService() {
             productOrderId = placeProductOrderRequest.productOrderId)
         return updatedProductOrder.toSavedProductOrderResponse(cartItemUtils)
     }
+
+    override fun getAllProductOrders(companyId: String): AllProductOrdersResponse {
+        val requestContext = authUtils.validateRequest(
+            companyId = companyId,
+            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+        )
+        val company = requestContext.company ?: error("Company is required")
+        val productOrders = productOrderUtils.getProductOrders(company)
+        return AllProductOrdersResponse(
+            orders = productOrders.map { it.toSavedProductOrderResponse(cartItemUtils) }
+        )
+    }
+
+    override fun getAllProductOrderCards(companyId: String): AllProductOrderCardsResponse {
+        val requestContext = authUtils.validateRequest(
+            companyId = companyId,
+            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+        )
+        val company = requestContext.company ?: error("Company is required")
+        val productOrders = productOrderUtils.getProductOrders(company)
+        return AllProductOrderCardsResponse(
+            orders = productOrders.map { it.toProductOrderCardResponse(cartItemUtils) }
+        )
+    }
 }

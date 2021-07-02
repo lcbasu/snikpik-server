@@ -13,6 +13,7 @@ data class UpdateCartRequest(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SavedCartItemResponse(
     val serverId: String,
+    val company: SavedCompanyResponse,
     val totalUnits: Long = 0,
     val taxPerUnitInPaisa: Long = 0,
     val pricePerUnitInPaisa: Long = 0,
@@ -32,6 +33,7 @@ fun CartItem.toSavedCartItemResponse(): SavedCartItemResponse {
     this.apply {
         return SavedCartItemResponse(
             serverId = id.toString(),
+            company = company!!.toSavedCompanyResponse(),
             totalUnits = totalUnits,
             taxPerUnitInPaisa = taxPerUnitInPaisa,
             pricePerUnitInPaisa = pricePerUnitInPaisa,

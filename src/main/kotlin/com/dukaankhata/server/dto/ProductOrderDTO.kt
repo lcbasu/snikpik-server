@@ -1,12 +1,15 @@
 package com.dukaankhata.server.dto
 
 import com.dukaankhata.server.entities.ProductOrder
+import com.dukaankhata.server.enums.OrderPaymentMode
 import com.dukaankhata.server.enums.ProductOrderStatus
 import com.dukaankhata.server.enums.ProductOrderUpdateType
 import com.dukaankhata.server.enums.ProductOrderUpdatedBy
+import com.dukaankhata.server.model.MediaDetails
 import com.dukaankhata.server.model.ProductOrderStateBeforeUpdate
 import com.dukaankhata.server.model.getProductOrderStateBeforeUpdate
 import com.dukaankhata.server.utils.CartItemUtils
+import com.dukaankhata.server.utils.DateUtils
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -63,8 +66,15 @@ data class PlaceProductOrderRequest(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class AllProductOrdersResponse(
+    val orders: List<SavedProductOrderResponse>
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class SavedProductOrderResponse(
     val serverId: String,
+    val company: SavedCompanyResponse,
+    val addedByUser: SavedUserResponse,
     var discountInPaisa: Long = 0,
     var deliveryChargeInPaisa: Long = 0,
     val totalTaxInPaisa: Long = 0,
@@ -89,6 +99,8 @@ fun ProductOrder.toSavedProductOrderResponse(cartItemUtils: CartItemUtils): Save
     this.apply {
         return SavedProductOrderResponse(
             serverId = id,
+            company = company!!.toSavedCompanyResponse(),
+            addedByUser = addedBy!!.toSavedUserResponse(),
             discountInPaisa = discountInPaisa,
             deliveryChargeInPaisa = deliveryChargeInPaisa,
             totalTaxInPaisa = totalTaxInPaisa,
@@ -112,6 +124,38 @@ fun ProductOrderStateBeforeUpdate.toProductOrderUpdateResponse(): ProductOrderSt
             totalTaxInPaisa = totalTaxInPaisa,
             totalPriceWithoutTaxInPaisa = totalPriceWithoutTaxInPaisa,
             totalPricePayableInPaisa = totalPricePayableInPaisa,
+        )
+    }
+}
+
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AllProductOrderCardsResponse(
+    val orders: List<ProductOrderCardResponse>
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ProductOrderCardResponse(
+    val serverId: String,
+    val mediaDetails: MediaDetails,
+    val totalPricePayableInPaisa: Long = 0,
+    var orderStatus: ProductOrderStatus = ProductOrderStatus.DRAFT,
+    var cartItemsCount: Int = 0,
+    var orderedAt: Long = 0,
+    var paymentMode: OrderPaymentMode = OrderPaymentMode.NONE
+)
+
+fun ProductOrder.toProductOrderCardResponse(cartItemUtils: CartItemUtils): ProductOrderCardResponse {
+    this.apply {
+        val cartItems = cartItemUtils.getCartItems(this).filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse() }
+        return ProductOrderCardResponse(
+            serverId = id,
+            mediaDetails = MediaDetails(cartItems.mapNotNull { it.product?.mediaDetails?.media }.flatten()),
+            totalPricePayableInPaisa = totalPricePayableInPaisa,
+            orderStatus = orderStatus,
+            cartItemsCount = cartItems.size,
+            orderedAt = DateUtils.getEpoch(createdAt),
+            paymentMode = OrderPaymentMode.COD
         )
     }
 }
