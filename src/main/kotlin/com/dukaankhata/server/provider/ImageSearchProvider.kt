@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dto.ThirdPartyImageSearchResponse
 import com.dukaankhata.server.dto.UnsplashImageSearchResponse
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 
 @Component
-class ImageSearchUtils {
+class ImageSearchProvider {
 
     @Autowired
     private lateinit var unsplashProperties: UnsplashProperties

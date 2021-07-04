@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.CompanyRepository
 import com.dukaankhata.server.entities.Address
@@ -12,13 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
-class CompanyUtils {
+class CompanyProvider {
 
     @Autowired
     private lateinit var companyRepository: CompanyRepository
 
     @Autowired
-    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     fun getCompany(companyId: String): Company? =
         try {
@@ -40,7 +40,7 @@ class CompanyUtils {
 
     fun saveCompany(user: User, name: String, location: String, salaryPaymentSchedule: SalaryPaymentSchedule, workingMinutes: Int): Company {
         val newCompany = Company()
-        newCompany.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.COM.name)
+        newCompany.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.COM.name)
         newCompany.user = user
         newCompany.name = name
         newCompany.location = location

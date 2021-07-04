@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.CollectionRepository
 import com.dukaankhata.server.dto.SaveCollectionRequest
@@ -11,13 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
-class CollectionUtils {
+class CollectionProvider {
 
     @Autowired
     private lateinit var collectionRepository: CollectionRepository
 
     @Autowired
-    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     fun getCollection(collectionId: String): Collection? =
         try {
@@ -29,7 +29,7 @@ class CollectionUtils {
     fun saveCollection(company: Company, user: User, saveCollectionRequest: SaveCollectionRequest) : Collection? {
         try {
             val newCollection = Collection()
-            newCollection.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.CLC.name)
+            newCollection.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.CLC.name)
             newCollection.addedBy = user
             newCollection.company = company
             newCollection.title = saveCollectionRequest.title

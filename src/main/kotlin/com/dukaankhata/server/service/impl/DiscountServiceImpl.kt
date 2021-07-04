@@ -4,8 +4,8 @@ import com.dukaankhata.server.dto.SaveDiscountRequest
 import com.dukaankhata.server.dto.SavedDiscountResponse
 import com.dukaankhata.server.dto.toSavedDiscountResponse
 import com.dukaankhata.server.service.DiscountService
-import com.dukaankhata.server.utils.AuthUtils
-import com.dukaankhata.server.utils.DiscountUtils
+import com.dukaankhata.server.provider.AuthProvider
+import com.dukaankhata.server.provider.DiscountProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -13,18 +13,18 @@ import org.springframework.stereotype.Service
 class DiscountServiceImpl : DiscountService() {
 
     @Autowired
-    private lateinit var authUtils: AuthUtils
+    private lateinit var authProvider: AuthProvider
 
     @Autowired
-    private lateinit var discountUtils: DiscountUtils
+    private lateinit var discountProvider: DiscountProvider
 
     override fun saveDiscount(saveDiscountRequest: SaveDiscountRequest): SavedDiscountResponse {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             companyId = saveDiscountRequest.companyId,
-            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company is required")
-        val discount = discountUtils.saveDiscount(
+        val discount = discountProvider.saveDiscount(
             addedBy = requestContext.user,
             company = company,
             saveDiscountRequest = saveDiscountRequest

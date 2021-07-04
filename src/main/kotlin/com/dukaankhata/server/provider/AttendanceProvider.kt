@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import AttendanceInfoData
 import AttendancePunchData
@@ -9,6 +9,7 @@ import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.entities.*
 import com.dukaankhata.server.enums.*
 import com.dukaankhata.server.service.converter.AttendanceServiceConverter
+import com.dukaankhata.server.utils.DateUtils
 import kotlinx.coroutines.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -19,7 +20,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 
 @Component
-class AttendanceUtils {
+class AttendanceProvider {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
@@ -32,22 +33,22 @@ class AttendanceUtils {
     private lateinit var attendanceByAdminRepository: AttendanceByAdminRepository
 
     @Autowired
-    private lateinit var holidayUtils: HolidayUtils
+    private lateinit var holidayProvider: HolidayProvider
 
     @Autowired
-    private lateinit var overtimeUtils: OvertimeUtils
+    private lateinit var overtimeProvider: OvertimeProvider
 
     @Autowired
-    private lateinit var lateFineUtils: LateFineUtils
+    private lateinit var lateFineProvider: LateFineProvider
 
     @Autowired
-    private lateinit var employeeUtils: EmployeeUtils
+    private lateinit var employeeProvider: EmployeeProvider
 
     @Autowired
     private lateinit var attendanceServiceConverter: AttendanceServiceConverter
 
     @Autowired
-    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     fun saveAttendance(requestContext: RequestContext, saveAttendanceRequest: SaveAttendanceRequest): Attendance? {
 
@@ -59,7 +60,7 @@ class AttendanceUtils {
         }
 
         val attendance = Attendance()
-        attendance.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.ATN.name)
+        attendance.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.ATN.name)
         attendance.forDate = saveAttendanceRequest.forDate
 
         attendance.punchBy = requestContext.user
@@ -79,7 +80,7 @@ class AttendanceUtils {
 
         // Because for today, we will always cover that in the job that will run tomorrow
         if (savedAttendance.punchAt.toLocalDate().atStartOfDay().isBefore(DateUtils.dateTimeNow().toLocalDate().atStartOfDay())) {
-            employeeUtils.updateSalary(employee, DateUtils.toStringDate(savedAttendance.punchAt))
+            employeeProvider.updateSalary(employee, DateUtils.toStringDate(savedAttendance.punchAt))
         }
 
         return savedAttendance;
@@ -152,7 +153,7 @@ class AttendanceUtils {
 
         // Because for today, we will always cover that in the job that will run tomorrow
         if (DateUtils.parseStandardDate(markAttendanceRequest.forDate).toLocalDate().atStartOfDay().isBefore(DateUtils.dateTimeNow().toLocalDate().atStartOfDay())) {
-            employeeUtils.updateSalary(employee, markAttendanceRequest.forDate)
+            employeeProvider.updateSalary(employee, markAttendanceRequest.forDate)
         }
 
         return savedAttendance
@@ -377,7 +378,7 @@ class AttendanceUtils {
 
             val employeeAttendanceDetails = mutableListOf<EmployeeAttendanceResponse>()
 
-            employeeUtils.getEmployees(company, endDateTime)
+            employeeProvider.getEmployees(company, endDateTime)
                 .filterNot { it.salaryType == SalaryType.ONE_TIME }
                 .map { employee ->
                     async {
@@ -432,7 +433,7 @@ class AttendanceUtils {
 
             val punchedAttendances = async { findByCompanyAndForDate(company, forDate) }
             // get all employees who were on payroll that day
-            val employeesForDate = employeeUtils.getEmployees(company, DateUtils.parseStandardDate(forDate)).filterNot { it.salaryType == SalaryType.ONE_TIME }
+            val employeesForDate = employeeProvider.getEmployees(company, DateUtils.parseStandardDate(forDate)).filterNot { it.salaryType == SalaryType.ONE_TIME }
 
             val attendancesByAdminForDate = async {
                 logger.debug("async for attendancesByAdminForDate")
@@ -440,16 +441,16 @@ class AttendanceUtils {
             }
             val holidayForDate = async {
                 logger.debug("async for holidayForDate")
-                holidayUtils.getHolidayForDate(company, forDate)
+                holidayProvider.getHolidayForDate(company, forDate)
             }
 
             val overtimes = async {
                 logger.debug("async for overtimes")
-                overtimeUtils.getAllOvertimesForDate(company, forDate).filterNot { it.employee == null }.groupBy { it.employee?.id } }
+                overtimeProvider.getAllOvertimesForDate(company, forDate).filterNot { it.employee == null }.groupBy { it.employee?.id } }
 
             val lateFines = async {
                 logger.debug("async for lateFines")
-                lateFineUtils.getAllLateFineForDate(company, forDate).filterNot { it.employee == null }.groupBy { it.employee?.id } }
+                lateFineProvider.getAllLateFineForDate(company, forDate).filterNot { it.employee == null }.groupBy { it.employee?.id } }
 
             // For punch in employees
             val employeeAttendanceDetailsForDateResponse = async {
@@ -606,9 +607,9 @@ class AttendanceUtils {
 
             val punchedAttendances = getAttendancesForEmployee(employee, datesList).groupBy { it.forDate }
             val attendancesByAdmin = getAttendancesByAdminForEmployee(employee, datesList).groupBy { it.id!!.forDate }
-            val holidays = holidayUtils.getHolidayForEmployee(employee, datesList).groupBy { it.id!!.forDate }
-            val overtimes = overtimeUtils.getOvertimesForEmployee(employee, datesList).groupBy { it.forDate }
-            val lateFines = lateFineUtils.getLateFinesForEmployee(employee, datesList).groupBy { it.forDate }
+            val holidays = holidayProvider.getHolidayForEmployee(employee, datesList).groupBy { it.id!!.forDate }
+            val overtimes = overtimeProvider.getOvertimesForEmployee(employee, datesList).groupBy { it.forDate }
+            val lateFines = lateFineProvider.getLateFinesForEmployee(employee, datesList).groupBy { it.forDate }
 
             val allAttendanceTypes = mutableListOf<AttendanceType>()
             datesList.map { forDate ->
@@ -741,7 +742,7 @@ class AttendanceUtils {
                                       startTime: LocalDateTime,
                                       endTime: LocalDateTime): List<AttendanceReportForEmployee> {
         return runBlocking {
-            employeeUtils.getEmployees(company, endTime).map {
+            employeeProvider.getEmployees(company, endTime).map {
                 async {
                     logger.debug("Get attendance for employee: ${it.id}")
                     getAttendanceReportForEmployee(it, startTime, endTime)
@@ -760,7 +761,7 @@ class AttendanceUtils {
 
     // Used by cache call
     fun getAttendanceSummaryForEmployee(employeeId: String, forYear: Int, forMonth: Int): AttendanceSummaryForEmployeeResponse? {
-        val employee = employeeUtils.getEmployee(employeeId) ?: error("Employee not found for employeeId: $employeeId")
+        val employee = employeeProvider.getEmployee(employeeId) ?: error("Employee not found for employeeId: $employeeId")
         val map = getAttendanceSummaryMapForEmployee(employee, forYear, forMonth)
         val agg = getEmployeeAttendanceAggregateReport(employee, forYear, forMonth)
         return attendanceServiceConverter.getAttendanceSummaryForEmployeeResponse(employee, map, agg)
@@ -785,7 +786,7 @@ class AttendanceUtils {
                     employeeReport.halfDays > 0 -> {
                         attendancesReport[forDate] = AttendanceInfoData(
                             attendanceType = AttendanceType.HALF_DAY,
-                            displayText = DateUtils.getMinutesToHourString(company.workingMinutes/2) + " Hrs",
+                            displayText = DateUtils.getMinutesToHourString(company.workingMinutes / 2) + " Hrs",
                             dateNumber = DateUtils.getDateNumber(forDate),
                             dateText = DateUtils.getWeekName(forDate))
                     }

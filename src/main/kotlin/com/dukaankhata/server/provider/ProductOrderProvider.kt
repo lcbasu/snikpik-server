@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.ProductOrderRepository
 import com.dukaankhata.server.dto.ProductOrderStatusUpdateRequest
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 @Component
-class ProductOrderUtils {
+class ProductOrderProvider {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
@@ -27,13 +27,13 @@ class ProductOrderUtils {
     private lateinit var productOrderRepository: ProductOrderRepository
 
     @Autowired
-    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
-    private lateinit var addressUtils: AddressUtils
+    private lateinit var addressProvider: AddressProvider
 
     @Autowired
-    private lateinit var cartItemUtils: CartItemUtils
+    private lateinit var cartItemProvider: CartItemProvider
 
     fun getProductOrder(productOrderId: String): ProductOrder? =
         try {
@@ -82,17 +82,17 @@ class ProductOrderUtils {
 
     fun createProductOrder(company: Company, user: User, productOrderStatus: ProductOrderStatus): ProductOrder {
         val newProductOrder = ProductOrder()
-        newProductOrder.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.ORD.name)
+        newProductOrder.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.ORD.name)
         newProductOrder.addedBy = user
         newProductOrder.company = company
-        newProductOrder.address = user.defaultAddressId?.let { addressUtils.getAddress(it) }
+        newProductOrder.address = user.defaultAddressId?.let { addressProvider.getAddress(it) }
         return productOrderRepository.save(newProductOrder)
     }
 
     fun refreshProductOrder(productOrder: ProductOrder): ProductOrder {
         productOrder.totalTaxInPaisa = 0
         productOrder.totalPriceWithoutTaxInPaisa = 0
-        cartItemUtils.getCartItems(productOrder).map { cartItem ->
+        cartItemProvider.getCartItems(productOrder).map { cartItem ->
             productOrder.totalTaxInPaisa += cartItem.totalTaxInPaisa
             productOrder.totalPriceWithoutTaxInPaisa += cartItem.totalPriceWithoutTaxInPaisa
         }
@@ -348,7 +348,7 @@ class ProductOrderUtils {
         }
 
         val productOrderAddress = productOrder.address ?: error("Product order does ot hav address")
-        val productOrderCartItems = cartItemUtils.getCartItems(productOrder)
+        val productOrderCartItems = cartItemProvider.getCartItems(productOrder)
 
         val productOrderStateBeforeUpdate = ProductOrderStateBeforeUpdate(
             addressId = productOrderAddress.id,
@@ -374,9 +374,9 @@ class ProductOrderUtils {
                 val productOrderUpdateByCustomerRequest = productOrderUpdateRequest as ProductOrderUpdateByCustomerRequest
                 productOrderUpdateByCustomerRequest.newAddressId?.let {
                     if (productOrderAddress.id != it) {
-                        val address = addressUtils.getAddress(it) ?: error("Address does not exist for id: $it")
+                        val address = addressProvider.getAddress(it) ?: error("Address does not exist for id: $it")
                         val user = productOrder.addedBy ?: error("User does not exist for product order with id: ${productOrder.id}")
-                        val isUserAddressValid = addressUtils.getIsUserAddressValid(user, address)
+                        val isUserAddressValid = addressProvider.getIsUserAddressValid(user, address)
                         if (!isUserAddressValid) {
                             error("Address doe not belong to the user.")
                         }
@@ -390,7 +390,7 @@ class ProductOrderUtils {
             productOrderCartItems.map {
                 val updatedCount = productOrderUpdateRequest.newCartUpdates.getOrDefault(it.id, -1L)
                 if (updatedCount >= 0) {
-                    cartItemUtils.updateProductInCart(it.id, updatedCount)
+                    cartItemProvider.updateProductInCart(it.id, updatedCount)
                 }
             }
         }

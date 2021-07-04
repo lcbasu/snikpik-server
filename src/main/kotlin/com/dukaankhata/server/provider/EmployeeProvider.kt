@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import AttendanceReportForEmployee
 import EmployeeWorkingDetailsForMonthWithDate
@@ -15,6 +15,8 @@ import com.dukaankhata.server.enums.*
 import com.dukaankhata.server.model.SalarySlipForHTML
 import com.dukaankhata.server.properties.PdfProperties
 import com.dukaankhata.server.service.PdfService
+import com.dukaankhata.server.utils.CloudUploadDownloadUtils
+import com.dukaankhata.server.utils.DateUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,7 +27,7 @@ import java.time.YearMonth
 import kotlin.math.ceil
 
 @Component
-class EmployeeUtils {
+class EmployeeProvider {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
@@ -33,13 +35,13 @@ class EmployeeUtils {
     private lateinit var employeeRepository: EmployeeRepository
 
     @Autowired
-    private lateinit var paymentUtils: PaymentUtils
+    private lateinit var paymentProvider: PaymentProvider
 
     @Autowired
-    private lateinit var attendanceUtils: AttendanceUtils
+    private lateinit var attendanceProvider: AttendanceProvider
 
     @Autowired
-    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
     private lateinit var pdfService: PdfService
@@ -72,7 +74,7 @@ class EmployeeUtils {
 
     fun saveEmployee(createdByUser: User, createdForUser: User, company: Company, saveEmployeeRequest: SaveEmployeeRequest) : Employee {
         val newEmployee = Employee()
-        newEmployee.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.EMP.name)
+        newEmployee.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.EMP.name)
         newEmployee.name = saveEmployeeRequest.name
         newEmployee.balanceInPaisaTillNow = 0
 //        newEmployee.openingBalanceInPaisa = saveEmployeeRequest.openingBalanceInPaisa
@@ -90,7 +92,7 @@ class EmployeeUtils {
 
         if (saveEmployeeRequest.openingBalanceInPaisa != 0L && saveEmployeeRequest.openingBalanceType != OpeningBalanceType.NONE) {
             val paymentType = if (saveEmployeeRequest.openingBalanceType == OpeningBalanceType.ADVANCE) PaymentType.PAYMENT_OPENING_BALANCE_ADVANCE else PaymentType.PAYMENT_OPENING_BALANCE_PENDING
-            paymentUtils.savePaymentAndDependentData(
+            paymentProvider.savePaymentAndDependentData(
                 addedBy = createdByUser,
                 company = company,
                 employee = savedEmployee,
@@ -146,7 +148,7 @@ class EmployeeUtils {
         val yesterday = DateUtils.dateTimeNow().minusDays(1)
         val dateToBeUsed = if (forDate == null) yesterday else DateUtils.parseStandardDate(forDate)
         val salaryAmountForDate = getSalaryAmountForDate(employee, DateUtils.toStringDate(dateToBeUsed))
-        paymentUtils.updateSalary(employee, salaryAmountForDate, DateUtils.toStringDate(dateToBeUsed))
+        paymentProvider.updateSalary(employee, salaryAmountForDate, DateUtils.toStringDate(dateToBeUsed))
     }
 
     // This is only for 1 day
@@ -158,7 +160,7 @@ class EmployeeUtils {
         val dateToBeUsed = DateUtils.parseStandardDate(forDate)
         val startDateTimeForYesterday = dateToBeUsed.toLocalDate().atStartOfDay()
         val endDateTimeForYesterday = dateToBeUsed.toLocalDate().atTime(LocalTime.MAX)
-        attendanceReportForEmployee = attendanceUtils.getAttendanceReportForEmployee(
+        attendanceReportForEmployee = attendanceProvider.getAttendanceReportForEmployee(
             employee = employee,
             startTime = startDateTimeForYesterday,
             endTime = endDateTimeForYesterday
@@ -238,7 +240,7 @@ class EmployeeUtils {
 
     private fun getEmployeeWorkingDays(employee: Employee, startDateTime: LocalDateTime, endDateTime: LocalDateTime): Int {
 
-        val attendanceReportForEmployee = attendanceUtils.getAttendanceReportForEmployee(
+        val attendanceReportForEmployee = attendanceProvider.getAttendanceReportForEmployee(
             employee = employee,
             startTime = startDateTime,
             endTime = endDateTime

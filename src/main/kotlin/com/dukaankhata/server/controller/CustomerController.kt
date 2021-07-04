@@ -2,7 +2,7 @@ package com.dukaankhata.server.controller
 
 import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.service.DKShopService
-import com.dukaankhata.server.utils.AuthUtils
+import com.dukaankhata.server.provider.AuthProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*
 class CustomerController {
 
     @Autowired
-    private lateinit var authUtils: AuthUtils
+    private lateinit var authProvider: AuthProvider
 
     // IMPORTANT
     // To get single prodcut view,
@@ -66,6 +66,6 @@ class CustomerController {
     }
 
     private fun customerPreChecks() {
-        authUtils.makeSureThePublicRequestHasUserEntity()
+        authProvider.makeSureThePublicRequestHasUserEntity()
     }
 }

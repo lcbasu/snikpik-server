@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.NoteRepository
 import com.dukaankhata.server.dto.SaveNoteRequest
@@ -7,21 +7,22 @@ import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.entities.Note
 import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.ReadableIdPrefix
+import com.dukaankhata.server.utils.DateUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
-class NoteUtils {
+class NoteProvider {
 
     @Autowired
     private lateinit var noteRepository: NoteRepository
 
     @Autowired
-    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     fun saveNote(addedBy: User, company: Company, employee: Employee, saveNoteRequest: SaveNoteRequest): Note {
         val newNote = Note()
-        newNote.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.NTE.name)
+        newNote.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.NTE.name)
         newNote.forDate = saveNoteRequest.forDate
         newNote.addedBy = addedBy
         newNote.addedAt = DateUtils.dateTimeNow()

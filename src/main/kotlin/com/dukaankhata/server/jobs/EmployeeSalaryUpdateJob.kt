@@ -1,7 +1,7 @@
 package com.dukaankhata.server.jobs
 
 import com.dukaankhata.server.entities.Employee
-import com.dukaankhata.server.utils.EmployeeUtils
+import com.dukaankhata.server.provider.EmployeeProvider
 import io.sentry.Sentry
 import org.quartz.JobDataMap
 import org.quartz.JobExecutionContext
@@ -15,7 +15,7 @@ class EmployeeSalaryUpdateJob: QuartzJobBean() {
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     @Autowired
-    private lateinit var employeeUtils: EmployeeUtils
+    private lateinit var employeeProvider: EmployeeProvider
 
     override fun executeInternal(context: JobExecutionContext) {
         updateSalary(context.mergedJobDataMap)
@@ -23,8 +23,8 @@ class EmployeeSalaryUpdateJob: QuartzJobBean() {
 
     private fun updateSalary(jobDataMap: JobDataMap) {
         val employeeId = jobDataMap.getString("id")
-        val employee: Employee = employeeUtils.getEmployee(employeeId) ?: error("Could not find employee for employeeId: $employeeId")
-        employeeUtils.updateSalary(employee)
+        val employee: Employee = employeeProvider.getEmployee(employeeId) ?: error("Could not find employee for employeeId: $employeeId")
+        employeeProvider.updateSalary(employee)
         logger.info("Salary updated for employeeId: ${employee.id}")
         Sentry.captureMessage("Salary updated for employeeId: ${employee.id}")
     }

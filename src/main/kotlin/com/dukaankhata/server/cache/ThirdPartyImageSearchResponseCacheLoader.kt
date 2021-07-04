@@ -1,7 +1,7 @@
 package com.dukaankhata.server.cache
 
 import com.dukaankhata.server.dto.ThirdPartyImageSearchResponse
-import com.dukaankhata.server.utils.ImageSearchUtils
+import com.dukaankhata.server.provider.ImageSearchProvider
 import com.github.benmanes.caffeine.cache.CacheLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 
-class ThirdPartyImageSearchResponseCacheLoader(private val imageSearchUtils: ImageSearchUtils): CacheLoader<String, ThirdPartyImageSearchResponse?> {
+class ThirdPartyImageSearchResponseCacheLoader(private val imageSearchProvider: ImageSearchProvider): CacheLoader<String, ThirdPartyImageSearchResponse?> {
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
     override fun reload(key: String, oldValue: ThirdPartyImageSearchResponse): ThirdPartyImageSearchResponse? = loadAsync(key).get()
 
@@ -26,7 +26,7 @@ class ThirdPartyImageSearchResponseCacheLoader(private val imageSearchUtils: Ima
         logger.info("run loadAsync for key: $key")
         logger.info("run loadAsync for query: $query")
         return CoroutineScope(Dispatchers.Default).future {
-            imageSearchUtils.getImagesForQuery(query)
+            imageSearchProvider.getImagesForQuery(query)
         }
     }
 }

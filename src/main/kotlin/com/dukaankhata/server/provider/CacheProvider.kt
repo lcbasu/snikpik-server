@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.cache.AttendanceSummaryForEmployeeResponseCacheLoader
 import com.dukaankhata.server.cache.KeyBuilder
@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component
 import java.util.concurrent.TimeUnit
 
 @Component
-class CacheUtils(private var attendanceUtils: AttendanceUtils, private var imageSearchUtils: ImageSearchUtils) {
+class CacheProvider(private var attendanceProvider: AttendanceProvider, private var imageSearchProvider: ImageSearchProvider) {
 
     private val attendanceSummaryForEmployeeResponseCacheLoader =
-        AttendanceSummaryForEmployeeResponseCacheLoader(attendanceUtils)
+        AttendanceSummaryForEmployeeResponseCacheLoader(attendanceProvider)
 
     private val attendanceSummaryForEmployeeResponseCache by lazy {
         Caffeine
@@ -27,7 +27,7 @@ class CacheUtils(private var attendanceUtils: AttendanceUtils, private var image
 
 
     private val thirdPartyImageSearchResponseCacheLoader =
-        ThirdPartyImageSearchResponseCacheLoader(imageSearchUtils)
+        ThirdPartyImageSearchResponseCacheLoader(imageSearchProvider)
 
     // Keep this for 7 days later move it to 1 month after checking pod size in AWS
     private val thirdPartyImageSearchResponseCache by lazy {

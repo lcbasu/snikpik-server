@@ -3,9 +3,9 @@ package com.dukaankhata.server.service.impl
 import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.service.AttendanceService
 import com.dukaankhata.server.service.converter.AttendanceServiceConverter
-import com.dukaankhata.server.utils.AttendanceUtils
-import com.dukaankhata.server.utils.AuthUtils
-import com.dukaankhata.server.utils.CacheUtils
+import com.dukaankhata.server.provider.AttendanceProvider
+import com.dukaankhata.server.provider.AuthProvider
+import com.dukaankhata.server.provider.CacheProvider
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
@@ -19,80 +19,80 @@ class AttendanceServiceImpl : AttendanceService() {
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     @Autowired
-    private lateinit var authUtils: AuthUtils
+    private lateinit var authProvider: AuthProvider
 
     @Autowired
-    private lateinit var cacheUtils: CacheUtils
+    private lateinit var cacheProvider: CacheProvider
 
     @Autowired
-    private lateinit var attendanceUtils: AttendanceUtils
+    private lateinit var attendanceProvider: AttendanceProvider
 
     @Autowired
     private lateinit var attendanceServiceConverter: AttendanceServiceConverter
 
     override fun saveAttendance(saveAttendanceRequest: SaveAttendanceRequest): SavedAttendanceResponse? {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             companyId = saveAttendanceRequest.companyId,
             employeeId = saveAttendanceRequest.employeeId,
-            requiredRoleTypes = authUtils.allAccessRoles()
+            requiredRoleTypes = authProvider.allAccessRoles()
         )
-        val attendance = attendanceUtils.saveAttendance(requestContext, saveAttendanceRequest)
+        val attendance = attendanceProvider.saveAttendance(requestContext, saveAttendanceRequest)
         return attendance?.toSavedAttendanceResponse()
     }
 
     override fun getAttendanceInfo(attendanceInfoRequest: AttendanceInfoRequest): AttendanceInfoResponse? {
         return runBlocking {
-            val requestContext = authUtils.validateRequest(
+            val requestContext = authProvider.validateRequest(
                 companyId = attendanceInfoRequest.companyId,
-                requiredRoleTypes = authUtils.allAccessRoles()
+                requiredRoleTypes = authProvider.allAccessRoles()
             )
-            attendanceUtils.getAttendanceInfoV2(requestContext.company!!, attendanceInfoRequest.forDate)
+            attendanceProvider.getAttendanceInfoV2(requestContext.company!!, attendanceInfoRequest.forDate)
         }
     }
 
     override fun markAttendance(markAttendanceRequest: MarkAttendanceRequest): SavedAttendanceByAdminResponse? {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             employeeId = markAttendanceRequest.employeeId,
-            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
-        val attendance = attendanceUtils.markAttendance(requestContext, markAttendanceRequest)
+        val attendance = attendanceProvider.markAttendance(requestContext, markAttendanceRequest)
         return attendance.toSavedAttendanceByAdminResponse()
     }
 
     override fun getAttendanceSummary(attendanceSummaryRequest: AttendanceSummaryRequest): AttendanceSummaryResponse? {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             companyId = attendanceSummaryRequest.companyId,
-            requiredRoleTypes = authUtils.allAccessRoles()
+            requiredRoleTypes = authProvider.allAccessRoles()
         )
-        return attendanceUtils.getAttendanceSummary(requestContext, attendanceSummaryRequest)
+        return attendanceProvider.getAttendanceSummary(requestContext, attendanceSummaryRequest)
     }
 
     override fun getAttendanceReportForEmployee(employeeId: String, forDate: String): AttendanceReportForEmployeeResponse? {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             employeeId = employeeId,
-            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
 
         val employee = requestContext.employee ?: error("Employee is required")
 
-        return attendanceServiceConverter.getAttendanceReportForEmployeeResponse(attendanceUtils.getAttendanceReportForEmployee(employee, forDate))
+        return attendanceServiceConverter.getAttendanceReportForEmployeeResponse(attendanceProvider.getAttendanceReportForEmployee(employee, forDate))
     }
 
     override fun getAttendanceSummaryForEmployee(attendanceSummaryForEmployeeRequest: AttendanceSummaryForEmployeeRequest): AttendanceSummaryForEmployeeResponse? {
         return runBlocking {
-            val requestContext = authUtils.validateRequest(
+            val requestContext = authProvider.validateRequest(
                 employeeId = attendanceSummaryForEmployeeRequest.employeeId,
-                requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+                requiredRoleTypes = authProvider.onlyAdminLevelRoles()
             )
             val employee = requestContext.employee ?: error("Employee is required")
 
-            val responseFromCache = cacheUtils.getAttendanceSummaryForEmployee(attendanceSummaryForEmployeeRequest).await()
+            val responseFromCache = cacheProvider.getAttendanceSummaryForEmployee(attendanceSummaryForEmployeeRequest).await()
 
             responseFromCache?.let {
                 // Return the cached value
                 logger.info("Retuning values for getAttendanceSummaryForEmployee from cache")
                 it
-            } ?: attendanceUtils.getAttendanceSummaryForEmployee(employee = employee, forYear = attendanceSummaryForEmployeeRequest.forYear, forMonth = attendanceSummaryForEmployeeRequest.forMonth)
+            } ?: attendanceProvider.getAttendanceSummaryForEmployee(employee = employee, forYear = attendanceSummaryForEmployeeRequest.forYear, forMonth = attendanceSummaryForEmployeeRequest.forMonth)
         }
     }
 

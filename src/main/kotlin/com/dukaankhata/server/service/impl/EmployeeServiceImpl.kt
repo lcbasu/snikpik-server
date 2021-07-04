@@ -5,10 +5,10 @@ import com.dukaankhata.server.enums.RoleType
 import com.dukaankhata.server.enums.SalaryType
 import com.dukaankhata.server.service.EmployeeService
 import com.dukaankhata.server.service.schedule.EmployeeSalaryUpdateSchedulerService
-import com.dukaankhata.server.utils.AuthUtils
-import com.dukaankhata.server.utils.CompanyUtils
-import com.dukaankhata.server.utils.EmployeeUtils
-import com.dukaankhata.server.utils.UserRoleUtils
+import com.dukaankhata.server.provider.AuthProvider
+import com.dukaankhata.server.provider.CompanyProvider
+import com.dukaankhata.server.provider.EmployeeProvider
+import com.dukaankhata.server.provider.UserRoleProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -16,36 +16,36 @@ import org.springframework.stereotype.Service
 class EmployeeServiceImpl : EmployeeService() {
 
     @Autowired
-    private lateinit var authUtils: AuthUtils
+    private lateinit var authProvider: AuthProvider
 
     @Autowired
-    private lateinit var companyUtils: CompanyUtils
+    private lateinit var companyProvider: CompanyProvider
 
     @Autowired
-    private lateinit var userRoleUtils: UserRoleUtils
+    private lateinit var userRoleProvider: UserRoleProvider
 
     @Autowired
-    private lateinit var employeeUtils: EmployeeUtils
+    private lateinit var employeeProvider: EmployeeProvider
 
     @Autowired
     private lateinit var employeeSalaryUpdateSchedulerService: EmployeeSalaryUpdateSchedulerService
 
     override fun saveEmployee(saveEmployeeRequest: SaveEmployeeRequest): SavedEmployeeResponse? {
-        val createdByUser = authUtils.getRequestUserEntity()
-        val company = companyUtils.getCompany(saveEmployeeRequest.companyId)
+        val createdByUser = authProvider.getRequestUserEntity()
+        val company = companyProvider.getCompany(saveEmployeeRequest.companyId)
         if (createdByUser == null || company == null) {
             error("User and Company are required to add an employee");
         }
-        val createdForUser = authUtils.getOrCreateUserByPhoneNumber(saveEmployeeRequest.phoneNumber)
+        val createdForUser = authProvider.getOrCreateUserByPhoneNumber(saveEmployeeRequest.phoneNumber)
             ?: error("User should be created for new employee without any user account")
-        val employee = employeeUtils.saveEmployee(
+        val employee = employeeProvider.saveEmployee(
             createdByUser = createdByUser,
             createdForUser = createdForUser,
             company = company,
             saveEmployeeRequest = saveEmployeeRequest
         )
         // Save the user role for the employee
-        userRoleUtils.addUserRole(createdForUser, company, RoleType.EMPLOYEE_NON_ADMIN)
+        userRoleProvider.addUserRole(createdForUser, company, RoleType.EMPLOYEE_NON_ADMIN)
             ?: error("Unable to save user role for the employee")
 
         if (employee.salaryType != SalaryType.ONE_TIME) {
@@ -56,16 +56,16 @@ class EmployeeServiceImpl : EmployeeService() {
     }
 
     override fun getCompanyEmployees(companyServerId: String): CompanyEmployeesResponse? {
-        val requestingUser = authUtils.getRequestUserEntity()
-        val company = companyUtils.getCompany(companyServerId)
+        val requestingUser = authProvider.getRequestUserEntity()
+        val company = companyProvider.getCompany(companyServerId)
         if (requestingUser == null || company == null) {
             error("User and Company are required to get list of employees");
         }
-        val userRoles = requestingUser.let { userRoleUtils?.getUserRolesForUserAndCompany(user = it, company = company) } ?: emptyList()
+        val userRoles = requestingUser.let { userRoleProvider?.getUserRolesForUserAndCompany(user = it, company = company) } ?: emptyList()
         // Return the list of employees, only for employer and admin employees
         val validRoles = userRoles.filter { it.id?.roleType == RoleType.EMPLOYER.name || it.id?.roleType == RoleType.EMPLOYEE_ADMIN.name }
         return if (validRoles.isNotEmpty()) {
-            val employees = employeeUtils.findByCompany(company) ?: emptyList()
+            val employees = employeeProvider.findByCompany(company) ?: emptyList()
             return CompanyEmployeesResponse(
                 company = company.toSavedCompanyResponse(),
                 employees = employees.map {
@@ -77,7 +77,7 @@ class EmployeeServiceImpl : EmployeeService() {
     }
 
     override fun removeEmployee(removeEmployeeRequest: RemoveEmployeeRequest): SavedEmployeeResponse? {
-        val employee = employeeUtils.removeEmployee(removeEmployeeRequest)
+        val employee = employeeProvider.removeEmployee(removeEmployeeRequest)
         if (employee.salaryType != SalaryType.ONE_TIME) {
             employeeSalaryUpdateSchedulerService.unScheduleEmployeeSalaryUpdate(employee);
         }
@@ -85,33 +85,33 @@ class EmployeeServiceImpl : EmployeeService() {
     }
 
     override fun updateSalary(employeeId: String, forDate: String): SavedEmployeeResponse? {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             employeeId = employeeId,
-            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
 
         val employee = requestContext.employee ?: error("Employee mpt found for $employeeId")
 
-        employeeUtils.updateSalary(employee, forDate)
+        employeeProvider.updateSalary(employee, forDate)
 
         return employee.toSavedEmployeeResponse()
     }
 
     override fun getSalarySlip(employeeId: String, startDate: String, endDate: String): SalarySlipResponse? {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             employeeId = employeeId,
-            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val employee = requestContext.employee!!
-        return employeeUtils.generatePdfForSalarySlip(employee, startDate, endDate)
+        return employeeProvider.generatePdfForSalarySlip(employee, startDate, endDate)
     }
 
     override fun updateEmployeeJoiningDate(updateEmployeeJoiningDateRequest: UpdateEmployeeJoiningDateRequest): SavedEmployeeResponse? {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             employeeId = updateEmployeeJoiningDateRequest.employeeId,
-            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val employee = requestContext.employee ?: error("Employee mpt found for ${updateEmployeeJoiningDateRequest.employeeId}")
-        return employeeUtils.updateEmployeeJoiningDate(employee, updateEmployeeJoiningDateRequest.newJoiningTime).toSavedEmployeeResponse()
+        return employeeProvider.updateEmployeeJoiningDate(employee, updateEmployeeJoiningDateRequest.newJoiningTime).toSavedEmployeeResponse()
     }
 }

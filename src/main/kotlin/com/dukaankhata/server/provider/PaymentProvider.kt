@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import DailyPayment
 import MonthPayment
@@ -12,6 +12,8 @@ import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.MonthlyPaymentType
 import com.dukaankhata.server.enums.PaymentType
 import com.dukaankhata.server.enums.ReadableIdPrefix
+import com.dukaankhata.server.utils.CommonUtils
+import com.dukaankhata.server.utils.DateUtils
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
@@ -22,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Component
-class PaymentUtils {
+class PaymentProvider {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
@@ -32,13 +34,13 @@ class PaymentUtils {
     private lateinit var paymentRepository: PaymentRepository
 
     @Autowired
-    private lateinit var companyUtils: CompanyUtils
+    private lateinit var companyProvider: CompanyProvider
 
     @Autowired
-    private lateinit var employeeUtils: EmployeeUtils
+    private lateinit var employeeProvider: EmployeeProvider
 
     @Autowired
-    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     fun getPayment(paymentId: String): Payment? =
         try {
@@ -68,10 +70,10 @@ class PaymentUtils {
         logger.info("Payment saved for ${employee.id} for $forDate with amountInPaisa: $amountInPaisa and type: $paymentType. description: $description, addedBy: $addedBy")
 
         // Update the employee payment
-        employeeUtils.updateEmployee(payment)
+        employeeProvider.updateEmployee(payment)
 
         // Update the company payment
-        companyUtils.updateCompany(payment)
+        companyProvider.updateCompany(payment)
 
         return updatePaymentWithAuditDetails(payment)
     }
@@ -106,7 +108,7 @@ class PaymentUtils {
         }
 
         val payment = Payment()
-        payment.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.PMT.name)
+        payment.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.PMT.name)
         payment.company = company
         payment.employee = employee
         payment.paymentType = paymentType
@@ -222,7 +224,7 @@ class PaymentUtils {
         val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(startTime, reportDuration.endTime).map { DateUtils.toStringDate(it) }
         val payments = getPayments(companyId = company.id, datesList = datesList)
         return runBlocking {
-            val employees = employeeUtils.getEmployees(company, reportDuration.endTime)
+            val employees = employeeProvider.getEmployees(company, reportDuration.endTime)
             val monthPayments = mutableListOf<MonthPayment>()
 
             employees.map { employee ->
@@ -419,7 +421,7 @@ class PaymentUtils {
 
     fun getEmployeePaymentDetails(employee: Employee, forYear: Int, forMonth: Int, monthlyPaymentSummary: List<MonthPayment>): EmployeePaymentDetailsResponse? {
         val monthlyPaymentsResponse = getMonthlyPaymentsResponse(monthlyPaymentSummary)
-        val employeeWorkingDetailsForMonthWithDate = employeeUtils.getEmployeeWorkingDetailsForMonthWithDate(employee, DateUtils.dateTimeNow())
+        val employeeWorkingDetailsForMonthWithDate = employeeProvider.getEmployeeWorkingDetailsForMonthWithDate(employee, DateUtils.dateTimeNow())
         return EmployeePaymentDetailsResponse(
             employee = employee.toSavedEmployeeResponse(),
             currentYearNumber = forYear,
@@ -436,7 +438,7 @@ class PaymentUtils {
 
     fun getEmployeeCompletePaymentDetails(employee: Employee, forYear: Int, forMonth: Int): EmployeeCompletePaymentDetailsResponse? {
         val randomDateInMonth = DateUtils.getRandomDateInMonth(forYear = forYear, forMonth = forMonth)
-        val employeeWorkingDetailsForMonthWithDate = employeeUtils.getEmployeeWorkingDetailsForMonthWithDate(employee, randomDateInMonth)
+        val employeeWorkingDetailsForMonthWithDate = employeeProvider.getEmployeeWorkingDetailsForMonthWithDate(employee, randomDateInMonth)
         val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(employeeWorkingDetailsForMonthWithDate.startDateTime, employeeWorkingDetailsForMonthWithDate.endDateTime).map { DateUtils.toStringDate(it) }
         val payments = getPaymentsForEmployee(employeeId = employee.id, datesList = datesList)
         val monthlyPayments = getMonthlyPaymentSummary(listOf(employee), payments, datesList)

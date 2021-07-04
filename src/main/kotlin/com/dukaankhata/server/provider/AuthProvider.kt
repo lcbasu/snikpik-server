@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.UserRepository
 import com.dukaankhata.server.dto.RequestContext
@@ -16,7 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 
 @Component
-class AuthUtils {
+class AuthProvider {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
@@ -24,16 +24,16 @@ class AuthUtils {
     private lateinit var userRepository: UserRepository
 
     @Autowired
-    private lateinit var companyUtils: CompanyUtils
+    private lateinit var companyProvider: CompanyProvider
 
     @Autowired
-    private lateinit var employeeUtils: EmployeeUtils
+    private lateinit var employeeProvider: EmployeeProvider
 
     @Autowired
-    private lateinit var userRoleUtils: UserRoleUtils
+    private lateinit var userRoleProvider: UserRoleProvider
 
     @Autowired
-    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     fun getUser(userId: String): User? =
         try {
@@ -159,7 +159,7 @@ class AuthUtils {
         }
 
         val newUser = User()
-        newUser.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.USR.name)
+        newUser.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.USR.name)
         newUser.mobile = sanitizePhoneNumber
         newUser.countryCode = countryCode
         newUser.fullName = fullName
@@ -191,10 +191,10 @@ class AuthUtils {
         var company: Company? = null
         var userRoles: List<UserRole> = emptyList()
         if (companyId != null && companyId.isNotBlank()) {
-            company = companyUtils.getCompany(companyId) ?: error("Company is required!")
+            company = companyProvider.getCompany(companyId) ?: error("Company is required!")
 
             if (requiredRoleTypes.isNotEmpty()) {
-                userRoles = userRoleUtils.getUserRolesForUserAndCompany(
+                userRoles = userRoleProvider.getUserRolesForUserAndCompany(
                     user = requestingUser,
                     company = company
                 ) ?: emptyList()
@@ -222,14 +222,14 @@ class AuthUtils {
 
         var employee: Employee? = null
         if (employeeId != null && employeeId.isNotBlank()) {
-            employee = employeeUtils.getEmployee(employeeId) ?: error("Employee is required")
+            employee = employeeProvider.getEmployee(employeeId) ?: error("Employee is required")
 
             // If only employee id is provided
             if (companyId == null || companyId.isBlank()) {
                 company = employee.company
 
                 if (requiredRoleTypes.isNotEmpty()) {
-                    userRoles = userRoleUtils.getUserRolesForUserAndCompany(
+                    userRoles = userRoleProvider.getUserRolesForUserAndCompany(
                         user = requestingUser,
                         company = employee.company!!
                     ) ?: emptyList()

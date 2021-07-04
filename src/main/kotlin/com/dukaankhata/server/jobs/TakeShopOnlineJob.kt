@@ -1,7 +1,7 @@
 package com.dukaankhata.server.jobs
 
 import com.dukaankhata.server.entities.Company
-import com.dukaankhata.server.utils.CompanyUtils
+import com.dukaankhata.server.provider.CompanyProvider
 import io.sentry.Sentry
 import org.quartz.JobDataMap
 import org.quartz.JobExecutionContext
@@ -15,7 +15,7 @@ class TakeShopOnlineJob: QuartzJobBean() {
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     @Autowired
-    private lateinit var companyUtils: CompanyUtils
+    private lateinit var companyProvider: CompanyProvider
 
     override fun executeInternal(context: JobExecutionContext) {
         takeShopOnline(context.mergedJobDataMap)
@@ -23,8 +23,8 @@ class TakeShopOnlineJob: QuartzJobBean() {
 
     private fun takeShopOnline(jobDataMap: JobDataMap) {
         val companyId = jobDataMap.getString("id")
-        val company: Company = companyUtils.getCompany(companyId) ?: error("Could not find company for companyId: $companyId")
-        companyUtils.takeShopOnline(company)
+        val company: Company = companyProvider.getCompany(companyId) ?: error("Could not find company for companyId: $companyId")
+        companyProvider.takeShopOnline(company)
         logger.info("Shop taken online for companyId: ${company.id}")
         Sentry.captureMessage("Shop taken online for companyId: ${company.id}")
     }

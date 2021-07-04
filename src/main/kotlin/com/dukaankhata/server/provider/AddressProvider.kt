@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.AddressRepository
 import com.dukaankhata.server.dao.CompanyAddressRepository
@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
-class AddressUtils {
+class AddressProvider {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
     @Autowired
@@ -25,7 +25,7 @@ class AddressUtils {
     private lateinit var userAddressRepository: UserAddressRepository
 
     @Autowired
-    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     fun getAddress(addressId: String): Address? =
         try {
@@ -37,7 +37,7 @@ class AddressUtils {
     fun saveAddress(saveAddressRequest: SaveAddressRequest): Address? {
         try {
             val newAddress = Address()
-            newAddress.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.ADR.name)
+            newAddress.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.ADR.name)
             newAddress.line1 = saveAddressRequest.line1
             newAddress.line2 = saveAddressRequest.line2
             newAddress.zipcode = saveAddressRequest.zipcode

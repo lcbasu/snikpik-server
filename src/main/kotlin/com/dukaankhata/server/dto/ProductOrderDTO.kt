@@ -8,7 +8,7 @@ import com.dukaankhata.server.enums.ProductOrderUpdatedBy
 import com.dukaankhata.server.model.MediaDetails
 import com.dukaankhata.server.model.ProductOrderStateBeforeUpdate
 import com.dukaankhata.server.model.getProductOrderStateBeforeUpdate
-import com.dukaankhata.server.utils.CartItemUtils
+import com.dukaankhata.server.provider.CartItemProvider
 import com.dukaankhata.server.utils.DateUtils
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
@@ -95,7 +95,7 @@ data class MigratedProductOrderResponse(
     val toProductOrders: List<SavedProductOrderResponse>,
 )
 
-fun ProductOrder.toSavedProductOrderResponse(cartItemUtils: CartItemUtils): SavedProductOrderResponse {
+fun ProductOrder.toSavedProductOrderResponse(cartItemProvider: CartItemProvider): SavedProductOrderResponse {
     this.apply {
         return SavedProductOrderResponse(
             serverId = id,
@@ -107,7 +107,7 @@ fun ProductOrder.toSavedProductOrderResponse(cartItemUtils: CartItemUtils): Save
             totalPriceWithoutTaxInPaisa = totalPriceWithoutTaxInPaisa,
             totalPricePayableInPaisa = totalPricePayableInPaisa,
             orderStatus = orderStatus,
-            cartItems = cartItemUtils.getCartItems(this).filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse() },
+            cartItems = cartItemProvider.getCartItems(this).filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse() },
             address = address?.let { it.toSavedAddressResponse() },
             discount = discount?.let { it.toSavedDiscountResponse() },
             productOrderStateBeforeUpdateResponse = productOrderStateBeforeUpdate?.let { getProductOrderStateBeforeUpdate()?.toProductOrderUpdateResponse() }
@@ -145,9 +145,9 @@ data class ProductOrderCardResponse(
     var paymentMode: OrderPaymentMode = OrderPaymentMode.NONE
 )
 
-fun ProductOrder.toProductOrderCardResponse(cartItemUtils: CartItemUtils): ProductOrderCardResponse {
+fun ProductOrder.toProductOrderCardResponse(cartItemProvider: CartItemProvider): ProductOrderCardResponse {
     this.apply {
-        val cartItems = cartItemUtils.getCartItems(this).filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse() }
+        val cartItems = cartItemProvider.getCartItems(this).filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse() }
         return ProductOrderCardResponse(
             serverId = id,
             mediaDetails = MediaDetails(cartItems.mapNotNull { it.product?.mediaDetails?.media }.flatten()),

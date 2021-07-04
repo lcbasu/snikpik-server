@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.DiscountRepository
 import com.dukaankhata.server.dto.SaveDiscountRequest
@@ -6,17 +6,18 @@ import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.Discount
 import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.ReadableIdPrefix
+import com.dukaankhata.server.utils.DateUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
-class DiscountUtils {
+class DiscountProvider {
 
     @Autowired
     private lateinit var discountRepository: DiscountRepository
 
     @Autowired
-    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     fun getDiscount(discountId: String): Discount? =
         try {
@@ -27,7 +28,7 @@ class DiscountUtils {
 
     fun saveDiscount(addedBy: User, company: Company, saveDiscountRequest: SaveDiscountRequest): Discount {
         val newDiscount = Discount()
-        newDiscount.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.DCT.name)
+        newDiscount.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.DCT.name)
         newDiscount.promoCode = saveDiscountRequest.promoCode
         newDiscount.discountType = saveDiscountRequest.discountType
         newDiscount.discountAmount = saveDiscountRequest.discountAmount

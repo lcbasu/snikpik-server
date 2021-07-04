@@ -2,6 +2,7 @@ package com.dukaankhata.server.service.impl
 
 import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.enums.TakeShopOnlineAfter
+import com.dukaankhata.server.provider.*
 import com.dukaankhata.server.service.DKShopService
 import com.dukaankhata.server.service.schedule.TakeShopOnlineSchedulerService
 import com.dukaankhata.server.utils.*
@@ -9,47 +10,46 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.util.concurrent.CompletableFuture
 
 @Service
 class DKShopServiceImpl : DKShopService() {
     @Autowired
-    private lateinit var authUtils: AuthUtils
+    private lateinit var authProvider: AuthProvider
 
     @Autowired
-    private lateinit var companyUtils: CompanyUtils
+    private lateinit var companyProvider: CompanyProvider
 
     @Autowired
-    private lateinit var addressUtils: AddressUtils
+    private lateinit var addressProvider: AddressProvider
 
     @Autowired
-    private lateinit var productUtils: ProductUtils
+    private lateinit var productProvider: ProductProvider
 
     @Autowired
-    private lateinit var cartItemUtils: CartItemUtils
+    private lateinit var cartItemProvider: CartItemProvider
 
     @Autowired
-    private lateinit var collectionUtils: CollectionUtils
+    private lateinit var collectionProvider: CollectionProvider
 
     @Autowired
     private lateinit var takeShopOnlineSchedulerService: TakeShopOnlineSchedulerService
 
     @Autowired
-    private lateinit var productOrderUtils: ProductOrderUtils
+    private lateinit var productOrderProvider: ProductOrderProvider
 
     @Autowired
-    private lateinit var discountUtils: DiscountUtils
+    private lateinit var discountProvider: DiscountProvider
 
     @Autowired
-    private lateinit var extraChargeDeliveryUtils: ExtraChargeDeliveryUtils
+    private lateinit var extraChargeDeliveryProvider: ExtraChargeDeliveryProvider
 
     @Autowired
-    private lateinit var extraChargeTaxUtils: ExtraChargeTaxUtils
+    private lateinit var extraChargeTaxProvider: ExtraChargeTaxProvider
 
     override fun saveUsername(saveUsernameRequest: SaveUsernameRequest): SaveUsernameResponse? {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             companyId = saveUsernameRequest.companyId,
-            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company is required")
 
@@ -57,10 +57,10 @@ class DKShopServiceImpl : DKShopService() {
             error("You can not edit username once it is added")
         }
 
-        val isAvailable = companyUtils.isUsernameAvailable(saveUsernameRequest.username)
+        val isAvailable = companyProvider.isUsernameAvailable(saveUsernameRequest.username)
 
         if (isAvailable) {
-            val updatedCompany = companyUtils.saveUsername(company, saveUsernameRequest.username) ?: error("Saving username failed")
+            val updatedCompany = companyProvider.saveUsername(company, saveUsernameRequest.username) ?: error("Saving username failed")
             return SaveUsernameResponse(
                 available = true,
                 company = updatedCompany.toSavedCompanyResponse()
@@ -74,19 +74,19 @@ class DKShopServiceImpl : DKShopService() {
 
     override fun isUsernameAvailable(username: String): UsernameAvailableResponse? {
         // To verify if the user is logged in
-        authUtils.validateRequest()
+        authProvider.validateRequest()
 
-        return UsernameAvailableResponse(companyUtils.isUsernameAvailable(username))
+        return UsernameAvailableResponse(companyProvider.isUsernameAvailable(username))
     }
 
     override fun takeShopOffline(takeShopOfflineRequest: TakeShopOfflineRequest): TakeShopOfflineResponse? {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             companyId = takeShopOfflineRequest.companyId,
-            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company is required")
 
-        val updatedCompany = companyUtils.takeShopOffline(company) ?: error("Company update failed")
+        val updatedCompany = companyProvider.takeShopOffline(company) ?: error("Company update failed")
 
         if (takeShopOfflineRequest.takeShopOnlineAfter != TakeShopOnlineAfter.MANUALLY) {
             takeShopOnlineSchedulerService.takeShopOnline(company, takeShopOfflineRequest.takeShopOnlineAfter)
@@ -99,15 +99,15 @@ class DKShopServiceImpl : DKShopService() {
     }
 
     override fun saveAddress(saveCompanyAddressRequest: SaveCompanyAddressRequest): SavedCompanyAddressResponse? {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             companyId = saveCompanyAddressRequest.companyId,
-            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company is required")
 
-        val companyAddress = addressUtils.saveCompanyAddress(company, saveCompanyAddressRequest.name, saveCompanyAddressRequest.address) ?: error("Error while saveing company address")
+        val companyAddress = addressProvider.saveCompanyAddress(company, saveCompanyAddressRequest.name, saveCompanyAddressRequest.address) ?: error("Error while saveing company address")
         val newAddress = companyAddress.address ?: error("Address should always be present for companyAddress")
-        val updatedCompany = companyUtils.updateCompanyDefaultAddress(company, newAddress) ?: error("Error while updating default address for comany")
+        val updatedCompany = companyProvider.updateCompanyDefaultAddress(company, newAddress) ?: error("Error while updating default address for comany")
 
         return SavedCompanyAddressResponse(
             company = updatedCompany.toSavedCompanyResponse(),
@@ -121,29 +121,29 @@ class DKShopServiceImpl : DKShopService() {
             // Not signed in user also gets logged in as the anonymous user
             // So that no one else can make the api calls, unless logged in
             // Or on our websites
-            val requestContext = authUtils.validateRequest()
+            val requestContext = authProvider.validateRequest()
 
             val user = requestContext.user
 
-            val company = companyUtils.getCompanyByUsername(username) ?: error("Username not found")
+            val company = companyProvider.getCompanyByUsername(username) ?: error("Username not found")
 
-            val allProductsFuture = async { productUtils.getProducts(company) }
-            val allCollectionsFuture = async { collectionUtils.getCollections(company) }
+            val allProductsFuture = async { productProvider.getProducts(company) }
+            val allCollectionsFuture = async { collectionProvider.getCollections(company) }
 
             val allProducts = allProductsFuture.await()
             val allCollections = allCollectionsFuture.await()
 
-            val allCartItemsFuture = async { cartItemUtils.getCartItemsForUserForProducts(user.id, allProducts.map { it.id }.toSet()) }
+            val allCartItemsFuture = async { cartItemProvider.getCartItemsForUserForProducts(user.id, allProducts.map { it.id }.toSet()) }
 
             val allCartItems = allCartItemsFuture.await()
 
-            val bestsellerProducts = async { productUtils.getBestSellerProducts(allProducts) }
+            val bestsellerProducts = async { productProvider.getBestSellerProducts(allProducts) }
 
-            val productsOrderedInPast = productUtils.getProductsOrderedInPast(allCartItems)
+            val productsOrderedInPast = productProvider.getProductsOrderedInPast(allCartItems)
 
-            val bestsellerCollections = async { collectionUtils.getBestSellerCollections(allCollections) }
+            val bestsellerCollections = async { collectionProvider.getBestSellerCollections(allCollections) }
 
-            val productCollectionsOrderedFromInPast = productUtils.getProductCollections(
+            val productCollectionsOrderedFromInPast = productProvider.getProductCollections(
                 collectionIds = emptySet(),
                 productIds = productsOrderedInPast.map { it.id }.toSet()
             )
@@ -162,47 +162,47 @@ class DKShopServiceImpl : DKShopService() {
     }
 
     override fun getRelatedProducts(productId: String): RelatedProductsResponse? {
-        val requestContext = authUtils.validateRequest()
-        val relatedProducts = productUtils.getRelatedProducts(productId)
+        val requestContext = authProvider.validateRequest()
+        val relatedProducts = productProvider.getRelatedProducts(productId)
         return RelatedProductsResponse(
             products = relatedProducts.map { it.toSavedProductResponse() }
         )
     }
 
     override fun updateCart(updateCartRequest: UpdateCartRequest): SavedProductOrderResponse? {
-        val requestContext = authUtils.validateRequest()
+        val requestContext = authProvider.validateRequest()
 
         val user = requestContext.user
-        val product = productUtils.getProduct(updateCartRequest.productId) ?: error("Product is required")
+        val product = productProvider.getProduct(updateCartRequest.productId) ?: error("Product is required")
         val company = product.company ?: error("Every product should always belong to a company")
-        val activeProductOrderBag = productOrderUtils.getOrCreateActiveProductOrderBag(
+        val activeProductOrderBag = productOrderProvider.getOrCreateActiveProductOrderBag(
             company = company,
             user = user)
-        val updatedCartData = cartItemUtils.updateCartAndDependentOrder(
+        val updatedCartData = cartItemProvider.updateCartAndDependentOrder(
             company = company,
             user = user,
             product = product,
             productOrder = activeProductOrderBag,
             cartItemUpdateAction = updateCartRequest.action)
-        return updatedCartData.updatedProductOrder.toSavedProductOrderResponse(cartItemUtils)
+        return updatedCartData.updatedProductOrder.toSavedProductOrderResponse(cartItemProvider)
     }
 
     override fun getActiveProductOrderBag(shopUsername: String): SavedProductOrderResponse? {
-        val requestContext = authUtils.validateRequest()
+        val requestContext = authProvider.validateRequest()
         val user = requestContext.user
-        val company = companyUtils.getCompanyByUsername(shopUsername) ?: error("Shop username is required")
-        val activeProductOrderBag = productOrderUtils.getActiveProductOrderBag(
+        val company = companyProvider.getCompanyByUsername(shopUsername) ?: error("Shop username is required")
+        val activeProductOrderBag = productOrderProvider.getActiveProductOrderBag(
             company = company,
             user = user)
-        return activeProductOrderBag?.toSavedProductOrderResponse(cartItemUtils)
+        return activeProductOrderBag?.toSavedProductOrderResponse(cartItemProvider)
     }
 
     override fun getActiveDiscounts(companyId: String): SavedActiveDiscountsResponse {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             companyId = companyId
         )
         val company = requestContext.company ?: error("Company is required")
-        val activeDiscounts = discountUtils.getActiveDiscounts(company)
+        val activeDiscounts = discountProvider.getActiveDiscounts(company)
         return SavedActiveDiscountsResponse(
             company = company.toSavedCompanyResponse(),
             discounts = activeDiscounts.map { it.toSavedDiscountResponse() }
@@ -210,11 +210,11 @@ class DKShopServiceImpl : DKShopService() {
     }
 
     override fun saveOrUpdateExtraChargeDelivery(saveExtraChargeDeliveryRequest: SaveExtraChargeDeliveryRequest): SavedExtraChargeDeliveryResponse {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             companyId = saveExtraChargeDeliveryRequest.companyId
         )
         val company = requestContext.company ?: error("Company is required")
-        val ed = extraChargeDeliveryUtils.saveOrUpdateExtraChargeDelivery(
+        val ed = extraChargeDeliveryProvider.saveOrUpdateExtraChargeDelivery(
             addedBy = requestContext.user,
             company = company,
             saveExtraChargeDeliveryRequest = saveExtraChargeDeliveryRequest
@@ -223,11 +223,11 @@ class DKShopServiceImpl : DKShopService() {
     }
 
     override fun saveOrUpdateExtraChargeTax(saveExtraChargeTaxRequest: SaveExtraChargeTaxRequest): SavedExtraChargeTaxResponse {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             companyId = saveExtraChargeTaxRequest.companyId
         )
         val company = requestContext.company ?: error("Company is required")
-        val et = extraChargeTaxUtils.saveOrUpdateExtraChargeTax(
+        val et = extraChargeTaxProvider.saveOrUpdateExtraChargeTax(
             addedBy = requestContext.user,
             company = company,
             saveExtraChargeTaxRequest = saveExtraChargeTaxRequest
@@ -236,15 +236,15 @@ class DKShopServiceImpl : DKShopService() {
     }
 
     override fun migrateCart(migrateCartRequest: MigrateCartRequest): MigratedProductOrderResponse {
-        val requestContext = authUtils.validateRequest()
+        val requestContext = authProvider.validateRequest()
         val toUser = requestContext.user
         if (toUser.id != migrateCartRequest.toUserId) {
             error("Cart can only be migrated for users who logged in through phone number " +
                 "and want to move their non-logged in cart to logged in cart")
         }
-        val fromUser = authUtils.getUser(migrateCartRequest.fromUserId) ?: error("From user is required")
+        val fromUser = authProvider.getUser(migrateCartRequest.fromUserId) ?: error("From user is required")
 
-        val fromProductOrders = productOrderUtils.getActiveProductOrderBag(fromUser)
+        val fromProductOrders = productOrderProvider.getActiveProductOrderBag(fromUser)
 
         if (fromProductOrders.isEmpty()) {
             error("Current user does not have any active bag for any company")
@@ -255,14 +255,14 @@ class DKShopServiceImpl : DKShopService() {
 
         fromProductOrders.map { fromProductOrder ->
             val company = fromProductOrder.company ?: error("Order: ${fromProductOrder.id} does not have company")
-            val toProductOrder = productOrderUtils.getOrCreateActiveProductOrderBag(
+            val toProductOrder = productOrderProvider.getOrCreateActiveProductOrderBag(
                 company = company,
                 user = toUser)
-            val migratedCartData = cartItemUtils.migrateCart(
+            val migratedCartData = cartItemProvider.migrateCart(
                 fromProductOrder = fromProductOrder,
                 toProductOrder = toProductOrder)
-            fromProductOrdersResponse.add(migratedCartData.fromProductOrder.toSavedProductOrderResponse(cartItemUtils))
-            toProductOrdersResponse.add(migratedCartData.toProductOrder.toSavedProductOrderResponse(cartItemUtils))
+            fromProductOrdersResponse.add(migratedCartData.fromProductOrder.toSavedProductOrderResponse(cartItemProvider))
+            toProductOrdersResponse.add(migratedCartData.toProductOrder.toSavedProductOrderResponse(cartItemProvider))
         }
         return MigratedProductOrderResponse(
             fromUser = fromUser.toSavedUserResponse(),
@@ -273,27 +273,27 @@ class DKShopServiceImpl : DKShopService() {
     }
 
     override fun getProductOrder(productOrderId: String): SavedProductOrderResponse {
-        val requestContext = authUtils.validateRequest()
-        val productOrder = productOrderUtils.getProductOrder(productOrderId) ?: error("Product order not found for id: $productOrderId")
+        val requestContext = authProvider.validateRequest()
+        val productOrder = productOrderProvider.getProductOrder(productOrderId) ?: error("Product order not found for id: $productOrderId")
         val orderedUser = productOrder.addedBy ?: error("Product order with id: $productOrderId, does not have user")
         if (requestContext.user.id != orderedUser.id) {
             error("Only the customer can get the details of their order")
         }
-        return productOrder.toSavedProductOrderResponse(cartItemUtils)
+        return productOrder.toSavedProductOrderResponse(cartItemProvider)
     }
 
     override fun getShopCompleteData(companyId: String): ShopCompleteDataResponse {
         return runBlocking {
-            val requestContext = authUtils.validateRequest(
+            val requestContext = authProvider.validateRequest(
                 companyId = companyId
             )
             val company = requestContext.company ?: error("Company is required")
 
-            val productsFuture = async { productUtils.getProducts(company) }
+            val productsFuture = async { productProvider.getProducts(company) }
 
-            val collections = collectionUtils.getCollections(company)
+            val collections = collectionProvider.getCollections(company)
 
-            val productCollections = productUtils.getProductCollections(collectionIds = collections.map { it.id }.toSet()).mapNotNull { pc ->
+            val productCollections = productProvider.getProductCollections(collectionIds = collections.map { it.id }.toSet()).mapNotNull { pc ->
                 async {
                     if (pc.collection != null && pc.product != null) {
                         ProductCollectionResponse(
@@ -318,12 +318,12 @@ class DKShopServiceImpl : DKShopService() {
     }
 
     override fun getExtraCharges(companyId: String): SavedExtraChargesResponse {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             companyId = companyId
         )
         val company = requestContext.company ?: error("Company is required")
-        val eds = extraChargeDeliveryUtils.getExtraChargeDeliveries(company)
-        val ets = extraChargeTaxUtils.getExtraChargeTaxes(company)
+        val eds = extraChargeDeliveryProvider.getExtraChargeDeliveries(company)
+        val ets = extraChargeTaxProvider.getExtraChargeTaxes(company)
 
         return SavedExtraChargesResponse(
             company = company.toSavedCompanyResponse(),

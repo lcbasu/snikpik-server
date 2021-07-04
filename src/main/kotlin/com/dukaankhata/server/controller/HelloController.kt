@@ -1,6 +1,6 @@
 package com.dukaankhata.server.controller
 
-import com.dukaankhata.server.utils.UniqueIdGeneratorUtils
+import com.dukaankhata.server.provider.UniqueIdProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 class HelloController {
 
     @Autowired
-    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @RequestMapping("/")
     fun index(): String? {
@@ -25,7 +25,7 @@ class HelloController {
 
     @RequestMapping(value = ["/getUniqueId/{prefix}"], method = [RequestMethod.GET])
     fun getUniqueId(@PathVariable prefix: String?): String? {
-        return uniqueIdGeneratorUtils.getUniqueId(prefix);
+        return uniqueIdProvider.getUniqueId(prefix);
     }
 
 }

@@ -2,8 +2,8 @@ package com.dukaankhata.server.service.impl
 
 import com.dukaankhata.server.dto.ThirdPartyImageSearchResponse
 import com.dukaankhata.server.service.ImageSearchService
-import com.dukaankhata.server.utils.CacheUtils
-import com.dukaankhata.server.utils.ImageSearchUtils
+import com.dukaankhata.server.provider.CacheProvider
+import com.dukaankhata.server.provider.ImageSearchProvider
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
@@ -17,20 +17,20 @@ class ImageSearchServiceImpl : ImageSearchService() {
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     @Autowired
-    private lateinit var imageSearchUtils: ImageSearchUtils
+    private lateinit var imageSearchProvider: ImageSearchProvider
 
     @Autowired
-    private lateinit var cacheUtils: CacheUtils
+    private lateinit var cacheProvider: CacheProvider
 
     override fun getImagesForQuery(query: String): ThirdPartyImageSearchResponse? =
         runBlocking {
-            val responseFromCache = cacheUtils.getThirdPartyImageSearchResponse(query).await()
+            val responseFromCache = cacheProvider.getThirdPartyImageSearchResponse(query).await()
 
             responseFromCache?.let {
                 // Return the cached value
                 logger.info("Retuning values for getImagesForQuery from cache")
                 it
-            } ?: imageSearchUtils.getImagesForQuery(query)
+            } ?: imageSearchProvider.getImagesForQuery(query)
         }
 
 }

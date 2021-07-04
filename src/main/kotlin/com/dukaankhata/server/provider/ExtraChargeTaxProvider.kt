@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.ExtraChargeTaxRepository
 import com.dukaankhata.server.dto.SaveExtraChargeTaxRequest
@@ -7,11 +7,12 @@ import com.dukaankhata.server.entities.ExtraChargeTax
 import com.dukaankhata.server.entities.ExtraChargeTaxKey
 import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.TaxType
+import com.dukaankhata.server.utils.DateUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
-class ExtraChargeTaxUtils {
+class ExtraChargeTaxProvider {
 
     val maxTaxPercentage = 50
 

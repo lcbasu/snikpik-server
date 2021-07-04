@@ -1,7 +1,7 @@
 package com.dukaankhata.server.cache
 
 import com.dukaankhata.server.dto.AttendanceSummaryForEmployeeResponse
-import com.dukaankhata.server.utils.AttendanceUtils
+import com.dukaankhata.server.provider.AttendanceProvider
 import com.github.benmanes.caffeine.cache.CacheLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 
-class AttendanceSummaryForEmployeeResponseCacheLoader(private val attendanceUtils: AttendanceUtils): CacheLoader<String, AttendanceSummaryForEmployeeResponse?> {
+class AttendanceSummaryForEmployeeResponseCacheLoader(private val attendanceProvider: AttendanceProvider): CacheLoader<String, AttendanceSummaryForEmployeeResponse?> {
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
     override fun reload(key: String, oldValue: AttendanceSummaryForEmployeeResponse): AttendanceSummaryForEmployeeResponse? = loadAsync(key).get()
 
@@ -25,7 +25,7 @@ class AttendanceSummaryForEmployeeResponseCacheLoader(private val attendanceUtil
         val request = KeyBuilder.parseKeyForAttendanceSummaryForEmployeeResponseCache(key)
         logger.info("run loadAsync for key: $key")
         return CoroutineScope(Dispatchers.Default).future {
-            attendanceUtils.getAttendanceSummaryForEmployee(
+            attendanceProvider.getAttendanceSummaryForEmployee(
                 employeeId = request.employeeId,
                 forYear = request.forYear,
                 forMonth = request.forMonth

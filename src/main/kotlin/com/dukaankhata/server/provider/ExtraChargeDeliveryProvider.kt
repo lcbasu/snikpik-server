@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.ExtraChargeDeliveryRepository
 import com.dukaankhata.server.dto.SaveExtraChargeDeliveryRequest
@@ -7,11 +7,12 @@ import com.dukaankhata.server.entities.ExtraChargeDelivery
 import com.dukaankhata.server.entities.ExtraChargeDeliveryKey
 import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.DeliveryType
+import com.dukaankhata.server.utils.DateUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
-class ExtraChargeDeliveryUtils {
+class ExtraChargeDeliveryProvider {
 
     @Autowired
     private lateinit var extraChargeDeliveryRepository: ExtraChargeDeliveryRepository

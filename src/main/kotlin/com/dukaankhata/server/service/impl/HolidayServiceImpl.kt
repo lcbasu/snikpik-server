@@ -3,8 +3,8 @@ package com.dukaankhata.server.service.impl
 import com.dukaankhata.server.dto.SaveHolidayRequest
 import com.dukaankhata.server.dto.SavedHolidayResponse
 import com.dukaankhata.server.dto.toSavedHolidayResponse
+import com.dukaankhata.server.provider.*
 import com.dukaankhata.server.service.HolidayService
-import com.dukaankhata.server.utils.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -12,29 +12,29 @@ import org.springframework.stereotype.Service
 class HolidayServiceImpl : HolidayService() {
 
     @Autowired
-    private lateinit var authUtils: AuthUtils
+    private lateinit var authProvider: AuthProvider
 
     @Autowired
-    private lateinit var companyUtils: CompanyUtils
+    private lateinit var companyProvider: CompanyProvider
 
     @Autowired
-    private lateinit var holidayUtils: HolidayUtils
+    private lateinit var holidayProvider: HolidayProvider
 
     @Autowired
-    private lateinit var employeeUtils: EmployeeUtils
+    private lateinit var employeeProvider: EmployeeProvider
 
     @Autowired
-    private lateinit var userRoleUtils: UserRoleUtils
+    private lateinit var userRoleProvider: UserRoleProvider
 
     override fun saveHoliday(saveHolidayRequest: SaveHolidayRequest): SavedHolidayResponse? {
-        val addedByUser = authUtils.getRequestUserEntity()
-        val company = companyUtils.getCompany(saveHolidayRequest.companyId)
-        val employee = employeeUtils.getEmployee(saveHolidayRequest.employeeId)
+        val addedByUser = authProvider.getRequestUserEntity()
+        val company = companyProvider.getCompany(saveHolidayRequest.companyId)
+        val employee = employeeProvider.getEmployee(saveHolidayRequest.employeeId)
         if (addedByUser == null || company == null || employee == null) {
             error("User, Company, and Employee are required to add an employee");
         }
 
-        val userRoles = userRoleUtils.getUserRolesForUserAndCompany(
+        val userRoles = userRoleProvider.getUserRolesForUserAndCompany(
             user = addedByUser,
             company = company
         ) ?: emptyList()
@@ -43,7 +43,7 @@ class HolidayServiceImpl : HolidayService() {
             error("Only employees of the company can mark the attendance");
         }
 
-        val holiday =  holidayUtils.saveOrUpdateHoliday(
+        val holiday =  holidayProvider.saveOrUpdateHoliday(
             addedBy = addedByUser,
             company = company,
             employee = employee,

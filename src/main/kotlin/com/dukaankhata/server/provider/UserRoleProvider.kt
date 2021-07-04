@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.UserRoleRepository
 import com.dukaankhata.server.entities.Company
@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
-class UserRoleUtils {
+class UserRoleProvider {
 
     @Autowired
     var userRoleRepository: UserRoleRepository? = null

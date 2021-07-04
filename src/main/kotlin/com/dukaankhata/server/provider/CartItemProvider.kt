@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import MigratedCartData
 import UpdatedCartData
@@ -11,16 +11,16 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 @Component
-class CartItemUtils {
+class CartItemProvider {
 
     @Autowired
     private lateinit var cartItemRepository: CartItemRepository
 
     @Autowired
-    private lateinit var productOrderUtils: ProductOrderUtils
+    private lateinit var productOrderProvider: ProductOrderProvider
 
     @Autowired
-    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     fun getCartItem(cartItemId: String): CartItem? =
         try {
@@ -56,7 +56,7 @@ class CartItemUtils {
                           productOrder: ProductOrder): CartItem {
         val newCartItem = CartItem()
 
-        newCartItem.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.CRT.name)
+        newCartItem.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.CRT.name)
 
         newCartItem.product = product
         newCartItem.productOrder = productOrder
@@ -102,7 +102,7 @@ class CartItemUtils {
             cartItemUpdateAction = cartItemUpdateAction
         )
         val productOrderCartItems = getCartItems(productOrder)
-        val updatedProductOrder = productOrderUtils.refreshProductOrder(productOrder)
+        val updatedProductOrder = productOrderProvider.refreshProductOrder(productOrder)
         return UpdatedCartData(
             updatedCartItem = updatedCartItem,
             updatedProductOrder = updatedProductOrder,
@@ -135,7 +135,7 @@ class CartItemUtils {
     fun migrateCart(fromProductOrder: ProductOrder, toProductOrder: ProductOrder): MigratedCartData {
         val fromProductOrderCartItems = getCartItems(fromProductOrder)
         val migratedCartItems = migrateCartItems(fromProductOrderCartItems, toProductOrder)
-        val updatedProductOrder = productOrderUtils.refreshProductOrder(toProductOrder)
+        val updatedProductOrder = productOrderProvider.refreshProductOrder(toProductOrder)
         return MigratedCartData(
             fromProductOrder = fromProductOrder,
             toProductOrder = updatedProductOrder,

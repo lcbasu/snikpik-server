@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.ProductCollectionRepository
 import com.dukaankhata.server.dao.ProductRepository
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 @Component
-class ProductUtils {
+class ProductProvider {
 
     @Autowired
     private lateinit var productRepository: ProductRepository
@@ -23,7 +23,7 @@ class ProductUtils {
     private lateinit var productCollectionRepository: ProductCollectionRepository
 
     @Autowired
-    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     fun getProducts(productIds: Set<String>): List<Product?> =
         try {
@@ -35,7 +35,7 @@ class ProductUtils {
     fun saveProduct(company: Company, user: User, saveProductRequest: SaveProductRequest) : Product? {
         try {
             val newProduct = Product()
-            newProduct.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.PRD.name)
+            newProduct.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.PRD.name)
             newProduct.addedBy = user
             newProduct.company = company
             newProduct.title = saveProductRequest.title

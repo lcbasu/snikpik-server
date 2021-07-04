@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.OvertimeRepository
 import com.dukaankhata.server.dto.SaveOvertimeRequest
@@ -15,16 +15,16 @@ import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 
 @Component
-class OvertimeUtils {
+class OvertimeProvider {
 
     @Autowired
     private lateinit var overtimeRepository: OvertimeRepository
 
     @Autowired
-    private lateinit var paymentUtils: PaymentUtils
+    private lateinit var paymentProvider: PaymentProvider
 
     @Autowired
-    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     fun getOvertime(overtimeId: String): Overtime? =
         try {
@@ -35,7 +35,7 @@ class OvertimeUtils {
 
     fun saveOvertime(addedBy: User, company: Company, employee: Employee, forDate: String, saveOvertimeRequest: SaveOvertimeRequest) : SavedOvertimeResponse {
         val overtime = Overtime()
-        overtime.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.OVT.name)
+        overtime.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.OVT.name)
         overtime.company = company
         overtime.employee = employee
         overtime.addedBy = addedBy
@@ -51,7 +51,7 @@ class OvertimeUtils {
             error("Invalid Overtime")
         }
 
-        val savedPayment = paymentUtils.savePaymentAndDependentData(
+        val savedPayment = paymentProvider.savePaymentAndDependentData(
             addedBy = addedBy,
             company = company,
             employee = employee,

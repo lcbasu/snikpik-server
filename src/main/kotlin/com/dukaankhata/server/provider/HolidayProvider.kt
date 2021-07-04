@@ -1,20 +1,21 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.HolidayRepository
 import com.dukaankhata.server.entities.*
 import com.dukaankhata.server.enums.HolidayType
+import com.dukaankhata.server.utils.DateUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 
 @Component
-class HolidayUtils {
+class HolidayProvider {
 
     @Autowired
     private lateinit var holidayRepository: HolidayRepository
 
     @Autowired
-    private lateinit var employeeUtils: EmployeeUtils
+    private lateinit var employeeProvider: EmployeeProvider
 
     fun getHolidayKey(companyId: String, employeeId: String, forDate: String): HolidayKey {
         val key = HolidayKey()
@@ -53,7 +54,7 @@ class HolidayUtils {
 
         // Because for today, we will always cover that in the job that will run tomorrow
         if (DateUtils.parseStandardDate(forDate).toLocalDate().atStartOfDay().isBefore(DateUtils.dateTimeNow().toLocalDate().atStartOfDay())) {
-            employeeUtils.updateSalary(employee, forDate)
+            employeeProvider.updateSalary(employee, forDate)
         }
 
         return savedHoliday

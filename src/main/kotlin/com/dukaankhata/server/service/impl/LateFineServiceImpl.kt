@@ -3,8 +3,8 @@ package com.dukaankhata.server.service.impl
 import com.dukaankhata.server.dto.SaveLateFineRequest
 import com.dukaankhata.server.dto.SavedLateFineResponse
 import com.dukaankhata.server.service.LateFineService
-import com.dukaankhata.server.utils.AuthUtils
-import com.dukaankhata.server.utils.LateFineUtils
+import com.dukaankhata.server.provider.AuthProvider
+import com.dukaankhata.server.provider.LateFineProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -12,19 +12,19 @@ import org.springframework.stereotype.Service
 class LateFineServiceImpl : LateFineService() {
 
     @Autowired
-    private lateinit var authUtils: AuthUtils
+    private lateinit var authProvider: AuthProvider
 
     @Autowired
-    private lateinit var lateFineUtils: LateFineUtils
+    private lateinit var lateFineProvider: LateFineProvider
 
     override fun saveLateFine(saveLateFineRequest: SaveLateFineRequest): SavedLateFineResponse? {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             employeeId = saveLateFineRequest.employeeId,
             companyId = saveLateFineRequest.companyId,
-            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
 
-        return lateFineUtils.saveLateFine(
+        return lateFineProvider.saveLateFine(
             addedBy = requestContext.user,
             company = requestContext.company!!,
             employee = requestContext.employee!!,

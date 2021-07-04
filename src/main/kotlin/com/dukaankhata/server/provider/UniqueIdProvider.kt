@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.UniqueIdRepository
 import com.dukaankhata.server.entities.UniqueId
@@ -10,7 +10,7 @@ import kotlin.math.abs
 
 
 @Component
-class UniqueIdGeneratorUtils {
+class UniqueIdProvider {
 
     val maximumTryout = 10
     val uuidMinLength = 30

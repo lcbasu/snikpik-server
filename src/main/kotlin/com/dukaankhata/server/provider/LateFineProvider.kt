@@ -1,4 +1,4 @@
-package com.dukaankhata.server.utils
+package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.LateFineRepository
 import com.dukaankhata.server.dto.SaveLateFineRequest
@@ -15,16 +15,16 @@ import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 
 @Component
-class LateFineUtils {
+class LateFineProvider {
 
     @Autowired
     private lateinit var lateFineRepository: LateFineRepository
 
     @Autowired
-    private lateinit var paymentUtils: PaymentUtils
+    private lateinit var paymentProvider: PaymentProvider
 
     @Autowired
-    private lateinit var uniqueIdGeneratorUtils: UniqueIdGeneratorUtils
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     fun getLateFine(lateFineId: String): LateFine? =
         try {
@@ -38,7 +38,7 @@ class LateFineUtils {
         val hourlyLateFineWageInPaisa = 5L // TODO: Update based on salary
 
         val lateFine = LateFine()
-        lateFine.id = uniqueIdGeneratorUtils.getUniqueId(ReadableIdPrefix.LFN.name)
+        lateFine.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.LFN.name)
         lateFine.company = company
         lateFine.employee = employee
         lateFine.addedBy = addedBy
@@ -55,7 +55,7 @@ class LateFineUtils {
             error("Invalid LateFine")
         }
 
-        val savedPaymentResponse = paymentUtils.savePaymentAndDependentData(
+        val savedPaymentResponse = paymentProvider.savePaymentAndDependentData(
             addedBy = addedBy,
             company = company,
             employee = employee,

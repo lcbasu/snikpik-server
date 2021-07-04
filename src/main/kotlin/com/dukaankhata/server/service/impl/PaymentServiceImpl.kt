@@ -2,8 +2,8 @@ package com.dukaankhata.server.service.impl
 
 import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.service.PaymentService
-import com.dukaankhata.server.utils.AuthUtils
-import com.dukaankhata.server.utils.PaymentUtils
+import com.dukaankhata.server.provider.AuthProvider
+import com.dukaankhata.server.provider.PaymentProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -11,18 +11,18 @@ import org.springframework.stereotype.Service
 class PaymentServiceImpl : PaymentService() {
 
     @Autowired
-    private lateinit var authUtils: AuthUtils
+    private lateinit var authProvider: AuthProvider
 
     @Autowired
-    private lateinit var paymentUtils: PaymentUtils
+    private lateinit var paymentProvider: PaymentProvider
 
     override fun savePayment(savePaymentRequest: SavePaymentRequest): SavedPaymentResponse? {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             employeeId = savePaymentRequest.employeeId,
             companyId = savePaymentRequest.companyId,
-            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
-        return paymentUtils.savePaymentAndDependentData(
+        return paymentProvider.savePaymentAndDependentData(
             addedBy = requestContext.user,
             company = requestContext.company!!,
             employee = requestContext.employee!!,
@@ -34,32 +34,32 @@ class PaymentServiceImpl : PaymentService() {
     }
 
     override fun getCompanyPaymentReport(companyPaymentReportRequest: CompanyPaymentReportRequest): CompanyPaymentReportResponse? {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             companyId = companyPaymentReportRequest.companyId,
-            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
 
         val company = requestContext.company ?: error("Company is required")
 
-        val monthlyPaymentSummary = paymentUtils.getMonthlyPaymentSummary(
+        val monthlyPaymentSummary = paymentProvider.getMonthlyPaymentSummary(
             company = company,
             forYear = companyPaymentReportRequest.forYear,
             forMonth = companyPaymentReportRequest.forMonth
         )
-        return paymentUtils.getCompanyPaymentReport(forYear = companyPaymentReportRequest.forYear,
+        return paymentProvider.getCompanyPaymentReport(forYear = companyPaymentReportRequest.forYear,
             forMonth = companyPaymentReportRequest.forMonth, requestContext.company, monthlyPaymentSummary)
     }
 
     override fun getEmployeePaymentDetails(employeePaymentDetailsRequest: EmployeePaymentDetailsRequest): EmployeePaymentDetailsResponse? {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             employeeId = employeePaymentDetailsRequest.employeeId,
-            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val employee = requestContext.employee ?: error("Employee is required")
-        val monthlyPaymentSummary = paymentUtils.getMonthlyPaymentSummary(
+        val monthlyPaymentSummary = paymentProvider.getMonthlyPaymentSummary(
             employee, forYear = employeePaymentDetailsRequest.forYear, forMonth = employeePaymentDetailsRequest.forMonth
         )
-        return paymentUtils.getEmployeePaymentDetails(
+        return paymentProvider.getEmployeePaymentDetails(
             employee,
             forYear = employeePaymentDetailsRequest.forYear,
             forMonth = employeePaymentDetailsRequest.forMonth,
@@ -67,12 +67,12 @@ class PaymentServiceImpl : PaymentService() {
     }
 
     override fun getEmployeeCompletePaymentDetails(employeeCompletePaymentDetailsRequest: EmployeeCompletePaymentDetailsRequest): EmployeeCompletePaymentDetailsResponse? {
-        val requestContext = authUtils.validateRequest(
+        val requestContext = authProvider.validateRequest(
             employeeId = employeeCompletePaymentDetailsRequest.employeeId,
-            requiredRoleTypes = authUtils.onlyAdminLevelRoles()
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val employee = requestContext.employee ?: error("Employee is required")
-        return paymentUtils.getEmployeeCompletePaymentDetails(
+        return paymentProvider.getEmployeeCompletePaymentDetails(
             employee,
             forYear = employeeCompletePaymentDetailsRequest.forYear,
             forMonth = employeeCompletePaymentDetailsRequest.forMonth)

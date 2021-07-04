@@ -6,9 +6,9 @@ import com.dukaankhata.server.dto.UserCompaniesResponse
 import com.dukaankhata.server.dto.toSavedCompanyResponse
 import com.dukaankhata.server.enums.RoleType
 import com.dukaankhata.server.service.CompanyService
-import com.dukaankhata.server.utils.AuthUtils
-import com.dukaankhata.server.utils.CompanyUtils
-import com.dukaankhata.server.utils.UserRoleUtils
+import com.dukaankhata.server.provider.AuthProvider
+import com.dukaankhata.server.provider.CompanyProvider
+import com.dukaankhata.server.provider.UserRoleProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -16,17 +16,17 @@ import org.springframework.stereotype.Service
 class CompanyServiceImpl : CompanyService() {
 
     @Autowired
-    private lateinit var companyUtils: CompanyUtils
+    private lateinit var companyProvider: CompanyProvider
 
     @Autowired
-    private lateinit var authUtils: AuthUtils
+    private lateinit var authProvider: AuthProvider
 
     @Autowired
-    private lateinit var userRoleUtils: UserRoleUtils
+    private lateinit var userRoleProvider: UserRoleProvider
 
     override fun saveCompany(saveCompanyRequest: SaveCompanyRequest): SavedCompanyResponse? {
-        val user = authUtils.getRequestUserEntity() ?: return null
-        val company = companyUtils.saveCompany(
+        val user = authProvider.getRequestUserEntity() ?: return null
+        val company = companyProvider.saveCompany(
             user = user,
             name = saveCompanyRequest.name,
             location = saveCompanyRequest.location,
@@ -36,7 +36,7 @@ class CompanyServiceImpl : CompanyService() {
 
         company.let {
             // Save the user role for the person who created the company
-            userRoleUtils.addUserRole(user, company, RoleType.EMPLOYER)
+            userRoleProvider.addUserRole(user, company, RoleType.EMPLOYER)
                 ?: error("Unable to save user role while creating company")
         }
 
@@ -48,8 +48,8 @@ class CompanyServiceImpl : CompanyService() {
     }
 
     override fun getUserCompanies(phoneNumber: String): UserCompaniesResponse? {
-        val user = authUtils.getUserByMobile(phoneNumber);
-        val companies = user?.let { companyUtils.findByUser(it) } ?: emptyList()
+        val user = authProvider.getUserByMobile(phoneNumber);
+        val companies = user?.let { companyProvider.findByUser(it) } ?: emptyList()
         return UserCompaniesResponse(companies = companies.map { it.toSavedCompanyResponse() })
     }
 }
