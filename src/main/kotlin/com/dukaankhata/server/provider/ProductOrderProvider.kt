@@ -1,10 +1,7 @@
 package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.ProductOrderRepository
-import com.dukaankhata.server.dto.ProductOrderStatusUpdateRequest
-import com.dukaankhata.server.dto.ProductOrderUpdateByCustomerRequest
-import com.dukaankhata.server.dto.ProductOrderUpdateBySellerRequest
-import com.dukaankhata.server.dto.ProductOrderUpdateRequest
+import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.ProductOrder
 import com.dukaankhata.server.entities.User
@@ -429,5 +426,10 @@ class ProductOrderProvider {
         } else {
             error(isOrderTransitionPossible.errorMessage)
         }
+    }
+
+    fun getProductOrderDetails(orderId: String): ProductOrderDetailsResponse {
+        val productOrder = getProductOrder(orderId) ?: error("No order found for orderId: $orderId")
+        return productOrder.toProductOrderDetailsResponse(cartItemProvider)
     }
 }

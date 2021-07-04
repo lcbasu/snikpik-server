@@ -128,7 +128,6 @@ fun ProductOrderStateBeforeUpdate.toProductOrderUpdateResponse(): ProductOrderSt
     }
 }
 
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AllProductOrderCardsResponse(
     val orders: List<ProductOrderCardResponse>
@@ -155,6 +154,46 @@ fun ProductOrder.toProductOrderCardResponse(cartItemProvider: CartItemProvider):
             orderStatus = orderStatus,
             cartItemsCount = cartItems.size,
             orderedAt = DateUtils.getEpoch(createdAt),
+            paymentMode = OrderPaymentMode.COD
+        )
+    }
+}
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ProductOrderDetailsResponse(
+    val serverId: String,
+    val mediaDetails: MediaDetails,
+    val totalPricePayableInPaisa: Long = 0,
+    var orderStatus: ProductOrderStatus,
+    var cartItemsCount: Int = 0,
+    var orderedAt: Long = 0,
+    var paymentMode: OrderPaymentMode,
+    val addedByUser: SavedUserResponse,
+    var discountInPaisa: Long = 0,
+    var deliveryChargeInPaisa: Long = 0,
+    val totalTaxInPaisa: Long = 0,
+    val totalPriceWithoutTaxInPaisa: Long = 0,
+    var cartItems: List<SavedCartItemResponse> = emptyList(),
+    var discount: SavedDiscountResponse? = null,
+    var address: SavedAddressResponse? = null,
+)
+
+fun ProductOrder.toProductOrderDetailsResponse(cartItemProvider: CartItemProvider): ProductOrderDetailsResponse {
+    this.apply {
+        val cartItems = cartItemProvider.getCartItems(this).filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse() }
+        return ProductOrderDetailsResponse(
+            serverId = id,
+            addedByUser = addedBy!!.toSavedUserResponse(),
+            mediaDetails = MediaDetails(cartItems.mapNotNull { it.product?.mediaDetails?.media }.flatten()),
+            discountInPaisa = discountInPaisa,
+            deliveryChargeInPaisa = deliveryChargeInPaisa,
+            totalTaxInPaisa = totalTaxInPaisa,
+            totalPriceWithoutTaxInPaisa = totalPriceWithoutTaxInPaisa,
+            totalPricePayableInPaisa = totalPricePayableInPaisa,
+            orderStatus = orderStatus,
+            cartItems = cartItems,
+            address = address?.let { it.toSavedAddressResponse() },
+            discount = discount?.let { it.toSavedDiscountResponse() },
             paymentMode = OrderPaymentMode.COD
         )
     }

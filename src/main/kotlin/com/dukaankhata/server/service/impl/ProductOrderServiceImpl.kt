@@ -1,10 +1,10 @@
 package com.dukaankhata.server.service.impl
 
 import com.dukaankhata.server.dto.*
-import com.dukaankhata.server.service.ProductOrderService
 import com.dukaankhata.server.provider.AuthProvider
 import com.dukaankhata.server.provider.CartItemProvider
 import com.dukaankhata.server.provider.ProductOrderProvider
+import com.dukaankhata.server.service.ProductOrderService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -63,5 +63,10 @@ class ProductOrderServiceImpl : ProductOrderService() {
         return AllProductOrderCardsResponse(
             orders = productOrders.map { it.toProductOrderCardResponse(cartItemProvider) }
         )
+    }
+
+    override fun getProductOrderDetails(orderId: String): ProductOrderDetailsResponse {
+        authProvider.validateRequest()
+        return productOrderProvider.getProductOrderDetails(orderId)
     }
 }
