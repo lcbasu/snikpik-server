@@ -2,8 +2,7 @@ package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.ProductCollectionRepository
 import com.dukaankhata.server.dao.ProductRepository
-import com.dukaankhata.server.dto.AddProductsToCollectionRequest
-import com.dukaankhata.server.dto.SaveProductRequest
+import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.entities.*
 import com.dukaankhata.server.entities.Collection
 import com.dukaankhata.server.enums.ProductStatus
@@ -12,6 +11,8 @@ import com.dukaankhata.server.model.convertToString
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 
 @Component
 class ProductProvider {
@@ -118,5 +119,17 @@ class ProductProvider {
         } catch (e: Exception) {
             null
         }
+
+    fun getAllProducts(company: Company): AllProductsResponse {
+        return runBlocking {
+            AllProductsResponse(
+                products = getProducts(company).map {
+                    async { it.toSavedProductResponse() }
+                }.map {
+                    it.await()
+                }
+            )
+        }
+    }
 
 }

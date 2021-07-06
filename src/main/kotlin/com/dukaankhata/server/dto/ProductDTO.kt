@@ -27,6 +27,7 @@ data class SavedProductResponse(
     var productUnit: ProductUnit,
     val taxPerUnitInPaisa: Long = 0,
     val pricePerUnitInPaisa: Long = 0,
+    val productInStock: Boolean = true, // TODO: Store this as a Seller level input in DB so that they can update this (productInStock) flag
     val totalUnitInStock: Long = 0,
     var minOrderUnitCount: Long = 0
 )
@@ -36,6 +37,11 @@ data class AddProductsToCollectionRequest(
     val companyId: String,
     val collectionId: String,
     val productIds: Set<String>
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AllProductsResponse(
+    val products: List<SavedProductResponse>
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -61,6 +67,7 @@ fun Product.toSavedProductResponse(): SavedProductResponse {
             taxPerUnitInPaisa = taxPerUnitInPaisa,
             pricePerUnitInPaisa = pricePerUnitInPaisa,
             totalUnitInStock = totalUnitInStock,
+            productInStock = totalUnitInStock > 0, // TODO: Store this as a Seller level input in DB so that they can update this (productInStock) flag
             minOrderUnitCount = minOrderUnitCount
         )
     }

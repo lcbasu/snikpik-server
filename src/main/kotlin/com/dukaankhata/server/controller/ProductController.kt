@@ -1,15 +1,9 @@
 package com.dukaankhata.server.controller
 
-import com.dukaankhata.server.dto.AddProductsToCollectionRequest
-import com.dukaankhata.server.dto.AddProductsToCollectionResponse
-import com.dukaankhata.server.dto.SaveProductRequest
-import com.dukaankhata.server.dto.SavedProductResponse
+import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.service.ProductService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("product")
@@ -25,5 +19,10 @@ class ProductController {
     @RequestMapping(value = ["/addProductsToCollection"], method = [RequestMethod.POST])
     fun addProductsToCollection(@RequestBody addProductsToCollectionRequest: AddProductsToCollectionRequest): AddProductsToCollectionResponse? {
         return productService.addProductsToCollection(addProductsToCollectionRequest)
+    }
+
+    @RequestMapping(value = ["/getAllProducts/{companyId}"], method = [RequestMethod.GET])
+    fun getAllProducts(@PathVariable companyId: String): AllProductsResponse {
+        return productService.getAllProducts(companyId)
     }
 }

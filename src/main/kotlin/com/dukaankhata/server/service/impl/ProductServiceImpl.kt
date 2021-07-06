@@ -43,4 +43,13 @@ class ProductServiceImpl : ProductService() {
             products = savedProductsCollection.map { it.product!!.toSavedProductResponse() }
         )
     }
+
+    override fun getAllProducts(companyId: String): AllProductsResponse {
+        val requestContext = authProvider.validateRequest(
+            companyId = companyId,
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
+        )
+        val company = requestContext.company ?: error("Company is required")
+        return productProvider.getAllProducts(company)
+    }
 }
