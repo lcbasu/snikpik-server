@@ -50,7 +50,7 @@ data class ProductOrderUpdateBySellerRequest(
 ): ProductOrderUpdateRequest(ProductOrderUpdatedBy.BY_SELLER)
 
 data class ProductOrderStateBeforeUpdateResponse(
-    val addressId: String,
+    val addressId: String? = null,
 
     val cartItems: Map<String, Long>,
     val deliveryChargeInPaisa: Long,

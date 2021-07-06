@@ -344,11 +344,11 @@ class ProductOrderProvider {
             error("Product order being updated and the product id to be updated are not same. productOrder.id: ${productOrder.id} & productOrderId: $productOrderId")
         }
 
-        val productOrderAddress = productOrder.address ?: error("Product order does ot hav address")
+        val productOrderAddress = productOrder.address
         val productOrderCartItems = cartItemProvider.getCartItems(productOrder)
 
         val productOrderStateBeforeUpdate = ProductOrderStateBeforeUpdate(
-            addressId = productOrderAddress.id,
+            addressId = productOrderAddress?.id,
             cartItems = productOrderCartItems.associateBy({it.id}, {it.totalUnits}),
             deliveryChargeInPaisa = productOrder.deliveryChargeInPaisa,
             totalTaxInPaisa = productOrder.totalTaxInPaisa,
@@ -370,7 +370,7 @@ class ProductOrderProvider {
             ProductOrderUpdatedBy.BY_CUSTOMER -> {
                 val productOrderUpdateByCustomerRequest = productOrderUpdateRequest as ProductOrderUpdateByCustomerRequest
                 productOrderUpdateByCustomerRequest.newAddressId?.let {
-                    if (productOrderAddress.id != it) {
+                    if (productOrderAddress == null || productOrderAddress.id != it) {
                         val address = addressProvider.getAddress(it) ?: error("Address does not exist for id: $it")
                         val user = productOrder.addedBy ?: error("User does not exist for product order with id: ${productOrder.id}")
                         val isUserAddressValid = addressProvider.getIsUserAddressValid(user, address)

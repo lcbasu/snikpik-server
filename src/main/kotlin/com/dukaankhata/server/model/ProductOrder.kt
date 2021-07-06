@@ -17,7 +17,7 @@ data class OrderStateTransitionOutput(
  * */
 data class ProductOrderStateBeforeUpdate(
 
-    val addressId: String,
+    val addressId: String? = null,
 
     val cartItems: Map<String, Long>,
     val deliveryChargeInPaisa: Long,
