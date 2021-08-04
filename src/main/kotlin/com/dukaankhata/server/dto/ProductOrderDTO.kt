@@ -9,6 +9,7 @@ import com.dukaankhata.server.model.MediaDetails
 import com.dukaankhata.server.model.ProductOrderStateBeforeUpdate
 import com.dukaankhata.server.model.getProductOrderStateBeforeUpdate
 import com.dukaankhata.server.provider.CartItemProvider
+import com.dukaankhata.server.provider.ProductVariantProvider
 import com.dukaankhata.server.utils.DateUtils
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
@@ -41,6 +42,8 @@ open class ProductOrderUpdateRequest(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ProductOrderUpdateByCustomerRequest(
     val newAddressId: String? = null,
+    val paymentId: String? = null, // ID in case of online payment, or COD Payment pickup by some other third party vendor
+    val paymentMode: OrderPaymentMode? = null,
 ): ProductOrderUpdateRequest(ProductOrderUpdatedBy.BY_CUSTOMER)
 
 //@JsonTypeName("ProductOrderUpdateBySellerRequest")
@@ -95,7 +98,7 @@ data class MigratedProductOrderResponse(
     val toProductOrders: List<SavedProductOrderResponse>,
 )
 
-fun ProductOrder.toSavedProductOrderResponse(cartItemProvider: CartItemProvider): SavedProductOrderResponse {
+fun ProductOrder.toSavedProductOrderResponse(productVariantProvider: ProductVariantProvider, cartItemProvider: CartItemProvider): SavedProductOrderResponse {
     this.apply {
         return SavedProductOrderResponse(
             serverId = id,
@@ -107,7 +110,7 @@ fun ProductOrder.toSavedProductOrderResponse(cartItemProvider: CartItemProvider)
             totalPriceWithoutTaxInPaisa = totalPriceWithoutTaxInPaisa,
             totalPricePayableInPaisa = totalPricePayableInPaisa,
             orderStatus = orderStatus,
-            cartItems = cartItemProvider.getCartItems(this).filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse() },
+            cartItems = cartItemProvider.getCartItems(this).filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse(productVariantProvider) },
             address = address?.let { it.toSavedAddressResponse() },
             discount = discount?.let { it.toSavedDiscountResponse() },
             productOrderStateBeforeUpdateResponse = productOrderStateBeforeUpdate?.let { getProductOrderStateBeforeUpdate()?.toProductOrderUpdateResponse() }
@@ -144,9 +147,9 @@ data class ProductOrderCardResponse(
     var paymentMode: OrderPaymentMode = OrderPaymentMode.NONE
 )
 
-fun ProductOrder.toProductOrderCardResponse(cartItemProvider: CartItemProvider): ProductOrderCardResponse {
+fun ProductOrder.toProductOrderCardResponse(productVariantProvider: ProductVariantProvider, cartItemProvider: CartItemProvider): ProductOrderCardResponse {
     this.apply {
-        val cartItems = cartItemProvider.getCartItems(this).filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse() }
+        val cartItems = cartItemProvider.getCartItems(this).filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse(productVariantProvider) }
         return ProductOrderCardResponse(
             serverId = id,
             mediaDetails = MediaDetails(cartItems.mapNotNull { it.product?.mediaDetails?.media }.flatten()),
@@ -178,9 +181,9 @@ data class ProductOrderDetailsResponse(
     var address: SavedAddressResponse? = null,
 )
 
-fun ProductOrder.toProductOrderDetailsResponse(cartItemProvider: CartItemProvider): ProductOrderDetailsResponse {
+fun ProductOrder.toProductOrderDetailsResponse(productVariantProvider: ProductVariantProvider, cartItemProvider: CartItemProvider): ProductOrderDetailsResponse {
     this.apply {
-        val cartItems = cartItemProvider.getCartItems(this).filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse() }
+        val cartItems = cartItemProvider.getCartItems(this).filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse(productVariantProvider) }
         return ProductOrderDetailsResponse(
             serverId = id,
             addedByUser = addedBy!!.toSavedUserResponse(),

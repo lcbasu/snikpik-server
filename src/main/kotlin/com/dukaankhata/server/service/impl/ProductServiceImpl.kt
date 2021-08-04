@@ -5,6 +5,7 @@ import com.dukaankhata.server.service.ProductService
 import com.dukaankhata.server.provider.AuthProvider
 import com.dukaankhata.server.provider.CollectionProvider
 import com.dukaankhata.server.provider.ProductProvider
+import com.dukaankhata.server.provider.ProductVariantProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -19,6 +20,9 @@ class ProductServiceImpl : ProductService() {
     @Autowired
     private lateinit var collectionProvider: CollectionProvider
 
+    @Autowired
+    private lateinit var productVariantProvider: ProductVariantProvider
+
     override fun saveProduct(saveProductRequest: SaveProductRequest): SavedProductResponse? {
         val requestContext = authProvider.validateRequest(
             companyId = saveProductRequest.companyId,
@@ -26,7 +30,7 @@ class ProductServiceImpl : ProductService() {
         )
         val company = requestContext.company ?: error("Company should be present")
         val savedProduct = productProvider.saveProduct(company, requestContext.user, saveProductRequest) ?: error("Error while saving product")
-        return savedProduct.toSavedProductResponse()
+        return savedProduct.toSavedProductResponse(productVariantProvider)
     }
 
     override fun addProductsToCollection(addProductsToCollectionRequest: AddProductsToCollectionRequest): AddProductsToCollectionResponse? {
@@ -40,7 +44,7 @@ class ProductServiceImpl : ProductService() {
         return AddProductsToCollectionResponse(
             company = company.toSavedCompanyResponse(),
             collection = collection.toSavedCollectionResponse(),
-            products = savedProductsCollection.map { it.product!!.toSavedProductResponse() }
+            products = savedProductsCollection.map { it.product!!.toSavedProductResponse(productVariantProvider) }
         )
     }
 

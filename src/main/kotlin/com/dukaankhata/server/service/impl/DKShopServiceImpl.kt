@@ -44,6 +44,9 @@ class DKShopServiceImpl : DKShopService() {
     private lateinit var extraChargeDeliveryProvider: ExtraChargeDeliveryProvider
 
     @Autowired
+    private lateinit var productVariantProvider: ProductVariantProvider
+
+    @Autowired
     private lateinit var extraChargeTaxProvider: ExtraChargeTaxProvider
 
     override fun saveUsername(saveUsernameRequest: SaveUsernameRequest): SaveUsernameResponse? {
@@ -127,13 +130,14 @@ class DKShopServiceImpl : DKShopService() {
 
             val company = companyProvider.getCompanyByUsername(username) ?: error("Username not found")
 
-            val allProductsFuture = async { productProvider.getProducts(company) }
+            val allProductVariantsFuture = async { productVariantProvider.getProductVariants(company) }
             val allCollectionsFuture = async { collectionProvider.getCollections(company) }
 
-            val allProducts = allProductsFuture.await()
+            val allProductVariants = allProductVariantsFuture.await()
+            val allProducts = allProductVariants.mapNotNull { it.product }
             val allCollections = allCollectionsFuture.await()
 
-            val allCartItemsFuture = async { cartItemProvider.getCartItemsForUserForProducts(user.id, allProducts.map { it.id }.toSet()) }
+            val allCartItemsFuture = async { cartItemProvider.getCartItemsForUserForProductVariants(user.id, allProductVariants.map { it.id }.toSet()) }
 
             val allCartItems = allCartItemsFuture.await()
 
@@ -151,7 +155,7 @@ class DKShopServiceImpl : DKShopService() {
             ShopViewForCustomerResponse(
                 user = user.toSavedUserResponse(),
                 company = company.toSavedCompanyResponse(),
-                allProducts = allProducts.map { it.toSavedProductResponse() },
+                allProducts = allProducts.map { it.toSavedProductResponse(productVariantProvider = productVariantProvider) },
                 bestsellerProductsIds = bestsellerProducts.await().map { it.id }.toSet(),
                 pastOrderedProductsIds = productsOrderedInPast.map { it.id }.toSet(),
                 allCollections = allCollections.map { it.toSavedCollectionResponse() },
@@ -165,7 +169,7 @@ class DKShopServiceImpl : DKShopService() {
         val requestContext = authProvider.validateRequest()
         val relatedProducts = productProvider.getRelatedProducts(productId)
         return RelatedProductsResponse(
-            products = relatedProducts.map { it.toSavedProductResponse() }
+            products = relatedProducts.map { it.toSavedProductResponse(productVariantProvider) }
         )
     }
 
@@ -173,18 +177,18 @@ class DKShopServiceImpl : DKShopService() {
         val requestContext = authProvider.validateRequest()
 
         val user = requestContext.user
-        val product = productProvider.getProduct(updateCartRequest.productId) ?: error("Product is required")
-        val company = product.company ?: error("Every product should always belong to a company")
+        val productVariant = productVariantProvider.getProductVariant(updateCartRequest.productVariantId) ?: error("Product Variant is required")
+        val company = productVariant.company ?: error("Every product variant should always belong to a company")
         val activeProductOrderBag = productOrderProvider.getOrCreateActiveProductOrderBag(
             company = company,
             user = user)
         val updatedCartData = cartItemProvider.updateCartAndDependentOrder(
             company = company,
             user = user,
-            product = product,
+            productVariant = productVariant,
             productOrder = activeProductOrderBag,
             cartItemUpdateAction = updateCartRequest.action)
-        return updatedCartData.updatedProductOrder.toSavedProductOrderResponse(cartItemProvider)
+        return updatedCartData.updatedProductOrder.toSavedProductOrderResponse(productVariantProvider, cartItemProvider)
     }
 
     override fun getActiveProductOrderBag(shopUsername: String): SavedProductOrderResponse? {
@@ -194,7 +198,7 @@ class DKShopServiceImpl : DKShopService() {
         val activeProductOrderBag = productOrderProvider.getActiveProductOrderBag(
             company = company,
             user = user)
-        return activeProductOrderBag?.toSavedProductOrderResponse(cartItemProvider)
+        return activeProductOrderBag?.toSavedProductOrderResponse(productVariantProvider, cartItemProvider)
     }
 
     override fun getActiveDiscounts(companyId: String): SavedActiveDiscountsResponse {
@@ -261,8 +265,8 @@ class DKShopServiceImpl : DKShopService() {
             val migratedCartData = cartItemProvider.migrateCart(
                 fromProductOrder = fromProductOrder,
                 toProductOrder = toProductOrder)
-            fromProductOrdersResponse.add(migratedCartData.fromProductOrder.toSavedProductOrderResponse(cartItemProvider))
-            toProductOrdersResponse.add(migratedCartData.toProductOrder.toSavedProductOrderResponse(cartItemProvider))
+            fromProductOrdersResponse.add(migratedCartData.fromProductOrder.toSavedProductOrderResponse(productVariantProvider, cartItemProvider))
+            toProductOrdersResponse.add(migratedCartData.toProductOrder.toSavedProductOrderResponse(productVariantProvider, cartItemProvider))
         }
         return MigratedProductOrderResponse(
             fromUser = fromUser.toSavedUserResponse(),
@@ -279,7 +283,7 @@ class DKShopServiceImpl : DKShopService() {
         if (requestContext.user.id != orderedUser.id) {
             error("Only the customer can get the details of their order")
         }
-        return productOrder.toSavedProductOrderResponse(cartItemProvider)
+        return productOrder.toSavedProductOrderResponse(productVariantProvider, cartItemProvider)
     }
 
     override fun getShopCompleteData(companyId: String): ShopCompleteDataResponse {
@@ -300,7 +304,7 @@ class DKShopServiceImpl : DKShopService() {
                             serverId = pc.collection!!.id + CommonUtils.STRING_SEPARATOR + pc.product!!.id,
                             company = company.toSavedCompanyResponse(),
                             collection = pc.collection!!.toSavedCollectionResponse(),
-                            product = pc.product!!.toSavedProductResponse(),
+                            product = pc.product!!.toSavedProductResponse(productVariantProvider),
                         )
                     } else {
                         null
@@ -310,7 +314,7 @@ class DKShopServiceImpl : DKShopService() {
 
             ShopCompleteDataResponse(
                 company = company.toSavedCompanyResponse(),
-                products = productsFuture.await().map { it.toSavedProductResponse() },
+                products = productsFuture.await().map { it.toSavedProductResponse(productVariantProvider) },
                 collections = collections.map { it.toSavedCollectionResponse() },
                 productCollections = productCollections
             )

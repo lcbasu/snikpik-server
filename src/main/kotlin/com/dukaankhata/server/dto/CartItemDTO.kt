@@ -2,11 +2,12 @@ package com.dukaankhata.server.dto
 
 import com.dukaankhata.server.entities.CartItem
 import com.dukaankhata.server.enums.CartItemUpdateAction
+import com.dukaankhata.server.provider.ProductVariantProvider
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateCartRequest(
-    val productId: String,
+    val productVariantId: String,
     val action: CartItemUpdateAction
 )
 
@@ -20,7 +21,8 @@ data class SavedCartItemResponse(
     val totalTaxInPaisa: Long = 0,
     val totalPriceWithoutTaxInPaisa: Long = 0,
     val orderId: String?,
-    val product: SavedProductResponse?
+    val product: SavedProductResponse?,
+    val productVariant: SavedProductVariant?
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -29,7 +31,7 @@ data class MigrateCartRequest(
     val toUserId: String,
 )
 
-fun CartItem.toSavedCartItemResponse(): SavedCartItemResponse {
+fun CartItem.toSavedCartItemResponse(productVariantProvider: ProductVariantProvider): SavedCartItemResponse {
     this.apply {
         return SavedCartItemResponse(
             serverId = id.toString(),
@@ -40,7 +42,8 @@ fun CartItem.toSavedCartItemResponse(): SavedCartItemResponse {
             totalTaxInPaisa = totalTaxInPaisa,
             totalPriceWithoutTaxInPaisa = totalPriceWithoutTaxInPaisa,
             orderId = productOrder?.id,
-            product = product?.toSavedProductResponse()
+            product = productVariant?.product?.toSavedProductResponse(productVariantProvider),
+            productVariant = productVariant?.toSavedProductVariant()
         )
     }
 }

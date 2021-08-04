@@ -8,6 +8,11 @@ enum class ProductOrderStatus {
     DRAFT, // Added to Cart by customer but not yet placed
 
     // Marked by System for Customer
+    ADDRESS_CONFIRMED, // New Address added or old address is confirmed by the seller
+
+    PAYMENT_CONFIRMED, // COD selected or Online Payment is done
+
+    // Marked by System for Customer
     PLACED, // Placed by the customer
 
     // Will land here if the productOrder was modified by the Shopkeeper,

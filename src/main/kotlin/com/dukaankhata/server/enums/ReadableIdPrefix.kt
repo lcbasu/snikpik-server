@@ -15,5 +15,6 @@ enum class ReadableIdPrefix {
     NTE, // Note
     OVT, // Overtime
     PMT, // Payment
+    PVT, // Product Variant
 }
 

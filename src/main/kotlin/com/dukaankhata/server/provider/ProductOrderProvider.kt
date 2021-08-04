@@ -32,6 +32,9 @@ class ProductOrderProvider {
     @Autowired
     private lateinit var cartItemProvider: CartItemProvider
 
+    @Autowired
+    private lateinit var productVariantProvider: ProductVariantProvider
+
     fun getProductOrder(productOrderId: String): ProductOrder? =
         try {
             productOrderRepository.findById(productOrderId).get()
@@ -86,7 +89,7 @@ class ProductOrderProvider {
         return productOrderRepository.save(newProductOrder)
     }
 
-    fun refreshProductOrder(productOrder: ProductOrder): ProductOrder {
+    fun saveAndRefreshProductOrder(productOrder: ProductOrder): ProductOrder {
         productOrder.totalTaxInPaisa = 0
         productOrder.totalPriceWithoutTaxInPaisa = 0
         cartItemProvider.getCartItems(productOrder).map { cartItem ->
@@ -108,14 +111,15 @@ class ProductOrderProvider {
     }
 
     fun getIsOrderTransitionPossible(productOrder: ProductOrder, newStatus: ProductOrderStatus): OrderStateTransitionOutput {
+        if (productOrder.orderStatus == newStatus) error("Not required to move to $newStatus. Order is already in $newStatus state.")
         return when (newStatus) {
             ProductOrderStatus.PLACED -> {
-                if (productOrder.orderStatus == ProductOrderStatus.DRAFT) {
+                if (productOrder.orderStatus == ProductOrderStatus.PAYMENT_CONFIRMED) {
                     OrderStateTransitionOutput(
                         transitionPossible = true
                     )
                 } else {
-                    val errorMessage = "Can only move to $newStatus, from DRAFT state and if the customer has decided to place the order."
+                    val errorMessage = "Can only move to $newStatus, from PAYMENT_CONFIRMED state and if the customer has confirmed the payment mode for COD and actually made the payment for ONLINE."
                     logger.error(errorMessage)
                     OrderStateTransitionOutput(
                         transitionPossible = false,
@@ -304,6 +308,30 @@ class ProductOrderProvider {
                     )
                 }
             }
+            ProductOrderStatus.ADDRESS_CONFIRMED -> if (productOrder.orderStatus == ProductOrderStatus.DRAFT) {
+                OrderStateTransitionOutput(
+                    transitionPossible = true
+                )
+            } else {
+                val errorMessage = "Can only move to $newStatus, if the order is the new order (DRAFT) from this shop."
+                logger.error(errorMessage)
+                OrderStateTransitionOutput(
+                    transitionPossible = false,
+                    errorMessage = errorMessage
+                )
+            }
+            ProductOrderStatus.PAYMENT_CONFIRMED -> if (productOrder.orderStatus == ProductOrderStatus.ADDRESS_CONFIRMED) {
+                OrderStateTransitionOutput(
+                    transitionPossible = true
+                )
+            } else {
+                val errorMessage = "Can only move to $newStatus, if the order has a confirmed delivery address."
+                logger.error(errorMessage)
+                OrderStateTransitionOutput(
+                    transitionPossible = false,
+                    errorMessage = errorMessage
+                )
+            }
         }
     }
 
@@ -324,12 +352,27 @@ class ProductOrderProvider {
 
         val newStatus = when (productOrderUpdateRequest.updatedBy) {
             ProductOrderUpdatedBy.BY_SELLER -> ProductOrderStatus.PENDING_CUSTOMER_APPROVAL
-            ProductOrderUpdatedBy.BY_CUSTOMER -> ProductOrderStatus.PENDING_SELLER_APPROVAL
+            ProductOrderUpdatedBy.BY_CUSTOMER -> when (productOrder.orderStatus) {
+                ProductOrderStatus.DRAFT -> {
+                    ProductOrderStatus.ADDRESS_CONFIRMED
+                }
+                ProductOrderStatus.ADDRESS_CONFIRMED -> {
+                    ProductOrderStatus.PAYMENT_CONFIRMED
+                }
+                else -> {
+                    ProductOrderStatus.PENDING_SELLER_APPROVAL
+                }
+            }
         }
 
         val isOrderTransitionPossible = getIsOrderTransitionPossible(productOrder, newStatus)
         return if (isOrderTransitionPossible.transitionPossible) {
-            val updatedProductOrder = saveOldStateAndUpdateProductOrder(productOrder, productOrderUpdateRequest)
+            val updatedProductOrder = if (newStatus == ProductOrderStatus.ADDRESS_CONFIRMED || newStatus == ProductOrderStatus.PAYMENT_CONFIRMED) {
+                // No need to save old state
+                productOrderUpdateByCustomer(productOrder, productOrderUpdateRequest)
+            } else {
+                saveOldStateAndUpdateProductOrder(productOrder, productOrderUpdateRequest)
+            }
             transitionStateTo(updatedProductOrder, newStatus)
         } else {
             error(isOrderTransitionPossible.errorMessage)
@@ -344,11 +387,10 @@ class ProductOrderProvider {
             error("Product order being updated and the product id to be updated are not same. productOrder.id: ${productOrder.id} & productOrderId: $productOrderId")
         }
 
-        val productOrderAddress = productOrder.address
         val productOrderCartItems = cartItemProvider.getCartItems(productOrder)
 
         val productOrderStateBeforeUpdate = ProductOrderStateBeforeUpdate(
-            addressId = productOrderAddress?.id,
+            addressId = productOrder.address?.id,
             cartItems = productOrderCartItems.associateBy({it.id}, {it.totalUnits}),
             deliveryChargeInPaisa = productOrder.deliveryChargeInPaisa,
             totalTaxInPaisa = productOrder.totalTaxInPaisa,
@@ -368,18 +410,7 @@ class ProductOrderProvider {
                 }
             }
             ProductOrderUpdatedBy.BY_CUSTOMER -> {
-                val productOrderUpdateByCustomerRequest = productOrderUpdateRequest as ProductOrderUpdateByCustomerRequest
-                productOrderUpdateByCustomerRequest.newAddressId?.let {
-                    if (productOrderAddress == null || productOrderAddress.id != it) {
-                        val address = addressProvider.getAddress(it) ?: error("Address does not exist for id: $it")
-                        val user = productOrder.addedBy ?: error("User does not exist for product order with id: ${productOrder.id}")
-                        val isUserAddressValid = addressProvider.getIsUserAddressValid(user, address)
-                        if (!isUserAddressValid) {
-                            error("Address doe not belong to the user.")
-                        }
-                        productOrder.address = address
-                    }
-                }
+                productOrderUpdateByCustomer(productOrder, productOrderUpdateRequest)
             }
         }
 
@@ -391,7 +422,62 @@ class ProductOrderProvider {
                 }
             }
         }
-        return refreshProductOrder(productOrder)
+        return saveAndRefreshProductOrder(productOrder)
+    }
+
+    private fun productOrderUpdateByCustomer(productOrder: ProductOrder, productOrderUpdateRequest: ProductOrderUpdateRequest): ProductOrder {
+        productOrderAddressUpdateByCustomer(productOrder, productOrderUpdateRequest)
+
+        if (productOrder.paymentMode == OrderPaymentMode.NONE) {
+            productOrderPaymentUpdateByCustomer(productOrder, productOrderUpdateRequest)
+        } else {
+            val productOrderUpdateByCustomerRequest = productOrderUpdateRequest as ProductOrderUpdateByCustomerRequest
+            if (productOrderUpdateByCustomerRequest.paymentMode != null) {
+                error("You can not change payment method once order is placed")
+            }
+        }
+        return saveAndRefreshProductOrder(productOrder)
+    }
+
+    private fun productOrderAddressUpdateByCustomer(productOrder: ProductOrder, productOrderUpdateRequest: ProductOrderUpdateRequest): ProductOrder {
+        val productOrderUpdateByCustomerRequest = productOrderUpdateRequest as ProductOrderUpdateByCustomerRequest
+        productOrderUpdateByCustomerRequest.newAddressId?.let {
+            val productOrderAddress = productOrder.address
+            if (productOrderAddress == null || productOrderAddress.id != it) {
+                val address = addressProvider.getAddress(it) ?: error("Address does not exist for id: $it")
+                val user = productOrder.addedBy
+                    ?: error("User does not exist for product order with id: ${productOrder.id}")
+                val isUserAddressValid = addressProvider.getIsUserAddressValid(user, address)
+                if (!isUserAddressValid) {
+                    error("Address doe not belong to the user.")
+                }
+                productOrder.address = address
+            }
+        }
+        return saveAndRefreshProductOrder(productOrder)
+    }
+
+    // Allow this method to be called only ONCE
+    private fun productOrderPaymentUpdateByCustomer(productOrder: ProductOrder, productOrderUpdateRequest: ProductOrderUpdateRequest): ProductOrder {
+        val productOrderUpdateByCustomerRequest = productOrderUpdateRequest as ProductOrderUpdateByCustomerRequest
+        productOrderUpdateByCustomerRequest.paymentMode?.let {
+            when (it) {
+                OrderPaymentMode.COD -> {
+                    // Only payment mode changes
+                    productOrder.paymentMode = it
+                }
+                OrderPaymentMode.ONLINE -> {
+                    // Both payment mode and payment Id changes
+                    val paymentId = productOrderUpdateByCustomerRequest.paymentId ?: error("Payment ID is required for online payments")
+                    productOrder.paymentMode = it
+                    productOrder.successPaymentId = paymentId
+                }
+                else -> {
+                    error("Can only move to COD or ONLINE payment")
+                }
+            }
+        }
+        return saveAndRefreshProductOrder(productOrder)
     }
 
     fun productOrderUpdateApproval(user: User, productOrderStatusUpdateRequest: ProductOrderStatusUpdateRequest): ProductOrder {
@@ -430,6 +516,6 @@ class ProductOrderProvider {
 
     fun getProductOrderDetails(orderId: String): ProductOrderDetailsResponse {
         val productOrder = getProductOrder(orderId) ?: error("No order found for orderId: $orderId")
-        return productOrder.toProductOrderDetailsResponse(cartItemProvider)
+        return productOrder.toProductOrderDetailsResponse(productVariantProvider, cartItemProvider)
     }
 }

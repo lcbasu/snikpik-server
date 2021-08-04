@@ -26,6 +26,9 @@ class ProductProvider {
     @Autowired
     private lateinit var uniqueIdProvider: UniqueIdProvider
 
+    @Autowired
+    private lateinit var productVariantProvider: ProductVariantProvider
+
     fun getProducts(productIds: Set<String>): List<Product?> =
         try {
             productRepository.findAllById(productIds)
@@ -42,12 +45,18 @@ class ProductProvider {
             newProduct.title = saveProductRequest.title
             newProduct.mediaDetails = saveProductRequest.mediaDetails.convertToString()
             newProduct.minOrderUnitCount = saveProductRequest.minOrderUnitCount
-            newProduct.pricePerUnitInPaisa = saveProductRequest.pricePerUnitInPaisa
+            newProduct.pricePerUnitInPaisa = saveProductRequest.originalPricePerUnitInPaisa
             newProduct.taxPerUnitInPaisa = saveProductRequest.taxPerUnitInPaisa
             newProduct.productStatus = ProductStatus.ACTIVE
             newProduct.productUnit = saveProductRequest.productUnit
             newProduct.totalUnitInStock = saveProductRequest.totalUnitInStock
-            return productRepository.save(newProduct)
+            newProduct.originalPricePerUnitInPaisa = saveProductRequest.originalPricePerUnitInPaisa
+            newProduct.sellingPricePerUnitInPaisa = saveProductRequest.sellingPricePerUnitInPaisa
+            val savedProduct = productRepository.save(newProduct)
+            // We also need to save the variants
+            // If no variant is provided then save a default one with product details
+            productVariantProvider.saveProductVariant(savedProduct, saveProductRequest.allProductVariants)
+            return savedProduct
         } catch (e: Exception) {
             e.printStackTrace()
             return null
@@ -97,7 +106,7 @@ class ProductProvider {
     fun getProductsOrderedInPast(cartItems: List<CartItem>): List<Product> {
         return cartItems
             .filter { it.productOrder != null }
-            .mapNotNull { it.product }
+            .mapNotNull { it.productVariant?.product }
             .filter { it.productStatus == ProductStatus.ACTIVE }
     }
 
@@ -124,7 +133,7 @@ class ProductProvider {
         return runBlocking {
             AllProductsResponse(
                 products = getProducts(company).map {
-                    async { it.toSavedProductResponse() }
+                    async { it.toSavedProductResponse(productVariantProvider) }
                 }.map {
                     it.await()
                 }

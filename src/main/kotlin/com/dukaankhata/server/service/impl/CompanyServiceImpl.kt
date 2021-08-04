@@ -25,7 +25,7 @@ class CompanyServiceImpl : CompanyService() {
     private lateinit var userRoleProvider: UserRoleProvider
 
     override fun saveCompany(saveCompanyRequest: SaveCompanyRequest): SavedCompanyResponse? {
-        val user = authProvider.getRequestUserEntity() ?: return null
+        val user = authProvider.getRequestUserEntity() ?: error("Only saved users are allowed to create shops.")
         val company = companyProvider.saveCompany(
             user = user,
             name = saveCompanyRequest.name,

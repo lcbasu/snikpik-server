@@ -1,5 +1,6 @@
 package com.dukaankhata.server.entities
 
+import com.dukaankhata.server.enums.OrderPaymentMode
 import com.dukaankhata.server.enums.ProductOrderStatus
 import javax.persistence.*
 
@@ -27,10 +28,17 @@ class ProductOrder : Auditable() {
     @Enumerated(EnumType.STRING)
     var orderStatus: ProductOrderStatus = ProductOrderStatus.DRAFT
 
+    @Enumerated(EnumType.STRING)
+    var paymentMode: OrderPaymentMode = OrderPaymentMode.NONE
+
+    // The ProductOrderPayment ID which was successful for this product Order
+    var successPaymentId: String? = ""
+
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id")
     var address: Address? = null;
 
+    // Applied on the entire order no matter what is the selling price of each individual ProductVariant
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinColumn(name = "discount_id")
     var discount: Discount? = null;
