@@ -1,29 +1,63 @@
 package com.dukaankhata.server.enums
 
-enum class ProductUnit {
-    KG, //1000 grams // Sold in weight quantity -> For rice, pulse etc.
-    GRAM, // 1 grams
-    DECIGRAM, // 0.1 grams
-    CENTIGRAM, //0.01 grams
-    MILLIGRAM,// 0.001 grams
+enum class ProductUnit(val rank: Int, val displayName: String)  {
+    PIECE(1, "Piece"),
+    KG(2, "KG"),
+    GRAM(3, "gram"),
+    MILLIGRAM(4, "mg"),
+    QUINTAL(5, "quintal"),
+    TON(6, "ton"),
 
+    METER(7, "Meter"),
+    SQUARE_METER(8, "Sq. Meter"),
+    CENTIMETER(9, "cm"),
+    MILLIMETER(10, "mm"),
 
-    METER, // Sold in Length quantity -> For Clothes, Land etc.
-    DECIMETER,
-    CENTIMETER,
-    MILLIMETER,
+    INCH(11, "Inch"),
 
-    SQUARE_METER, // Area like land and apartment
-    SQUARE_FOOT, // Area like land and apartment
+    FEET(12, "Feet"),
+    SQUARE_FEET(13, "Sq. Feet"),
 
-    LITRE, // Sold in liquid quantity -> For milk, oil exc.
-    DECILITRE,
-    CENTILITRE,
-    MILLILITRE,
+    LITRE(14, "Litre"),
+    MILLILITRE(15, "ml"),
 
+    CAPSULE(16, "Capsule"),
+    TABLET(17, "Tablet"),
 
-    HOUR, // Sold in time quantity -> For Online Consultation, Doctor booking etc.
-    MINUTE,
+    PLATE(18, "Plate"),
 
-    PIECE, // Sold in pieces  -> For mobile phone, TV etc.
+    HOUR(19, "Hour"),
+    MINUTE(20, "Minute"),
+
+    ACRE(21, "Acre"),
+    KATHA(22, "Katha"),
+    BIGHA(23, "Bigha"),
+    KILLA(24, "Killa"),
+    KANAL(25, "Kanal"),
+    CHATHAK(26, "Chathak"),
+    GUNTHA(27, "Guntha"),
+
+    YEAR(28, "Year"),
+    MONTH(29, "Month"),
+    WEEK(30, "Week"),
+    DAY(31, "Day"),
+
+    WORK(32, "Work"),
+
+    SERVICE(33, "Service"),
+
+    PACKET(34, "Packet"),
+
+    BOX(35, "Box"),
+
+    DOZEN(36, "Dozen"),
+    PAIR(37, "Pair"),
+
+    SET(38, "Set"),
+
+    BUNCH(39, "Bunch"),
+
+    BUNDLE(40, "Bundle"),
+
+    POUND(41, "Pound"),
 }

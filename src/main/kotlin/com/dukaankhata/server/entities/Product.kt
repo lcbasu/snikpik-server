@@ -21,7 +21,7 @@ class Product : Auditable() {
 
     @Enumerated(EnumType.STRING)
     @Column(updatable = false) // You can not update the product unit after this is published
-    var productUnit: ProductUnit = ProductUnit.KG
+    var productUnit: ProductUnit = ProductUnit.PIECE
 
     var taxPerUnitInPaisa: Long = 0 // If zero then tax is included otherwise excluded
     var pricePerUnitInPaisa: Long = 0

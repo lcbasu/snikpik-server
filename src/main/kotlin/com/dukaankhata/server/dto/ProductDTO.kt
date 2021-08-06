@@ -73,6 +73,17 @@ data class AllProductsResponse(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class ProductUnitResponse(
+    val unitType: ProductUnit,
+    val rank: Int,
+    val displayName: String,
+)
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AllProductUnits(
+    val productUnits: List<ProductUnitResponse>
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class AddProductsToCollectionResponse(
     val company: SavedCompanyResponse,
     val collection: SavedCollectionResponse,

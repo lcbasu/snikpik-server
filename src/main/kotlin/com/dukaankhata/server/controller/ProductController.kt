@@ -25,4 +25,9 @@ class ProductController {
     fun getAllProducts(@PathVariable companyId: String): AllProductsResponse {
         return productService.getAllProducts(companyId)
     }
+
+    @RequestMapping(value = ["/getAllProductUnits"], method = [RequestMethod.GET])
+    fun getAllProductUnits(): AllProductUnits {
+        return productService.getAllProductUnits()
+    }
 }

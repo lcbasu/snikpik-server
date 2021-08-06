@@ -1,6 +1,7 @@
 package com.dukaankhata.server.service.impl
 
 import com.dukaankhata.server.dto.*
+import com.dukaankhata.server.enums.ProductUnit
 import com.dukaankhata.server.service.ProductService
 import com.dukaankhata.server.provider.AuthProvider
 import com.dukaankhata.server.provider.CollectionProvider
@@ -55,5 +56,17 @@ class ProductServiceImpl : ProductService() {
         )
         val company = requestContext.company ?: error("Company is required")
         return productProvider.getAllProducts(company)
+    }
+
+    override fun getAllProductUnits(): AllProductUnits {
+        return AllProductUnits(
+            productUnits = ProductUnit.values().map {
+                ProductUnitResponse(
+                    unitType = it,
+                    rank = it.rank,
+                    displayName = it.displayName
+                )
+            }
+        )
     }
 }
