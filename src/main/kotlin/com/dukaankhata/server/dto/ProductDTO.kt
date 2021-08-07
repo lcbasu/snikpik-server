@@ -1,22 +1,33 @@
 package com.dukaankhata.server.dto
 
-import com.dukaankhata.server.entities.Product
-import com.dukaankhata.server.entities.ProductVariant
-import com.dukaankhata.server.entities.getMediaDetails
+import com.dukaankhata.server.entities.*
 import com.dukaankhata.server.enums.ProductUnit
 import com.dukaankhata.server.model.MediaDetails
 import com.dukaankhata.server.provider.ProductVariantProvider
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+
+data class VariantInfo(
+    var title: String?, // Like 'Red' in case of color and 'Medium' in case of size
+    var code: String?, // Like '#ffffff' in case of color or 'M' in case of size
+    var image: String? // Image to represent color or size
+)
+
+fun VariantInfo.convertToString(): String {
+    this.apply {
+        return jacksonObjectMapper().writeValueAsString(this)
+    }
+}
 
 data class SaveProductVariant(
-    val productId: String,
-    val variantId: String,
     val variantTitle: String,
     val variantTaxPerUnitInPaisa: Long,
     val variantOriginalPricePerUnitInPaisa: Long,
     val variantSellingPricePerUnitInPaisa: Long,
     val variantTotalUnitInStock: Long,
-    var variantMediaDetails: MediaDetails? = null
+    var variantMediaDetails: MediaDetails?,
+    var variantColorInfo: VariantInfo?,
+    var variantSizeInfo: VariantInfo?
 )
 
 data class SavedProductVariant(
@@ -27,7 +38,9 @@ data class SavedProductVariant(
     val variantOriginalPricePerUnitInPaisa: Long,
     val variantSellingPricePerUnitInPaisa: Long,
     val variantTotalUnitInStock: Long,
-    var variantMediaDetails: MediaDetails? = null
+    var variantMediaDetails: MediaDetails? = null,
+    var variantColorInfo: VariantInfo?,
+    var variantSizeInfo: VariantInfo?
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -125,7 +138,9 @@ fun ProductVariant.toSavedProductVariant(): SavedProductVariant {
             variantOriginalPricePerUnitInPaisa = originalPricePerUnitInPaisa,
             variantSellingPricePerUnitInPaisa = sellingPricePerUnitInPaisa,
             variantTotalUnitInStock = totalUnitInStock,
-            variantMediaDetails = getMediaDetails()
+            variantMediaDetails = getMediaDetails(),
+            variantColorInfo = getColorInfo(),
+            variantSizeInfo = getSizeInfo()
         )
     }
 }

@@ -2,6 +2,7 @@ package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.ProductVariantRepository
 import com.dukaankhata.server.dto.SaveProductVariant
+import com.dukaankhata.server.dto.convertToString
 import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.Product
 import com.dukaankhata.server.entities.ProductVariant
@@ -44,12 +45,14 @@ open class ProductVariantProvider {
                     newProductVariant.addedBy = product.addedBy
                     newProductVariant.company = product.company
                     newProductVariant.product = product
-                    newProductVariant.title = it.variantTitle
+                    newProductVariant.title = it.variantTitle ?: product.title
                     newProductVariant.mediaDetails = it.variantMediaDetails?.convertToString() ?: product.mediaDetails
-                    newProductVariant.taxPerUnitInPaisa = it.variantTaxPerUnitInPaisa
-                    newProductVariant.originalPricePerUnitInPaisa = it.variantOriginalPricePerUnitInPaisa
-                    newProductVariant.sellingPricePerUnitInPaisa = it.variantSellingPricePerUnitInPaisa
-                    newProductVariant.totalUnitInStock = it.variantTotalUnitInStock
+                    newProductVariant.taxPerUnitInPaisa = it.variantTaxPerUnitInPaisa ?: product.taxPerUnitInPaisa
+                    newProductVariant.originalPricePerUnitInPaisa = it.variantOriginalPricePerUnitInPaisa ?: product.originalPricePerUnitInPaisa
+                    newProductVariant.sellingPricePerUnitInPaisa = it.variantSellingPricePerUnitInPaisa ?: product.sellingPricePerUnitInPaisa
+                    newProductVariant.totalUnitInStock = it.variantTotalUnitInStock ?: product.totalUnitInStock
+                    newProductVariant.colorInfo = it.variantColorInfo?.convertToString() ?: ""
+                    newProductVariant.sizeInfo = it.variantSizeInfo?.convertToString() ?: ""
                     productVariants.add(productVariantRepository.save(newProductVariant))
                 }
             }

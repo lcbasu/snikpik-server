@@ -1,5 +1,6 @@
 package com.dukaankhata.server.entities
 
+import com.dukaankhata.server.dto.VariantInfo
 import com.dukaankhata.server.model.MediaDetails
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import javax.persistence.*
@@ -20,6 +21,8 @@ class ProductVariant : Auditable() {
     var totalUnitInStock: Long = 0
 
     var mediaDetails: String = "" // MediaDetails object -> Multiple Images or videos
+    var colorInfo: String = "" // VariantInfo object
+    var sizeInfo: String = "" // VariantInfo object
 
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
@@ -38,5 +41,27 @@ class ProductVariant : Auditable() {
 fun ProductVariant.getMediaDetails(): MediaDetails {
     this.apply {
         return jacksonObjectMapper().readValue(mediaDetails, MediaDetails::class.java)
+    }
+}
+
+fun ProductVariant.getColorInfo(): VariantInfo? {
+    this.apply {
+        return try {
+            jacksonObjectMapper().readValue(colorInfo, VariantInfo::class.java)
+        } catch (e: Exception) {
+            null
+        }
+
+    }
+}
+
+fun ProductVariant.getSizeInfo(): VariantInfo? {
+    this.apply {
+        return try {
+            jacksonObjectMapper().readValue(sizeInfo, VariantInfo::class.java)
+        } catch (e: Exception) {
+            null
+        }
+
     }
 }
