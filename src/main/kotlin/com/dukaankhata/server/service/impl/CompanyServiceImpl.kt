@@ -28,10 +28,7 @@ class CompanyServiceImpl : CompanyService() {
         val user = authProvider.getRequestUserEntity() ?: error("Only saved users are allowed to create shops.")
         val company = companyProvider.saveCompany(
             user = user,
-            name = saveCompanyRequest.name,
-            location = saveCompanyRequest.location,
-            salaryPaymentSchedule = saveCompanyRequest.salaryPaymentSchedule,
-            workingMinutes = saveCompanyRequest.workingMinutes
+            saveCompanyRequest = saveCompanyRequest
         )
 
         company.let {

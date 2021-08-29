@@ -1,5 +1,6 @@
 package com.dukaankhata.server.entities
 
+import com.dukaankhata.server.enums.CategoryGroup
 import com.dukaankhata.server.enums.DKShopStatus
 import com.dukaankhata.server.enums.SalaryPaymentSchedule
 import javax.persistence.*
@@ -34,4 +35,7 @@ class Company : Auditable() {
     var totalProductsViewCount: Long? = 0
 
     var defaultAddressId: String? = "" // Address table Id
+
+    @Enumerated(EnumType.STRING)
+    var categoryGroup: CategoryGroup? = CategoryGroup.General
 }

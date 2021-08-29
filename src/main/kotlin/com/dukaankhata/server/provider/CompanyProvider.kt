@@ -1,13 +1,13 @@
 package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.CompanyRepository
+import com.dukaankhata.server.dto.SaveCompanyRequest
 import com.dukaankhata.server.entities.Address
 import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.Payment
 import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.DKShopStatus
 import com.dukaankhata.server.enums.ReadableIdPrefix
-import com.dukaankhata.server.enums.SalaryPaymentSchedule
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
@@ -38,15 +38,16 @@ class CompanyProvider {
         return companyRepository.findByUser(user)
     }
 
-    fun saveCompany(user: User, name: String, location: String, salaryPaymentSchedule: SalaryPaymentSchedule, workingMinutes: Int): Company {
+    fun saveCompany(user: User, saveCompanyRequest: SaveCompanyRequest): Company {
         val newCompany = Company()
         newCompany.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.COM.name)
         newCompany.user = user
-        newCompany.name = name
-        newCompany.location = location
-        newCompany.salaryPaymentSchedule = salaryPaymentSchedule
-        newCompany.workingMinutes = workingMinutes
+        newCompany.name = saveCompanyRequest.name
+        newCompany.location = saveCompanyRequest.location
+        newCompany.salaryPaymentSchedule = saveCompanyRequest.salaryPaymentSchedule
+        newCompany.workingMinutes = saveCompanyRequest.workingMinutes
         newCompany.totalDueAmountInPaisa = 0
+        newCompany.categoryGroup = saveCompanyRequest.categoryGroup
         return companyRepository.save(newCompany)
     }
 

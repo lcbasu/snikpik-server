@@ -1,6 +1,7 @@
 package com.dukaankhata.server.dto
 
 import com.dukaankhata.server.entities.Company
+import com.dukaankhata.server.enums.CategoryGroup
 import com.dukaankhata.server.enums.DKShopStatus
 import com.dukaankhata.server.enums.SalaryPaymentSchedule
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
@@ -11,6 +12,7 @@ data class SaveCompanyRequest(
     val location: String,
     val salaryPaymentSchedule: SalaryPaymentSchedule,
     val workingMinutes: Int,
+    val categoryGroup: CategoryGroup? = CategoryGroup.General,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -20,6 +22,7 @@ data class SavedCompanyResponse(
     val location: String,
     val salaryPaymentSchedule: SalaryPaymentSchedule,
     val workingMinutes: Int,
+    val categoryGroup: CategoryGroup,
     val totalDueAmountInPaisa: Long,
     val userId: String,
     val dkShopStatus: DKShopStatus,
@@ -52,7 +55,8 @@ fun Company.toSavedCompanyResponse(): SavedCompanyResponse {
             totalStoreViewCount = totalStoreViewCount ?: 0,
             totalOrdersCount = totalOrdersCount ?: 0,
             totalProductsViewCount = totalProductsViewCount ?: 0,
-            defaultAddressId = defaultAddressId ?: ""
+            defaultAddressId = defaultAddressId ?: "",
+            categoryGroup = categoryGroup ?: CategoryGroup.General,
         )
     }
 }
