@@ -22,7 +22,7 @@ data class SavedCompanyResponse(
     val location: String,
     val salaryPaymentSchedule: SalaryPaymentSchedule,
     val workingMinutes: Int,
-    val categoryGroup: CategoryGroup,
+    val categoryGroup: CategoryGroupResponse,
     val totalDueAmountInPaisa: Long,
     val userId: String,
     val dkShopStatus: DKShopStatus,
@@ -56,7 +56,14 @@ fun Company.toSavedCompanyResponse(): SavedCompanyResponse {
             totalOrdersCount = totalOrdersCount ?: 0,
             totalProductsViewCount = totalProductsViewCount ?: 0,
             defaultAddressId = defaultAddressId ?: "",
-            categoryGroup = categoryGroup ?: CategoryGroup.General,
+            categoryGroup = (categoryGroup ?: CategoryGroup.General).let {
+                CategoryGroupResponse(
+                    id = it.id,
+                    displayName = it.displayName,
+                    description = it.description,
+                    mediaDetails = it.mediaDetails
+                )
+            },
         )
     }
 }
