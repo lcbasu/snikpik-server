@@ -63,7 +63,7 @@ class DKShopServiceImpl : DKShopService() {
         val isAvailable = companyProvider.isUsernameAvailable(saveUsernameRequest.username)
 
         if (isAvailable) {
-            val updatedCompany = companyProvider.saveUsername(company, saveUsernameRequest.username) ?: error("Saving username failed")
+            val updatedCompany = companyProvider.saveUsername(requestContext.user, company, saveUsernameRequest.username) ?: error("Saving username failed")
             return SaveUsernameResponse(
                 available = true,
                 company = updatedCompany.toSavedCompanyResponse()

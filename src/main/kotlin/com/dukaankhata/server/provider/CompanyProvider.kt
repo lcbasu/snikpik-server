@@ -1,13 +1,12 @@
 package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.CompanyRepository
+import com.dukaankhata.server.dao.CompanyUsernameRepository
 import com.dukaankhata.server.dto.SaveCompanyRequest
-import com.dukaankhata.server.entities.Address
-import com.dukaankhata.server.entities.Company
-import com.dukaankhata.server.entities.Payment
-import com.dukaankhata.server.entities.User
+import com.dukaankhata.server.entities.*
 import com.dukaankhata.server.enums.DKShopStatus
 import com.dukaankhata.server.enums.ReadableIdPrefix
+import com.dukaankhata.server.utils.CommonUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
@@ -16,6 +15,9 @@ class CompanyProvider {
 
     @Autowired
     private lateinit var companyRepository: CompanyRepository
+
+    @Autowired
+    private lateinit var companyUsernameRepository: CompanyUsernameRepository
 
     @Autowired
     private lateinit var uniqueIdProvider: UniqueIdProvider
@@ -38,6 +40,20 @@ class CompanyProvider {
         return companyRepository.findByUser(user)
     }
 
+    fun saveCompanyUsername(user: User?, company: Company, username: String): CompanyUsername {
+        if (isUsernameAvailable(username).not()) {
+            error("Can not save username: $username. It already exists.")
+        }
+        val newCompanyUsername = CompanyUsername()
+        newCompanyUsername.id = username.toLowerCase()
+        newCompanyUsername.addedBy = user
+        newCompanyUsername.company = company
+        val companyUsername = companyUsernameRepository.save(newCompanyUsername)
+        company.username = companyUsername.id
+        companyRepository.save(company)
+        return companyUsername
+    }
+
     fun saveCompany(user: User, saveCompanyRequest: SaveCompanyRequest): Company {
         val newCompany = Company()
         newCompany.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.COM.name)
@@ -48,12 +64,48 @@ class CompanyProvider {
         newCompany.workingMinutes = saveCompanyRequest.workingMinutes
         newCompany.totalDueAmountInPaisa = 0
         newCompany.categoryGroup = saveCompanyRequest.categoryGroup
-        return companyRepository.save(newCompany)
+        val company = companyRepository.save(newCompany)
+        val companyUsername = autoGenerateCompanyUsername(company)
+        return if (companyUsername != null) companyUsername.company!! else company
+    }
+
+    private fun getUsernameFromCompanyName(company: Company): String {
+        val prefix = CommonUtils.getStringWithOnlyCharOrDigit(company.name)
+        var currentCount = 0
+        val maxTryOutCount = 10
+        while (currentCount < maxTryOutCount) {
+            currentCount += 1
+            val currentUsername = try {
+                uniqueIdProvider.getUniqueId(
+                    prefix = prefix,
+                    minLength = prefix.length,
+                    maxLength = prefix.length + currentCount)
+            } catch (e: Exception) {
+                ""
+            }
+            if (currentUsername.isNotEmpty() && isUsernameAvailable(currentUsername)) {
+                return currentUsername
+            }
+        }
+        error("Can not generate a suitable username for ${company.id}")
+    }
+
+    fun autoGenerateCompanyUsername(company: Company): CompanyUsername? {
+        return try {
+            val username = getUsernameFromCompanyName(company)
+            saveCompanyUsername(
+                user = company.user,
+                company = company,
+                username = username)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 
     fun getCompanyByUsername(username: String): Company? {
         return try {
-            return companyRepository.findByUsername(username)
+            return companyUsernameRepository.findById(username.toLowerCase()).get().company
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -69,10 +121,9 @@ class CompanyProvider {
         }
     }
 
-    fun saveUsername(company: Company, username: String): Company? {
+    fun saveUsername(user: User, company: Company, username: String): Company? {
         return try {
-            company.username = username
-            companyRepository.save(company)
+            saveCompanyUsername(user, company, username).company
         } catch (e: Exception) {
             e.printStackTrace()
             null

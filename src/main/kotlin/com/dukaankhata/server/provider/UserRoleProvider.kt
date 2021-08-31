@@ -30,7 +30,7 @@ class UserRoleProvider {
         return userRoleRepository?.let {
             val userRole = UserRole()
             userRole.company = company
-            userRole.user = user
+            userRole.user = company.user
             userRole.id = key
             it.save(userRole)
         }
