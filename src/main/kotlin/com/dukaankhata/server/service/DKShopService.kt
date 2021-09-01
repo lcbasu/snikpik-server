@@ -7,7 +7,7 @@ import com.dukaankhata.server.dto.*
 abstract class DKShopService {
     abstract fun saveUsername(saveUsernameRequest: SaveUsernameRequest): SaveUsernameResponse?
     abstract fun isUsernameAvailable(username: String): UsernameAvailableResponse?
-    abstract fun takeShopOffline(takeShopOfflineRequest: TakeShopOfflineRequest): TakeShopOfflineResponse?
+    abstract fun takeShopOffline(takeShopOfflineRequest: TakeShopOfflineRequest): SavedCompanyResponse?
     abstract fun saveAddress(saveCompanyAddressRequest: SaveCompanyAddressRequest): SavedCompanyAddressResponse?
     abstract fun getShopViewForCustomer(username: String): ShopViewForCustomerResponse
     abstract fun getRelatedProducts(productId: String): RelatedProductsResponse?
@@ -20,4 +20,5 @@ abstract class DKShopService {
     abstract fun migrateCart(migrateCartRequest: MigrateCartRequest): MigratedProductOrderResponse
     abstract fun getProductOrder(productOrderId: String): SavedProductOrderResponse
     abstract fun getShopCompleteData(companyId: String): ShopCompleteDataResponse
+    abstract fun takeShopOnlineNow(takeShopOnlineNowRequest: TakeShopOnlineNowRequest): SavedCompanyResponse?
 }

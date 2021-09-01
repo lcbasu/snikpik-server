@@ -5,7 +5,7 @@ import com.dukaankhata.server.enums.TakeShopOnlineAfter
 import com.dukaankhata.server.provider.*
 import com.dukaankhata.server.service.DKShopService
 import com.dukaankhata.server.service.schedule.TakeShopOnlineSchedulerService
-import com.dukaankhata.server.utils.*
+import com.dukaankhata.server.utils.CommonUtils
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
@@ -82,7 +82,7 @@ class DKShopServiceImpl : DKShopService() {
         return UsernameAvailableResponse(companyProvider.isUsernameAvailable(username))
     }
 
-    override fun takeShopOffline(takeShopOfflineRequest: TakeShopOfflineRequest): TakeShopOfflineResponse? {
+    override fun takeShopOffline(takeShopOfflineRequest: TakeShopOfflineRequest): SavedCompanyResponse? {
         val requestContext = authProvider.validateRequest(
             companyId = takeShopOfflineRequest.companyId,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
@@ -95,10 +95,7 @@ class DKShopServiceImpl : DKShopService() {
             takeShopOnlineSchedulerService.takeShopOnline(company, takeShopOfflineRequest.takeShopOnlineAfter)
         }
 
-        return TakeShopOfflineResponse(
-            takeShopOnlineAfter = takeShopOfflineRequest.takeShopOnlineAfter,
-            company = updatedCompany.toSavedCompanyResponse()
-        )
+        return updatedCompany.toSavedCompanyResponse()
     }
 
     override fun saveAddress(saveCompanyAddressRequest: SaveCompanyAddressRequest): SavedCompanyAddressResponse? {
@@ -319,6 +316,16 @@ class DKShopServiceImpl : DKShopService() {
                 productCollections = productCollections
             )
         }
+    }
+
+    override fun takeShopOnlineNow(takeShopOnlineNowRequest: TakeShopOnlineNowRequest): SavedCompanyResponse? {
+        val requestContext = authProvider.validateRequest(
+            companyId = takeShopOnlineNowRequest.companyId,
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
+        )
+        val company = requestContext.company ?: error("Company is required")
+        val updatedCompany = companyProvider.takeShopOnline(company) ?: error("Company update failed")
+        return updatedCompany.toSavedCompanyResponse()
     }
 
     override fun getExtraCharges(companyId: String): SavedExtraChargesResponse {

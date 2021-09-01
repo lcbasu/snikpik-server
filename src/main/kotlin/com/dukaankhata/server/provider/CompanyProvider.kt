@@ -69,8 +69,14 @@ class CompanyProvider {
         return if (companyUsername != null) companyUsername.company!! else company
     }
 
+    private fun getUsernamePrefixFromCompanyName(company: Company): String {
+        // Keep maximum length to be some constant
+        val maxLengthOfAutomatedPrefix = 10
+        return CommonUtils.getStringWithOnlyCharOrDigit(company.name).take(maxLengthOfAutomatedPrefix)
+    }
+
     private fun getUsernameFromCompanyName(company: Company): String {
-        val prefix = CommonUtils.getStringWithOnlyCharOrDigit(company.name)
+        val prefix = getUsernamePrefixFromCompanyName(company)
         var currentCount = 0
         val maxTryOutCount = 10
         while (currentCount < maxTryOutCount) {

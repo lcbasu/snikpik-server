@@ -22,6 +22,11 @@ data class SaveUsernameResponse(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class TakeShopOnlineNowRequest(
+    val companyId: String,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class TakeShopOfflineRequest(
     val companyId: String,
     val takeShopOnlineAfter: TakeShopOnlineAfter,

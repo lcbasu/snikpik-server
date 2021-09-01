@@ -23,8 +23,13 @@ class DKShopController {
     }
 
     @RequestMapping(value = ["/takeShopOffline"], method = [RequestMethod.POST])
-    fun takeShopOffline(@RequestBody takeShopOfflineRequest: TakeShopOfflineRequest): TakeShopOfflineResponse? {
+    fun takeShopOffline(@RequestBody takeShopOfflineRequest: TakeShopOfflineRequest): SavedCompanyResponse? {
         return dkShopService.takeShopOffline(takeShopOfflineRequest)
+    }
+
+    @RequestMapping(value = ["/takeShopOnlineNow"], method = [RequestMethod.POST])
+    fun takeShopOnlineNow(@RequestBody takeShopOnlineNowRequest: TakeShopOnlineNowRequest): SavedCompanyResponse? {
+        return dkShopService.takeShopOnlineNow(takeShopOnlineNowRequest)
     }
 
     @RequestMapping(value = ["/saveAddress"], method = [RequestMethod.POST])
