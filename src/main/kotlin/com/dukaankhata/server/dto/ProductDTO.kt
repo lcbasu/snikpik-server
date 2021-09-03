@@ -121,7 +121,7 @@ fun Product.toSavedProductResponse(productVariantProvider: ProductVariantProvide
             mediaDetails = getMediaDetails(),
             productUnit = productUnit,
             unitQuantity = unitQuantity,
-            description = description,
+            description = description ?: "",
             taxPerUnitInPaisa = taxPerUnitInPaisa,
             originalPricePerUnitInPaisa = originalPricePerUnitInPaisa,
             sellingPricePerUnitInPaisa = sellingPricePerUnitInPaisa,

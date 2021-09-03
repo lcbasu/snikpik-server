@@ -25,7 +25,7 @@ class Product : Auditable() {
 
     var unitQuantity: Long = 0 // Like 100 ProductUnit.GRAM
 
-    var description: String = ""
+    var description: String? = null
 
     var taxPerUnitInPaisa: Long = 0 // If zero then tax is included otherwise excluded
     var pricePerUnitInPaisa: Long = 0
