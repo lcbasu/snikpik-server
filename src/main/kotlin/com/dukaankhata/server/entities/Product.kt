@@ -23,6 +23,10 @@ class Product : Auditable() {
     @Column(updatable = false) // You can not update the product unit after this is published
     var productUnit: ProductUnit = ProductUnit.PIECE
 
+    var unitQuantity: Long = 0 // Like 100 ProductUnit.GRAM
+
+    var description: String = ""
+
     var taxPerUnitInPaisa: Long = 0 // If zero then tax is included otherwise excluded
     var pricePerUnitInPaisa: Long = 0
 

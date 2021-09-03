@@ -22,7 +22,7 @@ data class SavedCartItemResponse(
     val totalPriceWithoutTaxInPaisa: Long = 0,
     val orderId: String?,
     val product: SavedProductResponse?,
-    val productVariant: SavedProductVariant?
+    val productVariant: SavedProductVariantResponse?
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

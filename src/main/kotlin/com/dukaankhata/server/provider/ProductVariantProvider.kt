@@ -1,18 +1,18 @@
 package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.ProductVariantRepository
-import com.dukaankhata.server.dto.SaveProductVariant
-import com.dukaankhata.server.dto.convertToString
+import com.dukaankhata.server.dto.SaveProductVariantRequest
 import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.Product
 import com.dukaankhata.server.entities.ProductVariant
 import com.dukaankhata.server.enums.ReadableIdPrefix
 import com.dukaankhata.server.model.convertToString
+import convertToString
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
-open class ProductVariantProvider {
+class ProductVariantProvider {
 
     @Autowired
     private lateinit var productVariantRepository: ProductVariantRepository
@@ -20,7 +20,7 @@ open class ProductVariantProvider {
     @Autowired
     private lateinit var uniqueIdProvider: UniqueIdProvider
 
-    fun saveProductVariant(product: Product, allProductVariants: List<SaveProductVariant>) : List<ProductVariant> {
+    fun saveProductVariant(product: Product, allProductVariants: List<SaveProductVariantRequest>) : List<ProductVariant> {
         try {
             val productVariants = mutableListOf<ProductVariant>()
             // We also need to save the variants
@@ -45,14 +45,13 @@ open class ProductVariantProvider {
                     newProductVariant.addedBy = product.addedBy
                     newProductVariant.company = product.company
                     newProductVariant.product = product
-                    newProductVariant.title = it.variantTitle ?: product.title
+                    newProductVariant.title = if (it.variantTitle != null && it.variantTitle.isNotEmpty()) it.variantTitle else product.title
                     newProductVariant.mediaDetails = it.variantMediaDetails?.convertToString() ?: product.mediaDetails
                     newProductVariant.taxPerUnitInPaisa = it.variantTaxPerUnitInPaisa ?: product.taxPerUnitInPaisa
                     newProductVariant.originalPricePerUnitInPaisa = it.variantOriginalPricePerUnitInPaisa ?: product.originalPricePerUnitInPaisa
                     newProductVariant.sellingPricePerUnitInPaisa = it.variantSellingPricePerUnitInPaisa ?: product.sellingPricePerUnitInPaisa
                     newProductVariant.totalUnitInStock = it.variantTotalUnitInStock ?: product.totalUnitInStock
-                    newProductVariant.colorInfo = it.variantColorInfo?.convertToString() ?: ""
-                    newProductVariant.sizeInfo = it.variantSizeInfo?.convertToString() ?: ""
+                    newProductVariant.variantInfos = it.variantInfos.convertToString() ?: ""
                     productVariants.add(productVariantRepository.save(newProductVariant))
                 }
             }

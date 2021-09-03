@@ -43,12 +43,14 @@ class ProductProvider {
             newProduct.addedBy = user
             newProduct.company = company
             newProduct.title = saveProductRequest.title
+            newProduct.description = saveProductRequest.description
             newProduct.mediaDetails = saveProductRequest.mediaDetails.convertToString()
             newProduct.minOrderUnitCount = saveProductRequest.minOrderUnitCount
             newProduct.pricePerUnitInPaisa = saveProductRequest.originalPricePerUnitInPaisa
             newProduct.taxPerUnitInPaisa = saveProductRequest.taxPerUnitInPaisa
             newProduct.productStatus = ProductStatus.ACTIVE
             newProduct.productUnit = saveProductRequest.productUnit
+            newProduct.unitQuantity = saveProductRequest.unitQuantity
             newProduct.totalUnitInStock = saveProductRequest.totalUnitInStock
             newProduct.originalPricePerUnitInPaisa = saveProductRequest.originalPricePerUnitInPaisa
             newProduct.sellingPricePerUnitInPaisa = saveProductRequest.sellingPricePerUnitInPaisa

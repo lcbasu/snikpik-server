@@ -1,36 +1,37 @@
 package com.dukaankhata.server.dto
 
-import com.dukaankhata.server.entities.*
+import VariantInfos
+import com.dukaankhata.server.entities.Product
+import com.dukaankhata.server.entities.ProductVariant
+import com.dukaankhata.server.entities.getMediaDetails
+import com.dukaankhata.server.entities.getVariantInfos
 import com.dukaankhata.server.enums.ProductUnit
 import com.dukaankhata.server.model.MediaDetails
 import com.dukaankhata.server.provider.ProductVariantProvider
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
-data class VariantInfo(
-    var title: String?, // Like 'Red' in case of color and 'Medium' in case of size
-    var code: String?, // Like '#ffffff' in case of color or 'M' in case of size
-    var image: String? // Image to represent color or size
-)
-
-fun VariantInfo.convertToString(): String {
-    this.apply {
-        return jacksonObjectMapper().writeValueAsString(this)
-    }
-}
-
-data class SaveProductVariant(
-    val variantTitle: String,
-    val variantTaxPerUnitInPaisa: Long,
-    val variantOriginalPricePerUnitInPaisa: Long,
-    val variantSellingPricePerUnitInPaisa: Long,
-    val variantTotalUnitInStock: Long,
+/**
+ *
+ * Like Medium Red variant of a Shirt
+ * Here:
+ * Medium -> is a VariantInfo of type SIZE
+ * Red -> is a VariantInfo of type COLOR
+ * Shirt -> is a Product
+ *
+ * */
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SaveProductVariantRequest(
+    val variantTitle: String?,
+    val variantTaxPerUnitInPaisa: Long?,
+    val variantOriginalPricePerUnitInPaisa: Long?,
+    val variantSellingPricePerUnitInPaisa: Long?,
+    val variantTotalUnitInStock: Long?,
     var variantMediaDetails: MediaDetails?,
-    var variantColorInfo: VariantInfo?,
-    var variantSizeInfo: VariantInfo?
+    var variantInfos: VariantInfos,
 )
 
-data class SavedProductVariant(
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SavedProductVariantResponse(
     val productId: String,
     val variantId: String,
     val variantTitle: String,
@@ -39,8 +40,7 @@ data class SavedProductVariant(
     val variantSellingPricePerUnitInPaisa: Long,
     val variantTotalUnitInStock: Long,
     var variantMediaDetails: MediaDetails? = null,
-    var variantColorInfo: VariantInfo?,
-    var variantSizeInfo: VariantInfo?
+    var variantInfos: VariantInfos?,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -49,12 +49,14 @@ data class SaveProductRequest(
     val mediaDetails: MediaDetails,
     var title: String = "",
     var productUnit: ProductUnit,
+    val unitQuantity: Long = 0,
+    val description: String = "",
     val taxPerUnitInPaisa: Long = 0,
     val originalPricePerUnitInPaisa: Long,
     val sellingPricePerUnitInPaisa: Long,
     val totalUnitInStock: Long = 100,
     var minOrderUnitCount: Long = 1,
-    var allProductVariants: List<SaveProductVariant>
+    var allProductVariants: List<SaveProductVariantRequest> = emptyList()
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -64,13 +66,15 @@ data class SavedProductResponse(
     val mediaDetails: MediaDetails,
     var title: String = "",
     var productUnit: ProductUnit,
+    val unitQuantity: Long = 0,
+    val description: String = "",
     val taxPerUnitInPaisa: Long = 0,
     val originalPricePerUnitInPaisa: Long,
     val sellingPricePerUnitInPaisa: Long,
     val productInStock: Boolean = true, // TODO: Store this as a Seller level input in DB so that they can update this (productInStock) flag
     val totalUnitInStock: Long = 0,
     var minOrderUnitCount: Long = 0,
-    var allProductVariants: List<SavedProductVariant>
+    var allProductVariants: List<SavedProductVariantResponse>
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -116,6 +120,8 @@ fun Product.toSavedProductResponse(productVariantProvider: ProductVariantProvide
             title = title,
             mediaDetails = getMediaDetails(),
             productUnit = productUnit,
+            unitQuantity = unitQuantity,
+            description = description,
             taxPerUnitInPaisa = taxPerUnitInPaisa,
             originalPricePerUnitInPaisa = originalPricePerUnitInPaisa,
             sellingPricePerUnitInPaisa = sellingPricePerUnitInPaisa,
@@ -127,10 +133,9 @@ fun Product.toSavedProductResponse(productVariantProvider: ProductVariantProvide
     }
 }
 
-
-fun ProductVariant.toSavedProductVariant(): SavedProductVariant {
+fun ProductVariant.toSavedProductVariant(): SavedProductVariantResponse {
     this.apply {
-        return SavedProductVariant(
+        return SavedProductVariantResponse(
             variantId = id,
             productId = product?.id ?: "",
             variantTitle = title,
@@ -139,8 +144,7 @@ fun ProductVariant.toSavedProductVariant(): SavedProductVariant {
             variantSellingPricePerUnitInPaisa = sellingPricePerUnitInPaisa,
             variantTotalUnitInStock = totalUnitInStock,
             variantMediaDetails = getMediaDetails(),
-            variantColorInfo = getColorInfo(),
-            variantSizeInfo = getSizeInfo()
+            variantInfos = getVariantInfos()
         )
     }
 }
