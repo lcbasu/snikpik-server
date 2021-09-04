@@ -76,13 +76,17 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                 .authorizeRequests()
                 .antMatchers(*allowedPublicApis).permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .antMatchers("/v2/api-docs",
+                .antMatchers(
+                    "/seoData/**",
+                    "/v2/api-docs",
                 "/configuration/ui",
                 "/swagger-resources/**",
                 "/configuration/security",
                 "/swagger-ui.html",
                 "/webjars/**").permitAll()
-                .antMatchers("/v2/api-docs",
+                .antMatchers(
+                    "/seoData/**",
+                    "/v2/api-docs",
                     "/configuration/ui",
                     "/swagger-resources",
                     "/configuration/security",

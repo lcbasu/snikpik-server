@@ -1,8 +1,8 @@
 package com.dukaankhata.server.controller
 
 import com.dukaankhata.server.dto.*
-import com.dukaankhata.server.service.DKShopService
 import com.dukaankhata.server.provider.AuthProvider
+import com.dukaankhata.server.service.CustomerService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 
@@ -27,42 +27,48 @@ class CustomerController {
     // api to show related products
 
     @Autowired
-    private lateinit var dkShopService: DKShopService
+    private lateinit var customerService: CustomerService
 
     @RequestMapping(value = ["/getShopViewForCustomer/{username}"], method = [RequestMethod.GET])
     fun getShopViewForCustomer(@PathVariable username: String): ShopViewForCustomerResponse? {
         customerPreChecks()
-        return dkShopService.getShopViewForCustomer(username)
+        return customerService.getShopViewForCustomer(username)
     }
 
     @RequestMapping(value = ["/getRelatedProducts/{productId}"], method = [RequestMethod.GET])
     fun getRelatedProducts(@PathVariable productId: String): RelatedProductsResponse? {
         customerPreChecks()
-        return dkShopService.getRelatedProducts(productId)
+        return customerService.getRelatedProducts(productId)
     }
 
     @RequestMapping(value = ["/updateCart"], method = [RequestMethod.POST])
     fun updateCart(@RequestBody updateCartRequest: UpdateCartRequest): SavedProductOrderResponse? {
         customerPreChecks()
-        return dkShopService.updateCart(updateCartRequest)
+        return customerService.updateCart(updateCartRequest)
     }
 
     @RequestMapping(value = ["/migrateCart"], method = [RequestMethod.POST])
     fun migrateCart(@RequestBody migrateCartRequest: MigrateCartRequest): MigratedProductOrderResponse? {
         customerPreChecks()
-        return dkShopService.migrateCart(migrateCartRequest)
+        return customerService.migrateCart(migrateCartRequest)
     }
 
     @RequestMapping(value = ["/getActiveProductOrderBag/{shopUsername}"], method = [RequestMethod.GET])
     fun getActiveProductOrderBag(@PathVariable shopUsername: String): SavedProductOrderResponse? {
         customerPreChecks()
-        return dkShopService.getActiveProductOrderBag(shopUsername)
+        return customerService.getActiveProductOrderBag(shopUsername)
     }
 
     @RequestMapping(value = ["/getProductOrder/{productOrderId}"], method = [RequestMethod.GET])
     fun getProductOrder(@PathVariable productOrderId: String): SavedProductOrderResponse {
         customerPreChecks()
-        return dkShopService.getProductOrder(productOrderId)
+        return customerService.getProductOrder(productOrderId)
+    }
+
+    @RequestMapping(value = ["/getProductDetails/{productId}"], method = [RequestMethod.GET])
+    fun getProductDetails(@PathVariable productId: String): SavedProductResponse {
+        customerPreChecks()
+        return customerService.getProductDetails(productId)
     }
 
     private fun customerPreChecks() {

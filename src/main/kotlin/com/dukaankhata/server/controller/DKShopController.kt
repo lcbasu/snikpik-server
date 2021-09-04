@@ -37,11 +37,6 @@ class DKShopController {
         return dkShopService.saveAddress(saveCompanyAddressRequest)
     }
 
-    @RequestMapping(value = ["/getActiveDiscounts/{companyId}"], method = [RequestMethod.GET])
-    fun getActiveDiscounts(@PathVariable companyId: String): SavedActiveDiscountsResponse {
-        return dkShopService.getActiveDiscounts(companyId)
-    }
-
     @RequestMapping(value = ["/saveOrUpdateExtraChargeDelivery"], method = [RequestMethod.POST])
     fun saveOrUpdateExtraChargeDelivery(@RequestBody saveExtraChargeDeliveryRequest: SaveExtraChargeDeliveryRequest): SavedExtraChargeDeliveryResponse {
         return dkShopService.saveOrUpdateExtraChargeDelivery(saveExtraChargeDeliveryRequest)
