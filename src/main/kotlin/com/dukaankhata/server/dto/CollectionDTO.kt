@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveCollectionRequest(
     val companyId: String,
-    var title: String = "",
+    var title: String,
     var subTitle: String?,
     val mediaDetails: MediaDetails,
 )
@@ -20,6 +20,11 @@ data class SavedCollectionResponse(
     var title: String,
     var subTitle: String?,
     val mediaDetails: MediaDetails,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AllCollectionsResponse(
+    val collections: List<SavedCollectionResponse>
 )
 
 fun Collection.toSavedCollectionResponse(): SavedCollectionResponse {
