@@ -21,6 +21,12 @@ class CollectionProvider {
     @Autowired
     private lateinit var uniqueIdProvider: UniqueIdProvider
 
+    @Autowired
+    private lateinit var productProvider: ProductProvider
+
+    @Autowired
+    private lateinit var productVariantProvider: ProductVariantProvider
+
     fun getCollection(collectionId: String): Collection? =
         try {
             collectionRepository.findById(collectionId).get()
@@ -67,5 +73,27 @@ class CollectionProvider {
                     it.await()
                 }
             )
+        }
+
+    fun getAllCollectionWithProducts(company: Company) =
+        runBlocking {
+            val collections = getCollections(company)
+            val allProductCollections = productProvider.getProductCollections(collectionIds = collections.map { it.id }.toSet())
+                .filter { it.collection != null && it.product != null }
+                .groupBy { it.collection?.id }
+            AllCollectionsWithProductsResponse(
+                collections.map {
+                    async {
+                        val collection = it.toSavedCollectionResponse()
+                        val products = allProductCollections.getOrDefault(it.id, emptyList()).map { it.product?.toSavedProductResponse(productVariantProvider) }
+                        collection to products
+                    }
+                }.map {
+                    val result = it.await()
+                    CollectionWithProductsResponse(
+                        collection = result.first!!,
+                        products = result.second.filterNotNull()
+                    )
+                })
         }
 }

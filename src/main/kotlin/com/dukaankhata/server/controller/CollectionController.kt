@@ -1,6 +1,7 @@
 package com.dukaankhata.server.controller
 
 import com.dukaankhata.server.dto.AllCollectionsResponse
+import com.dukaankhata.server.dto.AllCollectionsWithProductsResponse
 import com.dukaankhata.server.dto.SaveCollectionRequest
 import com.dukaankhata.server.dto.SavedCollectionResponse
 import com.dukaankhata.server.service.CollectionService
@@ -21,5 +22,10 @@ class CollectionController {
     @RequestMapping(value = ["/getAllCollection/{companyServerId}"], method = [RequestMethod.GET])
     fun getAllCollection(@PathVariable companyServerId: String): AllCollectionsResponse {
         return collectionService.getAllCollection(companyServerId)
+    }
+
+    @RequestMapping(value = ["/getAllCollectionWithProducts/{companyServerId}"], method = [RequestMethod.GET])
+    fun getAllCollectionWithProducts(@PathVariable companyServerId: String): AllCollectionsWithProductsResponse {
+        return collectionService.getAllCollectionWithProducts(companyServerId)
     }
 }

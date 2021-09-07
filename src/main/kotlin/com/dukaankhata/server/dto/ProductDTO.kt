@@ -46,6 +46,7 @@ data class SavedProductVariantResponse(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveProductRequest(
     val companyId: String,
+    val collectionId: String?,
     val mediaDetails: MediaDetails,
     var title: String = "",
     var productUnit: ProductUnit,

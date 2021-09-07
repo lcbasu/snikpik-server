@@ -40,13 +40,7 @@ class ProductServiceImpl : ProductService() {
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company should be present")
-        val collection = collectionProvider.getCollection(addProductsToCollectionRequest.collectionId) ?: error("Collection is required")
-        val savedProductsCollection = productProvider.addProductsToCollection(company, requestContext.user, collection, addProductsToCollectionRequest)
-        return AddProductsToCollectionResponse(
-            company = company.toSavedCompanyResponse(),
-            collection = collection.toSavedCollectionResponse(),
-            products = savedProductsCollection.map { it.product!!.toSavedProductResponse(productVariantProvider) }
-        )
+        return productProvider.addProductsToCollection(company, requestContext.user, addProductsToCollectionRequest)
     }
 
     override fun getAllProducts(companyId: String): AllProductsResponse {

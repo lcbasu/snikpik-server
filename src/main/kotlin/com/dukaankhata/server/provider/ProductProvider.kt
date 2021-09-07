@@ -27,6 +27,9 @@ class ProductProvider {
     private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
+    private lateinit var collectionProvider: CollectionProvider
+
+    @Autowired
     private lateinit var productVariantProvider: ProductVariantProvider
 
     fun getProducts(productIds: Set<String>): List<Product?> =
@@ -58,6 +61,16 @@ class ProductProvider {
             // We also need to save the variants
             // If no variant is provided then save a default one with product details
             productVariantProvider.saveProductVariant(savedProduct, saveProductRequest.allProductVariants)
+
+            // Add product to existing collection
+            saveProductRequest.collectionId?.let {
+                addProductsToCollection(company, user, AddProductsToCollectionRequest(
+                    companyId = company.id,
+                    collectionId = it,
+                    productIds = listOf(savedProduct.id).toSet()
+                ))
+            }
+
             return savedProduct
         } catch (e: Exception) {
             e.printStackTrace()
@@ -66,9 +79,10 @@ class ProductProvider {
     }
 
     @Transactional
-    fun addProductsToCollection(company: Company, user: User, collection: Collection, addProductsToCollectionRequest: AddProductsToCollectionRequest): List<ProductCollection> {
+    fun addProductsToCollection(company: Company, user: User, addProductsToCollectionRequest: AddProductsToCollectionRequest): AddProductsToCollectionResponse {
+        val collection = collectionProvider.getCollection(addProductsToCollectionRequest.collectionId) ?: error("Collection is required")
         val products = getProducts(addProductsToCollectionRequest.productIds)
-        return products.filterNotNull().map {
+        val savedProductsCollections = products.filterNotNull().map {
             val productCollection = ProductCollection()
             val productCollectionKey = ProductCollectionKey()
             productCollectionKey.collectionId = collection.id
@@ -81,6 +95,11 @@ class ProductProvider {
             productCollection.addedBy = user
             productCollectionRepository.save(productCollection)
         }
+        return AddProductsToCollectionResponse(
+            company = company.toSavedCompanyResponse(),
+            collection = collection.toSavedCollectionResponse(),
+            products = savedProductsCollections.map { it.product!!.toSavedProductResponse(productVariantProvider) }
+        )
     }
 
     fun getProductCollections(collectionIds: Set<String> = emptySet(), productIds: Set<String> = emptySet()): List<ProductCollection> =

@@ -1,9 +1,6 @@
 package com.dukaankhata.server.service.impl
 
-import com.dukaankhata.server.dto.AllCollectionsResponse
-import com.dukaankhata.server.dto.SaveCollectionRequest
-import com.dukaankhata.server.dto.SavedCollectionResponse
-import com.dukaankhata.server.dto.toSavedCollectionResponse
+import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.provider.AuthProvider
 import com.dukaankhata.server.provider.CollectionProvider
 import com.dukaankhata.server.service.CollectionService
@@ -35,5 +32,14 @@ class CollectionServiceImpl : CollectionService() {
         )
         val company = requestContext.company ?: error("Company should be present")
         return collectionProvider.getAllCollection(company)
+    }
+
+    override fun getAllCollectionWithProducts(companyServerId: String): AllCollectionsWithProductsResponse {
+        val requestContext = authProvider.validateRequest(
+            companyId = companyServerId,
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
+        )
+        val company = requestContext.company ?: error("Company should be present")
+        return collectionProvider.getAllCollectionWithProducts(company)
     }
 }
