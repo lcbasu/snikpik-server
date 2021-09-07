@@ -62,15 +62,18 @@ class ProductProvider {
             // If no variant is provided then save a default one with product details
             productVariantProvider.saveProductVariant(savedProduct, saveProductRequest.allProductVariants)
 
-            // Add product to existing collection
-            saveProductRequest.collectionId?.let {
-                addProductsToCollection(company, user, AddProductsToCollectionRequest(
-                    companyId = company.id,
-                    collectionId = it,
-                    productIds = listOf(savedProduct.id).toSet()
-                ))
+            // Add product to existing collections
+            if (saveProductRequest.collectionsIds.isNotEmpty()) {
+                addProductToCollections(
+                    company,
+                    user,
+                    AddProductToCollectionsRequest(
+                        companyId = company.id,
+                        collectionsIds = saveProductRequest.collectionsIds,
+                        productId = savedProduct.id
+                    )
+                )
             }
-
             return savedProduct
         } catch (e: Exception) {
             e.printStackTrace()
@@ -99,6 +102,30 @@ class ProductProvider {
             company = company.toSavedCompanyResponse(),
             collection = collection.toSavedCollectionResponse(),
             products = savedProductsCollections.map { it.product!!.toSavedProductResponse(productVariantProvider) }
+        )
+    }
+
+    @Transactional
+    fun addProductToCollections(company: Company, user: User, addProductToCollectionsRequest: AddProductToCollectionsRequest): AddProductToCollectionsResponse {
+        val collections = collectionProvider.getCollections(addProductToCollectionsRequest.collectionsIds).filterNotNull()
+        val product = getProduct(addProductToCollectionsRequest.productId) ?: error("No product found for id: ${addProductToCollectionsRequest.productId}")
+        val savedProductsCollections = collections.map {
+            val productCollection = ProductCollection()
+            val productCollectionKey = ProductCollectionKey()
+            productCollectionKey.collectionId = it.id
+            productCollectionKey.productId = product.id
+
+            productCollection.id = productCollectionKey
+            productCollection.product = product
+            productCollection.collection = it
+            productCollection.company = company
+            productCollection.addedBy = user
+            productCollectionRepository.save(productCollection)
+        }
+        return AddProductToCollectionsResponse(
+            company = company.toSavedCompanyResponse(),
+            collections = collections.map { it.toSavedCollectionResponse() },
+            product = product.toSavedProductResponse(productVariantProvider)
         )
     }
 

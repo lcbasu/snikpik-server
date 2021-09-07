@@ -34,6 +34,13 @@ class CollectionProvider {
             null
         }
 
+    fun getCollections(collectionIds: Set<String>): List<Collection?> =
+        try {
+            collectionRepository.findAllById(collectionIds)
+        } catch (e: Exception) {
+            emptyList()
+        }
+
     fun saveCollection(company: Company, user: User, saveCollectionRequest: SaveCollectionRequest) : Collection? {
         try {
             val newCollection = Collection()

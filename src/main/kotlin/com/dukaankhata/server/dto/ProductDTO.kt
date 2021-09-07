@@ -46,7 +46,7 @@ data class SavedProductVariantResponse(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveProductRequest(
     val companyId: String,
-    val collectionId: String?,
+    val collectionsIds: Set<String> = emptySet(),
     val mediaDetails: MediaDetails,
     var title: String = "",
     var productUnit: ProductUnit,
@@ -75,7 +75,8 @@ data class SavedProductResponse(
     val productInStock: Boolean = true, // TODO: Store this as a Seller level input in DB so that they can update this (productInStock) flag
     val totalUnitInStock: Long = 0,
     var minOrderUnitCount: Long = 0,
-    var allProductVariants: List<SavedProductVariantResponse>
+    var allProductVariants: List<SavedProductVariantResponse>,
+    val collection: SavedCollectionResponse? = null
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -83,6 +84,21 @@ data class AddProductsToCollectionRequest(
     val companyId: String,
     val collectionId: String,
     val productIds: Set<String>
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AddProductToCollectionsRequest(
+    val companyId: String,
+    val collectionsIds: Set<String>,
+    val productId: String
+)
+
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AddProductToCollectionsResponse(
+    val company: SavedCompanyResponse,
+    val collections: List<SavedCollectionResponse>,
+    val product: SavedProductResponse
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
