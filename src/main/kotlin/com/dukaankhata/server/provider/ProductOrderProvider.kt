@@ -35,6 +35,9 @@ class ProductOrderProvider {
     @Autowired
     private lateinit var productVariantProvider: ProductVariantProvider
 
+    @Autowired
+    private lateinit var productCollectionProvider: ProductCollectionProvider
+
     fun getProductOrder(productOrderId: String): ProductOrder? =
         try {
             productOrderRepository.findById(productOrderId).get()
@@ -516,6 +519,6 @@ class ProductOrderProvider {
 
     fun getProductOrderDetails(orderId: String): ProductOrderDetailsResponse {
         val productOrder = getProductOrder(orderId) ?: error("No order found for orderId: $orderId")
-        return productOrder.toProductOrderDetailsResponse(productVariantProvider, cartItemProvider)
+        return productOrder.toProductOrderDetailsResponse(productVariantProvider, cartItemProvider, productCollectionProvider)
     }
 }

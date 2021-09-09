@@ -1,18 +1,15 @@
 package com.dukaankhata.server.provider
 
-import com.dukaankhata.server.dao.ProductCollectionRepository
 import com.dukaankhata.server.dao.ProductRepository
 import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.entities.*
-import com.dukaankhata.server.entities.Collection
 import com.dukaankhata.server.enums.ProductStatus
 import com.dukaankhata.server.enums.ReadableIdPrefix
 import com.dukaankhata.server.model.convertToString
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 
 @Component
 class ProductProvider {
@@ -21,13 +18,10 @@ class ProductProvider {
     private lateinit var productRepository: ProductRepository
 
     @Autowired
-    private lateinit var productCollectionRepository: ProductCollectionRepository
-
-    @Autowired
     private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
-    private lateinit var collectionProvider: CollectionProvider
+    private lateinit var productCollectionProvider: ProductCollectionProvider
 
     @Autowired
     private lateinit var productVariantProvider: ProductVariantProvider
@@ -64,7 +58,7 @@ class ProductProvider {
 
             // Add product to existing collections
             if (saveProductRequest.collectionsIds.isNotEmpty()) {
-                addProductToCollections(
+                productCollectionProvider.addProductToCollections(
                     company,
                     user,
                     AddProductToCollectionsRequest(
@@ -80,61 +74,6 @@ class ProductProvider {
             return null
         }
     }
-
-    @Transactional
-    fun addProductsToCollection(company: Company, user: User, addProductsToCollectionRequest: AddProductsToCollectionRequest): AddProductsToCollectionResponse {
-        val collection = collectionProvider.getCollection(addProductsToCollectionRequest.collectionId) ?: error("Collection is required")
-        val products = getProducts(addProductsToCollectionRequest.productIds)
-        val savedProductsCollections = products.filterNotNull().map {
-            val productCollection = ProductCollection()
-            val productCollectionKey = ProductCollectionKey()
-            productCollectionKey.collectionId = collection.id
-            productCollectionKey.productId = it.id
-
-            productCollection.id = productCollectionKey
-            productCollection.product = it
-            productCollection.collection = collection
-            productCollection.company = company
-            productCollection.addedBy = user
-            productCollectionRepository.save(productCollection)
-        }
-        return AddProductsToCollectionResponse(
-            company = company.toSavedCompanyResponse(),
-            collection = collection.toSavedCollectionResponse(),
-            products = savedProductsCollections.map { it.product!!.toSavedProductResponse(productVariantProvider) }
-        )
-    }
-
-    @Transactional
-    fun addProductToCollections(company: Company, user: User, addProductToCollectionsRequest: AddProductToCollectionsRequest): AddProductToCollectionsResponse {
-        val collections = collectionProvider.getCollections(addProductToCollectionsRequest.collectionsIds).filterNotNull()
-        val product = getProduct(addProductToCollectionsRequest.productId) ?: error("No product found for id: ${addProductToCollectionsRequest.productId}")
-        val savedProductsCollections = collections.map {
-            val productCollection = ProductCollection()
-            val productCollectionKey = ProductCollectionKey()
-            productCollectionKey.collectionId = it.id
-            productCollectionKey.productId = product.id
-
-            productCollection.id = productCollectionKey
-            productCollection.product = product
-            productCollection.collection = it
-            productCollection.company = company
-            productCollection.addedBy = user
-            productCollectionRepository.save(productCollection)
-        }
-        return AddProductToCollectionsResponse(
-            company = company.toSavedCompanyResponse(),
-            collections = collections.map { it.toSavedCollectionResponse() },
-            product = product.toSavedProductResponse(productVariantProvider)
-        )
-    }
-
-    fun getProductCollections(collectionIds: Set<String> = emptySet(), productIds: Set<String> = emptySet()): List<ProductCollection> =
-        try {
-            productCollectionRepository.getProductCollections(productIds = productIds, collectionIds = collectionIds)
-        } catch (e: Exception) {
-            emptyList()
-        }
 
     fun getProducts(company: Company): List<Product> =
         try {
@@ -162,9 +101,9 @@ class ProductProvider {
     // We can return products that are part of some collection
     // where this product is also present
     fun getRelatedProducts(productId: String): List<Product> {
-        val currentProductCollection = getProductCollections(collectionIds = emptySet(), productIds = setOf(productId))
+        val currentProductCollection = productCollectionProvider.getProductCollections(collectionIds = emptySet(), productIds = setOf(productId))
         val allCollectionsIds = currentProductCollection.mapNotNull { it.collection }.map { it.id }.toSet()
-        val allProductCollections = getProductCollections(collectionIds = allCollectionsIds, productIds = emptySet())
+        val allProductCollections = productCollectionProvider.getProductCollections(collectionIds = allCollectionsIds, productIds = emptySet())
         return allProductCollections
             .mapNotNull { it.product }
             .filterNot { it.id == productId }
@@ -181,7 +120,7 @@ class ProductProvider {
         return runBlocking {
             AllProductsResponse(
                 products = getProducts(company).map {
-                    async { it.toSavedProductResponse(productVariantProvider) }
+                    async { it.toSavedProductResponse(productVariantProvider, productCollectionProvider) }
                 }.map {
                     it.await()
                 }

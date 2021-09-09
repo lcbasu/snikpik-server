@@ -38,6 +38,9 @@ class DKShopServiceImpl : DKShopService() {
     private lateinit var productVariantProvider: ProductVariantProvider
 
     @Autowired
+    private lateinit var productCollectionProvider: ProductCollectionProvider
+
+    @Autowired
     private lateinit var extraChargeTaxProvider: ExtraChargeTaxProvider
 
     override fun saveUsername(saveUsernameRequest: SaveUsernameRequest): SaveUsernameResponse? {
@@ -143,14 +146,14 @@ class DKShopServiceImpl : DKShopService() {
 
             val collections = collectionProvider.getCollections(company)
 
-            val productCollections = productProvider.getProductCollections(collectionIds = collections.map { it.id }.toSet()).mapNotNull { pc ->
+            val productCollections = productCollectionProvider.getProductCollections(collectionIds = collections.map { it.id }.toSet()).mapNotNull { pc ->
                 async {
                     if (pc.collection != null && pc.product != null) {
                         ProductCollectionResponse(
                             serverId = pc.collection!!.id + CommonUtils.STRING_SEPARATOR + pc.product!!.id,
                             company = company.toSavedCompanyResponse(),
                             collection = pc.collection!!.toSavedCollectionResponse(),
-                            product = pc.product!!.toSavedProductResponse(productVariantProvider),
+                            product = pc.product!!.toSavedProductResponse(productVariantProvider, productCollectionProvider),
                         )
                     } else {
                         null
@@ -160,7 +163,7 @@ class DKShopServiceImpl : DKShopService() {
 
             ShopCompleteDataResponse(
                 company = company.toSavedCompanyResponse(),
-                products = productsFuture.await().map { it.toSavedProductResponse(productVariantProvider) },
+                products = productsFuture.await().map { it.toSavedProductResponse(productVariantProvider, productCollectionProvider) },
                 collections = collections.map { it.toSavedCollectionResponse() },
                 productCollections = productCollections
             )

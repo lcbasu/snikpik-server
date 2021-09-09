@@ -1,5 +1,7 @@
 package com.dukaankhata.server.enums
 
+import com.dukaankhata.server.dto.ProductUnitResponse
+
 enum class ProductUnit(val rank: Int, val displayName: String)  {
     PIECE(1, "Piece"),
     KG(2, "KG"),
@@ -61,3 +63,14 @@ enum class ProductUnit(val rank: Int, val displayName: String)  {
 
     POUND(41, "Pound"),
 }
+
+fun ProductUnit.toProductUnitResponse(): ProductUnitResponse {
+    this.apply {
+        return ProductUnitResponse(
+            unitType = this,
+            rank = this.rank,
+            displayName = this.displayName
+        )
+    }
+}
+

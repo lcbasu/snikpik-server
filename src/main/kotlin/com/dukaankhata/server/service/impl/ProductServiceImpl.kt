@@ -2,11 +2,8 @@ package com.dukaankhata.server.service.impl
 
 import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.enums.ProductUnit
+import com.dukaankhata.server.provider.*
 import com.dukaankhata.server.service.ProductService
-import com.dukaankhata.server.provider.AuthProvider
-import com.dukaankhata.server.provider.CollectionProvider
-import com.dukaankhata.server.provider.ProductProvider
-import com.dukaankhata.server.provider.ProductVariantProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -24,6 +21,9 @@ class ProductServiceImpl : ProductService() {
     @Autowired
     private lateinit var productVariantProvider: ProductVariantProvider
 
+    @Autowired
+    private lateinit var productCollectionProvider: ProductCollectionProvider
+
     override fun saveProduct(saveProductRequest: SaveProductRequest): SavedProductResponse? {
         val requestContext = authProvider.validateRequest(
             companyId = saveProductRequest.companyId,
@@ -31,7 +31,7 @@ class ProductServiceImpl : ProductService() {
         )
         val company = requestContext.company ?: error("Company should be present")
         val savedProduct = productProvider.saveProduct(company, requestContext.user, saveProductRequest) ?: error("Error while saving product")
-        return savedProduct.toSavedProductResponse(productVariantProvider)
+        return savedProduct.toSavedProductResponse(productVariantProvider, productCollectionProvider)
     }
 
     override fun addProductsToCollection(addProductsToCollectionRequest: AddProductsToCollectionRequest): AddProductsToCollectionResponse? {
@@ -40,7 +40,7 @@ class ProductServiceImpl : ProductService() {
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company should be present")
-        return productProvider.addProductsToCollection(company, requestContext.user, addProductsToCollectionRequest)
+        return productCollectionProvider.addProductsToCollection(company, requestContext.user, addProductsToCollectionRequest)
     }
 
     override fun getAllProducts(companyId: String): AllProductsResponse {

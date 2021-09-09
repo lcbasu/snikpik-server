@@ -6,7 +6,9 @@ import com.dukaankhata.server.entities.ProductVariant
 import com.dukaankhata.server.entities.getMediaDetails
 import com.dukaankhata.server.entities.getVariantInfos
 import com.dukaankhata.server.enums.ProductUnit
+import com.dukaankhata.server.enums.toProductUnitResponse
 import com.dukaankhata.server.model.MediaDetails
+import com.dukaankhata.server.provider.ProductCollectionProvider
 import com.dukaankhata.server.provider.ProductVariantProvider
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
@@ -66,7 +68,7 @@ data class SavedProductResponse(
     val company: SavedCompanyResponse,
     val mediaDetails: MediaDetails,
     var title: String = "",
-    var productUnit: ProductUnit,
+    var productUnit: ProductUnitResponse,
     val unitQuantity: Long = 0,
     val description: String = "",
     val taxPerUnitInPaisa: Long = 0,
@@ -75,8 +77,8 @@ data class SavedProductResponse(
     val productInStock: Boolean = true, // TODO: Store this as a Seller level input in DB so that they can update this (productInStock) flag
     val totalUnitInStock: Long = 0,
     var minOrderUnitCount: Long = 0,
-    var allProductVariants: List<SavedProductVariantResponse>,
-    val collection: SavedCollectionResponse? = null
+    var allProductVariants: List<SavedProductVariantResponse> = emptyList(),
+    val collections: List<SavedCollectionResponse> = emptyList()
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -129,14 +131,14 @@ data class RelatedProductsResponse(
     val products: List<SavedProductResponse>
 )
 
-fun Product.toSavedProductResponse(productVariantProvider: ProductVariantProvider): SavedProductResponse {
+fun Product.toSavedProductResponse(productVariantProvider: ProductVariantProvider, productCollectionProvider: ProductCollectionProvider): SavedProductResponse {
     this.apply {
         return SavedProductResponse(
             serverId = id,
             company = company!!.toSavedCompanyResponse(),
             title = title,
             mediaDetails = getMediaDetails(),
-            productUnit = productUnit,
+            productUnit = productUnit.toProductUnitResponse(),
             unitQuantity = unitQuantity,
             description = description ?: "",
             taxPerUnitInPaisa = taxPerUnitInPaisa,
@@ -145,7 +147,8 @@ fun Product.toSavedProductResponse(productVariantProvider: ProductVariantProvide
             totalUnitInStock = totalUnitInStock,
             productInStock = totalUnitInStock > 0, // TODO: Store this as a Seller level input in DB so that they can update this (productInStock) flag
             minOrderUnitCount = minOrderUnitCount,
-            allProductVariants = productVariantProvider.getProductVariants(this).map { it.toSavedProductVariant() }
+            allProductVariants = productVariantProvider.getProductVariants(this).map { it.toSavedProductVariant() },
+            collections = productCollectionProvider.getAllCollectionsForProduct(this).map { it.toSavedCollectionResponse() }
         )
     }
 }

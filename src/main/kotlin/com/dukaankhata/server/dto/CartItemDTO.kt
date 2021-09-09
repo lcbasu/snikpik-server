@@ -2,6 +2,7 @@ package com.dukaankhata.server.dto
 
 import com.dukaankhata.server.entities.CartItem
 import com.dukaankhata.server.enums.CartItemUpdateAction
+import com.dukaankhata.server.provider.ProductCollectionProvider
 import com.dukaankhata.server.provider.ProductVariantProvider
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
@@ -31,7 +32,7 @@ data class MigrateCartRequest(
     val toUserId: String,
 )
 
-fun CartItem.toSavedCartItemResponse(productVariantProvider: ProductVariantProvider): SavedCartItemResponse {
+fun CartItem.toSavedCartItemResponse(productVariantProvider: ProductVariantProvider, productCollectionProvider: ProductCollectionProvider): SavedCartItemResponse {
     this.apply {
         return SavedCartItemResponse(
             serverId = id.toString(),
@@ -42,7 +43,7 @@ fun CartItem.toSavedCartItemResponse(productVariantProvider: ProductVariantProvi
             totalTaxInPaisa = totalTaxInPaisa,
             totalPriceWithoutTaxInPaisa = totalPriceWithoutTaxInPaisa,
             orderId = productOrder?.id,
-            product = productVariant?.product?.toSavedProductResponse(productVariantProvider),
+            product = productVariant?.product?.toSavedProductResponse(productVariantProvider, productCollectionProvider),
             productVariant = productVariant?.toSavedProductVariant()
         )
     }

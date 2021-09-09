@@ -22,7 +22,7 @@ class CollectionProvider {
     private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
-    private lateinit var productProvider: ProductProvider
+    private lateinit var productCollectionProvider: ProductCollectionProvider
 
     @Autowired
     private lateinit var productVariantProvider: ProductVariantProvider
@@ -85,14 +85,14 @@ class CollectionProvider {
     fun getAllCollectionWithProducts(company: Company) =
         runBlocking {
             val collections = getCollections(company)
-            val allProductCollections = productProvider.getProductCollections(collectionIds = collections.map { it.id }.toSet())
+            val allProductCollections = productCollectionProvider.getProductCollections(collectionIds = collections.map { it.id }.toSet())
                 .filter { it.collection != null && it.product != null }
                 .groupBy { it.collection?.id }
             AllCollectionsWithProductsResponse(
                 collections.map {
                     async {
                         val collection = it.toSavedCollectionResponse()
-                        val products = allProductCollections.getOrDefault(it.id, emptyList()).map { it.product?.toSavedProductResponse(productVariantProvider) }
+                        val products = allProductCollections.getOrDefault(it.id, emptyList()).map { it.product?.toSavedProductResponse(productVariantProvider, productCollectionProvider) }
                         collection to products
                     }
                 }.map {
