@@ -26,7 +26,7 @@ class Company : Auditable() {
     @Enumerated(EnumType.STRING)
     var dkShopStatus: DKShopStatus? = DKShopStatus.ONLINE
 
-//    @Column(unique = true)
+    @Column(unique = true)
     // Update it with the last updated username from
     // company_username table
     var username: String? = ""

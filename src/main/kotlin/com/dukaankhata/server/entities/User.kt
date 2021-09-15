@@ -19,6 +19,8 @@ class User : Auditable() {
     // unless they make the order
     var mobile: String? = "" // Phone Number with country code
     var countryCode: String? = "" // Country code
+
+    @Column(unique = true)
     var uid: String? = ""
     var anonymous: Boolean = true
     var fullName: String? = ""
