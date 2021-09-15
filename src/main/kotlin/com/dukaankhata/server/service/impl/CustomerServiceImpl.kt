@@ -106,7 +106,8 @@ class CustomerServiceImpl : CustomerService() {
             user = user,
             productVariant = productVariant,
             productOrder = activeProductOrderBag,
-            cartItemUpdateAction = updateCartRequest.action)
+            cartItemUpdateAction = updateCartRequest.action,
+            newQuantity = updateCartRequest.newQuantity)
         return updatedCartData.updatedProductOrder.toSavedProductOrderResponse(productVariantProvider, cartItemProvider, productCollectionProvider)
     }
 

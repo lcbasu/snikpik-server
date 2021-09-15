@@ -74,17 +74,26 @@ class CartItemProvider {
         return cartItemRepository.save(newCartItem)
     }
 
-    fun updateProductInCart(cartItem: CartItem, cartItemUpdateAction: CartItemUpdateAction): CartItem {
+    fun updateProductInCart(cartItem: CartItem, cartItemUpdateAction: CartItemUpdateAction?, newQuantity: Long?): CartItem {
+
+        if (cartItemUpdateAction == null && newQuantity == null) {
+            error("Both cartItemUpdateAction & newQuantity can not be null at the same time")
+        }
 
         if (cartItem.totalUnits == 0L && cartItemUpdateAction == CartItemUpdateAction.REMOVE) {
             error("Can not remove already removed items from active bag")
         }
 
-        val unitsToAdd = when (cartItemUpdateAction) {
+        // Default
+        val defaultUnitsToAdd = 1
+
+        val symbol = when (cartItemUpdateAction) {
             CartItemUpdateAction.ADD -> 1
             CartItemUpdateAction.REMOVE -> -1
+            else -> 1
         }
-        val newCount = cartItem.totalUnits + unitsToAdd
+
+        val newCount = newQuantity ?: (cartItem.totalUnits + defaultUnitsToAdd.times(symbol))
         return updateProductInCart(cartItem, newCount)
     }
 
@@ -93,13 +102,15 @@ class CartItemProvider {
                                     user: User,
                                     productVariant: ProductVariant,
                                     productOrder: ProductOrder,
-                                    cartItemUpdateAction: CartItemUpdateAction): UpdatedCartData {
+                                    cartItemUpdateAction: CartItemUpdateAction?,
+                                    newQuantity: Long?): UpdatedCartData {
         val updatedCartItem = updateCart(
             company = company,
             user = user,
             productVariant = productVariant,
             productOrder = productOrder,
-            cartItemUpdateAction = cartItemUpdateAction
+            cartItemUpdateAction = cartItemUpdateAction,
+            newQuantity = newQuantity
         )
         val productOrderCartItems = getCartItems(productOrder)
         val updatedProductOrder = productOrderProvider.saveAndRefreshProductOrder(productOrder)
@@ -110,7 +121,7 @@ class CartItemProvider {
         )
     }
 
-    private fun updateCart(company: Company, user: User, productVariant: ProductVariant, productOrder: ProductOrder, cartItemUpdateAction: CartItemUpdateAction): CartItem {
+    private fun updateCart(company: Company, user: User, productVariant: ProductVariant, productOrder: ProductOrder, cartItemUpdateAction: CartItemUpdateAction?, newQuantity: Long?): CartItem {
         val existingCartItem = getCartItem(productVariant = productVariant, productOrder = productOrder)
         return if (existingCartItem == null) {
             // Means this product is not added yet, so we need to add it
@@ -127,7 +138,8 @@ class CartItemProvider {
         } else {
             updateProductInCart(
                 cartItem = existingCartItem,
-                cartItemUpdateAction = cartItemUpdateAction
+                cartItemUpdateAction = cartItemUpdateAction,
+                newQuantity = newQuantity
             )
         }
     }

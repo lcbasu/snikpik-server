@@ -9,7 +9,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateCartRequest(
     val productVariantId: String,
-    val action: CartItemUpdateAction
+
+    // either action or newQuantity has to be present
+    val action: CartItemUpdateAction? = null,
+    val newQuantity: Long? = null
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

@@ -8,5 +8,5 @@ abstract class ProductOrderService {
     abstract fun placeProductOrder(placeProductOrderRequest: PlaceProductOrderRequest): SavedProductOrderResponse
     abstract fun getAllProductOrders(companyId: String): AllProductOrdersResponse
     abstract fun getAllProductOrderCards(companyId: String): AllProductOrderCardsResponse
-    abstract fun getProductOrderDetails(orderId: String): ProductOrderDetailsResponse
+    abstract fun getProductOrder(orderId: String): SavedProductOrderResponse
 }

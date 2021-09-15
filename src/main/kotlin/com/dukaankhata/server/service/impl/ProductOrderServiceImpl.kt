@@ -69,8 +69,9 @@ class ProductOrderServiceImpl : ProductOrderService() {
         )
     }
 
-    override fun getProductOrderDetails(orderId: String): ProductOrderDetailsResponse {
+    override fun getProductOrder(orderId: String): SavedProductOrderResponse {
         authProvider.validateRequest()
-        return productOrderProvider.getProductOrderDetails(orderId)
+        val productOrder = productOrderProvider.getProductOrder(orderId) ?: error("No order found for orderId: $orderId")
+        return productOrder.toSavedProductOrderResponse(productVariantProvider, cartItemProvider, productCollectionProvider)
     }
 }

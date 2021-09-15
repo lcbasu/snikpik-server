@@ -43,8 +43,8 @@ class ProductOrderController {
         return productOrderService.getAllProductOrderCards(companyId)
     }
 
-    @RequestMapping(value = ["/getProductOrderDetails/{orderId}"], method = [RequestMethod.GET])
-    fun getProductOrderDetails(@PathVariable orderId: String): ProductOrderDetailsResponse {
-        return productOrderService.getProductOrderDetails(orderId)
+    @RequestMapping(value = ["/getProductOrder/{orderId}"], method = [RequestMethod.GET])
+    fun getProductOrder(@PathVariable orderId: String): SavedProductOrderResponse {
+        return productOrderService.getProductOrder(orderId)
     }
 }

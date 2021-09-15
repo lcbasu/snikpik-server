@@ -516,9 +516,4 @@ class ProductOrderProvider {
             error(isOrderTransitionPossible.errorMessage)
         }
     }
-
-    fun getProductOrderDetails(orderId: String): ProductOrderDetailsResponse {
-        val productOrder = getProductOrder(orderId) ?: error("No order found for orderId: $orderId")
-        return productOrder.toProductOrderDetailsResponse(productVariantProvider, cartItemProvider, productCollectionProvider)
-    }
 }

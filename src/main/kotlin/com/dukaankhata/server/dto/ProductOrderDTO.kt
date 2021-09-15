@@ -89,6 +89,11 @@ data class SavedProductOrderResponse(
     var discount: SavedDiscountResponse? = null,
     var address: SavedAddressResponse? = null,
     var productOrderStateBeforeUpdateResponse: ProductOrderStateBeforeUpdateResponse? = null,
+    val mediaDetails: MediaDetails,
+    var cartItemsCount: Int = 0,
+    var orderedAt: Long = 0,
+    var paymentMode: OrderPaymentMode,
+    var successPaymentId: String,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -101,6 +106,7 @@ data class MigratedProductOrderResponse(
 
 fun ProductOrder.toSavedProductOrderResponse(productVariantProvider: ProductVariantProvider, cartItemProvider: CartItemProvider, productCollectionProvider: ProductCollectionProvider): SavedProductOrderResponse {
     this.apply {
+        val cartItems = cartItemProvider.getCartItems(this).filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse(productVariantProvider, productCollectionProvider) }
         return SavedProductOrderResponse(
             serverId = id,
             company = company!!.toSavedCompanyResponse(),
@@ -111,10 +117,15 @@ fun ProductOrder.toSavedProductOrderResponse(productVariantProvider: ProductVari
             totalPriceWithoutTaxInPaisa = totalPriceWithoutTaxInPaisa,
             totalPricePayableInPaisa = totalPricePayableInPaisa,
             orderStatus = orderStatus,
-            cartItems = cartItemProvider.getCartItems(this).filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse(productVariantProvider, productCollectionProvider) },
+            cartItems = cartItems,
             address = address?.let { it.toSavedAddressResponse() },
             discount = discount?.let { it.toSavedDiscountResponse() },
-            productOrderStateBeforeUpdateResponse = productOrderStateBeforeUpdate?.let { getProductOrderStateBeforeUpdate()?.toProductOrderUpdateResponse() }
+            productOrderStateBeforeUpdateResponse = productOrderStateBeforeUpdate?.let { getProductOrderStateBeforeUpdate()?.toProductOrderUpdateResponse() },
+            mediaDetails = MediaDetails(cartItems.mapNotNull { it.product?.mediaDetails?.media }.flatten()),
+            paymentMode = paymentMode,
+            successPaymentId = successPaymentId ?: "",
+            cartItemsCount = cartItems.sumBy { it.totalUnits.toInt() },
+            orderedAt = DateUtils.getEpoch(createdAt),
         )
     }
 }
