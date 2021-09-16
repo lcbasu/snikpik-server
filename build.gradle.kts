@@ -72,7 +72,7 @@ dependencies {
 //	implementation("com.razorpay:razorpay-java:1.3.8")
 
 	runtimeOnly("org.flywaydb:flyway-gradle-plugin:7.3.1")
-	runtimeOnly("mysql:mysql-connector-java:8.0.21")
+	runtimeOnly("mysql:mysql-connector-java:8.0.25")
 
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:2.3.8.RELEASE")
 
