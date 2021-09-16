@@ -51,7 +51,7 @@ class UserServiceImpl : UserService() {
 
         val user = requestContext.user ?: error("User is required")
 
-        val userAddress = addressProvider.saveUserAddress(user, saveUserAddressRequest.name, saveUserAddressRequest.address) ?: error("Error while saving user address")
+        val userAddress = addressProvider.saveUserAddress(user, saveUserAddressRequest.address) ?: error("Error while saving user address")
         val newAddress = userAddress.address ?: error("Address should always be present for userAddress")
         val updatedUser = authProvider.updateUserDefaultAddress(user, newAddress) ?: error("Error while updating default address for user")
 

@@ -34,12 +34,13 @@ class AddressProvider {
             null
         }
 
+    // TODO: Update the model
     fun saveAddress(saveAddressRequest: SaveAddressRequest): Address? {
         try {
             val newAddress = Address()
             newAddress.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.ADR.name)
-            newAddress.line1 = saveAddressRequest.line1
-            newAddress.line2 = saveAddressRequest.line2
+            newAddress.line1 = saveAddressRequest.house
+            newAddress.line2 = saveAddressRequest.roadName
             newAddress.zipcode = saveAddressRequest.zipcode
             newAddress.city = saveAddressRequest.city
             newAddress.state = saveAddressRequest.state
@@ -76,12 +77,12 @@ class AddressProvider {
         }
     }
 
-    fun saveUserAddress(user: User, name: String, saveAddressRequest: SaveAddressRequest): UserAddress? {
+    fun saveUserAddress(user: User, saveAddressRequest: SaveAddressRequest): UserAddress? {
         return try {
             val newAddress = saveAddress(saveAddressRequest) ?: error("Address should be saved")
             val userAddress = UserAddress()
             userAddress.id = getUserAddressKey(userId = user.id, addressId = newAddress.id)
-            userAddress.name = name
+            userAddress.name = saveAddressRequest.name
             userAddress.user = user
             userAddress.address = newAddress
             userAddressRepository.save(userAddress)
