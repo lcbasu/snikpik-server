@@ -349,9 +349,45 @@ class ProductOrderProvider {
         }
     }
 
+    private fun isCartUpdateValid(productOrder: ProductOrder, productOrderUpdateRequest: ProductOrderUpdateRequest): Boolean {
+        val cartItems = cartItemProvider.getCartItems(productOrder).filterNot { it.totalUnits == 0L }
+        val requestedCartItems = productOrderUpdateRequest.newCartUpdates.keys
+        val presentCartItems = cartItems.map { it.id }.toSet()
+        return requestedCartItems.size == presentCartItems.size &&
+                presentCartItems.containsAll(requestedCartItems)
+    }
+
+    private fun isDeliveryChargeUpdateValid(productOrder: ProductOrder, productOrderUpdateRequest: ProductOrderUpdateBySellerRequest): Boolean {
+        val reqDeliveryCharge = productOrderUpdateRequest.newDeliveryChargeInPaisa ?: return false
+        return productOrder.deliveryChargeInPaisa != reqDeliveryCharge
+    }
+
+    private fun validateProductOrderUpdateRequest(productOrder: ProductOrder, productOrderUpdateRequest: ProductOrderUpdateRequest) {
+        // Validation
+        when (productOrderUpdateRequest.updatedBy) {
+            ProductOrderUpdatedBy.BY_SELLER -> {
+                productOrderUpdateRequest as ProductOrderUpdateBySellerRequest
+                if (!isCartUpdateValid(productOrder, productOrderUpdateRequest) && !isDeliveryChargeUpdateValid(productOrder, productOrderUpdateRequest)) {
+                    error("Either the cart quantity or the delivery charge has to be a part of the request")
+                }
+            }
+            ProductOrderUpdatedBy.BY_CUSTOMER -> {
+                productOrderUpdateRequest as ProductOrderUpdateByCustomerRequest
+                if (productOrderUpdateRequest.newAddressId == null &&
+                    productOrderUpdateRequest.paymentId == null &&
+                    productOrderUpdateRequest.paymentMode == null &&
+                    !isCartUpdateValid(productOrder, productOrderUpdateRequest)) {
+                    error("Either the cart quantity or address or payment details has to be a part of the request")
+                }
+            }
+        }
+    }
+
     fun productOrderUpdate(user: User, productOrderUpdateRequest: ProductOrderUpdateRequest): ProductOrder {
         val productOrderId = productOrderUpdateRequest.productOrderId ?: error("Product id is required")
         val productOrder = getProductOrder(productOrderId) ?: error("No product order found for id: $productOrderId")
+
+        validateProductOrderUpdateRequest(productOrder, productOrderUpdateRequest)
 
         val newStatus = when (productOrderUpdateRequest.updatedBy) {
             ProductOrderUpdatedBy.BY_SELLER -> ProductOrderStatus.PENDING_CUSTOMER_APPROVAL
@@ -492,6 +528,9 @@ class ProductOrderProvider {
                     ProductOrderUpdateType.ACCEPT -> ProductOrderStatus.ACCEPTED_BY_SELLER
                     ProductOrderUpdateType.REJECT -> ProductOrderStatus.REJECTED_BY_SELLER
                     ProductOrderUpdateType.CANCEL -> ProductOrderStatus.CANCELLED_BY_SELLER
+                    ProductOrderUpdateType.SHIPPED -> ProductOrderStatus.SHIPPED_BY_SELLER
+                    ProductOrderUpdateType.DELIVERED -> ProductOrderStatus.DELIVERED_BY_SELLER
+                    ProductOrderUpdateType.FAILED -> ProductOrderStatus.FAILED_TO_DELIVER_BY_SELLER
                 }
             }
             ProductOrderUpdatedBy.BY_CUSTOMER -> {
@@ -499,6 +538,9 @@ class ProductOrderProvider {
                     ProductOrderUpdateType.ACCEPT -> ProductOrderStatus.ACCEPTED_BY_CUSTOMER
                     ProductOrderUpdateType.REJECT -> ProductOrderStatus.REJECTED_BY_CUSTOMER
                     ProductOrderUpdateType.CANCEL -> ProductOrderStatus.CANCELLED_BY_CUSTOMER
+                    ProductOrderUpdateType.SHIPPED -> error("Customer can not ship the order")
+                    ProductOrderUpdateType.DELIVERED -> error("Customer can not deliver the order")
+                    ProductOrderUpdateType.FAILED -> error("Customer can not mark the order failed")
                 }
             }
         }

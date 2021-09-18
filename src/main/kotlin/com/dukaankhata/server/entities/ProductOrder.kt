@@ -52,3 +52,15 @@ class ProductOrder : Auditable() {
     @JoinColumn(name = "added_by_user_id")
     var addedBy: User? = null;
 }
+
+fun ProductOrder.orderUpdatable(): Boolean {
+    this.apply {
+        return this.orderStatus == ProductOrderStatus.PLACED ||
+                this.orderStatus == ProductOrderStatus.ACCEPTED_BY_SELLER ||
+                this.orderStatus == ProductOrderStatus.ACCEPTED_BY_CUSTOMER ||
+                // if the earlier change was rejected by the customer or the seller
+                // and the seller has modified the order and sent to customer for approval again
+                this.orderStatus == ProductOrderStatus.REJECTED_BY_CUSTOMER ||
+                this.orderStatus == ProductOrderStatus.REJECTED_BY_SELLER
+    }
+}

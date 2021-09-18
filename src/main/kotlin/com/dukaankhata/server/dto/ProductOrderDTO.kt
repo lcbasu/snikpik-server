@@ -1,6 +1,7 @@
 package com.dukaankhata.server.dto
 
 import com.dukaankhata.server.entities.ProductOrder
+import com.dukaankhata.server.entities.orderUpdatable
 import com.dukaankhata.server.enums.OrderPaymentMode
 import com.dukaankhata.server.enums.ProductOrderStatus
 import com.dukaankhata.server.enums.ProductOrderUpdateType
@@ -94,6 +95,7 @@ data class SavedProductOrderResponse(
     var orderedAt: Long = 0,
     var paymentMode: OrderPaymentMode,
     var successPaymentId: String,
+    var orderUpdatable: Boolean,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -126,6 +128,7 @@ fun ProductOrder.toSavedProductOrderResponse(productVariantProvider: ProductVari
             successPaymentId = successPaymentId ?: "",
             cartItemsCount = cartItems.sumBy { it.totalUnits.toInt() },
             orderedAt = DateUtils.getEpoch(createdAt),
+            orderUpdatable = orderUpdatable()
         )
     }
 }
