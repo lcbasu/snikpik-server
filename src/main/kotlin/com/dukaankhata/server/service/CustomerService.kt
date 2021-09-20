@@ -11,4 +11,5 @@ abstract class CustomerService {
     abstract fun migrateCart(migrateCartRequest: MigrateCartRequest): MigratedProductOrderResponse
     abstract fun getProductOrder(productOrderId: String): SavedProductOrderResponse
     abstract fun getProductDetails(productId: String): SavedProductResponse
+    abstract fun getProductOrders(): AllProductOrdersResponse
 }

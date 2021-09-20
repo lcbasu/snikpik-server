@@ -20,7 +20,7 @@ class OvertimeServiceImpl : OvertimeService() {
     override fun saveOvertime(saveOvertimeRequest: SaveOvertimeRequest): SavedOvertimeResponse? {
         val requestContext = authProvider.validateRequest(
             employeeId = saveOvertimeRequest.employeeId,
-            companyId = saveOvertimeRequest.companyId,
+            companyServerIdOrUsername = saveOvertimeRequest.companyId,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
 

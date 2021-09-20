@@ -45,7 +45,7 @@ class DKShopServiceImpl : DKShopService() {
 
     override fun saveUsername(saveUsernameRequest: SaveUsernameRequest): SaveUsernameResponse? {
         val requestContext = authProvider.validateRequest(
-            companyId = saveUsernameRequest.companyId,
+            companyServerIdOrUsername = saveUsernameRequest.companyId,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company is required")
@@ -78,7 +78,7 @@ class DKShopServiceImpl : DKShopService() {
 
     override fun takeShopOffline(takeShopOfflineRequest: TakeShopOfflineRequest): SavedCompanyResponse? {
         val requestContext = authProvider.validateRequest(
-            companyId = takeShopOfflineRequest.companyId,
+            companyServerIdOrUsername = takeShopOfflineRequest.companyId,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company is required")
@@ -94,7 +94,7 @@ class DKShopServiceImpl : DKShopService() {
 
     override fun saveAddress(saveCompanyAddressRequest: SaveCompanyAddressRequest): SavedCompanyAddressResponse? {
         val requestContext = authProvider.validateRequest(
-            companyId = saveCompanyAddressRequest.companyId,
+            companyServerIdOrUsername = saveCompanyAddressRequest.companyId,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company is required")
@@ -111,7 +111,7 @@ class DKShopServiceImpl : DKShopService() {
 
     override fun saveOrUpdateExtraChargeDelivery(saveExtraChargeDeliveryRequest: SaveExtraChargeDeliveryRequest): SavedExtraChargeDeliveryResponse {
         val requestContext = authProvider.validateRequest(
-            companyId = saveExtraChargeDeliveryRequest.companyId
+            companyServerIdOrUsername = saveExtraChargeDeliveryRequest.companyId
         )
         val company = requestContext.company ?: error("Company is required")
         val ed = extraChargeDeliveryProvider.saveOrUpdateExtraChargeDelivery(
@@ -124,7 +124,7 @@ class DKShopServiceImpl : DKShopService() {
 
     override fun saveOrUpdateExtraChargeTax(saveExtraChargeTaxRequest: SaveExtraChargeTaxRequest): SavedExtraChargeTaxResponse {
         val requestContext = authProvider.validateRequest(
-            companyId = saveExtraChargeTaxRequest.companyId
+            companyServerIdOrUsername = saveExtraChargeTaxRequest.companyId
         )
         val company = requestContext.company ?: error("Company is required")
         val et = extraChargeTaxProvider.saveOrUpdateExtraChargeTax(
@@ -138,7 +138,7 @@ class DKShopServiceImpl : DKShopService() {
     override fun getShopCompleteData(companyId: String): ShopCompleteDataResponse {
         return runBlocking {
             val requestContext = authProvider.validateRequest(
-                companyId = companyId
+                companyServerIdOrUsername = companyId
             )
             val company = requestContext.company ?: error("Company is required")
 
@@ -172,7 +172,7 @@ class DKShopServiceImpl : DKShopService() {
 
     override fun takeShopOnlineNow(takeShopOnlineNowRequest: TakeShopOnlineNowRequest): SavedCompanyResponse? {
         val requestContext = authProvider.validateRequest(
-            companyId = takeShopOnlineNowRequest.companyId,
+            companyServerIdOrUsername = takeShopOnlineNowRequest.companyId,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company is required")
@@ -182,7 +182,7 @@ class DKShopServiceImpl : DKShopService() {
 
     override fun getExtraCharges(companyId: String): SavedExtraChargesResponse {
         val requestContext = authProvider.validateRequest(
-            companyId = companyId
+            companyServerIdOrUsername = companyId
         )
         val company = requestContext.company ?: error("Company is required")
         val eds = extraChargeDeliveryProvider.getExtraChargeDeliveries(company)

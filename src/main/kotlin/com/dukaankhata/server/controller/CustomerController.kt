@@ -65,6 +65,12 @@ class CustomerController {
         return customerService.getProductOrder(productOrderId)
     }
 
+    @RequestMapping(value = ["/getProductOrders"], method = [RequestMethod.GET])
+    fun getProductOrders(): AllProductOrdersResponse {
+        customerPreChecks()
+        return customerService.getProductOrders()
+    }
+
     @RequestMapping(value = ["/getProductDetails/{productId}"], method = [RequestMethod.GET])
     fun getProductDetails(@PathVariable productId: String): SavedProductResponse {
         customerPreChecks()

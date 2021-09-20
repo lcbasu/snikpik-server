@@ -19,7 +19,7 @@ class PaymentServiceImpl : PaymentService() {
     override fun savePayment(savePaymentRequest: SavePaymentRequest): SavedPaymentResponse? {
         val requestContext = authProvider.validateRequest(
             employeeId = savePaymentRequest.employeeId,
-            companyId = savePaymentRequest.companyId,
+            companyServerIdOrUsername = savePaymentRequest.companyId,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         return paymentProvider.savePaymentAndDependentData(
@@ -35,7 +35,7 @@ class PaymentServiceImpl : PaymentService() {
 
     override fun getCompanyPaymentReport(companyPaymentReportRequest: CompanyPaymentReportRequest): CompanyPaymentReportResponse? {
         val requestContext = authProvider.validateRequest(
-            companyId = companyPaymentReportRequest.companyId,
+            companyServerIdOrUsername = companyPaymentReportRequest.companyId,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
 

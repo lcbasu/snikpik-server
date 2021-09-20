@@ -33,9 +33,9 @@ class ProductOrderController {
         return productOrderService.productOrderUpdateStatusUpdate(productOrderStatusUpdateRequest)
     }
 
-    @RequestMapping(value = ["/getAll/{companyId}"], method = [RequestMethod.GET])
-    fun getAllProductOrders(@PathVariable companyId: String): AllProductOrdersResponse {
-        return productOrderService.getAllProductOrders(companyId)
+    @RequestMapping(value = ["/getAll/{companyServerIdOrUsername}"], method = [RequestMethod.GET])
+    fun getAllProductOrders(@PathVariable companyServerIdOrUsername: String): AllProductOrdersResponse {
+        return productOrderService.getAllProductOrders(companyServerIdOrUsername)
     }
 
     @RequestMapping(value = ["/getAllProductOrderCards/{companyId}"], method = [RequestMethod.GET])

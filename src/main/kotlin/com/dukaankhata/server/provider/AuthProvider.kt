@@ -185,13 +185,15 @@ class AuthProvider {
 
     // requiredRoleTypes: Any of the role present in the set is ok. So we follow OR and not the AND
     // isPublic Should always be set in the controller
-    fun validateRequest(companyId: String? = null, employeeId: String? = null, requiredRoleTypes: Set<RoleType> = emptySet()): RequestContext {
+    fun validateRequest(companyServerIdOrUsername: String? = null, employeeId: String? = null, requiredRoleTypes: Set<RoleType> = emptySet()): RequestContext {
         val requestingUser = getRequestUserEntity() ?: error("User is required to be logged in!")
 
         var company: Company? = null
         var userRoles: List<UserRole> = emptyList()
-        if (companyId != null && companyId.isNotBlank()) {
-            company = companyProvider.getCompany(companyId) ?: error("Company is required!")
+        if (companyServerIdOrUsername != null && companyServerIdOrUsername.isNotBlank()) {
+            company = companyProvider.getCompany(companyServerIdOrUsername) ?:
+            companyProvider.getCompanyByUsername(companyServerIdOrUsername) ?:
+            error("Company is required!")
 
             if (requiredRoleTypes.isNotEmpty()) {
                 userRoles = userRoleProvider.getUserRolesForUserAndCompany(
@@ -225,7 +227,7 @@ class AuthProvider {
             employee = employeeProvider.getEmployee(employeeId) ?: error("Employee is required")
 
             // If only employee id is provided
-            if (companyId == null || companyId.isBlank()) {
+            if (companyServerIdOrUsername == null || companyServerIdOrUsername.isBlank()) {
                 company = employee.company
 
                 if (requiredRoleTypes.isNotEmpty()) {

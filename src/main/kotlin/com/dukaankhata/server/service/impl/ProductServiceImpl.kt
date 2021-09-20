@@ -26,7 +26,7 @@ class ProductServiceImpl : ProductService() {
 
     override fun saveProduct(saveProductRequest: SaveProductRequest): SavedProductResponse? {
         val requestContext = authProvider.validateRequest(
-            companyId = saveProductRequest.companyId,
+            companyServerIdOrUsername = saveProductRequest.companyId,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company should be present")
@@ -36,7 +36,7 @@ class ProductServiceImpl : ProductService() {
 
     override fun addProductsToCollection(addProductsToCollectionRequest: AddProductsToCollectionRequest): AddProductsToCollectionResponse? {
         val requestContext = authProvider.validateRequest(
-            companyId = addProductsToCollectionRequest.companyId,
+            companyServerIdOrUsername = addProductsToCollectionRequest.companyId,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company should be present")
@@ -45,7 +45,7 @@ class ProductServiceImpl : ProductService() {
 
     override fun getAllProducts(companyId: String): AllProductsResponse {
         val requestContext = authProvider.validateRequest(
-            companyId = companyId,
+            companyServerIdOrUsername = companyId,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company is required")

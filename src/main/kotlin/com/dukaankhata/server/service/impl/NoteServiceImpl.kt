@@ -21,7 +21,7 @@ class NoteServiceImpl : NoteService() {
     override fun saveNote(saveNoteRequest: SaveNoteRequest): SavedNoteResponse? {
         val requestContext = authProvider.validateRequest(
             employeeId = saveNoteRequest.employeeId,
-            companyId = saveNoteRequest.companyId,
+            companyServerIdOrUsername = saveNoteRequest.companyId,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val note = noteProvider.saveNote(requestContext.user, requestContext.company!!, requestContext.employee!!, saveNoteRequest)

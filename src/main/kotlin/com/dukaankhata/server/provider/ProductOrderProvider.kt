@@ -48,6 +48,9 @@ class ProductOrderProvider {
     fun getProductOrders(company: Company) =
         productOrderRepository.findAllByCompany(company)
 
+    fun getProductOrders(user: User) =
+        productOrderRepository.findAllByAddedBy(user)
+
     fun getProductOrders(company: Company, user: User, productOrderStatus: ProductOrderStatus) =
         productOrderRepository.findAllByCompanyAndAddedByAndOrderStatus(company, user, productOrderStatus)
 

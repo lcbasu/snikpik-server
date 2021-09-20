@@ -32,7 +32,7 @@ class AttendanceServiceImpl : AttendanceService() {
 
     override fun saveAttendance(saveAttendanceRequest: SaveAttendanceRequest): SavedAttendanceResponse? {
         val requestContext = authProvider.validateRequest(
-            companyId = saveAttendanceRequest.companyId,
+            companyServerIdOrUsername = saveAttendanceRequest.companyId,
             employeeId = saveAttendanceRequest.employeeId,
             requiredRoleTypes = authProvider.allAccessRoles()
         )
@@ -43,7 +43,7 @@ class AttendanceServiceImpl : AttendanceService() {
     override fun getAttendanceInfo(attendanceInfoRequest: AttendanceInfoRequest): AttendanceInfoResponse? {
         return runBlocking {
             val requestContext = authProvider.validateRequest(
-                companyId = attendanceInfoRequest.companyId,
+                companyServerIdOrUsername = attendanceInfoRequest.companyId,
                 requiredRoleTypes = authProvider.allAccessRoles()
             )
             attendanceProvider.getAttendanceInfoV2(requestContext.company!!, attendanceInfoRequest.forDate)
@@ -61,7 +61,7 @@ class AttendanceServiceImpl : AttendanceService() {
 
     override fun getAttendanceSummary(attendanceSummaryRequest: AttendanceSummaryRequest): AttendanceSummaryResponse? {
         val requestContext = authProvider.validateRequest(
-            companyId = attendanceSummaryRequest.companyId,
+            companyServerIdOrUsername = attendanceSummaryRequest.companyId,
             requiredRoleTypes = authProvider.allAccessRoles()
         )
         return attendanceProvider.getAttendanceSummary(requestContext, attendanceSummaryRequest)

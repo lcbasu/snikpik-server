@@ -20,7 +20,7 @@ class LateFineServiceImpl : LateFineService() {
     override fun saveLateFine(saveLateFineRequest: SaveLateFineRequest): SavedLateFineResponse? {
         val requestContext = authProvider.validateRequest(
             employeeId = saveLateFineRequest.employeeId,
-            companyId = saveLateFineRequest.companyId,
+            companyServerIdOrUsername = saveLateFineRequest.companyId,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
 

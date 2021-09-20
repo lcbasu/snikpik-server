@@ -20,7 +20,7 @@ class DiscountServiceImpl : DiscountService() {
 
     override fun saveDiscount(saveDiscountRequest: SaveDiscountRequest): SavedDiscountResponse {
         val requestContext = authProvider.validateRequest(
-            companyId = saveDiscountRequest.companyId,
+            companyServerIdOrUsername = saveDiscountRequest.companyId,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company is required")

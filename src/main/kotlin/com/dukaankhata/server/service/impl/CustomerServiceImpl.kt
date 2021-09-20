@@ -123,7 +123,7 @@ class CustomerServiceImpl : CustomerService() {
 
     override fun getActiveDiscounts(companyId: String): SavedActiveDiscountsResponse {
         val requestContext = authProvider.validateRequest(
-            companyId = companyId
+            companyServerIdOrUsername = companyId
         )
         val company = requestContext.company ?: error("Company is required")
         val activeDiscounts = discountProvider.getActiveDiscounts(company)
@@ -184,6 +184,14 @@ class CustomerServiceImpl : CustomerService() {
         authProvider.validateRequest()
         val product = productProvider.getProduct(productId) ?: error("Product not found for id: $productId")
         return product.toSavedProductResponse(productVariantProvider, productCollectionProvider)
+    }
+
+    override fun getProductOrders(): AllProductOrdersResponse {
+        val requestContext = authProvider.validateRequest()
+        val productOrders = productOrderProvider.getProductOrders(requestContext.user)
+        return AllProductOrdersResponse(
+            orders = productOrders.map { it.toSavedProductOrderResponse(productVariantProvider, cartItemProvider, productCollectionProvider) }
+        )
     }
 
 }
