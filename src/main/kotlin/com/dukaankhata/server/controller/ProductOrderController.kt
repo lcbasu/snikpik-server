@@ -47,4 +47,9 @@ class ProductOrderController {
     fun getProductOrder(@PathVariable orderId: String): SavedProductOrderResponse {
         return productOrderService.getProductOrder(orderId)
     }
+
+    @RequestMapping(value = ["/getProductOrderStateChanges/{orderId}"], method = [RequestMethod.GET])
+    fun getProductOrderStateChanges(@PathVariable orderId: String): AllProductOrderStateChangesResponse {
+        return productOrderService.getProductOrderStateChanges(orderId)
+    }
 }

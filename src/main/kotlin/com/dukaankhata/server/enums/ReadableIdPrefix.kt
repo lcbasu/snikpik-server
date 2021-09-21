@@ -16,5 +16,6 @@ enum class ReadableIdPrefix {
     OVT, // Overtime
     PMT, // Payment
     PVT, // Product Variant
+    OSC, // Product Order State Change
 }
 

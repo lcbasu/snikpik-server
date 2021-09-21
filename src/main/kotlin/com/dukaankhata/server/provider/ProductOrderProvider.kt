@@ -38,6 +38,15 @@ class ProductOrderProvider {
     @Autowired
     private lateinit var productCollectionProvider: ProductCollectionProvider
 
+    @Autowired
+    private lateinit var productOrderStateChangeProvider: ProductOrderStateChangeProvider
+
+    fun saveProductOrder(productOrder: ProductOrder): ProductOrder {
+        val savedProductOrder = productOrderRepository.save(productOrder)
+        productOrderStateChangeProvider.saveProductOrderStateChange(productOrder);
+        return savedProductOrder
+    }
+
     fun getProductOrder(productOrderId: String): ProductOrder? =
         try {
             productOrderRepository.findById(productOrderId).get()
@@ -92,7 +101,7 @@ class ProductOrderProvider {
         newProductOrder.addedBy = user
         newProductOrder.company = company
         newProductOrder.address = user.defaultAddressId?.let { addressProvider.getAddress(it) }
-        return productOrderRepository.save(newProductOrder)
+        return saveProductOrder(newProductOrder)
     }
 
     fun saveAndRefreshProductOrder(productOrder: ProductOrder): ProductOrder {
@@ -103,7 +112,7 @@ class ProductOrderProvider {
             productOrder.totalPriceWithoutTaxInPaisa += cartItem.totalPriceWithoutTaxInPaisa
         }
         productOrder.totalPricePayableInPaisa = (productOrder.totalPriceWithoutTaxInPaisa + productOrder.totalTaxInPaisa + productOrder.deliveryChargeInPaisa) - productOrder.discountInPaisa
-        return productOrderRepository.save(productOrder)
+        return saveProductOrder(productOrder)
     }
 
     fun placeProductOrder(user: User, productOrderId: String): ProductOrder {
@@ -346,7 +355,7 @@ class ProductOrderProvider {
         return if (isOrderTransitionPossible.transitionPossible) {
             // TODO: Send notification to Seller and Customer based on transition
             productOrder.orderStatus = newStatus
-            productOrderRepository.save(productOrder)
+            saveProductOrder(productOrder)
         } else {
             error(isOrderTransitionPossible.errorMessage)
         }
@@ -555,7 +564,7 @@ class ProductOrderProvider {
         return if (isOrderTransitionPossible.transitionPossible) {
             // Remove the update as all the pending update has been approved
             productOrder.productOrderStateBeforeUpdate = ""
-            val updatedProductOrder = productOrderRepository.save(productOrder)
+            val updatedProductOrder = saveProductOrder(productOrder)
             transitionStateTo(updatedProductOrder, newStatus)
         } else {
             error(isOrderTransitionPossible.errorMessage)

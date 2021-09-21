@@ -1,14 +1,13 @@
 package com.dukaankhata.server.dto
 
 import com.dukaankhata.server.entities.ProductOrder
+import com.dukaankhata.server.entities.ProductOrderStateChange
 import com.dukaankhata.server.entities.orderUpdatable
 import com.dukaankhata.server.enums.OrderPaymentMode
 import com.dukaankhata.server.enums.ProductOrderStatus
 import com.dukaankhata.server.enums.ProductOrderUpdateType
 import com.dukaankhata.server.enums.ProductOrderUpdatedBy
-import com.dukaankhata.server.model.MediaDetails
-import com.dukaankhata.server.model.ProductOrderStateBeforeUpdate
-import com.dukaankhata.server.model.getProductOrderStateBeforeUpdate
+import com.dukaankhata.server.model.*
 import com.dukaankhata.server.provider.CartItemProvider
 import com.dukaankhata.server.provider.ProductCollectionProvider
 import com.dukaankhata.server.provider.ProductVariantProvider
@@ -99,12 +98,42 @@ data class SavedProductOrderResponse(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class SavedProductOrderStateChangeResponse(
+    val serverId: String,
+    val company: SavedCompanyResponse,
+    val addedByUser: SavedUserResponse,
+    val productOrder: SavedProductOrderResponse,
+    var productOrderStatus: ProductOrderStatus = ProductOrderStatus.DRAFT,
+    var stateChangeAt: Long = 0,
+    var productOrderStateChangeData: ProductOrderStateChangeData? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AllProductOrderStateChangesResponse(
+    val changes: List<SavedProductOrderStateChangeResponse>,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class MigratedProductOrderResponse(
     val fromUser: SavedUserResponse,
     val toUser: SavedUserResponse,
     val fromProductOrders: List<SavedProductOrderResponse>,
     val toProductOrders: List<SavedProductOrderResponse>,
 )
+
+fun ProductOrderStateChange.toSavedProductOrderStateChangeResponse(productVariantProvider: ProductVariantProvider, cartItemProvider: CartItemProvider, productCollectionProvider: ProductCollectionProvider): SavedProductOrderStateChangeResponse {
+    this.apply {
+        return SavedProductOrderStateChangeResponse(
+            serverId = id,
+            company = company!!.toSavedCompanyResponse(),
+            addedByUser = addedBy!!.toSavedUserResponse(),
+            productOrder = productOrder!!.toSavedProductOrderResponse(productVariantProvider, cartItemProvider, productCollectionProvider),
+            productOrderStatus = productOrderStatus,
+            stateChangeAt = DateUtils.getEpoch(stateChangeAt),
+            productOrderStateChangeData = getProductOrderStateChangeData()
+        )
+    }
+}
 
 fun ProductOrder.toSavedProductOrderResponse(productVariantProvider: ProductVariantProvider, cartItemProvider: CartItemProvider, productCollectionProvider: ProductCollectionProvider): SavedProductOrderResponse {
     this.apply {

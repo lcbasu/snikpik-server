@@ -15,6 +15,9 @@ class ProductOrderServiceImpl : ProductOrderService() {
     private lateinit var productOrderProvider: ProductOrderProvider
 
     @Autowired
+    private lateinit var productOrderStateChangeProvider: ProductOrderStateChangeProvider
+
+    @Autowired
     private lateinit var cartItemProvider: CartItemProvider
 
     @Autowired
@@ -73,5 +76,14 @@ class ProductOrderServiceImpl : ProductOrderService() {
         authProvider.validateRequest()
         val productOrder = productOrderProvider.getProductOrder(orderId) ?: error("No order found for orderId: $orderId")
         return productOrder.toSavedProductOrderResponse(productVariantProvider, cartItemProvider, productCollectionProvider)
+    }
+
+    override fun getProductOrderStateChanges(orderId: String): AllProductOrderStateChangesResponse {
+        authProvider.validateRequest()
+        val productOrder = productOrderProvider.getProductOrder(orderId) ?: error("No order found for orderId: $orderId")
+        val stateChanges = productOrderStateChangeProvider.getProductOrderStateChanges(productOrder)
+        return AllProductOrderStateChangesResponse(
+            changes = stateChanges.map { it.toSavedProductOrderStateChangeResponse(productVariantProvider, cartItemProvider, productCollectionProvider) }
+        )
     }
 }
