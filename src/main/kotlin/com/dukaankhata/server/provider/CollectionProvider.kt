@@ -1,5 +1,7 @@
 package com.dukaankhata.server.provider
 
+import AllCollectionsWithProductsRaw
+import CollectionWithProductsRaw
 import com.dukaankhata.server.dao.CollectionRepository
 import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.entities.Collection
@@ -82,25 +84,28 @@ class CollectionProvider {
             )
         }
 
-    fun getAllCollectionWithProducts(company: Company) =
+    fun getAllCollectionWithProductsRaw(company: Company) =
         runBlocking {
             val collections = getCollections(company)
             val allProductCollections = productCollectionProvider.getProductCollections(collectionIds = collections.map { it.id }.toSet())
                 .filter { it.collection != null && it.product != null }
                 .groupBy { it.collection?.id }
-            AllCollectionsWithProductsResponse(
+            AllCollectionsWithProductsRaw(
                 collections.map {
                     async {
-                        val collection = it.toSavedCollectionResponse()
-                        val products = allProductCollections.getOrDefault(it.id, emptyList()).map { it.product?.toSavedProductResponse(productVariantProvider, productCollectionProvider) }
+                        val collection = it
+                        val products = allProductCollections.getOrDefault(it.id, emptyList()).map { it.product }
                         collection to products
                     }
                 }.map {
                     val result = it.await()
-                    CollectionWithProductsResponse(
-                        collection = result.first!!,
+                    CollectionWithProductsRaw(
+                        collection = result.first,
                         products = result.second.filterNotNull()
                     )
                 })
         }
+
+    fun getAllCollectionWithProducts(company: Company) =
+        getAllCollectionWithProductsRaw(company).toAllCollectionsWithProductsResponse(productVariantProvider, productCollectionProvider)
 }

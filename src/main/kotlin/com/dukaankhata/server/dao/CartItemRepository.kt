@@ -12,9 +12,15 @@ import org.springframework.stereotype.Repository
 @Repository
 interface CartItemRepository : JpaRepository<CartItem?, String?> {
     @Query(value ="SELECT * FROM cart_item WHERE product_variant_id IN :productVariantIds and added_by_user_id = :userId", nativeQuery = true)
-    fun getCartItemsForUserForProducts(
+    fun getCartItemsForUserForProductVariants(
         @Param("userId") userId: String,
         @Param("productVariantIds") productVariantIds: Set<String>
+    ): List<CartItem>
+
+    @Query(value ="SELECT * FROM cart_item WHERE product_id IN :productIds and added_by_user_id = :userId", nativeQuery = true)
+    fun getCartItemsForUserForProducts(
+        @Param("userId") userId: String,
+        @Param("productIds") productIds: Set<String>
     ): List<CartItem>
 
     /**

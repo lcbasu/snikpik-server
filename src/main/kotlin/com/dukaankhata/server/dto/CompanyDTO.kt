@@ -31,7 +31,13 @@ data class SavedCompanyResponse(
     val totalStoreViewCount: Long,
     val totalOrdersCount: Long,
     val totalProductsViewCount: Long,
-    val defaultAddressId: String,
+    val defaultAddressId: String?,
+    val defaultShopAddress: SavedAddressResponse?,
+)
+
+data class CompanyAddressesResponse(
+    val company: SavedCompanyResponse,
+    val addresses: List<SavedAddressResponse>
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -56,6 +62,7 @@ fun Company.toSavedCompanyResponse(): SavedCompanyResponse {
             totalOrdersCount = totalOrdersCount ?: 0,
             totalProductsViewCount = totalProductsViewCount ?: 0,
             defaultAddressId = defaultAddressId ?: "",
+            defaultShopAddress = defaultShopAddress?.toSavedAddressResponse(),
             categoryGroup = (categoryGroup ?: CategoryGroup.General).let {
                 CategoryGroupResponse(
                     id = it.id,

@@ -180,6 +180,10 @@ class DKShopServiceImpl : DKShopService() {
         return updatedCompany.toSavedCompanyResponse()
     }
 
+    override fun getAddresses(companyServerIdOrUsername: String): CompanyAddressesResponse {
+        TODO("Not yet implemented")
+    }
+
     override fun getExtraCharges(companyId: String): SavedExtraChargesResponse {
         val requestContext = authProvider.validateRequest(
             companyServerIdOrUsername = companyId

@@ -22,6 +22,12 @@ class Company : Auditable() {
     @JoinColumn(name = "user_id")
     var user: User? = null;
 
+
+    @OneToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+//    @MapsId("company_id")
+    @JoinColumn(name = "default_shop_address_id")
+    var defaultShopAddress: Address? = null;
+
     // DK Store related fields
     @Enumerated(EnumType.STRING)
     var dkShopStatus: DKShopStatus? = DKShopStatus.ONLINE

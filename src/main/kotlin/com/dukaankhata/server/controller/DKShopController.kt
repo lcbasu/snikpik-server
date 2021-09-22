@@ -56,4 +56,9 @@ class DKShopController {
     fun getShopCompleteData(@PathVariable companyId: String): ShopCompleteDataResponse {
         return dkShopService.getShopCompleteData(companyId)
     }
+
+    @RequestMapping(value = ["/getAddresses/{companyServerIdOrUsername}"], method = [RequestMethod.GET])
+    fun getAddresses(@PathVariable companyServerIdOrUsername: String): CompanyAddressesResponse {
+        return dkShopService.getAddresses(companyServerIdOrUsername)
+    }
 }

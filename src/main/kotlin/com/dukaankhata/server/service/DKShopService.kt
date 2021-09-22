@@ -14,4 +14,5 @@ abstract class DKShopService {
     abstract fun saveOrUpdateExtraChargeTax(saveExtraChargeTaxRequest: SaveExtraChargeTaxRequest): SavedExtraChargeTaxResponse
     abstract fun getShopCompleteData(companyId: String): ShopCompleteDataResponse
     abstract fun takeShopOnlineNow(takeShopOnlineNowRequest: TakeShopOnlineNowRequest): SavedCompanyResponse?
+    abstract fun getAddresses(companyServerIdOrUsername: String): CompanyAddressesResponse
 }

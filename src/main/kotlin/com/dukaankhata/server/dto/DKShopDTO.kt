@@ -63,10 +63,12 @@ data class SavedActiveDiscountsResponse(
 data class ShopViewForCustomerResponse(
     val user: SavedUserResponse,
     val company: SavedCompanyResponse,
-    val allProducts: List<SavedProductResponse>,
+
+    // Using this as any product has to always be part of a collection
+    // So in one DTO we will have all the details
+    val allCollectionsWithProducts: AllCollectionsWithProductsResponse,
     val bestsellerProductsIds: Set<String>,
     val pastOrderedProductsIds: Set<String>,
-    val allCollections: List<SavedCollectionResponse>,
     val bestsellerCollectionsIds: Set<String>,
     val collectionsIdsOrderedFromInPast: Set<String>,
 )

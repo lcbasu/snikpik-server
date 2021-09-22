@@ -22,9 +22,9 @@ class CartItem : Auditable() {
     @JoinColumn(name = "product_order_id")
     var productOrder: ProductOrder? = null;
 
-//    @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-//    @JoinColumn(name = "product_id")
-//    var product: Product? = null;
+    @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    var product: Product? = null;
 
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinColumn(name = "product_variant_id")

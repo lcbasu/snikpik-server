@@ -3,7 +3,6 @@ package com.dukaankhata.server.service.impl
 import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.provider.*
 import com.dukaankhata.server.service.CustomerService
-import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -23,9 +22,6 @@ class CustomerServiceImpl : CustomerService() {
     private lateinit var cartItemProvider: CartItemProvider
 
     @Autowired
-    private lateinit var collectionProvider: CollectionProvider
-
-    @Autowired
     private lateinit var productOrderProvider: ProductOrderProvider
 
     @Autowired
@@ -37,51 +33,21 @@ class CustomerServiceImpl : CustomerService() {
     @Autowired
     private lateinit var productCollectionProvider: ProductCollectionProvider
 
+    @Autowired
+    private lateinit var customerProvider: CustomerProvider
+
     override fun getShopViewForCustomer(username: String): ShopViewForCustomerResponse {
-        return runBlocking {
-            // Only logged in user
-            // Not signed in user also gets logged in as the anonymous user
-            // So that no one else can make the api calls, unless logged in
-            // Or on our websites
-            val requestContext = authProvider.validateRequest()
+        // Only logged in user
+        // Not signed in user also gets logged in as the anonymous user
+        // So that no one else can make the api calls, unless logged in
+        // Or on our websites
+        val requestContext = authProvider.validateRequest()
 
-            val user = requestContext.user
+        val user = requestContext.user
 
-            val company = companyProvider.getCompanyByUsername(username) ?: error("Username not found")
+        val company = companyProvider.getCompanyByUsername(username) ?: error("Username not found")
 
-            val allProductVariantsFuture = async { productVariantProvider.getProductVariants(company) }
-            val allCollectionsFuture = async { collectionProvider.getCollections(company) }
-
-            val allProductVariants = allProductVariantsFuture.await()
-            val allProducts = allProductVariants.mapNotNull { it.product }
-            val allCollections = allCollectionsFuture.await()
-
-            val allCartItemsFuture = async { cartItemProvider.getCartItemsForUserForProductVariants(user.id, allProductVariants.map { it.id }.toSet()) }
-
-            val allCartItems = allCartItemsFuture.await()
-
-            val bestsellerProducts = async { productProvider.getBestSellerProducts(allProducts) }
-
-            val productsOrderedInPast = productProvider.getProductsOrderedInPast(allCartItems)
-
-            val bestsellerCollections = async { collectionProvider.getBestSellerCollections(allCollections) }
-
-            val productCollectionsOrderedFromInPast = productCollectionProvider.getProductCollections(
-                collectionIds = emptySet(),
-                productIds = productsOrderedInPast.map { it.id }.toSet()
-            )
-
-            ShopViewForCustomerResponse(
-                user = user.toSavedUserResponse(),
-                company = company.toSavedCompanyResponse(),
-                allProducts = allProducts.map { it.toSavedProductResponse(productVariantProvider, productCollectionProvider) },
-                bestsellerProductsIds = bestsellerProducts.await().map { it.id }.toSet(),
-                pastOrderedProductsIds = productsOrderedInPast.map { it.id }.toSet(),
-                allCollections = allCollections.map { it.toSavedCollectionResponse() },
-                bestsellerCollectionsIds = bestsellerCollections.await().map { it.id }.toSet(),
-                collectionsIdsOrderedFromInPast = productCollectionsOrderedFromInPast.mapNotNull { it.collection }.map { it.id }.toSet()
-            )
-        }
+        return customerProvider.getShopViewForCustomer(user, company)
     }
 
     override fun getRelatedProducts(productId: String): RelatedProductsResponse? {

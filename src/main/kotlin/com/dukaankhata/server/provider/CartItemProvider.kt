@@ -31,7 +31,14 @@ class CartItemProvider {
 
     fun getCartItemsForUserForProductVariants(userId: String, productVariantIds: Set<String>): List<CartItem> =
         try {
-            cartItemRepository.getCartItemsForUserForProducts(userId, productVariantIds)
+            cartItemRepository.getCartItemsForUserForProductVariants(userId, productVariantIds)
+        } catch (e: Exception) {
+            emptyList()
+        }
+
+    fun getCartItemsForUserForProducts(userId: String, productIds: Set<String>): List<CartItem> =
+        try {
+            cartItemRepository.getCartItemsForUserForProducts(userId, productIds)
         } catch (e: Exception) {
             emptyList()
         }
@@ -59,6 +66,7 @@ class CartItemProvider {
         newCartItem.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.CRT.name)
 
         newCartItem.productVariant = productVariant
+        newCartItem.product = productVariant.product
         newCartItem.productOrder = productOrder
 
         newCartItem.totalUnits = 1

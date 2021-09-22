@@ -159,6 +159,7 @@ class CompanyProvider {
     fun updateCompanyDefaultAddress(company: Company, address: Address): Company? {
         return try {
             company.defaultAddressId = address.id
+            company.defaultShopAddress = address
             return companyRepository.save(company)
         } catch (e: Exception) {
             e.printStackTrace()
