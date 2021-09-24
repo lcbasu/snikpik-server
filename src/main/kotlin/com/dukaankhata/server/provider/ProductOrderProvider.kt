@@ -97,7 +97,12 @@ class ProductOrderProvider {
 
     fun createProductOrder(company: Company, user: User, productOrderStatus: ProductOrderStatus): ProductOrder {
         val newProductOrder = ProductOrder()
-        newProductOrder.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.ORD.name)
+        // TODO: Update this to a bigger minLength once we start getting substantial number of orders
+        newProductOrder.id = uniqueIdProvider.getUniqueId(
+            prefix = ReadableIdPrefix.ORD.name,
+            onlyNumbers = true,
+            minLength = 10,
+            maxLength = 15)
         newProductOrder.addedBy = user
         newProductOrder.company = company
         newProductOrder.address = user.defaultAddressId?.let { addressProvider.getAddress(it) }
