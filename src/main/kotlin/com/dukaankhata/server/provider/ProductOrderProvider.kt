@@ -56,6 +56,8 @@ class ProductOrderProvider {
 
     fun getProductOrders(company: Company) =
         productOrderRepository.findAllByCompany(company)
+            .filterNot { it.deleted }
+            .filterNot { it.cartItems.isEmpty() }
 
     fun getProductOrders(user: User) =
         productOrderRepository.findAllByAddedBy(user)

@@ -135,6 +135,7 @@ fun ProductOrderStateChange.toSavedProductOrderStateChangeResponse(): SavedProdu
 
 fun ProductOrder.toSavedProductOrderResponse(): SavedProductOrderResponse {
     this.apply {
+        val ci = cartItems.filterNot { it.totalUnits == 0L }.map { it.toSavedCartItemResponse() }
         return SavedProductOrderResponse(
             serverId = id,
             company = company!!.toSavedCompanyResponse(),
@@ -145,15 +146,14 @@ fun ProductOrder.toSavedProductOrderResponse(): SavedProductOrderResponse {
             totalPriceWithoutTaxInPaisa = totalPriceWithoutTaxInPaisa,
             totalPricePayableInPaisa = totalPricePayableInPaisa,
             orderStatus = orderStatus,
-            cartItems = cartItems.filterNotNull().map { it.toSavedCartItemResponse() },
+            cartItems = ci,
             address = address?.let { it.toSavedAddressResponse() },
             discount = discount?.let { it.toSavedDiscountResponse() },
             productOrderStateBeforeUpdateResponse = productOrderStateBeforeUpdate?.let { getProductOrderStateBeforeUpdate()?.toProductOrderUpdateResponse() },
-            mediaDetails = MediaDetails(cartItems.asSequence().filterNotNull().filterNot { it.totalUnits == 0L }.map { it.product?.getMediaDetails()?.media }.filterNotNull().flatten()
-                .toList()),
+            mediaDetails = MediaDetails(ci.mapNotNull { it.product?.mediaDetails?.media }.flatten()),
             paymentMode = paymentMode,
             successPaymentId = successPaymentId ?: "",
-            cartItemsCount = cartItems.sumBy { it.totalUnits.toInt() },
+            cartItemsCount = ci.sumBy { it.totalUnits.toInt() },
             orderedAt = DateUtils.getEpoch(createdAt),
             orderUpdatable = orderUpdatable()
         )
