@@ -4,8 +4,6 @@ import AllCollectionsWithProductsRaw
 import com.dukaankhata.server.entities.Collection
 import com.dukaankhata.server.entities.getMediaDetails
 import com.dukaankhata.server.model.MediaDetails
-import com.dukaankhata.server.provider.ProductCollectionProvider
-import com.dukaankhata.server.provider.ProductVariantProvider
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -52,14 +50,14 @@ fun Collection.toSavedCollectionResponse(): SavedCollectionResponse {
     }
 }
 
-fun AllCollectionsWithProductsRaw.toAllCollectionsWithProductsResponse(productVariantProvider: ProductVariantProvider, productCollectionProvider: ProductCollectionProvider): AllCollectionsWithProductsResponse {
+fun AllCollectionsWithProductsRaw.toAllCollectionsWithProductsResponse(): AllCollectionsWithProductsResponse {
     this.apply {
         return AllCollectionsWithProductsResponse(
             collectionsWithProducts = collectionsWithProducts.map {
                 CollectionWithProductsResponse(
                     collection = it.collection.toSavedCollectionResponse(),
                     products = it.products.map {
-                        it.toSavedProductResponse(productVariantProvider, productCollectionProvider)
+                        it.toSavedProductResponse()
                     }
                 )
             }

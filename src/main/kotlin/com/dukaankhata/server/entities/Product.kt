@@ -49,6 +49,15 @@ class Product : Auditable() {
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     @JoinColumn(name = "added_by_user_id")
     var addedBy: User? = null;
+
+    // Sets of referenced objets
+    @OneToMany
+    @JoinColumn(name = "product_id")
+    var productVariants: Set<ProductVariant> = emptySet()
+
+    @OneToMany
+    @JoinColumn(name = "product_id")
+    var productCollections: Set<ProductCollection> = emptySet()
 }
 
 fun Product.getMediaDetails(): MediaDetails {

@@ -31,7 +31,7 @@ class ProductServiceImpl : ProductService() {
         )
         val company = requestContext.company ?: error("Company should be present")
         val savedProduct = productProvider.saveProduct(company, requestContext.user, saveProductRequest) ?: error("Error while saving product")
-        return savedProduct.toSavedProductResponse(productVariantProvider, productCollectionProvider)
+        return savedProduct.toSavedProductResponse()
     }
 
     override fun addProductsToCollection(addProductsToCollectionRequest: AddProductsToCollectionRequest): AddProductsToCollectionResponse? {

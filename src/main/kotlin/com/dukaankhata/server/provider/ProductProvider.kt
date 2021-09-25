@@ -120,7 +120,7 @@ class ProductProvider {
         return runBlocking {
             AllProductsResponse(
                 products = getProducts(company).map {
-                    async { it.toSavedProductResponse(productVariantProvider, productCollectionProvider) }
+                    async { it.toSavedProductResponse() }
                 }.map {
                     it.await()
                 }

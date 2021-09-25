@@ -54,7 +54,7 @@ class CustomerServiceImpl : CustomerService() {
         val requestContext = authProvider.validateRequest()
         val relatedProducts = productProvider.getRelatedProducts(productId)
         return RelatedProductsResponse(
-            products = relatedProducts.map { it.toSavedProductResponse(productVariantProvider, productCollectionProvider) }
+            products = relatedProducts.map { it.toSavedProductResponse() }
         )
     }
 
@@ -74,7 +74,7 @@ class CustomerServiceImpl : CustomerService() {
             productOrder = activeProductOrderBag,
             cartItemUpdateAction = updateCartRequest.action,
             newQuantity = updateCartRequest.newQuantity)
-        return updatedCartData.updatedProductOrder.toSavedProductOrderResponse(productVariantProvider, cartItemProvider, productCollectionProvider)
+        return updatedCartData.updatedProductOrder.toSavedProductOrderResponse()
     }
 
     override fun getActiveProductOrderBag(shopUsername: String): SavedProductOrderResponse? {
@@ -84,7 +84,7 @@ class CustomerServiceImpl : CustomerService() {
         val activeProductOrderBag = productOrderProvider.getActiveProductOrderBag(
             company = company,
             user = user)
-        return activeProductOrderBag?.toSavedProductOrderResponse(productVariantProvider, cartItemProvider, productCollectionProvider)
+        return activeProductOrderBag?.toSavedProductOrderResponse()
     }
 
     override fun getActiveDiscounts(companyId: String): SavedActiveDiscountsResponse {
@@ -125,8 +125,8 @@ class CustomerServiceImpl : CustomerService() {
             val migratedCartData = cartItemProvider.migrateCart(
                 fromProductOrder = fromProductOrder,
                 toProductOrder = toProductOrder)
-            fromProductOrdersResponse.add(migratedCartData.fromProductOrder.toSavedProductOrderResponse(productVariantProvider, cartItemProvider, productCollectionProvider))
-            toProductOrdersResponse.add(migratedCartData.toProductOrder.toSavedProductOrderResponse(productVariantProvider, cartItemProvider, productCollectionProvider))
+            fromProductOrdersResponse.add(migratedCartData.fromProductOrder.toSavedProductOrderResponse())
+            toProductOrdersResponse.add(migratedCartData.toProductOrder.toSavedProductOrderResponse())
         }
         return MigratedProductOrderResponse(
             fromUser = fromUser.toSavedUserResponse(),
@@ -143,20 +143,20 @@ class CustomerServiceImpl : CustomerService() {
         if (requestContext.user.id != orderedUser.id) {
             error("Only the customer can get the details of their order")
         }
-        return productOrder.toSavedProductOrderResponse(productVariantProvider, cartItemProvider, productCollectionProvider)
+        return productOrder.toSavedProductOrderResponse()
     }
 
     override fun getProductDetails(productId: String): SavedProductResponse {
         authProvider.validateRequest()
         val product = productProvider.getProduct(productId) ?: error("Product not found for id: $productId")
-        return product.toSavedProductResponse(productVariantProvider, productCollectionProvider)
+        return product.toSavedProductResponse()
     }
 
     override fun getProductOrders(): AllProductOrdersResponse {
         val requestContext = authProvider.validateRequest()
         val productOrders = productOrderProvider.getProductOrders(requestContext.user)
         return AllProductOrdersResponse(
-            orders = productOrders.map { it.toSavedProductOrderResponse(productVariantProvider, cartItemProvider, productCollectionProvider) }
+            orders = productOrders.map { it.toSavedProductOrderResponse() }
         )
     }
 

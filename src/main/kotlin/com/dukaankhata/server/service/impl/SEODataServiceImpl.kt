@@ -23,7 +23,7 @@ class SEODataServiceImpl : SEODataService() {
 
     override fun getProductDetails(productId: String): SavedProductResponse {
         val product = productProvider.getProduct(productId) ?: error("Product not found for id: $productId")
-        return product.toSavedProductResponse(productVariantProvider, productCollectionProvider)
+        return product.toSavedProductResponse()
     }
 
 }

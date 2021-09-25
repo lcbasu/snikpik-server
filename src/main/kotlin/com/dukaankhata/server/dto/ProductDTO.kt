@@ -8,8 +8,6 @@ import com.dukaankhata.server.entities.getVariantInfos
 import com.dukaankhata.server.enums.ProductUnit
 import com.dukaankhata.server.enums.toProductUnitResponse
 import com.dukaankhata.server.model.MediaDetails
-import com.dukaankhata.server.provider.ProductCollectionProvider
-import com.dukaankhata.server.provider.ProductVariantProvider
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 /**
@@ -131,7 +129,7 @@ data class RelatedProductsResponse(
     val products: List<SavedProductResponse>
 )
 
-fun Product.toSavedProductResponse(productVariantProvider: ProductVariantProvider, productCollectionProvider: ProductCollectionProvider): SavedProductResponse {
+fun Product.toSavedProductResponse(): SavedProductResponse {
     this.apply {
         return SavedProductResponse(
             serverId = id,
@@ -147,8 +145,8 @@ fun Product.toSavedProductResponse(productVariantProvider: ProductVariantProvide
             totalUnitInStock = totalUnitInStock,
             productInStock = totalUnitInStock > 0, // TODO: Store this as a Seller level input in DB so that they can update this (productInStock) flag
             minOrderUnitCount = minOrderUnitCount,
-            allProductVariants = productVariantProvider.getProductVariants(this).map { it.toSavedProductVariant() },
-            collections = productCollectionProvider.getAllCollectionsForProduct(this).map { it.toSavedCollectionResponse() }
+            allProductVariants = productVariants.map { it.toSavedProductVariant() },
+            collections = productCollections.mapNotNull { it.collection?.toSavedCollectionResponse() }
         )
     }
 }

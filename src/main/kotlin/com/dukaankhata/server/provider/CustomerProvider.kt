@@ -51,7 +51,7 @@ class CustomerProvider {
             ShopViewForCustomerResponse(
                 user = user.toSavedUserResponse(),
                 company = company.toSavedCompanyResponse(),
-                allCollectionsWithProducts = allCollectionWithProducts.toAllCollectionsWithProductsResponse(productVariantProvider, productCollectionProvider),
+                allCollectionsWithProducts = allCollectionWithProducts.toAllCollectionsWithProductsResponse(),
                 bestsellerProductsIds = bestsellerProducts.await().map { it.id }.toSet(),
                 pastOrderedProductsIds = productsOrderedInPast.map { it.id }.toSet(),
                 bestsellerCollectionsIds = bestsellerCollections.await().map { it.id }.toSet(),

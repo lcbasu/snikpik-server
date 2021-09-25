@@ -2,8 +2,6 @@ package com.dukaankhata.server.dto
 
 import com.dukaankhata.server.entities.CartItem
 import com.dukaankhata.server.enums.CartItemUpdateAction
-import com.dukaankhata.server.provider.ProductCollectionProvider
-import com.dukaankhata.server.provider.ProductVariantProvider
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -35,7 +33,7 @@ data class MigrateCartRequest(
     val toUserId: String,
 )
 
-fun CartItem.toSavedCartItemResponse(productVariantProvider: ProductVariantProvider, productCollectionProvider: ProductCollectionProvider): SavedCartItemResponse {
+fun CartItem.toSavedCartItemResponse(): SavedCartItemResponse {
     this.apply {
         return SavedCartItemResponse(
             serverId = id.toString(),
@@ -46,7 +44,8 @@ fun CartItem.toSavedCartItemResponse(productVariantProvider: ProductVariantProvi
             totalTaxInPaisa = totalTaxInPaisa,
             totalPriceWithoutTaxInPaisa = totalPriceWithoutTaxInPaisa,
             orderId = productOrder?.id,
-            product = productVariant?.product?.toSavedProductResponse(productVariantProvider, productCollectionProvider),
+            // This is a fix for older orders where we were not saving the product id for cart
+            product = product?.toSavedProductResponse() ?: productVariant?.product?.toSavedProductResponse(),
             productVariant = productVariant?.toSavedProductVariant()
         )
     }

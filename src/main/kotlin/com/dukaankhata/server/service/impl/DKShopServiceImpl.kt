@@ -153,7 +153,7 @@ class DKShopServiceImpl : DKShopService() {
                             serverId = pc.collection!!.id + CommonUtils.STRING_SEPARATOR + pc.product!!.id,
                             company = company.toSavedCompanyResponse(),
                             collection = pc.collection!!.toSavedCollectionResponse(),
-                            product = pc.product!!.toSavedProductResponse(productVariantProvider, productCollectionProvider),
+                            product = pc.product!!.toSavedProductResponse(),
                         )
                     } else {
                         null
@@ -163,7 +163,7 @@ class DKShopServiceImpl : DKShopService() {
 
             ShopCompleteDataResponse(
                 company = company.toSavedCompanyResponse(),
-                products = productsFuture.await().map { it.toSavedProductResponse(productVariantProvider, productCollectionProvider) },
+                products = productsFuture.await().map { it.toSavedProductResponse() },
                 collections = collections.map { it.toSavedCollectionResponse() },
                 productCollections = productCollections
             )

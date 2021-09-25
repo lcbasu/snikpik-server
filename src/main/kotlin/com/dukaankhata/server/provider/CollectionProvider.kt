@@ -107,5 +107,5 @@ class CollectionProvider {
         }
 
     fun getAllCollectionWithProducts(company: Company) =
-        getAllCollectionWithProductsRaw(company).toAllCollectionsWithProductsResponse(productVariantProvider, productCollectionProvider)
+        getAllCollectionWithProductsRaw(company).toAllCollectionsWithProductsResponse()
 }

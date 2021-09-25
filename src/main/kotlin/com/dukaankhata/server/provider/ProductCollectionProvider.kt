@@ -46,7 +46,7 @@ class ProductCollectionProvider {
         return AddProductsToCollectionResponse(
             company = company.toSavedCompanyResponse(),
             collection = collection.toSavedCollectionResponse(),
-            products = savedProductsCollections.map { it.product!!.toSavedProductResponse(productVariantProvider, productCollectionProvider) }
+            products = savedProductsCollections.map { it.product!!.toSavedProductResponse() }
         )
     }
 
@@ -70,7 +70,7 @@ class ProductCollectionProvider {
         return AddProductToCollectionsResponse(
             company = company.toSavedCompanyResponse(),
             collections = collections.map { it.toSavedCollectionResponse() },
-            product = product.toSavedProductResponse(productVariantProvider, productCollectionProvider)
+            product = product.toSavedProductResponse()
         )
     }
 
