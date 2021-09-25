@@ -93,6 +93,8 @@ data class SavedProductOrderResponse(
     var paymentMode: OrderPaymentMode,
     var successPaymentId: String,
     var orderUpdatable: Boolean,
+    var createdAt: Long,
+    var updatedAt: Long,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -155,7 +157,9 @@ fun ProductOrder.toSavedProductOrderResponse(): SavedProductOrderResponse {
             successPaymentId = successPaymentId ?: "",
             cartItemsCount = ci.sumBy { it.totalUnits.toInt() },
             orderedAt = DateUtils.getEpoch(createdAt),
-            orderUpdatable = orderUpdatable()
+            orderUpdatable = orderUpdatable(),
+            createdAt = DateUtils.getEpoch(createdAt),
+            updatedAt = DateUtils.getEpoch(lastModifiedAt),
         )
     }
 }
