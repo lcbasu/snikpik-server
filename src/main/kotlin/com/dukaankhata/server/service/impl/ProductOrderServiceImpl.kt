@@ -50,8 +50,7 @@ class ProductOrderServiceImpl : ProductOrderService() {
 
     override fun getAllProductOrders(companyServerIdOrUsername: String): AllProductOrdersResponse {
         val requestContext = authProvider.validateRequest(
-            companyServerIdOrUsername = companyServerIdOrUsername,
-            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
+            companyServerIdOrUsername = companyServerIdOrUsername
         )
         val company = requestContext.company ?: error("Company is required")
         val productOrders = productOrderProvider.getProductOrders(company)
@@ -62,8 +61,7 @@ class ProductOrderServiceImpl : ProductOrderService() {
 
     override fun getAllProductOrderCards(companyId: String): AllProductOrderCardsResponse {
         val requestContext = authProvider.validateRequest(
-            companyServerIdOrUsername = companyId,
-            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
+            companyServerIdOrUsername = companyId
         )
         val company = requestContext.company ?: error("Company is required")
         val productOrders = productOrderProvider.getProductOrders(company)

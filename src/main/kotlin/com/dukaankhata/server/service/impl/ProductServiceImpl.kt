@@ -45,8 +45,7 @@ class ProductServiceImpl : ProductService() {
 
     override fun getAllProducts(companyId: String): AllProductsResponse {
         val requestContext = authProvider.validateRequest(
-            companyServerIdOrUsername = companyId,
-            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
+            companyServerIdOrUsername = companyId
         )
         val company = requestContext.company ?: error("Company is required")
         return productProvider.getAllProducts(company)

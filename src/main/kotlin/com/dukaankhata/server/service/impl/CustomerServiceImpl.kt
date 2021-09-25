@@ -36,18 +36,13 @@ class CustomerServiceImpl : CustomerService() {
     @Autowired
     private lateinit var customerProvider: CustomerProvider
 
-    override fun getShopViewForCustomer(username: String): ShopViewForCustomerResponse {
+    override fun getShopViewForCustomer(shopUsername: String): ShopViewForCustomerResponse {
         // Only logged in user
         // Not signed in user also gets logged in as the anonymous user
         // So that no one else can make the api calls, unless logged in
         // Or on our websites
         val requestContext = authProvider.validateRequest()
-
-        val user = requestContext.user
-
-        val company = companyProvider.getCompanyByUsername(username) ?: error("Username not found")
-
-        return customerProvider.getShopViewForCustomer(user, company)
+        return customerProvider.getShopViewForCustomer(shopUsername, requestContext.user)
     }
 
     override fun getRelatedProducts(productId: String): RelatedProductsResponse? {

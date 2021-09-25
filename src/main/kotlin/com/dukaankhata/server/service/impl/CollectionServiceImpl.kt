@@ -27,8 +27,7 @@ class CollectionServiceImpl : CollectionService() {
 
     override fun getAllCollection(companyServerId: String): AllCollectionsResponse {
         val requestContext = authProvider.validateRequest(
-            companyServerIdOrUsername = companyServerId,
-            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
+            companyServerIdOrUsername = companyServerId
         )
         val company = requestContext.company ?: error("Company should be present")
         return collectionProvider.getAllCollection(company)
@@ -36,8 +35,7 @@ class CollectionServiceImpl : CollectionService() {
 
     override fun getAllCollectionWithProducts(companyServerId: String): AllCollectionsWithProductsResponse {
         val requestContext = authProvider.validateRequest(
-            companyServerIdOrUsername = companyServerId,
-            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
+            companyServerIdOrUsername = companyServerId
         )
         val company = requestContext.company ?: error("Company should be present")
         return collectionProvider.getAllCollectionWithProducts(company)

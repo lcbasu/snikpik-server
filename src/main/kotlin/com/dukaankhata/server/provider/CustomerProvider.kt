@@ -4,7 +4,6 @@ import com.dukaankhata.server.dto.ShopViewForCustomerResponse
 import com.dukaankhata.server.dto.toAllCollectionsWithProductsResponse
 import com.dukaankhata.server.dto.toSavedCompanyResponse
 import com.dukaankhata.server.dto.toSavedUserResponse
-import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.User
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -24,23 +23,24 @@ class CustomerProvider {
     private lateinit var collectionProvider: CollectionProvider
 
     @Autowired
-    private lateinit var productVariantProvider: ProductVariantProvider
-
-    @Autowired
     private lateinit var productCollectionProvider: ProductCollectionProvider
 
-    fun getShopViewForCustomer(user: User, company: Company): ShopViewForCustomerResponse  {
+    @Autowired
+    private lateinit var companyProvider: CompanyProvider
+
+    fun getShopViewForCustomer(shopUsername: String, user: User?): ShopViewForCustomerResponse  {
         return runBlocking {
+            val company = companyProvider.getCompanyByUsername(shopUsername) ?: error("shopUsername not found $shopUsername")
             val allCollectionWithProducts = collectionProvider.getAllCollectionWithProductsRaw(company)
 
             val allProducts = allCollectionWithProducts.collectionsWithProducts.map { it.products }.flatten()
             val allCollections = allCollectionWithProducts.collectionsWithProducts.map { it.collection }
 
-            val allCartItemsFuture = async { cartItemProvider.getCartItemsForUserForProducts(user.id, allProducts.map { it.id }.toSet()) }
+            val allCartItemsFuture = async { user?.let { cartItemProvider.getCartItemsForUserForProducts(it.id, allProducts.map { it.id }.toSet()) } }
             val bestsellerProducts = async { productProvider.getBestSellerProducts(allProducts) }
             val bestsellerCollections = async { collectionProvider.getBestSellerCollections(allCollections) }
 
-            val allCartItems = allCartItemsFuture.await()
+            val allCartItems = allCartItemsFuture.await() ?: emptyList()
             val productsOrderedInPast = productProvider.getProductsOrderedInPast(allCartItems)
 
             val productCollectionsOrderedFromInPast = productCollectionProvider.getProductCollections(
@@ -49,7 +49,7 @@ class CustomerProvider {
             )
 
             ShopViewForCustomerResponse(
-                user = user.toSavedUserResponse(),
+                user = user?.toSavedUserResponse(),
                 company = company.toSavedCompanyResponse(),
                 allCollectionsWithProducts = allCollectionWithProducts.toAllCollectionsWithProductsResponse(),
                 bestsellerProductsIds = bestsellerProducts.await().map { it.id }.toSet(),

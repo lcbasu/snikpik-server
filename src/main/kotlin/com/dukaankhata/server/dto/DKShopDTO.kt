@@ -61,7 +61,7 @@ data class SavedActiveDiscountsResponse(
 // Sending all data so that searching is easier
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ShopViewForCustomerResponse(
-    val user: SavedUserResponse,
+    val user: SavedUserResponse? = null,
     val company: SavedCompanyResponse,
 
     // Using this as any product has to always be part of a collection
