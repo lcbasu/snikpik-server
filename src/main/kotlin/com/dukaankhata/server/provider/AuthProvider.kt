@@ -4,6 +4,7 @@ import com.dukaankhata.server.dao.UserRepository
 import com.dukaankhata.server.dto.RequestContext
 import com.dukaankhata.server.dto.VerifyPhoneResponse
 import com.dukaankhata.server.entities.*
+import com.dukaankhata.server.enums.NotificationTokenProvider
 import com.dukaankhata.server.enums.ReadableIdPrefix
 import com.dukaankhata.server.enums.RoleType
 import com.dukaankhata.server.model.FirebaseAuthUser
@@ -81,6 +82,12 @@ class AuthProvider {
             existingUser = userRepository.findByUid(uid)
         }
         return existingUser
+    }
+
+    fun registerNotificationSettings(user: User, token: String, tokenProvider: NotificationTokenProvider): User {
+        user.notificationToken = token
+        user.notificationTokenProvider = tokenProvider
+        return userRepository.save(user)
     }
 
     fun updateUserUid(id: String, uid: String): User {

@@ -9,4 +9,5 @@ abstract class UserService {
     abstract fun verifyPhone(phoneNumber: String): VerifyPhoneResponse?
     abstract fun saveAddress(saveUserAddressRequest: SaveUserAddressRequest): SavedUserAddressResponse?
     abstract fun getAddresses(): UserAddressesResponse
+    abstract fun registerNotificationSettings(notificationSettingsRequest: RegisterUserNotificationSettingsRequest): SavedUserResponse?
 }

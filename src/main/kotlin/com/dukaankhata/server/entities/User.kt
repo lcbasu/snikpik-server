@@ -1,8 +1,7 @@
 package com.dukaankhata.server.entities
 
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Id
+import com.dukaankhata.server.enums.NotificationTokenProvider
+import javax.persistence.*
 
 @Entity
 class User : Auditable() {
@@ -26,4 +25,8 @@ class User : Auditable() {
     var fullName: String? = ""
 
     var defaultAddressId: String? = "" // Address table Id
+
+    var notificationToken: String? = ""
+    @Enumerated(EnumType.STRING)
+    var notificationTokenProvider: NotificationTokenProvider = NotificationTokenProvider.FIREBASE
 }

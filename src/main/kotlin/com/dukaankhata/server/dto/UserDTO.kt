@@ -4,6 +4,7 @@ import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.Employee
 import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.entities.UserRole
+import com.dukaankhata.server.enums.NotificationTokenProvider
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -15,6 +16,8 @@ data class SavedUserResponse(
     val phoneNumber: String,
     val countryCode: String,
     val defaultAddressId: String,
+    val notificationToken: String,
+    val notificationTokenProvider: NotificationTokenProvider,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -49,6 +52,12 @@ data class SaveUserAddressRequest(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class RegisterUserNotificationSettingsRequest(
+    val token: String = "",
+    val tokenProvider: NotificationTokenProvider,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class SavedUserAddressResponse(
     val user: SavedUserResponse,
     val address: SavedAddressResponse,
@@ -68,6 +77,8 @@ fun User.toSavedUserResponse(): SavedUserResponse {
             anonymous = anonymous,
             phoneNumber = mobile ?: "",
             countryCode = countryCode ?: "",
-            defaultAddressId = defaultAddressId ?: "")
+            defaultAddressId = defaultAddressId ?: "",
+            notificationToken = notificationToken ?: "",
+            notificationTokenProvider = notificationTokenProvider)
     }
 }

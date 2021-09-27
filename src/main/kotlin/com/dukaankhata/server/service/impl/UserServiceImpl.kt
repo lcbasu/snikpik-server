@@ -72,4 +72,15 @@ class UserServiceImpl : UserService() {
             }
         )
     }
+
+    override fun registerNotificationSettings(notificationSettingsRequest: RegisterUserNotificationSettingsRequest): SavedUserResponse? {
+        val requestContext = authProvider.validateRequest()
+        val user = requestContext.user
+        val updatedUser = authProvider.registerNotificationSettings(
+            user = user,
+            token = notificationSettingsRequest.token,
+            tokenProvider = notificationSettingsRequest.tokenProvider
+        )
+        return updatedUser.toSavedUserResponse()
+    }
 }

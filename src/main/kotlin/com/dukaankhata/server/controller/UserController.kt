@@ -31,6 +31,11 @@ class UserController {
         return userService.saveAddress(saveUserAddressRequest)
     }
 
+    @RequestMapping(value = ["/registerNotificationSettings"], method = [RequestMethod.POST])
+    fun registerNotificationSettings(@RequestBody notificationSettingsRequest: RegisterUserNotificationSettingsRequest): SavedUserResponse? {
+        return userService.registerNotificationSettings(notificationSettingsRequest)
+    }
+
     @RequestMapping(value = ["/getAddresses"], method = [RequestMethod.GET])
     fun getAddresses(): UserAddressesResponse {
         return userService.getAddresses()
