@@ -27,6 +27,7 @@ class User : Auditable() {
     var defaultAddressId: String? = "" // Address table Id
 
     var notificationToken: String? = ""
+
     @Enumerated(EnumType.STRING)
-    var notificationTokenProvider: NotificationTokenProvider = NotificationTokenProvider.FIREBASE
+    var notificationTokenProvider: NotificationTokenProvider? = NotificationTokenProvider.FIREBASE
 }

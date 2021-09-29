@@ -79,6 +79,6 @@ fun User.toSavedUserResponse(): SavedUserResponse {
             countryCode = countryCode ?: "",
             defaultAddressId = defaultAddressId ?: "",
             notificationToken = notificationToken ?: "",
-            notificationTokenProvider = notificationTokenProvider)
+            notificationTokenProvider = notificationTokenProvider ?: NotificationTokenProvider.FIREBASE)
     }
 }
