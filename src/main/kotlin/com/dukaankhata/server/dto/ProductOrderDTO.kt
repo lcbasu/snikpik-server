@@ -94,6 +94,7 @@ data class SavedProductOrderResponse(
     var orderUpdatable: Boolean,
     var createdAt: Long,
     var updatedAt: Long,
+    var deliveryTimeId: DeliveryTimeIdResponse,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -159,6 +160,7 @@ fun ProductOrder.toSavedProductOrderResponse(): SavedProductOrderResponse {
             orderUpdatable = orderUpdatable(),
             createdAt = DateUtils.getEpoch(createdAt),
             updatedAt = DateUtils.getEpoch(lastModifiedAt),
+            deliveryTimeId = deliveryTimeId.toDeliveryTimeIdResponse()
         )
     }
 }
