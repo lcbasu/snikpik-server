@@ -55,7 +55,9 @@ class ProductOrderServiceImpl : ProductOrderService() {
         val company = requestContext.company ?: error("Company is required")
         val productOrders = productOrderProvider.getProductOrders(company)
         return AllProductOrdersResponse(
-            orders = productOrders.map { it.toSavedProductOrderResponse() }
+            orders = productOrders
+                .filterNot { it.cartItems == null || it.cartItems.isEmpty() }
+                .map { it.toSavedProductOrderResponse() }
         )
     }
 

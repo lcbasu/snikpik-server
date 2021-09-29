@@ -151,7 +151,9 @@ class CustomerServiceImpl : CustomerService() {
         val requestContext = authProvider.validateRequest()
         val productOrders = productOrderProvider.getProductOrders(requestContext.user)
         return AllProductOrdersResponse(
-            orders = productOrders.map { it.toSavedProductOrderResponse() }
+            orders = productOrders
+                .filterNot { it.cartItems == null || it.cartItems.isEmpty() }
+                .map { it.toSavedProductOrderResponse() }
         )
     }
 
