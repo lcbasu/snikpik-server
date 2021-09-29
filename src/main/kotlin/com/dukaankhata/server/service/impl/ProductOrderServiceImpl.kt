@@ -1,7 +1,12 @@
 package com.dukaankhata.server.service.impl
 
 import com.dukaankhata.server.dto.*
-import com.dukaankhata.server.provider.*
+import com.dukaankhata.server.enums.DeliveryTimeId
+import com.dukaankhata.server.enums.ProductUnit
+import com.dukaankhata.server.enums.toDeliveryTimeIdResponse
+import com.dukaankhata.server.provider.AuthProvider
+import com.dukaankhata.server.provider.ProductOrderProvider
+import com.dukaankhata.server.provider.ProductOrderStateChangeProvider
 import com.dukaankhata.server.service.ProductOrderService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -16,15 +21,6 @@ class ProductOrderServiceImpl : ProductOrderService() {
 
     @Autowired
     private lateinit var productOrderStateChangeProvider: ProductOrderStateChangeProvider
-
-    @Autowired
-    private lateinit var cartItemProvider: CartItemProvider
-
-    @Autowired
-    private lateinit var productVariantProvider: ProductVariantProvider
-
-    @Autowired
-    private lateinit var productCollectionProvider: ProductCollectionProvider
 
     override fun productOrderUpdateStatusUpdate(productOrderStatusUpdateRequest: ProductOrderStatusUpdateRequest): SavedProductOrderResponse {
         val requestContext = authProvider.validateRequest()
@@ -84,6 +80,14 @@ class ProductOrderServiceImpl : ProductOrderService() {
         val stateChanges = productOrderStateChangeProvider.getProductOrderStateChanges(productOrder)
         return AllProductOrderStateChangesResponse(
             changes = stateChanges.map { it.toSavedProductOrderStateChangeResponse() }
+        )
+    }
+
+    override fun getAllDeliveryTimeIds(): AllDeliveryTimeIdsResponse {
+        return AllDeliveryTimeIdsResponse(
+            deliveryTimeIds = DeliveryTimeId.values().map {
+                it.toDeliveryTimeIdResponse()
+            }
         )
     }
 }

@@ -52,4 +52,9 @@ class ProductOrderController {
     fun getProductOrderStateChanges(@PathVariable orderId: String): AllProductOrderStateChangesResponse {
         return productOrderService.getProductOrderStateChanges(orderId)
     }
+
+    @RequestMapping(value = ["/getAllDeliveryTimeIds"], method = [RequestMethod.GET])
+    fun getAllDeliveryTimeIds(): AllDeliveryTimeIdsResponse {
+        return productOrderService.getAllDeliveryTimeIds()
+    }
 }

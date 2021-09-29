@@ -10,4 +10,5 @@ abstract class ProductOrderService {
     abstract fun getAllProductOrderCards(companyId: String): AllProductOrderCardsResponse
     abstract fun getProductOrder(orderId: String): SavedProductOrderResponse
     abstract fun getProductOrderStateChanges(orderId: String): AllProductOrderStateChangesResponse
+    abstract fun getAllDeliveryTimeIds(): AllDeliveryTimeIdsResponse
 }

@@ -1,7 +1,9 @@
 package com.dukaankhata.server.entities
 
+import com.dukaankhata.server.enums.DeliveryTimeId
 import com.dukaankhata.server.enums.OrderPaymentMode
 import com.dukaankhata.server.enums.ProductOrderStatus
+import com.dukaankhata.server.enums.ProductUnit
 import javax.persistence.*
 
 @Entity
@@ -23,6 +25,9 @@ class ProductOrder : Auditable() {
     var productOrderStateBeforeUpdate: String = ""
 //    var productOrderUpdateBySeller: String = ""
 //    var productOrderUpdateByCustomer: String = ""
+
+    @Enumerated(EnumType.STRING)
+    var deliveryTimeId: DeliveryTimeId = DeliveryTimeId.DAYS_1_3
 
     // All orders starts from DRAFT
     @Enumerated(EnumType.STRING)

@@ -4,10 +4,7 @@ import com.dukaankhata.server.entities.ProductOrder
 import com.dukaankhata.server.entities.ProductOrderStateChange
 import com.dukaankhata.server.entities.getMediaDetails
 import com.dukaankhata.server.entities.orderUpdatable
-import com.dukaankhata.server.enums.OrderPaymentMode
-import com.dukaankhata.server.enums.ProductOrderStatus
-import com.dukaankhata.server.enums.ProductOrderUpdateType
-import com.dukaankhata.server.enums.ProductOrderUpdatedBy
+import com.dukaankhata.server.enums.*
 import com.dukaankhata.server.model.*
 import com.dukaankhata.server.utils.DateUtils
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
@@ -16,7 +13,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 open class ProductOrderStatusUpdateRequest(
     val productOrderId: String,
     val updatedBy: ProductOrderUpdatedBy,
-    val updateType: ProductOrderUpdateType
+    val updateType: ProductOrderUpdateType,
+    // In case of accepting the order and sharing the tentative delivery time
+    val deliveryTimeId: DeliveryTimeId?
 )
 
 //@JsonTypeInfo(
@@ -191,6 +190,18 @@ data class ProductOrderCardResponse(
     var cartItemsCount: Int = 0,
     var orderedAt: Long = 0,
     var paymentMode: OrderPaymentMode = OrderPaymentMode.NONE
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class DeliveryTimeIdResponse(
+    val id: DeliveryTimeId,
+    val rank: Int,
+    val displayName: String,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AllDeliveryTimeIdsResponse(
+    val deliveryTimeIds: List<DeliveryTimeIdResponse>
 )
 
 fun ProductOrder.toProductOrderCardResponse(): ProductOrderCardResponse {

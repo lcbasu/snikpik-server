@@ -569,6 +569,9 @@ class ProductOrderProvider {
         return if (isOrderTransitionPossible.transitionPossible) {
             // Remove the update as all the pending update has been approved
             productOrder.productOrderStateBeforeUpdate = ""
+            productOrderStatusUpdateRequest.deliveryTimeId?.let {
+                productOrder.deliveryTimeId = it
+            }
             val updatedProductOrder = saveProductOrder(productOrder)
             transitionStateTo(updatedProductOrder, newStatus)
         } else {

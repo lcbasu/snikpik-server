@@ -2,6 +2,7 @@ package com.dukaankhata.server.service.impl
 
 import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.enums.ProductUnit
+import com.dukaankhata.server.enums.toProductUnitResponse
 import com.dukaankhata.server.provider.*
 import com.dukaankhata.server.service.ProductService
 import org.springframework.beans.factory.annotation.Autowired
@@ -54,11 +55,7 @@ class ProductServiceImpl : ProductService() {
     override fun getAllProductUnits(): AllProductUnits {
         return AllProductUnits(
             productUnits = ProductUnit.values().map {
-                ProductUnitResponse(
-                    unitType = it,
-                    rank = it.rank,
-                    displayName = it.displayName
-                )
+                it.toProductUnitResponse()
             }
         )
     }
