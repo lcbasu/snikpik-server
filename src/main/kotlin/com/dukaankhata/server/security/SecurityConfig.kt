@@ -53,6 +53,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
     fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration()
         configuration.allowedOrigins = restSecProps?.allowedOrigins
+        configuration.allowedOriginPatterns = restSecProps?.allowedOriginPatterns
         configuration.allowedMethods = restSecProps?.allowedMethods
         configuration.allowedHeaders = restSecProps?.allowedHeaders
         configuration.allowCredentials = restSecProps?.allowCredentials

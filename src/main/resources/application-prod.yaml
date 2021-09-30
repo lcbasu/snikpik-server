@@ -4,3 +4,5 @@ security:
   allow-credentials: true
   allowed-origins:
     - https://${DOMAIN}
+  allowed-origin-patterns:
+    - https://*.${vercel.app}
