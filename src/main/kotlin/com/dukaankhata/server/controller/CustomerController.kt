@@ -77,6 +77,12 @@ class CustomerController {
         return customerService.getProductDetails(productId)
     }
 
+    @RequestMapping(value = ["/getCollectionWithProducts/{collectionId}"], method = [RequestMethod.GET])
+    fun getCollectionWithProducts(@PathVariable collectionId: String): CollectionWithProductsResponse {
+        customerPreChecks()
+        return customerService.getCollectionWithProducts(collectionId)
+    }
+
     private fun customerPreChecks() {
         authProvider.makeSureThePublicRequestHasUserEntity()
     }

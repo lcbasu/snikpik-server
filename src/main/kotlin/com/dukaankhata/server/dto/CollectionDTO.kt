@@ -1,6 +1,7 @@
 package com.dukaankhata.server.dto
 
 import AllCollectionsWithProductsRaw
+import CollectionWithProductsRaw
 import com.dukaankhata.server.entities.Collection
 import com.dukaankhata.server.entities.getMediaDetails
 import com.dukaankhata.server.model.MediaDetails
@@ -50,16 +51,22 @@ fun Collection.toSavedCollectionResponse(): SavedCollectionResponse {
     }
 }
 
+fun CollectionWithProductsRaw.toCollectionWithProductsResponse(): CollectionWithProductsResponse {
+    this.apply {
+        return CollectionWithProductsResponse(
+            collection = collection.toSavedCollectionResponse(),
+            products = products.map {
+                it.toSavedProductResponse()
+            }
+        )
+    }
+}
+
 fun AllCollectionsWithProductsRaw.toAllCollectionsWithProductsResponse(): AllCollectionsWithProductsResponse {
     this.apply {
         return AllCollectionsWithProductsResponse(
             collectionsWithProducts = collectionsWithProducts.map {
-                CollectionWithProductsResponse(
-                    collection = it.collection.toSavedCollectionResponse(),
-                    products = it.products.map {
-                        it.toSavedProductResponse()
-                    }
-                )
+                it.toCollectionWithProductsResponse()
             }
         )
     }

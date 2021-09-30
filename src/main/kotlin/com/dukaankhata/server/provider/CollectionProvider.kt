@@ -108,4 +108,16 @@ class CollectionProvider {
 
     fun getAllCollectionWithProducts(company: Company) =
         getAllCollectionWithProductsRaw(company).toAllCollectionsWithProductsResponse()
+
+    fun getCollectionWithProductsRaw(collectionId: String) =
+        runBlocking {
+            val collection = getCollection(collectionId) ?: error("No collection found with id: $collectionId")
+            val products = productCollectionProvider
+                .getProductCollections(collectionIds = setOf(collection.id))
+                .mapNotNull { it.product }
+            CollectionWithProductsRaw(
+                collection = collection,
+                products = products
+            )
+        }
 }

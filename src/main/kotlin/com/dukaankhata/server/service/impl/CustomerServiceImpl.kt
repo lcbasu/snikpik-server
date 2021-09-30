@@ -34,6 +34,9 @@ class CustomerServiceImpl : CustomerService() {
     private lateinit var productCollectionProvider: ProductCollectionProvider
 
     @Autowired
+    private lateinit var collectionProvider: CollectionProvider
+
+    @Autowired
     private lateinit var customerProvider: CustomerProvider
 
     override fun getShopViewForCustomer(shopUsername: String): ShopViewForCustomerResponse {
@@ -155,6 +158,13 @@ class CustomerServiceImpl : CustomerService() {
                 .filterNot { it.cartItems == null || it.cartItems.isEmpty() }
                 .map { it.toSavedProductOrderResponse() }
         )
+    }
+
+    override fun getCollectionWithProducts(collectionId: String): CollectionWithProductsResponse {
+        authProvider.validateRequest()
+        return collectionProvider
+            .getCollectionWithProductsRaw(collectionId)
+            .toCollectionWithProductsResponse()
     }
 
 }

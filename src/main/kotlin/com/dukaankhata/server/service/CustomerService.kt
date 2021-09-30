@@ -12,4 +12,5 @@ abstract class CustomerService {
     abstract fun getProductOrder(productOrderId: String): SavedProductOrderResponse
     abstract fun getProductDetails(productId: String): SavedProductResponse
     abstract fun getProductOrders(): AllProductOrdersResponse
+    abstract fun getCollectionWithProducts(collectionId: String): CollectionWithProductsResponse
 }
