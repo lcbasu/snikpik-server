@@ -16,14 +16,14 @@ class UserController {
         return userService.saveUser()
     }
 
-    @RequestMapping(value = ["/getUserRoles/{phoneNumber}"], method = [RequestMethod.GET])
-    fun getUserRoles(@PathVariable phoneNumber: String): UserRoleResponse? {
-        return userService.getUserRoles(phoneNumber)
+    @RequestMapping(value = ["/getUserRoles/{absoluteMobile}"], method = [RequestMethod.GET])
+    fun getUserRoles(@PathVariable absoluteMobile: String): UserRoleResponse? {
+        return userService.getUserRoles(absoluteMobile)
     }
 
-    @RequestMapping(value = ["/verifyPhone/{phoneNumber}"], method = [RequestMethod.GET])
-    fun verifyPhone(@PathVariable phoneNumber: String): VerifyPhoneResponse? {
-        return userService.verifyPhone(phoneNumber)
+    @RequestMapping(value = ["/verifyPhone/{absoluteMobile}"], method = [RequestMethod.GET])
+    fun verifyPhone(@PathVariable absoluteMobile: String): VerifyPhoneResponse? {
+        return userService.verifyPhone(absoluteMobile)
     }
 
     @RequestMapping(value = ["/saveAddress"], method = [RequestMethod.POST])

@@ -3,9 +3,13 @@ package com.dukaankhata.server.provider
 import com.dukaankhata.server.dao.CompanyRepository
 import com.dukaankhata.server.dao.CompanyUsernameRepository
 import com.dukaankhata.server.dto.SaveCompanyRequest
+import com.dukaankhata.server.dto.UpdateLogoRequest
+import com.dukaankhata.server.dto.UpdateMobileRequest
+import com.dukaankhata.server.dto.UpdateNameRequest
 import com.dukaankhata.server.entities.*
 import com.dukaankhata.server.enums.DKShopStatus
 import com.dukaankhata.server.enums.ReadableIdPrefix
+import com.dukaankhata.server.model.convertToString
 import com.dukaankhata.server.utils.CommonUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -64,6 +68,9 @@ class CompanyProvider {
         newCompany.workingMinutes = saveCompanyRequest.workingMinutes
         newCompany.totalDueAmountInPaisa = 0
         newCompany.categoryGroup = saveCompanyRequest.categoryGroup
+        newCompany.absoluteMobile = saveCompanyRequest.absoluteMobile ?: user.absoluteMobile ?: ""
+        newCompany.countryCode = saveCompanyRequest.countryCode ?: user.countryCode ?: ""
+        newCompany.logo = saveCompanyRequest.logo?.convertToString() ?: ""
         val company = companyRepository.save(newCompany)
         val companyUsername = autoGenerateCompanyUsername(company)
         return if (companyUsername != null) companyUsername.company!! else company
@@ -160,6 +167,37 @@ class CompanyProvider {
         return try {
             company.defaultAddressId = address.id
             company.defaultShopAddress = address
+            return companyRepository.save(company)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun updateName(company: Company, updateNameRequest: UpdateNameRequest): Company? {
+        return try {
+            company.name = updateNameRequest.newName
+            return companyRepository.save(company)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun updateMobile(company: Company, updateMobileRequest: UpdateMobileRequest): Company? {
+        return try {
+            company.absoluteMobile = updateMobileRequest.absoluteMobile
+            company.countryCode = updateMobileRequest.countryCode
+            return companyRepository.save(company)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun updateLogo(company: Company, updateLogoRequest: UpdateLogoRequest): Company? {
+        return try {
+            company.logo = updateLogoRequest.logo.convertToString()
             return companyRepository.save(company)
         } catch (e: Exception) {
             e.printStackTrace()

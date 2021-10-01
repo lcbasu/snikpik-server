@@ -17,10 +17,10 @@ class DKShopController {
         return dkShopService.isUsernameAvailable(username)
     }
 
-    @RequestMapping(value = ["/saveUsername"], method = [RequestMethod.POST])
-    fun saveUsername(@RequestBody saveUsernameRequest: SaveUsernameRequest): SaveUsernameResponse? {
-        return dkShopService.saveUsername(saveUsernameRequest)
-    }
+//    @RequestMapping(value = ["/saveUsername"], method = [RequestMethod.POST])
+//    fun saveUsername(@RequestBody saveUsernameRequest: SaveUsernameRequest): SaveUsernameResponse? {
+//        return dkShopService.saveUsername(saveUsernameRequest)
+//    }
 
     @RequestMapping(value = ["/takeShopOffline"], method = [RequestMethod.POST])
     fun takeShopOffline(@RequestBody takeShopOfflineRequest: TakeShopOfflineRequest): SavedCompanyResponse? {

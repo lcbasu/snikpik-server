@@ -23,10 +23,10 @@ class UserServiceImpl : UserService() {
     // Save data using the auth token credentials
     override fun saveUser(): SavedUserResponse? {
         val firebaseAuthUserPrincipal = authProvider.getFirebaseAuthUser()
-        val phoneNumber = firebaseAuthUserPrincipal?.getPhoneNumber() ?: ""
+        val absoluteMobile = firebaseAuthUserPrincipal?.getAbsoluteMobileNumber() ?: ""
         val uid = firebaseAuthUserPrincipal?.getUid() ?: ""
         // if already saved then return that value or save a new one
-        var user = authProvider.getRequestUserEntity() ?: authProvider.createUser(phoneNumber = phoneNumber, fullName = phoneNumber, uid = uid)
+        var user = authProvider.getRequestUserEntity() ?: authProvider.createUser(absoluteMobile = absoluteMobile, fullName = absoluteMobile, uid = uid)
 //        if (uid.isNotBlank() && uid.isNotEmpty() && (user.uid?.isBlank() == true || user.uid?.isEmpty() == true)) {
 //            user = authProvider.updateUserUid(user.id, uid)
 //        }
@@ -35,15 +35,15 @@ class UserServiceImpl : UserService() {
 
     override fun getUser(): SavedUserResponse? = authProvider.getRequestUserEntity()?.toSavedUserResponse()
 
-    override fun getUserRoles(phoneNumber: String): UserRoleResponse? {
-        val user = authProvider.getUserByMobile(phoneNumber);
+    override fun getUserRoles(absoluteMobile: String): UserRoleResponse? {
+        val user = authProvider.getUserByMobile(absoluteMobile);
         val userRoles = user?.let { userRoleProvider.getUserRolesForUser(it) } ?: emptyList()
         val roles = userRoles.filter { it.id != null && it.id?.roleType != null }.map { it.id?.roleType }
         return UserRoleResponse(roles = roles.filterNotNull().toSet())
     }
 
-    override fun verifyPhone(phoneNumber: String): VerifyPhoneResponse? {
-        return authProvider.getVerifiedPhoneResponse(phoneNumber)
+    override fun verifyPhone(absoluteMobile: String): VerifyPhoneResponse? {
+        return authProvider.getVerifiedPhoneResponse(absoluteMobile)
     }
 
     override fun saveAddress(saveUserAddressRequest: SaveUserAddressRequest): SavedUserAddressResponse? {

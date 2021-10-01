@@ -2,7 +2,6 @@ package com.dukaankhata.server.config
 
 import com.dukaankhata.server.model.FirebaseAuthUser
 import com.dukaankhata.server.utils.CommonUtils
-import io.sentry.Sentry
 import org.springframework.data.domain.AuditorAware
 import org.springframework.security.core.context.SecurityContextHolder
 import java.util.*
@@ -19,9 +18,9 @@ class SpringSecurityAuditorAware : AuditorAware<String> {
             if (firebaseAuthUserPrincipal == null) {
                 return Optional.of("")
             }
-            val phoneNumber = firebaseAuthUserPrincipal.getPhoneNumber() ?: "NO_PHONE_NUMBER"
+            val absoluteMobile = firebaseAuthUserPrincipal.getAbsoluteMobileNumber() ?: "NO_PHONE_NUMBER"
             val uid = firebaseAuthUserPrincipal.getUid() ?: "NO_UID"
-            return Optional.of(phoneNumber + CommonUtils.STRING_SEPARATOR + uid)
+            return Optional.of(absoluteMobile + CommonUtils.STRING_SEPARATOR + uid)
         } catch (e: Exception) {
             return Optional.of("Un Authenticated Auditor")
         }

@@ -12,7 +12,8 @@ class Employee : Auditable() {
     @Column(unique = true)
     var id: String = ""
     var name: String = ""
-    var phoneNumber: String = ""
+    var absoluteMobile: String = ""
+    var countryCode: String = ""
 
     @Enumerated(EnumType.STRING)
     var salaryType: SalaryType = SalaryType.MONTHLY

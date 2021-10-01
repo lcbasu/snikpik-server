@@ -10,6 +10,7 @@ data class Address(
     val googleCode: String = "", // Unique code for that location
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
-    val phone: String = ""
+    var absoluteMobile: String? = "", // Phone Number with country code
+    var countryCode: String? = "" // Country code
 )
 

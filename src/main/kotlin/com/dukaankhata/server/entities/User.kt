@@ -16,7 +16,7 @@ class User : Auditable() {
     // like the customers who we signup anonymously
     // without them having to do anything
     // unless they make the order
-    var mobile: String? = "" // Phone Number with country code
+    var absoluteMobile: String? = "" // Phone Number with country code
     var countryCode: String? = "" // Country code
 
     @Column(unique = true)

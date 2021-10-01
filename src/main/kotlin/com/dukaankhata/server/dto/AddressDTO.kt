@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveAddressRequest(
     val name: String = "",
-    val phone: String = "",
+    val absoluteMobile: String,
+    val countryCode: String,
     val house: String = "",
     val roadName: String = "",
     val type: String = "",
@@ -22,7 +23,8 @@ data class SaveAddressRequest(
 data class SavedAddressResponse(
     val serverId: String = "",
     val name: String = "",
-    val phone: String = "",
+    val absoluteMobile: String,
+    val countryCode: String,
     val house: String = "",
     val roadName: String = "",
     val type: String = "",
@@ -40,7 +42,8 @@ fun Address.toSavedAddressResponse(): SavedAddressResponse {
         return SavedAddressResponse(
             serverId = id,
             name = "Mr. Bing",
-            phone = "+91-12345678",
+            absoluteMobile = "+9112345678",
+            countryCode = "+91",
             house = line1 ?: "",
             roadName = line2 ?: "",
             type = "Address Type",

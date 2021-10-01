@@ -43,31 +43,31 @@ class DKShopServiceImpl : DKShopService() {
     @Autowired
     private lateinit var extraChargeTaxProvider: ExtraChargeTaxProvider
 
-    override fun saveUsername(saveUsernameRequest: SaveUsernameRequest): SaveUsernameResponse? {
-        val requestContext = authProvider.validateRequest(
-            companyServerIdOrUsername = saveUsernameRequest.companyId,
-            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
-        )
-        val company = requestContext.company ?: error("Company is required")
-
-        if (company.username != null && company.username!!.isNotBlank()) {
-            error("You can not edit username once it is added")
-        }
-
-        val isAvailable = companyProvider.isUsernameAvailable(saveUsernameRequest.username)
-
-        if (isAvailable) {
-            val updatedCompany = companyProvider.saveUsername(requestContext.user, company, saveUsernameRequest.username) ?: error("Saving username failed")
-            return SaveUsernameResponse(
-                available = true,
-                company = updatedCompany.toSavedCompanyResponse()
-            )
-        }
-        return SaveUsernameResponse(
-            available = false,
-            company = null
-        )
-    }
+//    override fun saveUsername(saveUsernameRequest: SaveUsernameRequest): SaveUsernameResponse? {
+//        val requestContext = authProvider.validateRequest(
+//            companyServerIdOrUsername = saveUsernameRequest.companyId,
+//            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
+//        )
+//        val company = requestContext.company ?: error("Company is required")
+//
+//        if (company.username != null && company.username!!.isNotBlank()) {
+//            error("You can not edit username once it is added")
+//        }
+//
+//        val isAvailable = companyProvider.isUsernameAvailable(saveUsernameRequest.username)
+//
+//        if (isAvailable) {
+//            val updatedCompany = companyProvider.saveUsername(requestContext.user, company, saveUsernameRequest.username) ?: error("Saving username failed")
+//            return SaveUsernameResponse(
+//                available = true,
+//                company = updatedCompany.toSavedCompanyResponse()
+//            )
+//        }
+//        return SaveUsernameResponse(
+//            available = false,
+//            company = null
+//        )
+//    }
 
     override fun isUsernameAvailable(username: String): UsernameAvailableResponse? {
         // To verify if the user is logged in

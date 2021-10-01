@@ -36,7 +36,7 @@ class EmployeeServiceImpl : EmployeeService() {
         if (createdByUser == null || company == null) {
             error("User and Company are required to add an employee");
         }
-        val createdForUser = authProvider.getOrCreateUserByPhoneNumber(saveEmployeeRequest.phoneNumber)
+        val createdForUser = authProvider.getOrCreateUserByPhoneNumber(saveEmployeeRequest.absoluteMobile)
             ?: error("User should be created for new employee without any user account")
         val employee = employeeProvider.saveEmployee(
             createdByUser = createdByUser,

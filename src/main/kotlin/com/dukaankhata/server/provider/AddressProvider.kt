@@ -48,7 +48,8 @@ class AddressProvider {
             newAddress.googleCode = saveAddressRequest.googleCode
             newAddress.latitude = saveAddressRequest.latitude
             newAddress.longitude = saveAddressRequest.longitude
-            newAddress.phone = saveAddressRequest.phone
+            newAddress.absoluteMobile = saveAddressRequest.absoluteMobile
+            newAddress.countryCode = saveAddressRequest.countryCode
             return addressRepository.save(newAddress)
         } catch (e: Exception) {
             logger.error("Failed to save saveAddress")

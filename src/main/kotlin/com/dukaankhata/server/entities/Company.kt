@@ -3,6 +3,8 @@ package com.dukaankhata.server.entities
 import com.dukaankhata.server.enums.CategoryGroup
 import com.dukaankhata.server.enums.DKShopStatus
 import com.dukaankhata.server.enums.SalaryPaymentSchedule
+import com.dukaankhata.server.model.MediaDetails
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import javax.persistence.*
 
 @Entity
@@ -22,6 +24,9 @@ class Company : Auditable() {
     @JoinColumn(name = "user_id")
     var user: User? = null;
 
+    var logo: String? = "" // MediaDetails object as string
+    var absoluteMobile: String? = ""
+    var countryCode: String? = ""
 
     @OneToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
 //    @MapsId("company_id")
@@ -47,3 +52,14 @@ class Company : Auditable() {
     @Enumerated(EnumType.STRING)
     var categoryGroup: CategoryGroup? = CategoryGroup.General
 }
+
+fun Company.getLogoDetails(): MediaDetails? {
+    this.apply {
+        return try {
+            jacksonObjectMapper().readValue(logo, MediaDetails::class.java)
+        } catch (e: Exception) {
+            null
+        }
+    }
+}
+

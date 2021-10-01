@@ -5,7 +5,7 @@ import com.dukaankhata.server.dto.*
 // For anything related to DKShop, we interact with
 // this service
 abstract class DKShopService {
-    abstract fun saveUsername(saveUsernameRequest: SaveUsernameRequest): SaveUsernameResponse?
+//    abstract fun saveUsername(saveUsernameRequest: SaveUsernameRequest): SaveUsernameResponse?
     abstract fun isUsernameAvailable(username: String): UsernameAvailableResponse?
     abstract fun takeShopOffline(takeShopOfflineRequest: TakeShopOfflineRequest): SavedCompanyResponse?
     abstract fun saveAddress(saveCompanyAddressRequest: SaveCompanyAddressRequest): SavedCompanyAddressResponse?

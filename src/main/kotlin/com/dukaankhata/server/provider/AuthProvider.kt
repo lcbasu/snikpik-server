@@ -70,14 +70,14 @@ class AuthProvider {
 
     fun getRequestUserEntity(): User? {
         val firebaseAuthUserPrincipal = getFirebaseAuthUser()
-        val mobile = firebaseAuthUserPrincipal?.getPhoneNumber() ?: ""
+        val absoluteMobile = firebaseAuthUserPrincipal?.getAbsoluteMobileNumber() ?: ""
         val uid = firebaseAuthUserPrincipal?.getUid() ?: ""
         // if both are empty then we need to create a new account
         // as this is the case of
-        if (mobile.isBlank() && uid.isBlank()) {
+        if (absoluteMobile.isBlank() && uid.isBlank()) {
             return null
         }
-        var existingUser : User? = if (mobile.isNotBlank()) userRepository.findByMobile(mobile) else null
+        var existingUser : User? = if (absoluteMobile.isNotBlank()) userRepository.findByAbsoluteMobile(absoluteMobile) else null
         if (existingUser == null && uid.isNotBlank()) {
             existingUser = userRepository.findByUid(uid)
         }
@@ -103,25 +103,25 @@ class AuthProvider {
         }
     }
 
-    private fun isAnonymous(uid: String? = null, phoneNumber: String? = null): Boolean {
-        return !(uid != null && uid.isNotBlank() && phoneNumber != null && phoneNumber.isNotBlank())
+    private fun isAnonymous(uid: String? = null, absoluteMobile: String? = null): Boolean {
+        return !(uid != null && uid.isNotBlank() && absoluteMobile != null && absoluteMobile.isNotBlank())
     }
 
-    fun getSanitizePhoneNumber(phoneNumber: String?): String? {
-        var sanitizePhoneNumber = phoneNumber
+    fun getSanitizePhoneNumber(absoluteMobile: String?): String? {
+        var sanitizePhoneNumber = absoluteMobile
         if (sanitizePhoneNumber != null) {
             // To long is for removing the leading Zeros
             sanitizePhoneNumber = sanitizePhoneNumber
                 .filter { it.isDigit() }
         }
-        if (phoneNumber != null && phoneNumber.startsWith("+")) {
+        if (absoluteMobile != null && absoluteMobile.startsWith("+")) {
             sanitizePhoneNumber = "+$sanitizePhoneNumber"
         }
         return sanitizePhoneNumber
     }
 
-    fun createUser(phoneNumber: String? = null, fullName: String? = null, uid: String? = null): User {
-        val sanitizePhoneNumber = getSanitizePhoneNumber(phoneNumber) ?: ""
+    fun createUser(absoluteMobile: String? = null, fullName: String? = null, uid: String? = null): User {
+        val sanitizePhoneNumber = getSanitizePhoneNumber(absoluteMobile) ?: ""
 
         if (sanitizePhoneNumber.isNotBlank() && sanitizePhoneNumber.startsWith("+").not()) {
             error("Phone number has to be with internation format and should start with +")
@@ -167,26 +167,26 @@ class AuthProvider {
 
         val newUser = User()
         newUser.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.USR.name)
-        newUser.mobile = sanitizePhoneNumber
+        newUser.absoluteMobile = sanitizePhoneNumber
         newUser.countryCode = countryCode
         newUser.fullName = fullName
         newUser.uid = uid
-        newUser.anonymous = isAnonymous(uid = uid, phoneNumber = sanitizePhoneNumber)
+        newUser.anonymous = isAnonymous(uid = uid, absoluteMobile = sanitizePhoneNumber)
 
         return userRepository.save(newUser)
     }
 
-    fun getOrCreateUserByPhoneNumber(phoneNumber: String): User? {
-        val sanitizePhoneNumber = getSanitizePhoneNumber(phoneNumber) ?: return null
+    fun getOrCreateUserByPhoneNumber(absoluteMobile: String): User? {
+        val sanitizePhoneNumber = getSanitizePhoneNumber(absoluteMobile) ?: return null
         return getUserByMobile(sanitizePhoneNumber) ?:
-        createUser(phoneNumber = sanitizePhoneNumber, fullName = phoneNumber, uid = "")
+        createUser(absoluteMobile = sanitizePhoneNumber, fullName = absoluteMobile, uid = "")
     }
 
     fun getOrCreateUserByUid(uid: String): User? {
         return getUserByUid(uid) ?: createUser(uid = uid)
     }
 
-    fun getUserByMobile(mobile: String) = userRepository.findByMobile(mobile)
+    fun getUserByMobile(absoluteMobile: String) = userRepository.findByAbsoluteMobile(absoluteMobile)
 
     fun getUserByUid(uid: String) = userRepository.findByUid(uid)
 
@@ -291,9 +291,9 @@ class AuthProvider {
         }
     }
 
-    fun getVerifiedPhoneResponse(phoneNumber: String): VerifyPhoneResponse {
+    fun getVerifiedPhoneResponse(absoluteMobile: String): VerifyPhoneResponse {
         return try {
-            val result = PhoneNumber.fetcher(com.twilio.type.PhoneNumber(phoneNumber)).fetch()
+            val result = PhoneNumber.fetcher(com.twilio.type.PhoneNumber(absoluteMobile)).fetch()
             VerifyPhoneResponse(
                 valid = true,
                 countryCode = result.countryCode,

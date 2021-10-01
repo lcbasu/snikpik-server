@@ -20,9 +20,9 @@ class CustomUserProvider : SentryUserProvider {
             user.username = "NOT_DEFINED"
             return user
         }
-        val phoneNumber = firebaseAuthUserPrincipal.getPhoneNumber() ?: ""
+        val absoluteMobile = firebaseAuthUserPrincipal.getAbsoluteMobileNumber() ?: ""
         val uid = firebaseAuthUserPrincipal.getUid() ?: ""
-        user.username = phoneNumber
+        user.username = absoluteMobile
         user.id = uid
         return user
     }

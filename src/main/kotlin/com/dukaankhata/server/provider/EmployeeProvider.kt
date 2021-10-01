@@ -78,7 +78,7 @@ class EmployeeProvider {
         newEmployee.name = saveEmployeeRequest.name
         newEmployee.balanceInPaisaTillNow = 0
 //        newEmployee.openingBalanceInPaisa = saveEmployeeRequest.openingBalanceInPaisa
-        newEmployee.phoneNumber = saveEmployeeRequest.phoneNumber
+        newEmployee.absoluteMobile = saveEmployeeRequest.absoluteMobile
         newEmployee.salaryAmountInPaisa = saveEmployeeRequest.salaryAmountInPaisa
         newEmployee.salaryType = saveEmployeeRequest.salaryType
         newEmployee.salaryCycle = saveEmployeeRequest.salaryCycle

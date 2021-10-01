@@ -116,7 +116,7 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
                 FirebaseAuthUser(
                     uid = it.uid,
                     name = it.name,
-                    phoneNumber = it.claims["phone_number"] as String?,
+                    absoluteMobile = it.claims["phone_number"] as String?,
                     picture = it.picture,
                     issuer = it.issuer
                 )
@@ -124,7 +124,7 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
                 FirebaseAuthUser(
                     uid = it.getStringClaim("sub"),
                     name = it.getStringClaim("name"),
-                    phoneNumber = it.getStringClaim("phone_number"),
+                    absoluteMobile = it.getStringClaim("phone_number"),
                     picture = null,
                     issuer = "AWS_COGNITO"
                 )

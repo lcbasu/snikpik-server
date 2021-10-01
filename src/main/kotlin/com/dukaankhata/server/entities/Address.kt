@@ -17,5 +17,6 @@ class Address : Auditable() {
     var latitude: Double = 0.0
     var longitude: Double = 0.0
     // Every saveAddress should have a phone number
-    var phone: String? = null
+    var absoluteMobile: String? = "" // Phone Number with country code
+    var countryCode: String? = "" // Country code
 }

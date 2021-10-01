@@ -10,7 +10,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveEmployeeRequest(
     val name: String,
-    val phoneNumber: String,
+    val absoluteMobile: String,
+    val countryCode: String,
     val companyId: String,
     val salaryType: SalaryType,
     val salaryCycle: String,
@@ -24,7 +25,8 @@ data class SaveEmployeeRequest(
 data class SavedEmployeeResponse(
     val serverId: String,
     val name: String,
-    val phoneNumber: String,
+    val absoluteMobile: String,
+    val countryCode: String,
     val company: SavedCompanyResponse,
     val salaryType: SalaryType,
     val salaryCycle: String,
@@ -70,7 +72,8 @@ fun Employee.toSavedEmployeeResponse(): SavedEmployeeResponse {
         return SavedEmployeeResponse(
             serverId = id,
             name = name,
-            phoneNumber = phoneNumber,
+            absoluteMobile = absoluteMobile,
+            countryCode = countryCode,
             company = company!!.toSavedCompanyResponse(),
             salaryType = salaryType,
             salaryCycle = salaryCycle,
