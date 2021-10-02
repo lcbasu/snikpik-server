@@ -32,7 +32,7 @@ data class RequestContext (
     val userRoles: List<UserRole> = emptyList(),
 )
 
-data class VerifyPhoneResponse (
+data class PhoneVerificationResponse (
     val valid: Boolean,
     val numberInInterNationalFormat: String? = null,
     val numberInNationalFormat: String? = null,

@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component
 @Component
 class CompanyProvider {
 
+    var MIN_USERNAME_LENGTH = 4
+
     @Autowired
     private lateinit var companyRepository: CompanyRepository
 
@@ -127,6 +129,9 @@ class CompanyProvider {
 
     fun isUsernameAvailable(username: String): Boolean {
         return try {
+            if (username.length < MIN_USERNAME_LENGTH) {
+                return false
+            }
             getCompanyByUsername(username) == null
         } catch (e: Exception) {
             e.printStackTrace()

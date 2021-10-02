@@ -1,10 +1,8 @@
 package com.dukaankhata.server.service.impl
 
 import com.dukaankhata.server.dto.*
-import com.dukaankhata.server.enums.TakeShopOnlineAfter
 import com.dukaankhata.server.provider.*
 import com.dukaankhata.server.service.DKShopService
-import com.dukaankhata.server.service.schedule.TakeShopOnlineSchedulerService
 import com.dukaankhata.server.utils.CommonUtils
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -17,97 +15,19 @@ class DKShopServiceImpl : DKShopService() {
     private lateinit var authProvider: AuthProvider
 
     @Autowired
-    private lateinit var companyProvider: CompanyProvider
-
-    @Autowired
-    private lateinit var addressProvider: AddressProvider
-
-    @Autowired
     private lateinit var productProvider: ProductProvider
 
     @Autowired
     private lateinit var collectionProvider: CollectionProvider
 
     @Autowired
-    private lateinit var takeShopOnlineSchedulerService: TakeShopOnlineSchedulerService
-
-    @Autowired
     private lateinit var extraChargeDeliveryProvider: ExtraChargeDeliveryProvider
-
-    @Autowired
-    private lateinit var productVariantProvider: ProductVariantProvider
 
     @Autowired
     private lateinit var productCollectionProvider: ProductCollectionProvider
 
     @Autowired
     private lateinit var extraChargeTaxProvider: ExtraChargeTaxProvider
-
-//    override fun saveUsername(saveUsernameRequest: SaveUsernameRequest): SaveUsernameResponse? {
-//        val requestContext = authProvider.validateRequest(
-//            companyServerIdOrUsername = saveUsernameRequest.companyId,
-//            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
-//        )
-//        val company = requestContext.company ?: error("Company is required")
-//
-//        if (company.username != null && company.username!!.isNotBlank()) {
-//            error("You can not edit username once it is added")
-//        }
-//
-//        val isAvailable = companyProvider.isUsernameAvailable(saveUsernameRequest.username)
-//
-//        if (isAvailable) {
-//            val updatedCompany = companyProvider.saveUsername(requestContext.user, company, saveUsernameRequest.username) ?: error("Saving username failed")
-//            return SaveUsernameResponse(
-//                available = true,
-//                company = updatedCompany.toSavedCompanyResponse()
-//            )
-//        }
-//        return SaveUsernameResponse(
-//            available = false,
-//            company = null
-//        )
-//    }
-
-    override fun isUsernameAvailable(username: String): UsernameAvailableResponse? {
-        // To verify if the user is logged in
-        authProvider.validateRequest()
-
-        return UsernameAvailableResponse(companyProvider.isUsernameAvailable(username))
-    }
-
-    override fun takeShopOffline(takeShopOfflineRequest: TakeShopOfflineRequest): SavedCompanyResponse? {
-        val requestContext = authProvider.validateRequest(
-            companyServerIdOrUsername = takeShopOfflineRequest.companyId,
-            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
-        )
-        val company = requestContext.company ?: error("Company is required")
-
-        val updatedCompany = companyProvider.takeShopOffline(company) ?: error("Company update failed")
-
-        if (takeShopOfflineRequest.takeShopOnlineAfter != TakeShopOnlineAfter.MANUALLY) {
-            takeShopOnlineSchedulerService.takeShopOnline(company, takeShopOfflineRequest.takeShopOnlineAfter)
-        }
-
-        return updatedCompany.toSavedCompanyResponse()
-    }
-
-    override fun saveAddress(saveCompanyAddressRequest: SaveCompanyAddressRequest): SavedCompanyAddressResponse? {
-        val requestContext = authProvider.validateRequest(
-            companyServerIdOrUsername = saveCompanyAddressRequest.companyId,
-            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
-        )
-        val company = requestContext.company ?: error("Company is required")
-
-        val companyAddress = addressProvider.saveCompanyAddress(company, saveCompanyAddressRequest.name, saveCompanyAddressRequest.address) ?: error("Error while saveing company address")
-        val newAddress = companyAddress.address ?: error("Address should always be present for companyAddress")
-        val updatedCompany = companyProvider.updateCompanyDefaultAddress(company, newAddress) ?: error("Error while updating default address for comany")
-
-        return SavedCompanyAddressResponse(
-            company = updatedCompany.toSavedCompanyResponse(),
-            address = newAddress.toSavedAddressResponse()
-        )
-    }
 
     override fun saveOrUpdateExtraChargeDelivery(saveExtraChargeDeliveryRequest: SaveExtraChargeDeliveryRequest): SavedExtraChargeDeliveryResponse {
         val requestContext = authProvider.validateRequest(
@@ -168,20 +88,6 @@ class DKShopServiceImpl : DKShopService() {
                 productCollections = productCollections
             )
         }
-    }
-
-    override fun takeShopOnlineNow(takeShopOnlineNowRequest: TakeShopOnlineNowRequest): SavedCompanyResponse? {
-        val requestContext = authProvider.validateRequest(
-            companyServerIdOrUsername = takeShopOnlineNowRequest.companyId,
-            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
-        )
-        val company = requestContext.company ?: error("Company is required")
-        val updatedCompany = companyProvider.takeShopOnline(company) ?: error("Company update failed")
-        return updatedCompany.toSavedCompanyResponse()
-    }
-
-    override fun getAddresses(companyServerIdOrUsername: String): CompanyAddressesResponse {
-        TODO("Not yet implemented")
     }
 
     override fun getExtraCharges(companyId: String): SavedExtraChargesResponse {

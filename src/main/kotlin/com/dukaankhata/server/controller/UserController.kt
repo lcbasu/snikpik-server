@@ -22,7 +22,7 @@ class UserController {
     }
 
     @RequestMapping(value = ["/verifyPhone/{absoluteMobile}"], method = [RequestMethod.GET])
-    fun verifyPhone(@PathVariable absoluteMobile: String): VerifyPhoneResponse? {
+    fun verifyPhone(@PathVariable absoluteMobile: String): PhoneVerificationResponse? {
         return userService.verifyPhone(absoluteMobile)
     }
 

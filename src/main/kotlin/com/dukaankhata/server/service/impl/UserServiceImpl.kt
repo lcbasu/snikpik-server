@@ -42,7 +42,7 @@ class UserServiceImpl : UserService() {
         return UserRoleResponse(roles = roles.filterNotNull().toSet())
     }
 
-    override fun verifyPhone(absoluteMobile: String): VerifyPhoneResponse? {
+    override fun verifyPhone(absoluteMobile: String): PhoneVerificationResponse? {
         return authProvider.getVerifiedPhoneResponse(absoluteMobile)
     }
 

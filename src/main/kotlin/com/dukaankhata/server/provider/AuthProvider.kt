@@ -2,7 +2,7 @@ package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.UserRepository
 import com.dukaankhata.server.dto.RequestContext
-import com.dukaankhata.server.dto.VerifyPhoneResponse
+import com.dukaankhata.server.dto.PhoneVerificationResponse
 import com.dukaankhata.server.entities.*
 import com.dukaankhata.server.enums.NotificationTokenProvider
 import com.dukaankhata.server.enums.ReadableIdPrefix
@@ -291,10 +291,10 @@ class AuthProvider {
         }
     }
 
-    fun getVerifiedPhoneResponse(absoluteMobile: String): VerifyPhoneResponse {
+    fun getVerifiedPhoneResponse(absoluteMobile: String): PhoneVerificationResponse {
         return try {
             val result = PhoneNumber.fetcher(com.twilio.type.PhoneNumber(absoluteMobile)).fetch()
-            VerifyPhoneResponse(
+            PhoneVerificationResponse(
                 valid = true,
                 countryCode = result.countryCode,
                 numberInNationalFormat = result.nationalFormat,
@@ -303,7 +303,7 @@ class AuthProvider {
         } catch (e: Exception) {
             e.printStackTrace()
             Sentry.captureException(e)
-            VerifyPhoneResponse(
+            PhoneVerificationResponse(
                 valid = false
             )
         }
