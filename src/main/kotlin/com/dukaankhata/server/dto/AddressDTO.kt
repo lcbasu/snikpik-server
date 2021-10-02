@@ -8,16 +8,16 @@ data class SaveAddressRequest(
     val name: String = "",
     val absoluteMobile: String? = "",
     val countryCode: String? = "",
-    val house: String = "",
-    val roadName: String = "",
-    val type: String = "",
-    val zipcode: String = "",
-    val city: String = "",
-    val state: String = "",
-    val country: String = "",
-    val googleCode: String = "", // Unique code for that location
-    val latitude: Double = 0.0,
-    val longitude: Double = 0.0,
+    val house: String? = "",
+    val roadName: String? = "",
+    val type: String? = "",
+    val zipcode: String? = "",
+    val city: String? = "",
+    val state: String? = "",
+    val country: String? = "",
+    val googleCode: String? = "", // Unique code for that location
+    val latitude: Double? = 0.0,
+    val longitude: Double? = 0.0,
 )
 
 data class SavedAddressResponse(

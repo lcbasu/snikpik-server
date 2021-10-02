@@ -16,6 +16,11 @@ class CompanyController {
         return companyService.saveCompany(saveCompanyRequest)
     }
 
+    @RequestMapping(value = ["/getCompany/{companyServerIdOrUsername}"], method = [RequestMethod.GET])
+    fun getCompany(@PathVariable companyServerIdOrUsername: String): SavedCompanyResponse? {
+        return companyService.getCompany(companyServerIdOrUsername)
+    }
+
     @RequestMapping(value = ["/getUserCompanies/{absoluteMobile}"], method = [RequestMethod.GET])
     fun getUserCompanies(@PathVariable absoluteMobile: String): UserCompaniesResponse? {
         return companyService.getUserCompanies(absoluteMobile)
@@ -67,7 +72,7 @@ class CompanyController {
     }
 
     @RequestMapping(value = ["/saveAddress"], method = [RequestMethod.POST])
-    fun saveAddress(@RequestBody saveCompanyAddressRequest: SaveCompanyAddressRequest): SavedCompanyAddressResponse? {
+    fun saveAddress(@RequestBody saveCompanyAddressRequest: SaveCompanyAddressRequest): SavedCompanyResponse? {
         return companyService.saveAddress(saveCompanyAddressRequest)
     }
 

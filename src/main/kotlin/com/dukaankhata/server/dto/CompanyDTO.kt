@@ -61,15 +61,9 @@ data class TakeShopOfflineResponse(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveCompanyAddressRequest(
-    val companyId: String,
+    val companyServerIdOrUsername: String,
     val name: String = "",
     val address: SaveAddressRequest,
-)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class SavedCompanyAddressResponse(
-    val company: SavedCompanyResponse,
-    val address: SavedAddressResponse,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

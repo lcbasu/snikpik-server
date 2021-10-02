@@ -46,8 +46,8 @@ class AddressProvider {
             newAddress.state = saveAddressRequest.state
             newAddress.country = saveAddressRequest.country
             newAddress.googleCode = saveAddressRequest.googleCode
-            newAddress.latitude = saveAddressRequest.latitude
-            newAddress.longitude = saveAddressRequest.longitude
+            newAddress.latitude = saveAddressRequest.latitude ?: 0.0
+            newAddress.longitude = saveAddressRequest.longitude ?: 0.0
             newAddress.absoluteMobile = saveAddressRequest.absoluteMobile
             newAddress.countryCode = saveAddressRequest.countryCode
             return addressRepository.save(newAddress)

@@ -46,8 +46,12 @@ class CompanyServiceImpl : CompanyService() {
         return company.toSavedCompanyResponse();
     }
 
-    override fun getCompany(): SavedCompanyResponse? {
-        TODO("Not yet implemented")
+    override fun getCompany(companyServerIdOrUsername: String): SavedCompanyResponse? {
+        val requestContext = authProvider.validateRequest(
+            companyServerIdOrUsername = companyServerIdOrUsername
+        )
+        val company = requestContext.company ?: error("Company is required")
+        return company.toSavedCompanyResponse()
     }
 
     override fun getUserCompanies(absoluteMobile: String): UserCompaniesResponse? {
@@ -105,9 +109,9 @@ class CompanyServiceImpl : CompanyService() {
         return updatedCompany.toSavedCompanyResponse()
     }
 
-    override fun saveAddress(saveCompanyAddressRequest: SaveCompanyAddressRequest): SavedCompanyAddressResponse? {
+    override fun saveAddress(saveCompanyAddressRequest: SaveCompanyAddressRequest): SavedCompanyResponse? {
         val requestContext = authProvider.validateRequest(
-            companyServerIdOrUsername = saveCompanyAddressRequest.companyId,
+            companyServerIdOrUsername = saveCompanyAddressRequest.companyServerIdOrUsername,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company is required")
@@ -115,11 +119,7 @@ class CompanyServiceImpl : CompanyService() {
         val companyAddress = addressProvider.saveCompanyAddress(company, saveCompanyAddressRequest.name, saveCompanyAddressRequest.address) ?: error("Error while saveing company address")
         val newAddress = companyAddress.address ?: error("Address should always be present for companyAddress")
         val updatedCompany = companyProvider.updateCompanyDefaultAddress(company, newAddress) ?: error("Error while updating default address for comany")
-
-        return SavedCompanyAddressResponse(
-            company = updatedCompany.toSavedCompanyResponse(),
-            address = newAddress.toSavedAddressResponse()
-        )
+        return updatedCompany.toSavedCompanyResponse()
     }
 
     override fun takeShopOnlineNow(takeShopOnlineNowRequest: TakeShopOnlineNowRequest): SavedCompanyResponse? {
