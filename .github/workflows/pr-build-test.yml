@@ -1,4 +1,4 @@
-name: PR Build and Test
+name: PR Build
 
 on:
   pull_request:
@@ -30,11 +30,6 @@ jobs:
         uses: montudor/action-zip@v0.1.0
         with:
           args: zip -r ./release-zip/release.zip ./dukaankhata-server-0.0.1-SNAPSHOT.jar ./.ebextensions
-      - name: Upload the zipped Jar as artifcat for testing PR builds if needs be
-        uses: actions/upload-artifact@master
-        with:
-          name: release
-          path: release-zip
       - name: Get Time for version label
         id: time
         uses: nanzm/get-time-action@v1.0
