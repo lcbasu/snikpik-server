@@ -3,20 +3,20 @@ package com.dukaankhata.server.enums
 import com.dukaankhata.server.model.MediaDetails
 
 enum class CategoryGroup(
-    val id: String, // DO NOT CHANGE THE ID. EVER.
+    val id: CategoryGroupId, // DO NOT CHANGE THE ID. EVER.
     val displayName: String,
     val description: String,
     val mediaDetails: MediaDetails
 ) {
     ElectronicsAndAppliances(
-        "ElectronicsAndAppliances",
+        CategoryGroupId.ElectronicsAndAppliances,
         "Electronics & Appliances",
         "Mobile accessories, IT & Accessories, Electrical appliances, etc.",
         MediaDetails(
             media = emptyList()
         )
     ),
-//    Electrical(
+    //    Electrical(
 //        "Electrical",
 //        "Electrical",
 //        "Switches, wires, lights & accessories etc.",
@@ -25,7 +25,7 @@ enum class CategoryGroup(
 //        )
 //    ),
     Clothing(
-        "Clothing",
+        CategoryGroupId.Clothing,
         "Clothing & Lifestyle",
         "Women's, Men's, Kid's wear, Fabric etc.",
         MediaDetails(
@@ -33,14 +33,14 @@ enum class CategoryGroup(
         )
     ),
     LuggageAndBackpack(
-        "LuggageAndBackpack",
+        CategoryGroupId.LuggageAndBackpack,
         "Luggage & Backpacks",
         "Luggage & Backpacks",
         MediaDetails(
             media = emptyList()
         )
     ),
-//    FoodAndFMCG(
+    //    FoodAndFMCG(
 //        "FoodAndFMCG",
 //        "Food & FMCG",
 //        "Food & FMCG",
@@ -57,7 +57,7 @@ enum class CategoryGroup(
 //        )
 //    ),
     HomeAndKitchen(
-        "HomeAndKitchen",
+        CategoryGroupId.HomeAndKitchen,
         "Home & Kitchen",
         "Steel , Aluminium, Copper utensils etc",
         MediaDetails(
@@ -65,7 +65,7 @@ enum class CategoryGroup(
         )
     ),
     Footwear(
-        "Footwear",
+        CategoryGroupId.Footwear,
         "Footwear",
         "Women's, Men's and Kid's footwear",
         MediaDetails(
@@ -73,14 +73,14 @@ enum class CategoryGroup(
         )
     ),
     ToysAndBabyCare(
-        "ToysAndBabyCare",
+        CategoryGroupId.ToysAndBabyCare,
         "Toys & Baby Care",
         "Toys & Baby Care",
         MediaDetails(
             media = emptyList()
         )
     ),
-//    Hardware(
+    //    Hardware(
 //        "Hardware",
 //        "Hardware",
 //        "Hardware",
@@ -97,11 +97,21 @@ enum class CategoryGroup(
 //        )
 //    ),
     General(
-        "General",
+        CategoryGroupId.General,
         "General Store",
         "Sell anything and everything",
         MediaDetails(
             media = emptyList()
         )
     )
+}
+
+enum class CategoryGroupId  {
+    ElectronicsAndAppliances,
+    Clothing,
+    LuggageAndBackpack,
+    HomeAndKitchen,
+    Footwear,
+    ToysAndBabyCare,
+    General,
 }

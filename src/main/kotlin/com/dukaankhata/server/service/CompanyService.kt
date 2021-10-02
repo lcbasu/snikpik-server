@@ -12,8 +12,9 @@ abstract class CompanyService {
     abstract fun saveAddress(saveCompanyAddressRequest: SaveCompanyAddressRequest): SavedCompanyAddressResponse?
     abstract fun takeShopOnlineNow(takeShopOnlineNowRequest: TakeShopOnlineNowRequest): SavedCompanyResponse?
     abstract fun getAddresses(companyServerIdOrUsername: String): CompanyAddressesResponse
-    abstract fun updateName(updateNameRequest: UpdateNameRequest): SavedCompanyResponse?
-    abstract fun updateMobile(updateMobileRequest: UpdateMobileRequest): SavedCompanyResponse?
-    abstract fun updateLogo(updateLogoRequest: UpdateLogoRequest): SavedCompanyResponse?
-    abstract fun updateUsername(updateUsernameRequest: UpdateUsernameRequest): SavedCompanyResponse?
+    abstract fun updateName(updateCompanyNameRequest: UpdateCompanyNameRequest): SavedCompanyResponse?
+    abstract fun updateMobile(updateCompanyMobileRequest: UpdateCompanyMobileRequest): SavedCompanyResponse?
+    abstract fun updateLogo(updateCompanyLogoRequest: UpdateCompanyLogoRequest): SavedCompanyResponse?
+    abstract fun updateUsername(updateCompanyUsernameRequest: UpdateCompanyUsernameRequest): SavedCompanyResponse?
+    abstract fun updateCategoryGroup(request: UpdateCompanyCategoryGroupRequest): SavedCompanyResponse?
 }

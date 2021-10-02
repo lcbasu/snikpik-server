@@ -32,23 +32,28 @@ class CompanyController {
 //    }
 
     @RequestMapping(value = ["/updateUsername"], method = [RequestMethod.POST])
-    fun updateUsername(@RequestBody updateUsernameRequest: UpdateUsernameRequest): SavedCompanyResponse? {
-        return companyService.updateUsername(updateUsernameRequest)
+    fun updateUsername(@RequestBody updateCompanyUsernameRequest: UpdateCompanyUsernameRequest): SavedCompanyResponse? {
+        return companyService.updateUsername(updateCompanyUsernameRequest)
     }
 
     @RequestMapping(value = ["/updateName"], method = [RequestMethod.POST])
-    fun updateName(@RequestBody updateNameRequest: UpdateNameRequest): SavedCompanyResponse? {
-        return companyService.updateName(updateNameRequest)
+    fun updateName(@RequestBody updateCompanyNameRequest: UpdateCompanyNameRequest): SavedCompanyResponse? {
+        return companyService.updateName(updateCompanyNameRequest)
     }
 
     @RequestMapping(value = ["/updateMobile"], method = [RequestMethod.POST])
-    fun updateMobile(@RequestBody updateMobileRequest: UpdateMobileRequest): SavedCompanyResponse? {
-        return companyService.updateMobile(updateMobileRequest)
+    fun updateMobile(@RequestBody updateCompanyMobileRequest: UpdateCompanyMobileRequest): SavedCompanyResponse? {
+        return companyService.updateMobile(updateCompanyMobileRequest)
+    }
+
+    @RequestMapping(value = ["/updateCategoryGroup"], method = [RequestMethod.POST])
+    fun updateCategoryGroup(@RequestBody request: UpdateCompanyCategoryGroupRequest): SavedCompanyResponse? {
+        return companyService.updateCategoryGroup(request)
     }
 
     @RequestMapping(value = ["/updateLogo"], method = [RequestMethod.POST])
-    fun updateLogo(@RequestBody updateLogoRequest: UpdateLogoRequest): SavedCompanyResponse? {
-        return companyService.updateLogo(updateLogoRequest)
+    fun updateLogo(@RequestBody updateCompanyLogoRequest: UpdateCompanyLogoRequest): SavedCompanyResponse? {
+        return companyService.updateLogo(updateCompanyLogoRequest)
     }
 
     @RequestMapping(value = ["/takeShopOffline"], method = [RequestMethod.POST])

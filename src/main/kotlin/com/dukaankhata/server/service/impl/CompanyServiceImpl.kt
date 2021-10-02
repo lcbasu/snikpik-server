@@ -136,52 +136,62 @@ class CompanyServiceImpl : CompanyService() {
         TODO("Not yet implemented")
     }
 
-    override fun updateName(updateNameRequest: UpdateNameRequest): SavedCompanyResponse? {
-        if (updateNameRequest.newName.trim().isBlank()) {
+    override fun updateName(updateCompanyNameRequest: UpdateCompanyNameRequest): SavedCompanyResponse? {
+        if (updateCompanyNameRequest.newName.trim().isBlank()) {
             error("Invalid name provided for the company");
         }
         val requestContext = authProvider.validateRequest(
-            companyServerIdOrUsername = updateNameRequest.companyId,
+            companyServerIdOrUsername = updateCompanyNameRequest.companyId,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company is required")
-        val updatedCompany = companyProvider.updateName(company, updateNameRequest) ?: error("Company update failed")
+        val updatedCompany = companyProvider.updateName(company, updateCompanyNameRequest) ?: error("Company update failed")
         return updatedCompany.toSavedCompanyResponse()
     }
 
-    override fun updateMobile(updateMobileRequest: UpdateMobileRequest): SavedCompanyResponse? {
+    override fun updateMobile(updateCompanyMobileRequest: UpdateCompanyMobileRequest): SavedCompanyResponse? {
         val requestContext = authProvider.validateRequest(
-            companyServerIdOrUsername = updateMobileRequest.companyId,
+            companyServerIdOrUsername = updateCompanyMobileRequest.companyId,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company is required")
-        val updatedCompany = companyProvider.updateMobile(company, updateMobileRequest) ?: error("Company update failed")
+        val updatedCompany = companyProvider.updateMobile(company, updateCompanyMobileRequest) ?: error("Company update failed")
         return updatedCompany.toSavedCompanyResponse()
     }
 
-    override fun updateLogo(updateLogoRequest: UpdateLogoRequest): SavedCompanyResponse? {
+    override fun updateLogo(updateCompanyLogoRequest: UpdateCompanyLogoRequest): SavedCompanyResponse? {
         val requestContext = authProvider.validateRequest(
-            companyServerIdOrUsername = updateLogoRequest.companyId,
+            companyServerIdOrUsername = updateCompanyLogoRequest.companyId,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company is required")
-        val updatedCompany = companyProvider.updateLogo(company, updateLogoRequest) ?: error("Company update failed")
+        val updatedCompany = companyProvider.updateLogo(company, updateCompanyLogoRequest) ?: error("Company update failed")
         return updatedCompany.toSavedCompanyResponse()
     }
 
-    override fun updateUsername(updateUsernameRequest: UpdateUsernameRequest): SavedCompanyResponse? {
+    override fun updateUsername(updateCompanyUsernameRequest: UpdateCompanyUsernameRequest): SavedCompanyResponse? {
         val requestContext = authProvider.validateRequest(
-            companyServerIdOrUsername = updateUsernameRequest.companyId,
+            companyServerIdOrUsername = updateCompanyUsernameRequest.companyId,
             requiredRoleTypes = authProvider.onlyAdminLevelRoles()
         )
         val company = requestContext.company ?: error("Company is required")
 
-        val isAvailable = companyProvider.isUsernameAvailable(updateUsernameRequest.newUsername)
+        val isAvailable = companyProvider.isUsernameAvailable(updateCompanyUsernameRequest.newUsername)
 
         if (isAvailable) {
-            val updatedCompany = companyProvider.saveUsername(requestContext.user, company, updateUsernameRequest.newUsername) ?: error("Saving username failed")
+            val updatedCompany = companyProvider.saveUsername(requestContext.user, company, updateCompanyUsernameRequest.newUsername) ?: error("Saving username failed")
             return updatedCompany.toSavedCompanyResponse()
         }
         return company.toSavedCompanyResponse()
+    }
+
+    override fun updateCategoryGroup(request: UpdateCompanyCategoryGroupRequest): SavedCompanyResponse? {
+        val requestContext = authProvider.validateRequest(
+            companyServerIdOrUsername = request.companyId,
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
+        )
+        val company = requestContext.company ?: error("Company is required")
+        val updatedCompany = companyProvider.updateCategory(company, request) ?: error("Company update failed")
+        return updatedCompany.toSavedCompanyResponse()
     }
 }

@@ -2,11 +2,9 @@ package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.CompanyRepository
 import com.dukaankhata.server.dao.CompanyUsernameRepository
-import com.dukaankhata.server.dto.SaveCompanyRequest
-import com.dukaankhata.server.dto.UpdateLogoRequest
-import com.dukaankhata.server.dto.UpdateMobileRequest
-import com.dukaankhata.server.dto.UpdateNameRequest
+import com.dukaankhata.server.dto.*
 import com.dukaankhata.server.entities.*
+import com.dukaankhata.server.enums.CategoryGroup
 import com.dukaankhata.server.enums.DKShopStatus
 import com.dukaankhata.server.enums.ReadableIdPrefix
 import com.dukaankhata.server.model.convertToString
@@ -179,9 +177,9 @@ class CompanyProvider {
         }
     }
 
-    fun updateName(company: Company, updateNameRequest: UpdateNameRequest): Company? {
+    fun updateName(company: Company, updateCompanyNameRequest: UpdateCompanyNameRequest): Company? {
         return try {
-            company.name = updateNameRequest.newName
+            company.name = updateCompanyNameRequest.newName
             return companyRepository.save(company)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -189,10 +187,10 @@ class CompanyProvider {
         }
     }
 
-    fun updateMobile(company: Company, updateMobileRequest: UpdateMobileRequest): Company? {
+    fun updateMobile(company: Company, updateCompanyMobileRequest: UpdateCompanyMobileRequest): Company? {
         return try {
-            company.absoluteMobile = updateMobileRequest.absoluteMobile
-            company.countryCode = updateMobileRequest.countryCode
+            company.absoluteMobile = updateCompanyMobileRequest.absoluteMobile
+            company.countryCode = updateCompanyMobileRequest.countryCode
             return companyRepository.save(company)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -200,9 +198,19 @@ class CompanyProvider {
         }
     }
 
-    fun updateLogo(company: Company, updateLogoRequest: UpdateLogoRequest): Company? {
+    fun updateLogo(company: Company, updateCompanyLogoRequest: UpdateCompanyLogoRequest): Company? {
         return try {
-            company.logo = updateLogoRequest.logo.convertToString()
+            company.logo = updateCompanyLogoRequest.logo.convertToString()
+            return companyRepository.save(company)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun updateCategory(company: Company, request: UpdateCompanyCategoryGroupRequest): Company? {
+        return try {
+            company.categoryGroup = CategoryGroup.valueOf(request.newCategoryGroupId.name)
             return companyRepository.save(company)
         } catch (e: Exception) {
             e.printStackTrace()

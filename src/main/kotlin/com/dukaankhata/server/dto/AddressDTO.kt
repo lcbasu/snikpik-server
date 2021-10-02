@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveAddressRequest(
     val name: String = "",
-    val absoluteMobile: String,
-    val countryCode: String,
+    val absoluteMobile: String? = "",
+    val countryCode: String? = "",
     val house: String = "",
     val roadName: String = "",
     val type: String = "",
@@ -23,8 +23,8 @@ data class SaveAddressRequest(
 data class SavedAddressResponse(
     val serverId: String = "",
     val name: String = "",
-    val absoluteMobile: String,
-    val countryCode: String,
+    val absoluteMobile: String? = "",
+    val countryCode: String? = "",
     val house: String = "",
     val roadName: String = "",
     val type: String = "",

@@ -2,10 +2,7 @@ package com.dukaankhata.server.dto
 
 import com.dukaankhata.server.entities.Company
 import com.dukaankhata.server.entities.getLogoDetails
-import com.dukaankhata.server.enums.CategoryGroup
-import com.dukaankhata.server.enums.DKShopStatus
-import com.dukaankhata.server.enums.SalaryPaymentSchedule
-import com.dukaankhata.server.enums.TakeShopOnlineAfter
+import com.dukaankhata.server.enums.*
 import com.dukaankhata.server.model.MediaDetails
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
@@ -15,26 +12,32 @@ data class UsernameAvailableResponse(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class UpdateUsernameRequest(
+data class UpdateCompanyUsernameRequest(
     val companyId: String,
     val newUsername: String,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class UpdateNameRequest(
+data class UpdateCompanyNameRequest(
     val companyId: String,
     val newName: String,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class UpdateMobileRequest(
+data class UpdateCompanyMobileRequest(
     val companyId: String,
     val absoluteMobile: String,
     val countryCode: String,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class UpdateLogoRequest(
+data class UpdateCompanyCategoryGroupRequest(
+    val companyId: String,
+    val newCategoryGroupId: CategoryGroupId,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class UpdateCompanyLogoRequest(
     val companyId: String,
     val logo: MediaDetails,
 )
