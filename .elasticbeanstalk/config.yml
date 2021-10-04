@@ -8,8 +8,7 @@ environment-defaults:
 global:
   application_name: dukaankhata-eb-prod-app
   default_ec2_keyname: dukaankhata-eb-prod
-  default_platform: arn:aws:elasticbeanstalk:ap-south-1::platform/Java 8 running on
-    64bit Amazon Linux/2.11.12
+  default_platform: arn:aws:elasticbeanstalk:ap-south-1::platform/Corretto 11 running on 64bit Amazon Linux 2/3.2.6
   default_region: ap-south-1
   include_git_submodules: false
   instance_profile: null
