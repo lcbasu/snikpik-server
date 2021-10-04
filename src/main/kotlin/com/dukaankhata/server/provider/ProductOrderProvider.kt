@@ -370,8 +370,7 @@ class ProductOrderProvider {
         val cartItems = cartItemProvider.getCartItems(productOrder).filterNot { it.totalUnits == 0L }
         val requestedCartItems = productOrderUpdateRequest.newCartUpdates.keys
         val presentCartItems = cartItems.map { it.id }.toSet()
-        return requestedCartItems.size == presentCartItems.size &&
-                presentCartItems.containsAll(requestedCartItems)
+        return presentCartItems.containsAll(requestedCartItems)
     }
 
     private fun isDeliveryChargeUpdateValid(productOrder: ProductOrder, productOrderUpdateRequest: ProductOrderUpdateBySellerRequest): Boolean {
