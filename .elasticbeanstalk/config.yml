@@ -1,6 +1,6 @@
 branch-defaults:
   master:
-    environment: dukaankhata-eb-prod-app-env-prod
+    environment: dk-eb-env-prod
 environment-defaults:
   WhatsappSurvey-env:
     branch: null

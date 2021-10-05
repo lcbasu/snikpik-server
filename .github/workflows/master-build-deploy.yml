@@ -47,7 +47,7 @@ jobs:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: dukaankhata-eb-prod-app
-          environment_name: dukaankhata-eb-prod-app-env-prod
+          environment_name: dk-eb-env-prod
           version_label: "${{ steps.time.outputs.time }}"
           region: ap-south-1
           deployment_package: release.zip
