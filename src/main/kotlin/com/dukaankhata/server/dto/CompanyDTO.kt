@@ -91,6 +91,9 @@ data class SavedCompanyResponse(
     val dkShopStatus: DKShopStatus,
     val username: String,
     val totalOrderAmountInPaisa: Long,
+    var totalStoreClickCount: Long,
+    var totalUnitsOrdersCount: Long,
+    var totalProductsClickCount: Long,
     val totalStoreViewCount: Long,
     val totalOrdersCount: Long,
     val totalProductsViewCount: Long,
@@ -139,7 +142,10 @@ fun Company.toSavedCompanyResponse(): SavedCompanyResponse {
             },
             countryCode = countryCode,
             absoluteMobile = absoluteMobile,
-            logo = getLogoDetails()
+            logo = getLogoDetails(),
+            totalStoreClickCount = totalStoreClickCount ?: 0,
+            totalUnitsOrdersCount = totalUnitsOrdersCount ?: 0,
+            totalProductsClickCount = totalProductsClickCount ?: 0,
         )
     }
 }

@@ -198,10 +198,7 @@ class AuthProvider {
         var company: Company? = null
         var userRoles: List<UserRole> = emptyList()
         if (companyServerIdOrUsername != null && companyServerIdOrUsername.isNotBlank()) {
-            company = companyProvider.getCompany(companyServerIdOrUsername) ?:
-            companyProvider.getCompanyByUsername(companyServerIdOrUsername) ?:
-            error("Company is required!")
-
+            company = companyProvider.getCompanyByServerIdOrUsername(companyServerIdOrUsername) ?: error("Company is required!")
             if (requiredRoleTypes.isNotEmpty()) {
                 userRoles = userRoleProvider.getUserRolesForUserAndCompany(
                     user = requestingUser,

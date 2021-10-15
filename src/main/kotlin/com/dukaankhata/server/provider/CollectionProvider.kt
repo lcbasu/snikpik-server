@@ -4,9 +4,8 @@ import AllCollectionsWithProductsRaw
 import CollectionWithProductsRaw
 import com.dukaankhata.server.dao.CollectionRepository
 import com.dukaankhata.server.dto.*
+import com.dukaankhata.server.entities.*
 import com.dukaankhata.server.entities.Collection
-import com.dukaankhata.server.entities.Company
-import com.dukaankhata.server.entities.User
 import com.dukaankhata.server.enums.ReadableIdPrefix
 import com.dukaankhata.server.model.convertToString
 import kotlinx.coroutines.async
@@ -120,4 +119,72 @@ class CollectionProvider {
                 products = products
             )
         }
+
+    fun increaseClick(savedEntityTracking: EntityTracking) {
+        val collection = savedEntityTracking.collection ?: return
+        try {
+            collection.totalClicksCount = (collection.totalClicksCount ?: 0) + 1
+            collectionRepository.save(collection)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun increaseView(savedEntityTracking: EntityTracking) {
+        val collection = savedEntityTracking.collection ?: return
+        try {
+            collection.totalViewsCount = (collection.totalViewsCount ?: 0) + 1
+            collectionRepository.save(collection)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun increaseProductCollectionsClick(savedEntityTracking: EntityTracking) {
+        val product = savedEntityTracking.product ?: return
+        val collections = product.productCollections
+        if (collections.isEmpty()) return
+        try {
+            val updatedCollections = collections.map {
+                val col = it.collection
+                col?.totalProductsClickCount = (it.collection?.totalProductsClickCount ?: 0) + 1
+                col
+            }
+            collectionRepository.saveAll(updatedCollections)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun increaseProductCollectionsView(savedEntityTracking: EntityTracking) {
+        val product = savedEntityTracking.product ?: return
+        val collections = product.productCollections
+        if (collections.isEmpty()) return
+        try {
+            val updatedCollections = collections.map {
+                val col = it.collection
+                col?.totalProductsViewCount = (it.collection?.totalProductsViewCount ?: 0) + 1
+                col
+            }
+            collectionRepository.saveAll(updatedCollections)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun updateOrderDetails(productOrder: ProductOrder) {
+        val collections = productCollectionProvider.getProductCollections(collectionIds = emptySet(), productIds = productOrder.cartItems.mapNotNull { it.product }.map { it.id }.toSet())
+        try {
+            val updatedCols = collections.map {
+                val col = it.collection ?: error("Collection has to be present")
+                col.totalOrdersCount = (col.totalOrdersCount ?: 0) + 1
+                col.totalOrderAmountInPaisa = (col.totalOrderAmountInPaisa ?: 0) + productOrder.totalPricePayableInPaisa
+                col.totalUnitsOrdersCount = (col.totalUnitsOrdersCount ?: 0) + productOrder.cartItems.sumBy { it.totalUnits.toInt() }
+                col
+            }
+            collectionRepository.saveAll(updatedCols)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 }

@@ -36,10 +36,19 @@ class ProductOrderProvider {
     private lateinit var productVariantProvider: ProductVariantProvider
 
     @Autowired
+    private lateinit var productProvider: ProductProvider
+
+    @Autowired
     private lateinit var productCollectionProvider: ProductCollectionProvider
 
     @Autowired
     private lateinit var productOrderStateChangeProvider: ProductOrderStateChangeProvider
+
+    @Autowired
+    private lateinit var companyProvider: CompanyProvider
+
+    @Autowired
+    private lateinit var collectionProvider: CollectionProvider
 
     fun saveProductOrder(productOrder: ProductOrder): ProductOrder {
         val savedProductOrder = productOrderRepository.save(productOrder)
@@ -127,7 +136,9 @@ class ProductOrderProvider {
         if (productOrderUser.id != user.id) {
             error("Requesting user is not the same as the ordered user")
         }
-        return transitionStateTo(productOrder, ProductOrderStatus.PLACED)
+        val updatedProductOrder = transitionStateTo(productOrder, ProductOrderStatus.PLACED)
+        updateDependentModels(updatedProductOrder)
+        return updatedProductOrder
     }
 
     fun getIsOrderTransitionPossible(productOrder: ProductOrder, newStatus: ProductOrderStatus): OrderStateTransitionOutput {
@@ -576,5 +587,12 @@ class ProductOrderProvider {
         } else {
             error(isOrderTransitionPossible.errorMessage)
         }
+    }
+
+    fun updateDependentModels(productOrder: ProductOrder) {
+        companyProvider.updateOrderDetails(productOrder)
+        productProvider.updateOrderDetails(productOrder)
+        productVariantProvider.updateOrderDetails(productOrder)
+        collectionProvider.updateOrderDetails(productOrder)
     }
 }

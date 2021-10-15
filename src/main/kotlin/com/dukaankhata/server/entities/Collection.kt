@@ -14,6 +14,11 @@ class Collection : Auditable() {
 
     var totalOrderAmountInPaisa: Long? = 0
     var totalViewsCount: Long? = 0
+    var totalClicksCount: Long? = 0
+    var totalOrdersCount: Long? = 0
+    var totalProductsViewCount: Long? = 0
+    var totalProductsClickCount: Long? = 0
+    var totalUnitsOrdersCount: Long? = 0
 
     // Keeping Company reference in all the models
     @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)

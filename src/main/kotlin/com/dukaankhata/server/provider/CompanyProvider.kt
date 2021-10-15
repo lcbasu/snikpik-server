@@ -125,6 +125,10 @@ class CompanyProvider {
         }
     }
 
+    fun getCompanyByServerIdOrUsername(companyServerIdOrUsername: String): Company? {
+        return getCompany(companyServerIdOrUsername) ?: getCompanyByUsername(companyServerIdOrUsername)
+    }
+
     fun isUsernameAvailable(username: String): Boolean {
         return try {
             if (username.length < MIN_USERNAME_LENGTH) {
@@ -215,6 +219,60 @@ class CompanyProvider {
         } catch (e: Exception) {
             e.printStackTrace()
             null
+        }
+    }
+
+    fun increaseClick(savedEntityTracking: EntityTracking) {
+        val company = savedEntityTracking.company ?: return
+        try {
+            company.totalStoreClickCount = (company.totalStoreClickCount ?: 0) + 1
+            companyRepository.save(company)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun increaseView(savedEntityTracking: EntityTracking) {
+        val company = savedEntityTracking.company ?: return
+        try {
+            company.totalStoreViewCount = (company.totalStoreViewCount ?: 0) + 1
+            companyRepository.save(company)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun increaseCompanyProductClick(savedEntityTracking: EntityTracking) {
+        val product = savedEntityTracking.product ?: return
+        val company = product.company ?: return
+        try {
+            company.totalProductsClickCount = (company.totalProductsClickCount ?: 0) + 1
+            companyRepository.save(company)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun increaseCompanyProductView(savedEntityTracking: EntityTracking) {
+        val product = savedEntityTracking.product ?: return
+        val company = product.company ?: return
+        try {
+            company.totalProductsViewCount = (company.totalProductsViewCount ?: 0) + 1
+            companyRepository.save(company)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun updateOrderDetails(productOrder: ProductOrder) {
+        val company = productOrder.company ?: error("Company is required")
+        try {
+            company.totalOrderAmountInPaisa = (company.totalOrderAmountInPaisa ?: 0) + productOrder.totalPricePayableInPaisa
+            company.totalOrdersCount = (company.totalOrdersCount ?: 0) + 1
+            company.totalUnitsOrdersCount = (company.totalUnitsOrdersCount ?: 0) + productOrder.cartItems.sumBy { it.totalUnits.toInt() }
+            companyRepository.save(company)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

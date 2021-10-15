@@ -17,5 +17,6 @@ enum class ReadableIdPrefix {
     PMT, // Payment
     PVT, // Product Variant
     OSC, // Product Order State Change
+    ETR, // Entity Tracking
 }
 

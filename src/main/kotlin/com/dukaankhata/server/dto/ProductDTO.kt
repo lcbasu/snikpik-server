@@ -41,6 +41,12 @@ data class SavedProductVariantResponse(
     val variantTotalUnitInStock: Long,
     var variantMediaDetails: MediaDetails? = null,
     var variantInfos: VariantInfos?,
+    var totalViewsCount: Long,
+    var totalClicksCount: Long,
+    var totalUnitInStock: Long,
+    var totalOrderAmountInPaisa: Long,
+    var totalUnitsOrdersCount: Long,
+    var totalOrdersCount: Long,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -76,7 +82,14 @@ data class SavedProductResponse(
     val totalUnitInStock: Long = 0,
     var minOrderUnitCount: Long = 0,
     var allProductVariants: List<SavedProductVariantResponse> = emptyList(),
-    val collections: List<SavedCollectionResponse> = emptyList()
+    val collections: List<SavedCollectionResponse> = emptyList(),
+    var totalOrderAmountInPaisa: Long,
+    var totalViewsCount: Long,
+    var totalClicksCount: Long,
+    var totalVariantsViewsCount: Long,
+    var totalVariantsClicksCount: Long,
+    var totalUnitsOrdersCount: Long,
+    var totalOrdersCount: Long,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -146,7 +159,14 @@ fun Product.toSavedProductResponse(): SavedProductResponse {
             productInStock = totalUnitInStock > 0, // TODO: Store this as a Seller level input in DB so that they can update this (productInStock) flag
             minOrderUnitCount = minOrderUnitCount,
             allProductVariants = productVariants.map { it.toSavedProductVariant() },
-            collections = productCollections.mapNotNull { it.collection?.toSavedCollectionResponse() }
+            collections = productCollections.mapNotNull { it.collection?.toSavedCollectionResponse() },
+            totalOrderAmountInPaisa = totalOrderAmountInPaisa ?: 0,
+            totalViewsCount = totalViewsCount ?: 0,
+            totalClicksCount = totalClicksCount ?: 0,
+            totalVariantsViewsCount = totalVariantsViewsCount ?: 0,
+            totalVariantsClicksCount = totalVariantsClicksCount ?: 0,
+            totalUnitsOrdersCount = totalUnitsOrdersCount ?: 0,
+            totalOrdersCount = totalOrdersCount ?: 0,
         )
     }
 }
@@ -162,7 +182,13 @@ fun ProductVariant.toSavedProductVariant(): SavedProductVariantResponse {
             variantSellingPricePerUnitInPaisa = sellingPricePerUnitInPaisa,
             variantTotalUnitInStock = totalUnitInStock,
             variantMediaDetails = getMediaDetails(),
-            variantInfos = getVariantInfos()
+            variantInfos = getVariantInfos(),
+            totalViewsCount = totalViewsCount ?: 0,
+            totalClicksCount = totalClicksCount ?: 0,
+            totalUnitInStock = totalUnitInStock,
+            totalOrderAmountInPaisa = totalOrderAmountInPaisa ?: 0,
+            totalUnitsOrdersCount = totalUnitsOrdersCount ?: 0,
+            totalOrdersCount = totalOrdersCount ?: 0,
         )
     }
 }

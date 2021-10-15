@@ -26,6 +26,12 @@ class ProductProvider {
     @Autowired
     private lateinit var productVariantProvider: ProductVariantProvider
 
+    @Autowired
+    private lateinit var companyProvider: CompanyProvider
+
+    @Autowired
+    private lateinit var collectionProvider: CollectionProvider
+
     fun getProducts(productIds: Set<String>): List<Product?> =
         try {
             productRepository.findAllById(productIds)
@@ -125,6 +131,68 @@ class ProductProvider {
                     it.await()
                 }
             )
+        }
+    }
+
+    fun increaseClick(savedEntityTracking: EntityTracking) {
+        val product = savedEntityTracking.product ?: return
+        try {
+            product.totalClicksCount = (product.totalClicksCount ?: 0) + 1
+            productRepository.save(product)
+            companyProvider.increaseCompanyProductClick(savedEntityTracking)
+            collectionProvider.increaseProductCollectionsClick(savedEntityTracking)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun increaseView(savedEntityTracking: EntityTracking) {
+        val product = savedEntityTracking.product ?: return
+        try {
+            product.totalViewsCount = (product.totalViewsCount ?: 0) + 1
+            productRepository.save(product)
+            companyProvider.increaseCompanyProductView(savedEntityTracking)
+            collectionProvider.increaseProductCollectionsView(savedEntityTracking)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun increaseProductVariantClick(savedEntityTracking: EntityTracking) {
+        val productVariant = savedEntityTracking.productVariant ?: return
+        val product = productVariant.product ?: return
+        try {
+            product.totalVariantsClicksCount = (product.totalVariantsClicksCount ?: 0) + 1
+            productRepository.save(product)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun increaseProductVariantView(savedEntityTracking: EntityTracking) {
+        val productVariant = savedEntityTracking.productVariant ?: return
+        val product = productVariant.product ?: return
+        try {
+            product.totalVariantsViewsCount = (product.totalVariantsViewsCount ?: 0) + 1
+            productRepository.save(product)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun updateOrderDetails(productOrder: ProductOrder) {
+        val products = productOrder.cartItems.mapNotNull { it.product }
+        try {
+            val updatedProducts = products.map {
+                val prod = it
+                prod.totalOrdersCount = (prod.totalOrdersCount ?: 0) + 1
+                prod.totalOrderAmountInPaisa = (prod.totalOrderAmountInPaisa ?: 0) + productOrder.totalPricePayableInPaisa
+                prod.totalUnitsOrdersCount = (prod.totalUnitsOrdersCount ?: 0) + productOrder.cartItems.sumBy { it.totalUnits.toInt() }
+                prod
+            }
+            productRepository.saveAll(updatedProducts)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

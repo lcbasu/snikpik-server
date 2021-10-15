@@ -2,9 +2,7 @@ package com.dukaankhata.server.provider
 
 import com.dukaankhata.server.dao.ProductVariantRepository
 import com.dukaankhata.server.dto.SaveProductVariantRequest
-import com.dukaankhata.server.entities.Company
-import com.dukaankhata.server.entities.Product
-import com.dukaankhata.server.entities.ProductVariant
+import com.dukaankhata.server.entities.*
 import com.dukaankhata.server.enums.ReadableIdPrefix
 import com.dukaankhata.server.model.convertToString
 import convertToString
@@ -19,6 +17,9 @@ class ProductVariantProvider {
 
     @Autowired
     private lateinit var uniqueIdProvider: UniqueIdProvider
+
+    @Autowired
+    private lateinit var productProvider: ProductProvider
 
     fun saveProductVariant(product: Product, allProductVariants: List<SaveProductVariantRequest>) : List<ProductVariant> {
         try {
@@ -83,4 +84,42 @@ class ProductVariantProvider {
         } catch (e: Exception) {
             emptyList()
         }
+
+    fun increaseClick(savedEntityTracking: EntityTracking) {
+        val productVariant = savedEntityTracking.productVariant ?: return
+        try {
+            productVariant.totalClicksCount = (productVariant.totalClicksCount ?: 0) + 1
+            productVariantRepository.save(productVariant)
+            productProvider.increaseProductVariantClick(savedEntityTracking)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun increaseView(savedEntityTracking: EntityTracking) {
+        val productVariant = savedEntityTracking.productVariant ?: return
+        try {
+            productVariant.totalViewsCount = (productVariant.totalViewsCount ?: 0) + 1
+            productVariantRepository.save(productVariant)
+            productProvider.increaseProductVariantView(savedEntityTracking)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun updateOrderDetails(productOrder: ProductOrder) {
+        val productVariants = productOrder.cartItems.mapNotNull { it.productVariant }
+        try {
+            val updatedProductVariants = productVariants.map {
+                val prod = it
+                prod.totalOrdersCount = (prod.totalOrdersCount ?: 0) + 1
+                prod.totalOrderAmountInPaisa = (prod.totalOrderAmountInPaisa ?: 0) + productOrder.totalPricePayableInPaisa
+                prod.totalUnitsOrdersCount = (prod.totalUnitsOrdersCount ?: 0) + productOrder.cartItems.sumBy { it.totalUnits.toInt() }
+                prod
+            }
+            productVariantRepository.saveAll(updatedProductVariants)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 }

@@ -18,7 +18,12 @@ class ProductVariant : Auditable() {
     var originalPricePerUnitInPaisa: Long = 0
     var sellingPricePerUnitInPaisa: Long = 0
 
+    var totalViewsCount: Long? = 0
+    var totalClicksCount: Long? = 0
     var totalUnitInStock: Long = 0
+    var totalOrderAmountInPaisa: Long? = 0
+    var totalUnitsOrdersCount: Long? = 0
+    var totalOrdersCount: Long? = 0
 
     var mediaDetails: String = "" // MediaDetails object -> Multiple Images or videos
     var variantInfos: String = "" // VariantInfos object

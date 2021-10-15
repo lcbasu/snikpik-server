@@ -44,8 +44,11 @@ class Company : Auditable() {
 
     var totalOrderAmountInPaisa: Long? = 0
     var totalStoreViewCount: Long? = 0
+    var totalStoreClickCount: Long? = 0
     var totalOrdersCount: Long? = 0
+    var totalUnitsOrdersCount: Long? = 0
     var totalProductsViewCount: Long? = 0
+    var totalProductsClickCount: Long? = 0
 
     var defaultAddressId: String? = "" // Address table Id
 

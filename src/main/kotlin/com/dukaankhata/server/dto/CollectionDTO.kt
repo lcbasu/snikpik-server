@@ -22,6 +22,13 @@ data class SavedCollectionResponse(
     var title: String,
     var subTitle: String?,
     val mediaDetails: MediaDetails,
+    var totalOrderAmountInPaisa: Long,
+    var totalViewsCount: Long,
+    var totalClicksCount: Long,
+    var totalOrdersCount: Long,
+    var totalProductsViewCount: Long,
+    var totalProductsClickCount: Long,
+    var totalUnitsOrdersCount: Long
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -46,7 +53,14 @@ fun Collection.toSavedCollectionResponse(): SavedCollectionResponse {
             company = company!!.toSavedCompanyResponse(),
             title = title,
             subTitle = subTitle,
-            mediaDetails = getMediaDetails()
+            mediaDetails = getMediaDetails(),
+            totalOrderAmountInPaisa = totalOrderAmountInPaisa ?: 0,
+            totalViewsCount = totalViewsCount ?: 0,
+            totalClicksCount = totalClicksCount ?: 0,
+            totalOrdersCount = totalOrdersCount ?: 0,
+            totalProductsViewCount = totalProductsViewCount ?: 0,
+            totalProductsClickCount = totalProductsClickCount ?: 0,
+            totalUnitsOrdersCount = totalUnitsOrdersCount ?: 0,
         )
     }
 }
