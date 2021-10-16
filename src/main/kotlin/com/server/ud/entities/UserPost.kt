@@ -1,27 +1,27 @@
 package com.server.ud.entities
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable
+//import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute
+//import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey
+//import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable
 import org.springframework.data.annotation.Id
 
-@DynamoDBTable(tableName = "UserPost")
+//@DynamoDBTable(tableName = "UserPost")
 class UserPost(
 
     @Id
     var id: String? = null,
 
-    @DynamoDBHashKey
+//    @DynamoDBHashKey
     var userId: String? = null,
 
 //    @DynamoDBRangeKey
-    @DynamoDBAttribute
+//    @DynamoDBAttribute
     var postedAt: Long? = null,
 
-    @DynamoDBAttribute
+//    @DynamoDBAttribute
     var title: String? = null,
 
-    @DynamoDBAttribute
+//    @DynamoDBAttribute
     var description: String? = null
 
 //    @DynamoDBRangeKey

@@ -3,10 +3,10 @@ package com.server.dk.client
 import com.amazonaws.auth.AWSCredentials
 import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.auth.BasicAWSCredentials
-import com.amazonaws.client.builder.AwsClientBuilder
+//import com.amazonaws.client.builder.AwsClientBuilder
 import com.amazonaws.regions.Regions
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
+//import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
+//import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.server.dk.properties.AwsProperties
@@ -29,19 +29,19 @@ class AwsClients {
             .build()
     }
 
-    @Bean(name = ["amazonDynamoDB"])
-    fun getAWSDynamoDBClient(): AmazonDynamoDB? {
-        return AmazonDynamoDBClientBuilder
-            .standard()
-            .withCredentials(AWSStaticCredentialsProvider(amazonAWSCredentials()))
-            .withEndpointConfiguration(
-                AwsClientBuilder.EndpointConfiguration(
-                    awsProperties.dynamoDb.endpoint,
-                    Regions.AP_SOUTH_1.name
-                )
-            )
-            .build()
-    }
+//    @Bean(name = ["amazonDynamoDB"])
+//    fun getAWSDynamoDBClient(): AmazonDynamoDB? {
+//        return AmazonDynamoDBClientBuilder
+//            .standard()
+//            .withCredentials(AWSStaticCredentialsProvider(amazonAWSCredentials()))
+//            .withEndpointConfiguration(
+//                AwsClientBuilder.EndpointConfiguration(
+//                    awsProperties.dynamoDb.endpoint,
+//                    Regions.AP_SOUTH_1.name
+//                )
+//            )
+//            .build()
+//    }
 
     @Bean
     fun amazonAWSCredentials(): AWSCredentials? {
