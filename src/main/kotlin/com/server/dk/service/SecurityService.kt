@@ -1,0 +1,12 @@
+package com.server.dk.service
+
+import com.server.dk.model.Credentials
+import com.server.dk.model.FirebaseAuthUser
+import javax.servlet.http.HttpServletRequest
+
+open class SecurityService {
+    open fun user(): FirebaseAuthUser? = null
+    open fun credentials(): Credentials? = null
+    open fun isPublic() = false
+    open fun getBearerToken(request: HttpServletRequest?): String = ""
+}

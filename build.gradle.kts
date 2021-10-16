@@ -8,7 +8,7 @@ plugins {
 	kotlin("plugin.spring") version "1.4.21"
 }
 
-group = "com.dukaankhata.server"
+group = "com.server.dk"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
@@ -74,7 +74,7 @@ dependencies {
 	implementation("joda-time:joda-time:2.10.9")
 	implementation("com.github.ben-manes.caffeine:caffeine:2.5.5")
 	implementation("com.amazonaws:aws-java-sdk:1.11.842")
-	implementation("com.github.derjust:spring-data-dynamodb:5.1.0")
+	implementation("io.github.boostchicken:spring-data-dynamodb:5.2.1")
 //	implementation("org.springframework.boot:spring-boot-starter-mail:2.3.8.RELEASE")
 //	implementation("io.sentry:sentry-spring:1.7.30")
 //	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.0")
