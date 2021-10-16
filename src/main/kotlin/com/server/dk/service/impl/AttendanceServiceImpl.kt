@@ -4,7 +4,7 @@ import com.server.dk.dto.*
 import com.server.dk.service.AttendanceService
 import com.server.dk.service.converter.AttendanceServiceConverter
 import com.server.dk.provider.AttendanceProvider
-import com.server.dk.provider.AuthProvider
+import com.server.common.provider.AuthProvider
 import com.server.dk.provider.CacheProvider
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking

@@ -1,9 +1,8 @@
 package com.server.dk.entities
 
 import com.server.dk.enums.PaymentType
-import com.server.dk.utils.DateUtils
+import com.server.common.utils.DateUtils
 import java.time.LocalDateTime
-import java.time.ZoneId
 import javax.persistence.*
 
 @Entity

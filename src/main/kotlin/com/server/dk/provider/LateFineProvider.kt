@@ -1,5 +1,6 @@
 package com.server.dk.provider
 
+import com.server.common.provider.UniqueIdProvider
 import com.server.dk.dao.LateFineRepository
 import com.server.dk.dto.SaveLateFineRequest
 import com.server.dk.dto.SavedLateFineResponse
@@ -9,7 +10,7 @@ import com.server.dk.entities.Employee
 import com.server.dk.entities.LateFine
 import com.server.dk.entities.User
 import com.server.dk.enums.PaymentType
-import com.server.dk.enums.ReadableIdPrefix
+import com.server.common.enums.ReadableIdPrefix
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime

@@ -1,9 +1,10 @@
 package com.server.dk.provider
 
+import com.server.common.provider.UniqueIdProvider
 import com.server.dk.dao.ProductVariantRepository
 import com.server.dk.dto.SaveProductVariantRequest
 import com.server.dk.entities.*
-import com.server.dk.enums.ReadableIdPrefix
+import com.server.common.enums.ReadableIdPrefix
 import com.server.dk.model.convertToString
 import convertToString
 import org.springframework.beans.factory.annotation.Autowired

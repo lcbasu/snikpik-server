@@ -1,7 +1,7 @@
 package com.server.dk.service.impl
 
 import com.server.dk.dto.*
-import com.server.dk.provider.AuthProvider
+import com.server.common.provider.AuthProvider
 import com.server.dk.provider.CollectionProvider
 import com.server.dk.service.CollectionService
 import org.springframework.beans.factory.annotation.Autowired

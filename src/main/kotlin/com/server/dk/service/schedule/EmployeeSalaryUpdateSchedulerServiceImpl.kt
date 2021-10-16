@@ -4,7 +4,7 @@ import com.server.dk.entities.Employee
 import com.server.dk.enums.JobGroupType
 import com.server.dk.enums.SalaryType
 import com.server.dk.jobs.EmployeeSalaryUpdateJob
-import com.server.dk.utils.DateUtils
+import com.server.common.utils.DateUtils
 import org.quartz.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

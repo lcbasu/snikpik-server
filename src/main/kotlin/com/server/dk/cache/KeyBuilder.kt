@@ -1,7 +1,7 @@
 package com.server.dk.cache
 
 import com.server.dk.dto.AttendanceSummaryForEmployeeRequest
-import com.server.dk.utils.CommonUtils.STRING_SEPARATOR
+import com.server.common.utils.CommonUtils.STRING_SEPARATOR
 import org.apache.commons.lang3.StringUtils
 
 object KeyBuilder {

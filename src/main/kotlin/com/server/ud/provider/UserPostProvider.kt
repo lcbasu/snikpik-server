@@ -2,9 +2,9 @@ package com.server.ud.provider
 
 //import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.server.dk.entities.User
-import com.server.dk.enums.ReadableIdPrefix
-import com.server.dk.provider.UniqueIdProvider
-import com.server.dk.utils.DateUtils
+import com.server.common.enums.ReadableIdPrefix
+import com.server.common.provider.UniqueIdProvider
+import com.server.common.utils.DateUtils
 //import com.server.ud.dao.UserPostRepository
 import com.server.ud.dto.SaveUserPostRequest
 import com.server.ud.entities.UserPost

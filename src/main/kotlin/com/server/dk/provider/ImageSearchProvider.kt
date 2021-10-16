@@ -3,7 +3,7 @@ package com.server.dk.provider
 import com.server.dk.dto.ThirdPartyImageSearchResponse
 import com.server.dk.dto.UnsplashImageSearchResponse
 import com.server.dk.dto.toThirdPartyImageSearchResponse
-import com.server.dk.properties.UnsplashProperties
+import com.server.common.properties.UnsplashProperties
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate

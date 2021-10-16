@@ -1,9 +1,9 @@
 import com.server.dk.dto.*
-import com.server.dk.entities.Collection
 import com.server.dk.entities.EntityTracking
 import com.server.dk.entities.getTrackingData
 import com.server.dk.enums.EntityType
-import com.server.dk.enums.TrackingType
+import com.server.common.enums.TrackingType
+import com.server.common.model.TrackingData
 
 data class EntityInteractionRequest(
     var entityType: EntityType,

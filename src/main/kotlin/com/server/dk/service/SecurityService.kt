@@ -1,7 +1,7 @@
 package com.server.dk.service
 
-import com.server.dk.model.Credentials
-import com.server.dk.model.FirebaseAuthUser
+import com.server.common.model.Credentials
+import com.server.common.model.FirebaseAuthUser
 import javax.servlet.http.HttpServletRequest
 
 open class SecurityService {

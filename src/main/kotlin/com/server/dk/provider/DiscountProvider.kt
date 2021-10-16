@@ -1,12 +1,13 @@
 package com.server.dk.provider
 
+import com.server.common.provider.UniqueIdProvider
 import com.server.dk.dao.DiscountRepository
 import com.server.dk.dto.SaveDiscountRequest
 import com.server.dk.entities.Company
 import com.server.dk.entities.Discount
 import com.server.dk.entities.User
-import com.server.dk.enums.ReadableIdPrefix
-import com.server.dk.utils.DateUtils
+import com.server.common.enums.ReadableIdPrefix
+import com.server.common.utils.DateUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 

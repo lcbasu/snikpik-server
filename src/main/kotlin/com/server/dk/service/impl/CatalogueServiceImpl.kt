@@ -3,7 +3,7 @@ package com.server.dk.service.impl
 import com.server.dk.dto.CategoryGroupResponse
 import com.server.dk.dto.CategoryGroupsResponse
 import com.server.dk.enums.CategoryGroup
-import com.server.dk.provider.AuthProvider
+import com.server.common.provider.AuthProvider
 import com.server.dk.service.CatalogueService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service

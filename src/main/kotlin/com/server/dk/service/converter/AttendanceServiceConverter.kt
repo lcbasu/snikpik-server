@@ -6,8 +6,7 @@ import com.server.dk.dto.*
 import com.server.dk.entities.Company
 import com.server.dk.entities.Employee
 import com.server.dk.enums.AttendanceType
-import com.server.dk.utils.DateUtils
-import org.springframework.beans.factory.annotation.Autowired
+import com.server.common.utils.DateUtils
 import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 

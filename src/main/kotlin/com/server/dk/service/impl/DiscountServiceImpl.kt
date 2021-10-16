@@ -4,7 +4,7 @@ import com.server.dk.dto.SaveDiscountRequest
 import com.server.dk.dto.SavedDiscountResponse
 import com.server.dk.dto.toSavedDiscountResponse
 import com.server.dk.service.DiscountService
-import com.server.dk.provider.AuthProvider
+import com.server.common.provider.AuthProvider
 import com.server.dk.provider.DiscountProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service

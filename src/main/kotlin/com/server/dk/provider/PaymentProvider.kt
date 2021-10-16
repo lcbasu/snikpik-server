@@ -3,6 +3,7 @@ package com.server.dk.provider
 import DailyPayment
 import MonthPayment
 import SalaryReversal
+import com.server.common.provider.UniqueIdProvider
 import com.server.dk.dao.PaymentRepository
 import com.server.dk.dto.*
 import com.server.dk.entities.Company
@@ -11,9 +12,9 @@ import com.server.dk.entities.Payment
 import com.server.dk.entities.User
 import com.server.dk.enums.MonthlyPaymentType
 import com.server.dk.enums.PaymentType
-import com.server.dk.enums.ReadableIdPrefix
-import com.server.dk.utils.CommonUtils
-import com.server.dk.utils.DateUtils
+import com.server.common.enums.ReadableIdPrefix
+import com.server.common.utils.CommonUtils
+import com.server.common.utils.DateUtils
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger

@@ -1,12 +1,12 @@
 package com.server.dk.service.impl
 
 import com.server.dk.dto.*
-import com.server.dk.enums.RoleType
+import com.server.common.enums.RoleType
 import com.server.dk.enums.TakeShopOnlineAfter
 import com.server.dk.provider.AddressProvider
-import com.server.dk.provider.AuthProvider
+import com.server.common.provider.AuthProvider
 import com.server.dk.provider.CompanyProvider
-import com.server.dk.provider.UserRoleProvider
+import com.server.common.provider.UserRoleProvider
 import com.server.dk.service.CompanyService
 import com.server.dk.service.schedule.TakeShopOnlineSchedulerService
 import org.springframework.beans.factory.annotation.Autowired

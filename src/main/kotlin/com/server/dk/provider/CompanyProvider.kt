@@ -1,14 +1,15 @@
 package com.server.dk.provider
 
+import com.server.common.provider.UniqueIdProvider
 import com.server.dk.dao.CompanyRepository
 import com.server.dk.dao.CompanyUsernameRepository
 import com.server.dk.dto.*
 import com.server.dk.entities.*
 import com.server.dk.enums.CategoryGroup
 import com.server.dk.enums.DKShopStatus
-import com.server.dk.enums.ReadableIdPrefix
+import com.server.common.enums.ReadableIdPrefix
 import com.server.dk.model.convertToString
-import com.server.dk.utils.CommonUtils
+import com.server.common.utils.CommonUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 

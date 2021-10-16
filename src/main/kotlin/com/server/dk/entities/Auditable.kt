@@ -1,6 +1,6 @@
 package com.server.dk.entities
 
-import com.server.dk.utils.DateUtils
+import com.server.common.utils.DateUtils
 import org.springframework.data.annotation.CreatedBy
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedBy

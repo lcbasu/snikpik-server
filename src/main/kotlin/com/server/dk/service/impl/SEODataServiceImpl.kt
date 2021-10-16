@@ -1,5 +1,6 @@
 package com.server.dk.service.impl
 
+import com.server.common.provider.AuthProvider
 import com.server.dk.dto.SavedProductResponse
 import com.server.dk.dto.ShopViewForCustomerResponse
 import com.server.dk.dto.toSavedProductResponse

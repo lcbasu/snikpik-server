@@ -4,9 +4,9 @@ import com.server.dk.entities.Attendance
 import com.server.dk.entities.AttendanceByAdmin
 import com.server.dk.enums.AttendanceType
 import com.server.dk.enums.PunchType
-import com.server.dk.enums.SelfieType
+import com.server.common.enums.SelfieType
 import com.server.dk.enums.ValueUnitType
-import com.server.dk.utils.DateUtils
+import com.server.common.utils.DateUtils
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)

@@ -3,8 +3,8 @@ package com.server.dk.service.impl
 import com.server.dk.dto.*
 import com.server.dk.service.UserService
 import com.server.dk.provider.AddressProvider
-import com.server.dk.provider.AuthProvider
-import com.server.dk.provider.UserRoleProvider
+import com.server.common.provider.AuthProvider
+import com.server.common.provider.UserRoleProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 

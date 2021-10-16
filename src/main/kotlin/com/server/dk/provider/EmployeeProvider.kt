@@ -2,6 +2,7 @@ package com.server.dk.provider
 
 import AttendanceReportForEmployee
 import EmployeeWorkingDetailsForMonthWithDate
+import com.server.common.enums.ReadableIdPrefix
 import com.server.dk.dao.EmployeeRepository
 import com.server.dk.dto.RemoveEmployeeRequest
 import com.server.dk.dto.SalarySlipResponse
@@ -13,10 +14,11 @@ import com.server.dk.entities.Payment
 import com.server.dk.entities.User
 import com.server.dk.enums.*
 import com.server.dk.model.SalarySlipForHTML
-import com.server.dk.properties.PdfProperties
+import com.server.common.properties.PdfProperties
+import com.server.common.provider.UniqueIdProvider
 import com.server.dk.service.PdfService
-import com.server.dk.utils.CloudUploadDownloadUtils
-import com.server.dk.utils.DateUtils
+import com.server.common.utils.CloudUploadDownloadUtils
+import com.server.common.utils.DateUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

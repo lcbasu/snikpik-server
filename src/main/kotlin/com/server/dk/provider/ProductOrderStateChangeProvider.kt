@@ -1,12 +1,13 @@
 package com.server.dk.provider
 
+import com.server.common.provider.UniqueIdProvider
 import com.server.dk.dao.ProductOrderStateChangeRepository
 import com.server.dk.entities.ProductOrder
 import com.server.dk.entities.ProductOrderStateChange
-import com.server.dk.enums.ReadableIdPrefix
+import com.server.common.enums.ReadableIdPrefix
 import com.server.dk.model.ProductOrderStateChangeData
 import com.server.dk.model.convertToString
-import com.server.dk.utils.DateUtils
+import com.server.common.utils.DateUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 

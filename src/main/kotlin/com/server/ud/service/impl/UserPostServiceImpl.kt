@@ -1,6 +1,6 @@
 package com.server.ud.service.impl
 
-import com.server.dk.provider.AuthProvider
+import com.server.common.provider.AuthProvider
 import com.server.ud.dto.SaveUserPostRequest
 import com.server.ud.dto.SavedUserPostResponse
 import com.server.ud.dto.toSavedUserPostResponse

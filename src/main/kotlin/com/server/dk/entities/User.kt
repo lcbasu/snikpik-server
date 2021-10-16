@@ -1,6 +1,6 @@
 package com.server.dk.entities
 
-import com.server.dk.enums.NotificationTokenProvider
+import com.server.common.enums.NotificationTokenProvider
 import javax.persistence.*
 
 @Entity

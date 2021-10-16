@@ -1,15 +1,14 @@
 package com.server.dk.provider
 
 import EntityInteractionRequest
+import com.server.common.enums.ReadableIdPrefix
+import com.server.common.enums.TrackingType
+import com.server.common.model.convertToString
+import com.server.common.provider.AuthProvider
+import com.server.common.provider.UniqueIdProvider
 import com.server.dk.dao.EntityTrackingRepository
-import com.server.dk.dto.*
-import com.server.dk.entities.*
+import com.server.dk.entities.EntityTracking
 import com.server.dk.enums.EntityType
-import com.server.dk.enums.ProductStatus
-import com.server.dk.enums.ReadableIdPrefix
-import com.server.dk.enums.TrackingType
-import com.server.dk.model.convertToString
-import convertToString
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 

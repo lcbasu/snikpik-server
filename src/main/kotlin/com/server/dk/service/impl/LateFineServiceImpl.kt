@@ -3,7 +3,7 @@ package com.server.dk.service.impl
 import com.server.dk.dto.SaveLateFineRequest
 import com.server.dk.dto.SavedLateFineResponse
 import com.server.dk.service.LateFineService
-import com.server.dk.provider.AuthProvider
+import com.server.common.provider.AuthProvider
 import com.server.dk.provider.LateFineProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service

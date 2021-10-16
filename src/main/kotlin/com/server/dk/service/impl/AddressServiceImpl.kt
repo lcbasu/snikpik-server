@@ -4,7 +4,7 @@ import com.server.dk.dto.SaveAddressRequest
 import com.server.dk.dto.SavedAddressResponse
 import com.server.dk.dto.toSavedAddressResponse
 import com.server.dk.provider.AddressProvider
-import com.server.dk.provider.AuthProvider
+import com.server.common.provider.AuthProvider
 import com.server.dk.service.AddressService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service

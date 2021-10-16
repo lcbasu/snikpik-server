@@ -1,9 +1,9 @@
 package com.server.dk.service.impl
 
+import com.server.common.provider.AuthProvider
 import com.server.dk.dto.*
 import com.server.dk.provider.*
 import com.server.dk.service.CustomerService
-import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 

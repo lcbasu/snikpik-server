@@ -7,7 +7,7 @@ import com.server.dk.entities.ExtraChargeTax
 import com.server.dk.entities.ExtraChargeTaxKey
 import com.server.dk.entities.User
 import com.server.dk.enums.TaxType
-import com.server.dk.utils.DateUtils
+import com.server.common.utils.DateUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 

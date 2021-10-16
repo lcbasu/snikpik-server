@@ -4,7 +4,7 @@ import com.server.dk.entities.Company
 import com.server.dk.enums.JobGroupType
 import com.server.dk.enums.TakeShopOnlineAfter
 import com.server.dk.jobs.TakeShopOnlineJob
-import com.server.dk.utils.DateUtils
+import com.server.common.utils.DateUtils
 import org.quartz.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

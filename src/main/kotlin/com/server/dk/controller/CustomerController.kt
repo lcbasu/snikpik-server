@@ -1,7 +1,7 @@
 package com.server.dk.controller
 
 import com.server.dk.dto.*
-import com.server.dk.provider.AuthProvider
+import com.server.common.provider.AuthProvider
 import com.server.dk.service.CustomerService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*

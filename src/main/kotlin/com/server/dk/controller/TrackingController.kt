@@ -2,7 +2,7 @@ package com.server.dk.controller
 
 import EntityInteractionRequest
 import SavedEntityTrackingResponse
-import com.server.dk.provider.AuthProvider
+import com.server.common.provider.AuthProvider
 import com.server.dk.service.TrackingService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestBody

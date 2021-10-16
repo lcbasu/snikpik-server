@@ -3,7 +3,7 @@ package com.server.dk.service.impl
 import com.server.dk.dto.SaveOvertimeRequest
 import com.server.dk.dto.SavedOvertimeResponse
 import com.server.dk.service.OvertimeService
-import com.server.dk.provider.AuthProvider
+import com.server.common.provider.AuthProvider
 import com.server.dk.provider.OvertimeProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service

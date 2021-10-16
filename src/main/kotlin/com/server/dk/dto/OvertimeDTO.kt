@@ -2,7 +2,7 @@ package com.server.dk.dto
 
 import com.server.dk.entities.Overtime
 import com.server.dk.entities.Payment
-import com.server.dk.utils.DateUtils
+import com.server.common.utils.DateUtils
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)

@@ -6,7 +6,7 @@ import com.server.dk.entities.getMediaDetails
 import com.server.dk.entities.orderUpdatable
 import com.server.dk.enums.*
 import com.server.dk.model.*
-import com.server.dk.utils.DateUtils
+import com.server.common.utils.DateUtils
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)

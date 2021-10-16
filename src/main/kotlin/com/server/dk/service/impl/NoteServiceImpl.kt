@@ -4,7 +4,7 @@ import com.server.dk.dto.SaveNoteRequest
 import com.server.dk.dto.SavedNoteResponse
 import com.server.dk.dto.toSavedNoteResponse
 import com.server.dk.service.NoteService
-import com.server.dk.provider.AuthProvider
+import com.server.common.provider.AuthProvider
 import com.server.dk.provider.NoteProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service

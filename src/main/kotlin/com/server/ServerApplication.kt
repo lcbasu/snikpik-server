@@ -1,14 +1,11 @@
 package com.server
 
-import com.server.dk.properties.*
+import com.server.common.properties.*
 //import org.socialsignin.spring.data.dynamodb.repository.EnableScan
 //import org.socialsignin.spring.data.dynamodb.repository.config.EnableDynamoDBRepositories
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
-import org.springframework.context.annotation.ComponentScan
-import org.springframework.context.annotation.FilterType
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import springfox.documentation.swagger2.annotations.EnableSwagger2
 
 @SpringBootApplication

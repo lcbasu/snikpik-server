@@ -1,10 +1,11 @@
 package com.server.dk.provider
 
+import com.server.common.provider.UniqueIdProvider
 import com.server.dk.dao.ProductRepository
 import com.server.dk.dto.*
 import com.server.dk.entities.*
 import com.server.dk.enums.ProductStatus
-import com.server.dk.enums.ReadableIdPrefix
+import com.server.common.enums.ReadableIdPrefix
 import com.server.dk.model.convertToString
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking

@@ -1,6 +1,6 @@
 package com.server.dk.controller
 
-import com.server.dk.provider.UniqueIdProvider
+import com.server.common.provider.UniqueIdProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping

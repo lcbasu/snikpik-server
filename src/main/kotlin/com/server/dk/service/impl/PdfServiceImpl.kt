@@ -2,7 +2,7 @@ package com.server.dk.service.impl
 
 import com.server.dk.model.Student
 import com.server.dk.service.PdfService
-import com.server.dk.utils.DateUtils
+import com.server.common.utils.DateUtils
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking

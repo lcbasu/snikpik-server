@@ -1,11 +1,12 @@
 package com.server.dk.provider
 
+import com.server.common.provider.UniqueIdProvider
 import com.server.dk.dao.AddressRepository
 import com.server.dk.dao.CompanyAddressRepository
 import com.server.dk.dao.UserAddressRepository
 import com.server.dk.dto.SaveAddressRequest
 import com.server.dk.entities.*
-import com.server.dk.enums.ReadableIdPrefix
+import com.server.common.enums.ReadableIdPrefix
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
