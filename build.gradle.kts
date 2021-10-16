@@ -18,11 +18,20 @@ configurations {
 	}
 }
 
+//dependencyManagement {
+//	imports {
+//		mavenBom(group: "org.springframework.data", name: 'spring-data-releasetrain', version: 'Neumann-SR9', ext: 'pom')
+//	}
+//}
+
 repositories {
 	mavenCentral()
 }
 
 dependencies {
+
+
+	implementation(group = "org.springframework.data", name = "spring-data-releasetrain", version = "Neumann-SR9", ext = "pom")
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools:2.3.8.RELEASE")
 	implementation("io.springfox:springfox-swagger-ui:2.9.2")
@@ -64,7 +73,8 @@ dependencies {
 	implementation("org.hibernate.validator:hibernate-validator:6.1.5.Final")
 	implementation("joda-time:joda-time:2.10.9")
 	implementation("com.github.ben-manes.caffeine:caffeine:2.5.5")
-	implementation("com.amazonaws:aws-java-sdk:1.11.1000")
+	implementation("com.amazonaws:aws-java-sdk:1.11.842")
+	implementation("com.github.derjust:spring-data-dynamodb:5.1.0")
 //	implementation("org.springframework.boot:spring-boot-starter-mail:2.3.8.RELEASE")
 //	implementation("io.sentry:sentry-spring:1.7.30")
 //	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.0")
