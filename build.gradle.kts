@@ -34,8 +34,7 @@ dependencies {
 //	implementation(group = "org.springframework.data", name = "spring-data-releasetrain", version = "Neumann-SR9", ext = "pom")
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools:2.3.8.RELEASE")
-	implementation("io.springfox:springfox-swagger-ui:2.9.2")
-	implementation("io.springfox:springfox-swagger2:2.9.2")
+	implementation("io.springfox:springfox-boot-starter:3.0.0")
 	implementation("com.nimbusds:nimbus-jose-jwt:9.9.3")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.0")
 	implementation("org.xhtmlrenderer:flying-saucer-pdf:9.1.20")
@@ -74,6 +73,15 @@ dependencies {
 	implementation("joda-time:joda-time:2.10.9")
 	implementation("com.github.ben-manes.caffeine:caffeine:2.5.5")
 	implementation("com.amazonaws:aws-java-sdk:1.11.842")
+
+	implementation("org.springframework.boot:spring-boot-starter-data-cassandra:2.3.8.RELEASE")
+	implementation("org.springframework.boot:spring-boot-starter-data-rest:2.3.8.RELEASE")
+	implementation("com.datastax.oss:java-driver-core:4.13.0") {
+		exclude(group= "org.apache.tinkerpop", module= "*")
+	}
+	implementation("com.datastax.oss:native-protocol:1.5.0")
+
+
 //	implementation("io.github.boostchicken:spring-data-dynamodb:5.2.1")
 //	implementation("org.springframework.boot:spring-boot-starter-mail:2.3.8.RELEASE")
 //	implementation("io.sentry:sentry-spring:1.7.30")

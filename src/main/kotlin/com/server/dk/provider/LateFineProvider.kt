@@ -77,21 +77,21 @@ class LateFineProvider {
         }
     }
 
-    fun getLateFinesForEmployee(employee: Employee, forDate: String): List<LateFine> {
-        return try {
-            lateFineRepository.getLateFinesForEmployee(employee.id, forDate)
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
+//    fun getLateFinesForEmployee(employee: Employee, forDate: String): List<LateFine> {
+//        return try {
+//            lateFineRepository.getLateFinesForEmployee(employee.id, forDate)
+//        } catch (e: Exception) {
+//            emptyList()
+//        }
+//    }
 
-    fun getLateFinesForEmployee(employee: Employee, startTime: LocalDateTime, endTime: LocalDateTime): List<LateFine> {
-        return try {
-            lateFineRepository.getLateFinesForEmployee(employee.id, startTime, endTime)
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
+//    fun getLateFinesForEmployee(employee: Employee, startTime: LocalDateTime, endTime: LocalDateTime): List<LateFine> {
+//        return try {
+//            lateFineRepository.getLateFinesForEmployee(employee.id, startTime, endTime)
+//        } catch (e: Exception) {
+//            emptyList()
+//        }
+//    }
 
     fun getLateFinesForEmployee(employee: Employee, datesList: List<String>): List<LateFine> {
         return try {

@@ -2,6 +2,7 @@ package com.server.common.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
+import java.io.File
 
 @ConstructorBinding
 @ConfigurationProperties("aws")
@@ -68,4 +69,10 @@ data class UnsplashProperties(var clientId: String, var accessKey: String, val s
 @ConfigurationProperties("pdf")
 data class PdfProperties(val salarySlip: SalarySlipProperties) {
     data class SalarySlipProperties(var templateName: String, var variableName: String)
+}
+
+@ConstructorBinding
+@ConfigurationProperties("datastax")
+data class DatastaxProperties(val astra: AstraProperties) {
+    data class AstraProperties(var secureConnectBundleS3Bucket: String, var secureConnectBundleS3key: String)
 }

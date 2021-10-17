@@ -22,18 +22,18 @@ interface OvertimeRepository : JpaRepository<Overtime?, String?> {
         @Param("forDate") forDate: String
     ): List<Overtime>
 
-    @Query(value ="SELECT * FROM overtime WHERE for_date = :forDate and employee_id = :employeeId", nativeQuery = true)
-    fun getOvertimesForEmployee(
-        @Param("employeeId") employeeId: String,
-        @Param("forDate") forDate: String
-    ): List<Overtime>
+//    @Query(value ="SELECT * FROM overtime WHERE for_date = :forDate and employee_id = :employeeId", nativeQuery = true)
+//    fun getOvertimesForEmployee(
+//        @Param("employeeId") employeeId: String,
+//        @Param("forDate") forDate: String
+//    ): List<Overtime>
 
-    @Query(value ="SELECT * FROM overtime WHERE convert(for_date, datetime) >= :startTime and convert(for_date, datetime) <= :endTime and employee_id = :employeeId", nativeQuery = true)
-    fun getOvertimesForEmployee(
-        @Param("employeeId") employeeId: String,
-        @Param("startTime") startTime: LocalDateTime,
-        @Param("endTime") endTime: LocalDateTime,
-    ): List<Overtime>
+//    @Query(value ="SELECT * FROM overtime WHERE convert(for_date, datetime) >= :startTime and convert(for_date, datetime) <= :endTime and employee_id = :employeeId", nativeQuery = true)
+//    fun getOvertimesForEmployee(
+//        @Param("employeeId") employeeId: String,
+//        @Param("startTime") startTime: LocalDateTime,
+//        @Param("endTime") endTime: LocalDateTime,
+//    ): List<Overtime>
 
     @Query(value ="SELECT * FROM overtime WHERE for_date IN :datesList and employee_id = :employeeId", nativeQuery = true)
     fun getOvertimesForEmployee(

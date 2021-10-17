@@ -1,3 +1,4 @@
+*.dylib
 HELP.md
 .gradle
 build/

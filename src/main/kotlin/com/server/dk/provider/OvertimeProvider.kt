@@ -73,21 +73,21 @@ class OvertimeProvider {
         }
     }
 
-    fun getOvertimesForEmployee(employee: Employee, forDate: String): List<Overtime> {
-        return try {
-            overtimeRepository.getOvertimesForEmployee(employee.id, forDate)
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
+//    fun getOvertimesForEmployee(employee: Employee, forDate: String): List<Overtime> {
+//        return try {
+//            overtimeRepository.getOvertimesForEmployee(employee.id, forDate)
+//        } catch (e: Exception) {
+//            emptyList()
+//        }
+//    }
 
-    fun getOvertimesForEmployee(employee: Employee, startTime: LocalDateTime, endTime: LocalDateTime): List<Overtime> {
-        return try {
-            overtimeRepository.getOvertimesForEmployee(employee.id, startTime, endTime)
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
+//    fun getOvertimesForEmployee(employee: Employee, startTime: LocalDateTime, endTime: LocalDateTime): List<Overtime> {
+//        return try {
+//            overtimeRepository.getOvertimesForEmployee(employee.id, startTime, endTime)
+//        } catch (e: Exception) {
+//            emptyList()
+//        }
+//    }
 
     fun getOvertimesForEmployee(employee: Employee, datesList: List<String>): List<Overtime> {
         return try {

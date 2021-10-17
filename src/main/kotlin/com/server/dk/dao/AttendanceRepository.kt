@@ -26,12 +26,12 @@ interface AttendanceRepository : JpaRepository<Attendance?, String?> {
         @Param("endTime") endTime: LocalDateTime,
     ): List<Attendance>
 
-    @Query(value ="SELECT * FROM attendance WHERE convert(for_date, datetime) >= :startTime and convert(for_date, datetime) <= :endTime and employee_id = :employeeId", nativeQuery = true)
-    fun getAttendancesForEmployee(
-        @Param("employeeId") employeeId: String,
-        @Param("startTime") startTime: LocalDateTime,
-        @Param("endTime") endTime: LocalDateTime,
-    ): List<Attendance>
+//    @Query(value ="SELECT * FROM attendance WHERE convert(for_date, datetime) >= :startTime and convert(for_date, datetime) <= :endTime and employee_id = :employeeId", nativeQuery = true)
+//    fun getAttendancesForEmployee(
+//        @Param("employeeId") employeeId: String,
+//        @Param("startTime") startTime: LocalDateTime,
+//        @Param("endTime") endTime: LocalDateTime,
+//    ): List<Attendance>
 
     @Query(value ="SELECT * FROM attendance WHERE for_date IN :datesList and employee_id = :employeeId", nativeQuery = true)
     fun getAttendancesForEmployee(

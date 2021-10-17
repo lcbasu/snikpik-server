@@ -1,32 +1,30 @@
 package com.server.ud.entities
 
-//import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute
-//import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey
-//import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable
-import org.springframework.data.annotation.Id
+import org.springframework.data.cassandra.core.cql.Ordering
+import org.springframework.data.cassandra.core.cql.PrimaryKeyType
+import org.springframework.data.cassandra.core.mapping.Column
+import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
+import org.springframework.data.cassandra.core.mapping.Table
 
-//@DynamoDBTable(tableName = "UserPost")
+@Table
 class UserPost(
 
-    @Id
+    @PrimaryKeyColumn(name = "id", ordinal = 0, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
     var id: String? = null,
 
-//    @DynamoDBHashKey
+    @PrimaryKeyColumn(name = "userId", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
     var userId: String? = null,
 
-//    @DynamoDBRangeKey
-//    @DynamoDBAttribute
+//    @PrimaryKeyColumn(name = "userId", ordinal = 2, type = PrimaryKeyType.PARTITIONED)
+//    var userId: String? = null,
+
+    @Column
     var postedAt: Long? = null,
 
-//    @DynamoDBAttribute
+    @Column
     var title: String? = null,
 
-//    @DynamoDBAttribute
+    @Column
     var description: String? = null
-
-//    @DynamoDBRangeKey
-//    @DynamoDBTypeConverted(converter = MomentConverter::class)
-//    @DynamoDBAttribute
-//    var moment: Moment? = null,
 )
 

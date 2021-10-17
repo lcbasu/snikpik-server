@@ -67,12 +67,12 @@ class HolidayProvider {
             emptyList()
         }
 
-    fun getHolidayForEmployee(employee: Employee, startTime: LocalDateTime, endTime: LocalDateTime): List<Holiday> =
-        try {
-            holidayRepository.getHolidayForEmployee(employee.id, startTime, endTime)
-        } catch (e: Exception) {
-            emptyList()
-        }
+//    fun getHolidayForEmployee(employee: Employee, startTime: LocalDateTime, endTime: LocalDateTime): List<Holiday> =
+//        try {
+//            holidayRepository.getHolidayForEmployee(employee.id, startTime, endTime)
+//        } catch (e: Exception) {
+//            emptyList()
+//        }
 
     fun getHolidayForEmployee(employee: Employee, datesList: List<String>): List<Holiday> =
         try {

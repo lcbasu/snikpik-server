@@ -23,12 +23,12 @@ interface HolidayRepository : JpaRepository<Holiday?, HolidayKey?> {
         @Param("forDate") forDate: String
     ): List<Holiday>
 
-    @Query(value ="SELECT * FROM holiday WHERE convert(for_date, datetime) >= :startTime and convert(for_date, datetime) <= :endTime and employee_id = :employeeId", nativeQuery = true)
-    fun getHolidayForEmployee(
-        @Param("employeeId") employeeId: String,
-        @Param("startTime") startTime: LocalDateTime,
-        @Param("endTime") endTime: LocalDateTime,
-    ): List<Holiday>
+//    @Query(value ="SELECT * FROM holiday WHERE convert(for_date, datetime) >= :startTime and convert(for_date, datetime) <= :endTime and employee_id = :employeeId", nativeQuery = true)
+//    fun getHolidayForEmployee(
+//        @Param("employeeId") employeeId: String,
+//        @Param("startTime") startTime: LocalDateTime,
+//        @Param("endTime") endTime: LocalDateTime,
+//    ): List<Holiday>
 
     @Query(value ="SELECT * FROM holiday WHERE for_date IN :datesList and employee_id = :employeeId", nativeQuery = true)
     fun getHolidayForEmployee(

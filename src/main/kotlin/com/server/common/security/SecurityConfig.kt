@@ -84,6 +84,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                 "/swagger-resources/**",
                 "/configuration/security",
                 "/swagger-ui.html",
+                "/swagger-ui/**",
                 "/webjars/**").permitAll()
                 .antMatchers(
                     "/seoData/**",
@@ -92,6 +93,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                     "/swagger-resources",
                     "/configuration/security",
                     "/swagger-ui.html",
+                    "/swagger-ui/**",
                     "/webjars/**",
                     "/swagger-resources/configuration/ui",
                     "/swagger-ui.html").permitAll()

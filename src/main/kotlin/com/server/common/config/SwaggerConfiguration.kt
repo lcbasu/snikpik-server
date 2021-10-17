@@ -31,7 +31,7 @@ class SwaggerConfiguration {
         return Docket(DocumentationType.SWAGGER_2)
             .apiInfo(apiInfo())
             .securityContexts(Arrays.asList(securityContext()))
-            .securitySchemes(Arrays.asList(apiKey()))
+            .securitySchemes(Arrays.asList(apiKey()) as List<SecurityScheme>?)
             .select()
             .apis(RequestHandlerSelectors.any())
             .paths(PathSelectors.any())

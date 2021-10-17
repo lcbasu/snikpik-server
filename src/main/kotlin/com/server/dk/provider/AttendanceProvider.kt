@@ -563,25 +563,25 @@ class AttendanceProvider {
         }
     }
 
-    suspend fun getAttendancesForEmployee(employee: Employee,
-                                          startTime: LocalDateTime,
-                                          endTime: LocalDateTime): List<Attendance> {
-        return try {
-            attendanceRepository.getAttendancesForEmployee(employee.id, startTime, endTime)
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
+//    suspend fun getAttendancesForEmployee(employee: Employee,
+//                                          startTime: LocalDateTime,
+//                                          endTime: LocalDateTime): List<Attendance> {
+//        return try {
+//            attendanceRepository.getAttendancesForEmployee(employee.id, startTime, endTime)
+//        } catch (e: Exception) {
+//            emptyList()
+//        }
+//    }
 
-    suspend fun getAttendancesByAdminForEmployee(employee: Employee,
-                                                 startTime: LocalDateTime,
-                                                 endTime: LocalDateTime): List<AttendanceByAdmin> {
-        return try {
-            attendanceByAdminRepository.getAttendancesByAdminForEmployee(employee.id, startTime, endTime)
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
+//    suspend fun getAttendancesByAdminForEmployee(employee: Employee,
+//                                                 startTime: LocalDateTime,
+//                                                 endTime: LocalDateTime): List<AttendanceByAdmin> {
+//        return try {
+//            attendanceByAdminRepository.getAttendancesByAdminForEmployee(employee.id, startTime, endTime)
+//        } catch (e: Exception) {
+//            emptyList()
+//        }
+//    }
 
     fun getAttendanceReportForEmployee(employee: Employee,
                                        forDate: String): AttendanceReportForEmployee? {
