@@ -7,4 +7,5 @@ abstract class ProductService {
     abstract fun addProductsToCollection(addProductsToCollectionRequest: AddProductsToCollectionRequest): AddProductsToCollectionResponse?
     abstract fun getAllProducts(companyId: String): AllProductsResponse
     abstract fun getAllProductUnits(): AllProductUnits
+    abstract fun updateStatus(updateProductStatusRequest: UpdateProductStatusRequest): SavedProductResponse?
 }

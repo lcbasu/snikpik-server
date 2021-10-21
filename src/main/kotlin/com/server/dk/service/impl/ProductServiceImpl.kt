@@ -4,7 +4,8 @@ import com.server.common.provider.AuthProvider
 import com.server.dk.dto.*
 import com.server.dk.enums.ProductUnit
 import com.server.dk.enums.toProductUnitResponse
-import com.server.dk.provider.*
+import com.server.dk.provider.ProductCollectionProvider
+import com.server.dk.provider.ProductProvider
 import com.server.dk.service.ProductService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -16,12 +17,6 @@ class ProductServiceImpl : ProductService() {
 
     @Autowired
     private lateinit var productProvider: ProductProvider
-
-    @Autowired
-    private lateinit var collectionProvider: CollectionProvider
-
-    @Autowired
-    private lateinit var productVariantProvider: ProductVariantProvider
 
     @Autowired
     private lateinit var productCollectionProvider: ProductCollectionProvider
@@ -59,5 +54,15 @@ class ProductServiceImpl : ProductService() {
                 it.toProductUnitResponse()
             }
         )
+    }
+
+    override fun updateStatus(request: UpdateProductStatusRequest): SavedProductResponse? {
+        val requestContext = authProvider.validateRequest(
+            companyServerIdOrUsername = request.companyServerIdOrUsername,
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
+        )
+        val company = requestContext.company ?: error("Company should be present")
+        val updatedProduct = productProvider.updateStatus(company, request) ?: error("Error while update product status")
+        return updatedProduct.toSavedProductResponse()
     }
 }

@@ -21,6 +21,11 @@ class ProductController {
         return productService.addProductsToCollection(addProductsToCollectionRequest)
     }
 
+    @RequestMapping(value = ["/updateStatus"], method = [RequestMethod.POST])
+    fun updateStatus(@RequestBody updateProductStatusRequest: UpdateProductStatusRequest): SavedProductResponse? {
+        return productService.updateStatus(updateProductStatusRequest)
+    }
+
     @RequestMapping(value = ["/getAllProducts/{companyId}"], method = [RequestMethod.GET])
     fun getAllProducts(@PathVariable companyId: String): AllProductsResponse {
         return productService.getAllProducts(companyId)

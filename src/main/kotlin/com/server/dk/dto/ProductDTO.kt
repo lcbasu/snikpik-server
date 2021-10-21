@@ -9,6 +9,7 @@ import com.server.dk.enums.ProductUnit
 import com.server.dk.enums.toProductUnitResponse
 import com.server.dk.model.MediaDetails
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.server.dk.enums.ProductStatus
 
 /**
  *
@@ -73,6 +74,7 @@ data class SavedProductResponse(
     val mediaDetails: MediaDetails,
     var title: String = "",
     var productUnit: ProductUnitResponse,
+    var productStatus: ProductStatus,
     val unitQuantity: Long = 0,
     val description: String = "",
     val taxPerUnitInPaisa: Long = 0,
@@ -97,6 +99,13 @@ data class AddProductsToCollectionRequest(
     val companyId: String,
     val collectionId: String,
     val productIds: Set<String>
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class UpdateProductStatusRequest(
+    val productId: String,
+    val companyServerIdOrUsername: String,
+    val newStatus: ProductStatus
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -151,6 +160,7 @@ fun Product.toSavedProductResponse(): SavedProductResponse {
             mediaDetails = getMediaDetails(),
             productUnit = productUnit.toProductUnitResponse(),
             unitQuantity = unitQuantity,
+            productStatus = productStatus,
             description = description ?: "",
             taxPerUnitInPaisa = taxPerUnitInPaisa,
             originalPricePerUnitInPaisa = originalPricePerUnitInPaisa,

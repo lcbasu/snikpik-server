@@ -197,4 +197,10 @@ class ProductProvider {
         }
     }
 
+    fun updateStatus(company: Company, request: UpdateProductStatusRequest): Product? {
+        val product = getProduct(request.productId) ?: error("Product not found for id: ${request.productId}")
+        product.productStatus = request.newStatus
+        return productRepository.save(product)
+    }
+
 }
