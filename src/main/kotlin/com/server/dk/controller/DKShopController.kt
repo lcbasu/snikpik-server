@@ -31,4 +31,9 @@ class DKShopController {
     fun getShopCompleteData(@PathVariable companyId: String): ShopCompleteDataResponse {
         return dkShopService.getShopCompleteData(companyId)
     }
+
+    @RequestMapping(value = ["/getCarouselItems"], method = [RequestMethod.GET])
+    fun getCarouselItems(): DKCarouselDataResponse {
+        return dkShopService.getCarouselItems()
+    }
 }

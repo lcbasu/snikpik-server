@@ -17,4 +17,5 @@ abstract class CompanyService {
     abstract fun updateLogo(updateCompanyLogoRequest: UpdateCompanyLogoRequest): SavedCompanyResponse?
     abstract fun updateUsername(updateCompanyUsernameRequest: UpdateCompanyUsernameRequest): SavedCompanyResponse?
     abstract fun updateCategoryGroup(request: UpdateCompanyCategoryGroupRequest): SavedCompanyResponse?
+    abstract fun getCustomersData(companyServerIdOrUsername: String): CustomersDataResponse
 }

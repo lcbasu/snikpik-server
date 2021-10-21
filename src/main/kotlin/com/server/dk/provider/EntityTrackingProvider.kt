@@ -7,7 +7,9 @@ import com.server.common.model.convertToString
 import com.server.common.provider.AuthProvider
 import com.server.common.provider.UniqueIdProvider
 import com.server.dk.dao.EntityTrackingRepository
+import com.server.dk.entities.Company
 import com.server.dk.entities.EntityTracking
+import com.server.dk.entities.User
 import com.server.dk.enums.EntityType
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -95,5 +97,14 @@ class EntityTrackingProvider {
             }
         }
     }
+
+    fun getTrackingData(company: Company,
+                        entityType: EntityType,
+                        trackingType: TrackingType) =
+        entityTrackingRepository.findAllByCompanyAndEntityTypeAndTrackingType(
+            company,
+            entityType,
+            trackingType
+        )
 
 }

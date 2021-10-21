@@ -80,4 +80,9 @@ class CompanyController {
     fun getAddresses(@PathVariable companyServerIdOrUsername: String): CompanyAddressesResponse {
         return companyService.getAddresses(companyServerIdOrUsername)
     }
+
+    @RequestMapping(value = ["/getCustomersData/{companyServerIdOrUsername}"], method = [RequestMethod.GET])
+    fun getCustomersData(@PathVariable companyServerIdOrUsername: String): CustomersDataResponse {
+        return companyService.getCustomersData(companyServerIdOrUsername)
+    }
 }

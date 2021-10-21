@@ -91,6 +91,27 @@ class DKShopServiceImpl : DKShopService() {
         }
     }
 
+    override fun getCarouselItems(): DKCarouselDataResponse {
+        return DKCarouselDataResponse(
+            items = listOf(
+                CarouselItem(
+                    title = "Title 1",
+                    body = "Description 1",
+                    imgUrl =
+                    "https://res.cloudinary.com/dukaankhata/image/upload/v1633145856/dk_shop_app_uploads/yazh65bbh0ximhrlnaju.jpg",
+                    videoUrl = "https://www.youtube.com/watch?v=SlsmXBat06s",
+                ),
+                CarouselItem(
+                    title = "Title 2",
+                    body = "Description 2",
+                    imgUrl =
+                    "https://res.cloudinary.com/dukaankhata/image/upload/v1633185762/dk_shop_app_uploads/wfh1sfscfkonigccmewi.jpg",
+                    videoUrl = "https://www.youtube.com/watch?v=we4VBW99LoU",
+                )
+            )
+        )
+    }
+
     override fun getExtraCharges(companyId: String): SavedExtraChargesResponse {
         val requestContext = authProvider.validateRequest(
             companyServerIdOrUsername = companyId

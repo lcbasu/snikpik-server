@@ -38,3 +38,14 @@ data class ShopCompleteDataResponse(
     val collections: List<SavedCollectionResponse>,
     val productCollections: List<ProductCollectionResponse>,
 )
+
+data class CarouselItem(
+    val title: String,
+    val body: String,
+    val imgUrl: String,
+    val videoUrl: String,
+);
+
+data class DKCarouselDataResponse(
+    val items: List<CarouselItem>
+)

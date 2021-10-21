@@ -114,6 +114,18 @@ data class UserCompaniesResponse(
     val companies: List<SavedCompanyResponse>,
 )
 
+data class CustomerData(
+    val name: String,
+    val location: String,
+    val mobile: String,
+    val orders: List<SavedProductOrderResponse>,
+    val visitCount: Long,
+)
+
+data class CustomersDataResponse(
+    val customers: List<CustomerData>
+)
+
 fun Company.toSavedCompanyResponse(): SavedCompanyResponse {
     this.apply {
         return SavedCompanyResponse(

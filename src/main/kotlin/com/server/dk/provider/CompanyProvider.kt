@@ -8,8 +8,11 @@ import com.server.dk.entities.*
 import com.server.dk.enums.CategoryGroup
 import com.server.dk.enums.DKShopStatus
 import com.server.common.enums.ReadableIdPrefix
+import com.server.common.enums.TrackingType
 import com.server.dk.model.convertToString
 import com.server.common.utils.CommonUtils
+import com.server.dk.enums.EntityType
+import com.server.dk.enums.ProductOrderStatus
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
@@ -26,6 +29,12 @@ class CompanyProvider {
 
     @Autowired
     private lateinit var uniqueIdProvider: UniqueIdProvider
+
+    @Autowired
+    private lateinit var productOrderProvider: ProductOrderProvider
+
+    @Autowired
+    private lateinit var entityTrackingProvider: EntityTrackingProvider
 
     fun getCompany(companyId: String): Company? =
         try {
@@ -275,6 +284,43 @@ class CompanyProvider {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    fun getCustomersData(company: Company): CustomersDataResponse {
+        val allUserIds = mutableSetOf<String>()
+        val allOrders = productOrderProvider.getProductOrders(company, setOf(
+            ProductOrderStatus.DRAFT, ProductOrderStatus.ADDRESS_CONFIRMED, ProductOrderStatus.PAYMENT_CONFIRMED))
+        val allTrackingData = entityTrackingProvider.getTrackingData(
+            company,
+            EntityType.COMPANY,
+            TrackingType.VIEW
+        )
+        allOrders.forEach {
+            if (it.addedBy != null) {
+                allUserIds.add(it.addedBy!!.id)
+            }
+        }
+        allTrackingData.forEach {
+            if (it.addedBy != null && it.addedBy?.anonymous == false  && it.addedBy?.absoluteMobile?.isNotBlank() == true) {
+                allUserIds.add(it.addedBy!!.id)
+            }
+        }
+        val userGroupedOrders = allOrders.groupBy { it.addedBy?.id }
+        val userGroupedTracking = allTrackingData.groupBy { it.addedBy?.id }
+        return CustomersDataResponse(
+            customers = allUserIds.map { userId ->
+                val userOrders = userGroupedOrders.getOrDefault(userId, emptyList())
+                val userTrackingData = userGroupedTracking.getOrDefault(userId, emptyList())
+                val customer = userOrders.find { it.addedBy?.id == userId }?.addedBy ?: userTrackingData.find { it.addedBy?.id == userId }?.addedBy ?: error("User has to be present");
+                CustomerData(
+                    name = customer.fullName ?: "",
+                    mobile = customer.absoluteMobile ?: "",
+                    orders = userOrders?.map { it.toSavedProductOrderResponse() } ?: emptyList(),
+                    visitCount = userTrackingData.size.toLong(),
+                    location = ""
+                )
+            }
+        )
     }
 
 }

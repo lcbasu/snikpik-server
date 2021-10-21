@@ -194,4 +194,13 @@ class CompanyServiceImpl : CompanyService() {
         val updatedCompany = companyProvider.updateCategory(company, request) ?: error("Company update failed")
         return updatedCompany.toSavedCompanyResponse()
     }
+
+    override fun getCustomersData(companyServerIdOrUsername: String): CustomersDataResponse {
+        val requestContext = authProvider.validateRequest(
+            companyServerIdOrUsername = companyServerIdOrUsername,
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
+        )
+        val company = requestContext.company ?: error("Company is required")
+        return companyProvider.getCustomersData(company)
+    }
 }

@@ -9,4 +9,5 @@ abstract class DKShopService {
     abstract fun getExtraCharges(companyId: String): SavedExtraChargesResponse
     abstract fun saveOrUpdateExtraChargeTax(saveExtraChargeTaxRequest: SaveExtraChargeTaxRequest): SavedExtraChargeTaxResponse
     abstract fun getShopCompleteData(companyId: String): ShopCompleteDataResponse
+    abstract fun getCarouselItems(): DKCarouselDataResponse
 }
