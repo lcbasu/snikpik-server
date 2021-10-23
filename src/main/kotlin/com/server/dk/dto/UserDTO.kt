@@ -1,11 +1,11 @@
 package com.server.dk.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.server.common.enums.NotificationTokenProvider
 import com.server.dk.entities.Company
 import com.server.dk.entities.Employee
 import com.server.dk.entities.User
 import com.server.dk.entities.UserRole
-import com.server.common.enums.NotificationTokenProvider
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SavedUserResponse(
@@ -55,6 +55,11 @@ data class SaveUserAddressRequest(
 data class RegisterUserNotificationSettingsRequest(
     val token: String = "",
     val tokenProvider: NotificationTokenProvider,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class UpdateDefaultAddressRequest(
+    val defaultAddressId: String,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

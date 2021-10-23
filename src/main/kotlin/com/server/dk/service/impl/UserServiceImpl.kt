@@ -83,4 +83,17 @@ class UserServiceImpl : UserService() {
         )
         return updatedUser.toSavedUserResponse()
     }
+
+    override fun updateDefaultAddress(request: UpdateDefaultAddressRequest): UserAddressesResponse? {
+        val requestContext = authProvider.validateRequest()
+        val userAddress = addressProvider.getAddress(request.defaultAddressId) ?: error("Error while saving user address")
+        val updatedUser = authProvider.updateUserDefaultAddress(requestContext.user, userAddress) ?: error("Error while updating default address for user")
+        val userAddresses = addressProvider.getUserAddresses(updatedUser)
+        return UserAddressesResponse(
+            user = updatedUser.toSavedUserResponse(),
+            addresses = userAddresses.mapNotNull {
+                it.address?.toSavedAddressResponse()
+            }
+        )
+    }
 }

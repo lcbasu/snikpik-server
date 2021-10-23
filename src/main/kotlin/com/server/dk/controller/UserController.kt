@@ -40,4 +40,10 @@ class UserController {
     fun getAddresses(): UserAddressesResponse {
         return userService.getAddresses()
     }
+
+
+    @RequestMapping(value = ["/updateDefaultAddress"], method = [RequestMethod.POST])
+    fun updateDefaultAddress(@RequestBody request: UpdateDefaultAddressRequest): UserAddressesResponse? {
+        return userService.updateDefaultAddress(request)
+    }
 }
