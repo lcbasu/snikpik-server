@@ -65,4 +65,14 @@ class ProductServiceImpl : ProductService() {
         val updatedProduct = productProvider.updateStatus(company, request) ?: error("Error while update product status")
         return updatedProduct.toSavedProductResponse()
     }
+
+    override fun updateProduct(request: UpdateProductRequest): SavedProductResponse? {
+        val requestContext = authProvider.validateRequest(
+            companyServerIdOrUsername = request.companyId,
+            requiredRoleTypes = authProvider.onlyAdminLevelRoles()
+        )
+        val company = requestContext.company ?: error("Company should be present")
+        val updatedProduct = productProvider.updateProduct(company, requestContext.user, request) ?: error("Error while updating product")
+        return updatedProduct.toSavedProductResponse()
+    }
 }

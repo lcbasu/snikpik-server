@@ -5,6 +5,7 @@ import com.server.dk.dao.ProductVariantRepository
 import com.server.dk.dto.SaveProductVariantRequest
 import com.server.dk.entities.*
 import com.server.common.enums.ReadableIdPrefix
+import com.server.dk.dto.UpdateProductVariantRequest
 import com.server.dk.model.convertToString
 import convertToString
 import org.springframework.beans.factory.annotation.Autowired
@@ -56,6 +57,29 @@ class ProductVariantProvider {
                     newProductVariant.variantInfos = it.variantInfos.convertToString() ?: ""
                     productVariants.add(productVariantRepository.save(newProductVariant))
                 }
+            }
+            return productVariants
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return emptyList()
+        }
+    }
+
+    fun updateProductVariant(product: Product, allProductVariants: List<UpdateProductVariantRequest>) : List<ProductVariant> {
+        try {
+            val productVariants = mutableListOf<ProductVariant>()
+            // We also need to save the variants
+            // If no variant is provided then save a default one with product details
+            allProductVariants.map {
+                val oldProductVariant = getProductVariant(it.variantId) ?: error("Error getting variant with id: ${it.variantId}")
+                oldProductVariant.title = if (it.variantTitle != null && it.variantTitle.isNotEmpty()) it.variantTitle else product.title
+                oldProductVariant.mediaDetails = it.variantMediaDetails?.convertToString() ?: product.mediaDetails
+                oldProductVariant.taxPerUnitInPaisa = it.variantTaxPerUnitInPaisa ?: product.taxPerUnitInPaisa
+                oldProductVariant.originalPricePerUnitInPaisa = it.variantOriginalPricePerUnitInPaisa ?: product.originalPricePerUnitInPaisa
+                oldProductVariant.sellingPricePerUnitInPaisa = it.variantSellingPricePerUnitInPaisa ?: product.sellingPricePerUnitInPaisa
+                oldProductVariant.totalUnitInStock = it.variantTotalUnitInStock ?: product.totalUnitInStock
+                oldProductVariant.variantInfos = it.variantInfos.convertToString() ?: ""
+                productVariants.add(productVariantRepository.save(oldProductVariant))
             }
             return productVariants
         } catch (e: Exception) {

@@ -22,6 +22,21 @@ import com.server.dk.enums.ProductStatus
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveProductVariantRequest(
+    val productId: String?,
+    val variantId: String?,
+    val variantTitle: String?,
+    val variantTaxPerUnitInPaisa: Long?,
+    val variantOriginalPricePerUnitInPaisa: Long?,
+    val variantSellingPricePerUnitInPaisa: Long?,
+    val variantTotalUnitInStock: Long?,
+    var variantMediaDetails: MediaDetails?,
+    var variantInfos: VariantInfos,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class UpdateProductVariantRequest(
+    val productId: String,
+    val variantId: String,
     val variantTitle: String?,
     val variantTaxPerUnitInPaisa: Long?,
     val variantOriginalPricePerUnitInPaisa: Long?,
@@ -65,6 +80,24 @@ data class SaveProductRequest(
     val totalUnitInStock: Long = 100,
     var minOrderUnitCount: Long = 1,
     var allProductVariants: List<SaveProductVariantRequest> = emptyList()
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class UpdateProductRequest(
+    val serverId: String,
+    val companyId: String,
+    val collectionsIds: Set<String> = emptySet(),
+    val mediaDetails: MediaDetails,
+    var title: String = "",
+    var productUnit: ProductUnit,
+    val unitQuantity: Long = 0,
+    val description: String = "",
+    val taxPerUnitInPaisa: Long = 0,
+    val originalPricePerUnitInPaisa: Long,
+    val sellingPricePerUnitInPaisa: Long,
+    val totalUnitInStock: Long = 100,
+    var minOrderUnitCount: Long = 1,
+    var allProductVariants: List<UpdateProductVariantRequest> = emptyList()
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -115,6 +148,12 @@ data class AddProductToCollectionsRequest(
     val productId: String
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class RemoveProductFromCollectionsRequest(
+    val companyId: String,
+    val collectionsIds: Set<String>,
+    val productId: String
+)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AddProductToCollectionsResponse(

@@ -8,4 +8,5 @@ abstract class ProductService {
     abstract fun getAllProducts(companyId: String): AllProductsResponse
     abstract fun getAllProductUnits(): AllProductUnits
     abstract fun updateStatus(updateProductStatusRequest: UpdateProductStatusRequest): SavedProductResponse?
+    abstract fun updateProduct(request: UpdateProductRequest): SavedProductResponse?
 }

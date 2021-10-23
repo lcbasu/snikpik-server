@@ -16,6 +16,11 @@ class ProductController {
         return productService.saveProduct(saveProductRequest)
     }
 
+    @RequestMapping(value = ["/update"], method = [RequestMethod.POST])
+    fun updateProduct(@RequestBody request: UpdateProductRequest): SavedProductResponse? {
+        return productService.updateProduct(request)
+    }
+
     @RequestMapping(value = ["/addProductsToCollection"], method = [RequestMethod.POST])
     fun addProductsToCollection(@RequestBody addProductsToCollectionRequest: AddProductsToCollectionRequest): AddProductsToCollectionResponse? {
         return productService.addProductsToCollection(addProductsToCollectionRequest)

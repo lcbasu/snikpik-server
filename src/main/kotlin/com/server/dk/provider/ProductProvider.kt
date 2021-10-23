@@ -82,6 +82,64 @@ class ProductProvider {
         }
     }
 
+    fun updateProduct(company: Company, user: User, request: UpdateProductRequest) : Product? {
+        try {
+
+            val product = getProduct(request.serverId) ?: error("Product missing for id: ${request.serverId}")
+            product.title = request.title
+            product.description = request.description
+            product.mediaDetails = request.mediaDetails.convertToString()
+            product.minOrderUnitCount = request.minOrderUnitCount
+            product.pricePerUnitInPaisa = request.originalPricePerUnitInPaisa
+            product.taxPerUnitInPaisa = request.taxPerUnitInPaisa
+            product.productStatus = ProductStatus.ACTIVE
+            product.productUnit = request.productUnit
+            product.unitQuantity = request.unitQuantity
+            product.totalUnitInStock = request.totalUnitInStock
+            product.originalPricePerUnitInPaisa = request.originalPricePerUnitInPaisa
+            product.sellingPricePerUnitInPaisa = request.sellingPricePerUnitInPaisa
+            val updatedProduct = productRepository.save(product)
+            // We also need to save the variants
+            // If no variant is provided then save a default one with product details
+            productVariantProvider.updateProductVariant(updatedProduct, request.allProductVariants)
+
+            val existingCollectionIds = product.productCollections.map { it.collection?.id }.filterNotNull().toSet()
+            val updateRequestCollectionIds = request.collectionsIds
+
+            val toDeleteCollectionIds = existingCollectionIds.filter {
+                updateRequestCollectionIds.contains(it).not()
+            }.toSet()
+
+            val toCreateNewCollectionIds = updateRequestCollectionIds.filter {
+                existingCollectionIds.contains(it).not()
+            }.toSet()
+
+            productCollectionProvider.removeProductFromCollections(
+                company,
+                user,
+                RemoveProductFromCollectionsRequest(
+                    companyId = company.id,
+                    collectionsIds = toDeleteCollectionIds,
+                    productId = product.id
+                )
+            )
+
+            productCollectionProvider.addProductToCollections(
+                company,
+                user,
+                AddProductToCollectionsRequest(
+                    companyId = company.id,
+                    collectionsIds = toCreateNewCollectionIds,
+                    productId = product.id
+                )
+            )
+            return updatedProduct
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
+    }
+
     fun getProducts(company: Company): List<Product> =
         try {
             productRepository.findAllByCompany(company)

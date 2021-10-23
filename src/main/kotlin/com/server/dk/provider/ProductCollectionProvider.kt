@@ -74,6 +74,19 @@ class ProductCollectionProvider {
         )
     }
 
+    @Transactional
+    fun removeProductFromCollections(company: Company, user: User, request: RemoveProductFromCollectionsRequest) {
+        val pcs = getProductCollections(
+            collectionIds = request.collectionsIds,
+            productIds = setOf(request.productId)
+        )
+        pcs.map {
+            if (request.collectionsIds.contains(it.collection?.id) && request.productId == it.product?.id) {
+                productCollectionRepository.delete(it)
+            }
+        }
+    }
+
     fun getProductCollections(collectionIds: Set<String> = emptySet(), productIds: Set<String> = emptySet()): List<ProductCollection> =
         try {
             productCollectionRepository.getProductCollections(productIds = productIds, collectionIds = collectionIds)
