@@ -1,4 +1,4 @@
-package com.server.dk.entities
+package com.server.common.entities
 
 import com.server.common.enums.NotificationTokenProvider
 import javax.persistence.*

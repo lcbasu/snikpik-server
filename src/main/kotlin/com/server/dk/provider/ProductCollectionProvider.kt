@@ -1,5 +1,6 @@
 package com.server.dk.provider
 
+import com.server.common.entities.User
 import com.server.dk.dao.ProductCollectionRepository
 import com.server.dk.dto.*
 import com.server.dk.entities.*

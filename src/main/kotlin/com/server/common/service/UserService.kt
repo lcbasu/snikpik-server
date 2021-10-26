@@ -1,4 +1,4 @@
-package com.server.dk.service
+package com.server.common.service
 
 import com.server.dk.dto.*
 

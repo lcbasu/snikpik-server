@@ -4,6 +4,8 @@ import com.server.dk.enums.ProductStatus
 import com.server.dk.enums.ProductUnit
 import com.server.dk.model.MediaDetails
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.server.common.entities.Auditable
+import com.server.common.entities.User
 import javax.persistence.*
 
 @Entity

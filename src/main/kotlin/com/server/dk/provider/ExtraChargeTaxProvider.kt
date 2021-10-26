@@ -5,7 +5,7 @@ import com.server.dk.dto.SaveExtraChargeTaxRequest
 import com.server.dk.entities.Company
 import com.server.dk.entities.ExtraChargeTax
 import com.server.dk.entities.ExtraChargeTaxKey
-import com.server.dk.entities.User
+import com.server.common.entities.User
 import com.server.dk.enums.TaxType
 import com.server.common.utils.DateUtils
 import org.springframework.beans.factory.annotation.Autowired

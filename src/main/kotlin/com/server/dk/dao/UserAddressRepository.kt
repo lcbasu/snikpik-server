@@ -1,6 +1,6 @@
 package com.server.dk.dao
 
-import com.server.dk.entities.User
+import com.server.common.entities.User
 import com.server.dk.entities.UserAddress
 import com.server.dk.entities.UserAddressKey
 import org.springframework.data.jpa.repository.JpaRepository

@@ -3,6 +3,8 @@ package com.server.dk.entities
 import com.server.dk.enums.EntityType
 import com.server.common.enums.TrackingType
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.server.common.entities.Auditable
+import com.server.common.entities.User
 import com.server.common.model.TrackingData
 import javax.persistence.*
 

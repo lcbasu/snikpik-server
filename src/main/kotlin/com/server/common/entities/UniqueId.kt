@@ -1,4 +1,4 @@
-package com.server.dk.entities
+package com.server.common.entities
 
 import javax.persistence.Column
 import javax.persistence.Entity

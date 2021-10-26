@@ -11,7 +11,7 @@ import com.server.dk.dto.toSavedEmployeeResponse
 import com.server.dk.entities.Company
 import com.server.dk.entities.Employee
 import com.server.dk.entities.Payment
-import com.server.dk.entities.User
+import com.server.common.entities.User
 import com.server.dk.enums.*
 import com.server.dk.model.SalarySlipForHTML
 import com.server.common.properties.PdfProperties

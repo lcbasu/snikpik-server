@@ -1,12 +1,12 @@
 package com.server.dk.provider
 
+import com.server.common.entities.User
 import com.server.dk.dao.HolidayRepository
 import com.server.dk.entities.*
 import com.server.dk.enums.HolidayType
 import com.server.common.utils.DateUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import java.time.LocalDateTime
 
 @Component
 class HolidayProvider {

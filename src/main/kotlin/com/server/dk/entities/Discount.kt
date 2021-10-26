@@ -1,5 +1,7 @@
 package com.server.dk.entities
 
+import com.server.common.entities.Auditable
+import com.server.common.entities.User
 import com.server.dk.enums.DiscountType
 import com.server.common.utils.DateUtils
 import java.time.LocalDateTime

@@ -1,6 +1,6 @@
-package com.server.dk.dao
+package com.server.common.dao
 
-import com.server.dk.entities.User
+import com.server.common.entities.User
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 

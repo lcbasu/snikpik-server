@@ -1,6 +1,6 @@
-package com.server.dk.dao
+package com.server.common.dao
 
-import com.server.dk.entities.UniqueId
+import com.server.common.entities.UniqueId
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 

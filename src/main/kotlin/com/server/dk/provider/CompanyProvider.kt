@@ -1,5 +1,6 @@
 package com.server.dk.provider
 
+import com.server.common.entities.User
 import com.server.common.provider.UniqueIdProvider
 import com.server.dk.dao.CompanyRepository
 import com.server.dk.dao.CompanyUsernameRepository

@@ -6,7 +6,7 @@ import com.server.dk.dao.ProductOrderRepository
 import com.server.dk.dto.*
 import com.server.dk.entities.Company
 import com.server.dk.entities.ProductOrder
-import com.server.dk.entities.User
+import com.server.common.entities.User
 import com.server.dk.enums.*
 import com.server.dk.model.OrderStateTransitionOutput
 import com.server.dk.model.ProductOrderStateBeforeUpdate

@@ -1,7 +1,7 @@
-package com.server.dk.controller
+package com.server.common.controller
 
 import com.server.dk.dto.*
-import com.server.dk.service.UserService
+import com.server.common.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 

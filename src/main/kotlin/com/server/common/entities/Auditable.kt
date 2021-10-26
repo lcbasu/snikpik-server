@@ -1,4 +1,4 @@
-package com.server.dk.entities
+package com.server.common.entities
 
 import com.server.common.utils.DateUtils
 import org.springframework.data.annotation.CreatedBy

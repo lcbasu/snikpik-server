@@ -9,7 +9,7 @@ import com.server.dk.dto.*
 import com.server.dk.entities.Company
 import com.server.dk.entities.Employee
 import com.server.dk.entities.Payment
-import com.server.dk.entities.User
+import com.server.common.entities.User
 import com.server.dk.enums.MonthlyPaymentType
 import com.server.dk.enums.PaymentType
 import com.server.common.enums.ReadableIdPrefix

@@ -8,12 +8,11 @@ import com.server.dk.dto.toSavedOvertimeResponse
 import com.server.dk.entities.Company
 import com.server.dk.entities.Employee
 import com.server.dk.entities.Overtime
-import com.server.dk.entities.User
+import com.server.common.entities.User
 import com.server.dk.enums.PaymentType
 import com.server.common.enums.ReadableIdPrefix
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import java.time.LocalDateTime
 
 @Component
 class OvertimeProvider {

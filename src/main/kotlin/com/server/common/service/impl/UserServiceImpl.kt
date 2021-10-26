@@ -1,7 +1,7 @@
-package com.server.dk.service.impl
+package com.server.common.service.impl
 
 import com.server.dk.dto.*
-import com.server.dk.service.UserService
+import com.server.common.service.UserService
 import com.server.dk.provider.AddressProvider
 import com.server.common.provider.AuthProvider
 import com.server.common.provider.UserRoleProvider

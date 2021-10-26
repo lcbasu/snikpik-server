@@ -1,5 +1,6 @@
 package com.server.dk.entities
 
+import com.server.common.entities.Auditable
 import javax.persistence.*
 
 @Entity

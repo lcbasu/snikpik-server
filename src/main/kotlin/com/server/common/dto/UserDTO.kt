@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.server.common.enums.NotificationTokenProvider
 import com.server.dk.entities.Company
 import com.server.dk.entities.Employee
-import com.server.dk.entities.User
+import com.server.common.entities.User
 import com.server.dk.entities.UserRole
 
 @JsonIgnoreProperties(ignoreUnknown = true)

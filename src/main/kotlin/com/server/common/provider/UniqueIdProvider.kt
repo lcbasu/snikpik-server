@@ -1,7 +1,7 @@
 package com.server.common.provider
 
-import com.server.dk.dao.UniqueIdRepository
-import com.server.dk.entities.UniqueId
+import com.server.common.dao.UniqueIdRepository
+import com.server.common.entities.UniqueId
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional

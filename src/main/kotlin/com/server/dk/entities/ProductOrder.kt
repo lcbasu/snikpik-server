@@ -1,9 +1,10 @@
 package com.server.dk.entities
 
+import com.server.common.entities.Auditable
+import com.server.common.entities.User
 import com.server.dk.enums.DeliveryTimeId
 import com.server.dk.enums.OrderPaymentMode
 import com.server.dk.enums.ProductOrderStatus
-import com.server.dk.enums.ProductUnit
 import javax.persistence.*
 
 @Entity

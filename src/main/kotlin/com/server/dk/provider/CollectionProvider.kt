@@ -2,6 +2,7 @@ package com.server.dk.provider
 
 import AllCollectionsWithProductsRaw
 import CollectionWithProductsRaw
+import com.server.common.entities.User
 import com.server.common.provider.UniqueIdProvider
 import com.server.dk.dao.CollectionRepository
 import com.server.dk.dto.*

@@ -5,7 +5,7 @@ import com.server.dk.dto.SaveExtraChargeDeliveryRequest
 import com.server.dk.entities.Company
 import com.server.dk.entities.ExtraChargeDelivery
 import com.server.dk.entities.ExtraChargeDeliveryKey
-import com.server.dk.entities.User
+import com.server.common.entities.User
 import com.server.dk.enums.DeliveryType
 import com.server.common.utils.DateUtils
 import org.springframework.beans.factory.annotation.Autowired

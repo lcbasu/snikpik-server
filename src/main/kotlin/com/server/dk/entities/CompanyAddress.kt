@@ -1,5 +1,6 @@
 package com.server.dk.entities
 
+import com.server.common.entities.Auditable
 import java.time.LocalDateTime
 import javax.persistence.*
 

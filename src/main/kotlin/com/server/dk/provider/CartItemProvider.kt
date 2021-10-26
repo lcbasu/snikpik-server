@@ -2,6 +2,7 @@ package com.server.dk.provider
 
 import MigratedCartData
 import UpdatedCartData
+import com.server.common.entities.User
 import com.server.common.provider.UniqueIdProvider
 import com.server.dk.dao.CartItemRepository
 import com.server.dk.entities.*

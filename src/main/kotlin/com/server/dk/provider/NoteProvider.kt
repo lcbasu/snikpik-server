@@ -6,7 +6,7 @@ import com.server.dk.dto.SaveNoteRequest
 import com.server.dk.entities.Company
 import com.server.dk.entities.Employee
 import com.server.dk.entities.Note
-import com.server.dk.entities.User
+import com.server.common.entities.User
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.utils.DateUtils
 import org.springframework.beans.factory.annotation.Autowired

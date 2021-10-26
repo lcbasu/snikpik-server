@@ -5,6 +5,8 @@ import com.server.dk.enums.DKShopStatus
 import com.server.dk.enums.SalaryPaymentSchedule
 import com.server.dk.model.MediaDetails
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.server.common.entities.Auditable
+import com.server.common.entities.User
 import javax.persistence.*
 
 @Entity

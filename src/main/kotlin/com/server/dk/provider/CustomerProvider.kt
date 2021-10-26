@@ -4,7 +4,7 @@ import com.server.dk.dto.ShopViewForCustomerResponse
 import com.server.dk.dto.toAllCollectionsWithProductsResponse
 import com.server.dk.dto.toSavedCompanyResponse
 import com.server.dk.dto.toSavedUserResponse
-import com.server.dk.entities.User
+import com.server.common.entities.User
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired

@@ -1,5 +1,6 @@
 package com.server.dk.dao
 
+import com.server.common.entities.User
 import com.server.common.enums.TrackingType
 import com.server.dk.entities.*
 import com.server.dk.enums.EntityType

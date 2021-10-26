@@ -1,6 +1,7 @@
 package com.server.common.provider
 
-import com.server.dk.dao.UserRepository
+import com.server.common.entities.User
+import com.server.common.dao.UserRepository
 import com.server.dk.dto.RequestContext
 import com.server.dk.dto.PhoneVerificationResponse
 import com.server.dk.entities.*
