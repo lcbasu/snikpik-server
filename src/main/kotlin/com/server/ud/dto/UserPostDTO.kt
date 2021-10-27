@@ -18,6 +18,11 @@ data class SavedUserPostResponse(
     var description: String? = null
 )
 
+data class PostFeedResponse (
+    val posts: List<SavedUserPostResponse>,
+    val numFound: Long,
+)
+
 fun UserPost.toSavedUserPostResponse(): SavedUserPostResponse {
     this.apply {
         return SavedUserPostResponse(

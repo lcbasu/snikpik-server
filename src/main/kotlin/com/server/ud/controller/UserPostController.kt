@@ -19,4 +19,9 @@ class UserPostController {
     fun saveUserPost(@RequestBody saveUserPostRequest: SaveUserPostRequest): SavedUserPostResponse? {
         return userPostService.saveUserPost(saveUserPostRequest)
     }
+
+    @RequestMapping(value = ["/fakeSave"], method = [RequestMethod.POST])
+    fun fakeSaveUserPost(): List<SavedUserPostResponse>? {
+        return userPostService.fakeSaveUserPost()
+    }
 }

@@ -73,6 +73,7 @@ dependencies {
 	implementation("joda-time:joda-time:2.10.9")
 	implementation("com.github.ben-manes.caffeine:caffeine:2.5.5")
 	implementation("com.amazonaws:aws-java-sdk:1.11.842")
+	implementation("com.github.javafaker:javafaker:0.15")
 
 	implementation("org.springframework.boot:spring-boot-starter-data-cassandra:2.3.8.RELEASE")
 	implementation("org.springframework.boot:spring-boot-starter-data-rest:2.3.8.RELEASE")

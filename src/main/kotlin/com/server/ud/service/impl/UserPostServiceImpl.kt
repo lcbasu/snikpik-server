@@ -20,7 +20,19 @@ class UserPostServiceImpl : UserPostService() {
 
     override fun saveUserPost(saveUserPostRequest: SaveUserPostRequest): SavedUserPostResponse? {
         val requestContext = authProvider.validateRequest()
-        val post = userPostProvider.saveProduct(requestContext.user, saveUserPostRequest)
+        val post = userPostProvider.savePost(requestContext.user, saveUserPostRequest)
         return post?.toSavedUserPostResponse()
+    }
+
+    override fun fakeSaveUserPost(): List<SavedUserPostResponse>? {
+        val requestContext = authProvider.validateRequest()
+        val user = requestContext.user
+
+        if (user.absoluteMobile != "+919742097429") error("Only Admin is allowed to do this.")
+
+        val posts = userPostProvider.fakeSaveUserPost(user)
+        return posts.map {
+            it.toSavedUserPostResponse()
+        }
     }
 }
