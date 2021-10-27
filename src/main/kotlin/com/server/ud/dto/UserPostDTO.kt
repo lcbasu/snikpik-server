@@ -11,7 +11,7 @@ data class SaveUserPostRequest(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SavedUserPostResponse(
-    var id: String? = null,
+    var postId: String? = null,
     var userId: String? = null,
     var postedAt: Long? = null,
     var title: String? = null,
@@ -26,9 +26,9 @@ data class PostFeedResponse (
 fun UserPost.toSavedUserPostResponse(): SavedUserPostResponse {
     this.apply {
         return SavedUserPostResponse(
-            id = id,
+            postId = postId,
             userId = userId,
-            postedAt = postedAt,
+            postedAt = postedAt.toEpochMilli(),
             title = title,
             description = description,
         )

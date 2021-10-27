@@ -13,6 +13,7 @@ import org.springframework.data.cassandra.core.query.CassandraPageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
 import org.springframework.stereotype.Component
+import java.time.Instant
 
 
 @Component
@@ -32,9 +33,9 @@ class UserPostProvider {
     fun savePost(user: User, request: SaveUserPostRequest) : UserPost? {
         try {
             val userPost = UserPost()
-            userPost.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.PST.name)
+            userPost.postId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.PST.name)
             userPost.userId = user.id
-            userPost.postedAt = DateUtils.getCurrentTimeInEpoch()
+            userPost.postedAt = Instant.now()
             userPost.title = request.title
             userPost.description = request.description
             return userPostRepository.save(userPost)

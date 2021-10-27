@@ -3,28 +3,28 @@ package com.server.ud.entities
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
+import org.springframework.data.cassandra.core.mapping.Indexed
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
+import java.time.Instant
 
-@Table
-class UserPost(
+@Table("user_post")
+class UserPost {
 
-    @PrimaryKeyColumn(name = "id", ordinal = 0, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
-    var id: String? = null,
+    @PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+    var userId: String? = null
 
-    @PrimaryKeyColumn(name = "userId", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
-    var userId: String? = null,
+    @PrimaryKeyColumn(name = "posted_at", ordinal = 1, ordering = Ordering.DESCENDING)
+    var postedAt: Instant = Instant.now()
 
-//    @PrimaryKeyColumn(name = "userId", ordinal = 2, type = PrimaryKeyType.PARTITIONED)
-//    var userId: String? = null,
+    @Indexed
+    @PrimaryKeyColumn(name = "post_id", ordinal = 2)
+    var postId: String? = null
 
     @Column
-    var postedAt: Long? = null,
-
-    @Column
-    var title: String? = null,
+    var title: String? = null
 
     @Column
     var description: String? = null
-)
+}
 
