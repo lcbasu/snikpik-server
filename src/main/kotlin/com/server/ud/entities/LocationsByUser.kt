@@ -8,23 +8,27 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
 
-@Table("user_post")
-class UserPost {
+// All the locations that the user has travelled to or modified
+@Table("locations_by_user")
+class LocationsByUser {
 
     @PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var userId: String? = null
 
-    @PrimaryKeyColumn(name = "posted_at", ordinal = 1, ordering = Ordering.DESCENDING)
-    var postedAt: Instant = Instant.now()
+    @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
+    var createdAt: Instant = Instant.now()
 
     @Indexed
-    @PrimaryKeyColumn(name = "post_id", ordinal = 2)
-    var postId: String? = null
+    @PrimaryKeyColumn(name = "location_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
+    var locationId: String? = null
 
     @Column
-    var title: String? = null
+    val name: String? = null
 
     @Column
-    var description: String? = null
+    val lat: Double? = null
+
+    @Column
+    val lng:Double? = null
 }
 

@@ -1,20 +1,21 @@
 package com.server.ud.dto
 
-import com.server.common.enums.UserProfileType
 import com.server.dk.model.MediaDetailsV2
+import com.server.ud.enums.CategoryV2
+import com.server.ud.enums.UserProfession
 
 // Break down each request and response DTO
 // Likes should be a different call and video should be different. And so on.
 
 // Common
+//
+//data class UserProfession (
+//    val professionId: String, // ID1, ID2
+//    val professionType: UserProfileType,
+//    val name: String // Interior Designer, Architect, etc.
+//)
 
-data class UserProfession (
-    val professionId: String, // ID1, ID2
-    val professionType: UserProfileType,
-    val name: String // Interior Designer, Architect, etc.
-)
-
-interface Location{
+interface Location {
     val id: String // ID at the city or 5x5 KM square block level (Need to figure out a way)
     val name: String // City Level grouping and naming
     val lat: Double
@@ -36,14 +37,14 @@ data class PostLocation(
     override val lng: Double,
 ): Location
 
-data class CategoryV2 (
-    val categoryId: String,
-    val name: String
-)
+//data class CategoryV2 (
+//    val categoryId: String,
+//    val name: String
+//)
 
-data class HashTag (
+data class HashTagData (
     val tagId: String,
-    val name: String
+    val displayName: String
 )
 
 interface PaginationDetails {
@@ -108,7 +109,7 @@ data class VFVSinglePostDetail(
 ): PostMiniDetail
 
 data class VFVSingleTagDetail(
-    val tags: List<HashTag>
+    val tags: List<HashTagData>
 )
 
 data class VFVSingleUserDetail(
@@ -138,13 +139,6 @@ data class VFVSingleCommentsDetail(
 
     val comments: Long,
     val commented: Boolean,
-)
-
-data class VFVSingleSharesDetail(
-    val postId: String,
-
-    val shares: Long,
-    val shared: Boolean,
 )
 
 data class VFVSingleSaveDetail(

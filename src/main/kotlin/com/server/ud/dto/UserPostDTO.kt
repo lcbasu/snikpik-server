@@ -1,34 +1,32 @@
 package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.server.ud.entities.UserPost
+import com.server.ud.entities.Post
+import com.server.ud.entities.PostsByUser
+import com.server.ud.enums.PostType
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class SaveUserPostRequest(
+data class SavePostRequest(
+    var postType: PostType,
     var title: String? = null,
     var description: String? = null
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class SavedUserPostResponse(
+data class SavedPostResponse(
     var postId: String? = null,
     var userId: String? = null,
-    var postedAt: Long? = null,
+    var createdAt: Long? = null,
     var title: String? = null,
     var description: String? = null
 )
 
-data class PostFeedResponse (
-    val posts: List<SavedUserPostResponse>,
-    val numFound: Long,
-)
-
-fun UserPost.toSavedUserPostResponse(): SavedUserPostResponse {
+fun Post.toSavedUserPostResponse(): SavedPostResponse {
     this.apply {
-        return SavedUserPostResponse(
+        return SavedPostResponse(
             postId = postId,
             userId = userId,
-            postedAt = postedAt.toEpochMilli(),
+            createdAt = createdAt.toEpochMilli(),
             title = title,
             description = description,
         )

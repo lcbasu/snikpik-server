@@ -1,25 +1,21 @@
-package com.server.dk.service.impl
+package com.server.common.service.impl
 
 import com.server.common.model.Credentials
 import com.server.common.model.FirebaseAuthUser
 import com.server.common.properties.SecurityProperties
 import com.server.common.security.CookieUtils
-import com.server.dk.service.SecurityService
+import com.server.common.service.SecurityService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.util.StringUtils
 import javax.servlet.http.HttpServletRequest
 
-
 @Service
 class SecurityServiceImpl : SecurityService() {
 
     @Autowired
     var httpServletRequest: HttpServletRequest? = null
-
-    @Autowired
-    var cookieUtils: CookieUtils? = null
 
     @Autowired
     var securityProps: SecurityProperties? = null

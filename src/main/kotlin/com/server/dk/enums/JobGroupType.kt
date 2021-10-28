@@ -6,4 +6,7 @@ enum class JobGroupType {
 
     TakeShopOnlineAfter_Job,
     TakeShopOnlineAfter_Trigger,
+
+    ProcessPostJob_Job,
+    ProcessPostJob_Trigger,
 }

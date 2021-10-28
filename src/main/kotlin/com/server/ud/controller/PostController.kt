@@ -1,8 +1,8 @@
 package com.server.ud.controller
 
-import com.server.ud.dto.SaveUserPostRequest
-import com.server.ud.dto.SavedUserPostResponse
-import com.server.ud.service.UserPostService
+import com.server.ud.dto.SavePostRequest
+import com.server.ud.dto.SavedPostResponse
+import com.server.ud.service.PostService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("userPost")
-class UserPostController {
+class PostController {
     @Autowired
-    private lateinit var userPostService: UserPostService
+    private lateinit var postService: PostService
 
     @RequestMapping(value = ["/save"], method = [RequestMethod.POST])
-    fun saveUserPost(@RequestBody saveUserPostRequest: SaveUserPostRequest): SavedUserPostResponse? {
-        return userPostService.saveUserPost(saveUserPostRequest)
+    fun savePost(@RequestBody savePostRequest: SavePostRequest): SavedPostResponse? {
+        return postService.savePost(savePostRequest)
     }
 
     @RequestMapping(value = ["/fakeSave"], method = [RequestMethod.POST])
-    fun fakeSaveUserPost(): List<SavedUserPostResponse>? {
-        return userPostService.fakeSaveUserPost()
+    fun fakeSavePosts(): List<SavedPostResponse>? {
+        return postService.fakeSavePosts()
     }
 }

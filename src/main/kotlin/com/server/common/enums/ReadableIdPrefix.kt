@@ -18,6 +18,7 @@ enum class ReadableIdPrefix {
     PVT, // Product Variant
     OSC, // Product Order State Change
     ETR, // Entity Tracking
-    PST,
+
+    PST, // Post
 }
 

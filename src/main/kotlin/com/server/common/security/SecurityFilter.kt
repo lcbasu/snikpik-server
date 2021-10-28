@@ -5,7 +5,7 @@ import com.server.common.model.Credentials
 import com.server.common.model.FirebaseAuthUser
 import com.server.common.properties.AwsProperties
 import com.server.common.properties.SecurityProperties
-import com.server.dk.service.SecurityService
+import com.server.common.service.SecurityService
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseToken
 import com.nimbusds.jose.proc.SecurityContext
