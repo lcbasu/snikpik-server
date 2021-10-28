@@ -1,8 +1,7 @@
 package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.server.ud.entities.Post
-import com.server.ud.entities.PostsByUser
+import com.server.ud.entities.post.Post
 import com.server.ud.enums.PostType
 
 @JsonIgnoreProperties(ignoreUnknown = true)

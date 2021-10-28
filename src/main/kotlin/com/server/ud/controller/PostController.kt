@@ -2,7 +2,7 @@ package com.server.ud.controller
 
 import com.server.ud.dto.SavePostRequest
 import com.server.ud.dto.SavedPostResponse
-import com.server.ud.service.PostService
+import com.server.ud.service.post.PostService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
