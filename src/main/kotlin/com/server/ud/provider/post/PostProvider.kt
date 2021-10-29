@@ -9,12 +9,16 @@ import com.server.ud.dao.post.PostRepository
 import com.server.ud.dto.SavePostRequest
 import com.server.ud.entities.post.Post
 import com.server.ud.enums.PostType
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.time.Instant
 
 @Component
 class PostProvider {
+
+    private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     @Autowired
     private lateinit var postRepository: PostRepository
@@ -65,6 +69,10 @@ class PostProvider {
             posts.add(save(user, req))
         }
         return posts.filterNotNull()
+    }
+
+    fun postProcessPost(postId: String) {
+        logger.info("Do post processing for postId: $postId")
     }
 
 }
