@@ -8,23 +8,22 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
 
-// All the locations that the user has travelled to or modified
-@Table("locations_by_user")
-class LocationsByUser {
+// Lat and Lng is from the center of the 5X5KM square
+@Table("locations_by_zipcode")
+class LocationByZipCode {
 
-    @PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    var userId: String? = null
+    @PrimaryKeyColumn(name = "zipcode", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+    var zipcode: String? = null
 
-    @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
+    @PrimaryKeyColumn(name = "for_date", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
+    var forDate: String? = null
+
+    @PrimaryKeyColumn(name = "created_at", ordinal = 2, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
     var createdAt: Instant = Instant.now()
 
     @Indexed
-    @PrimaryKeyColumn(name = "location_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
+    @PrimaryKeyColumn(name = "location_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
     var locationId: String? = null
-
-    @Indexed
-    @PrimaryKeyColumn(name = "zipcode", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
-    var zipcode: String? = null
 
     @Column
     val name: String? = null

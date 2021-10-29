@@ -54,16 +54,19 @@ class UserV2 {
     @Enumerated(EnumType.STRING)
     var notificationTokenProvider: NotificationTokenProvider? = NotificationTokenProvider.FIREBASE
 
-    @Column("location_id")
-    var locationId: String? = null
+    @Column("user_last_zipcode")
+    var userLastLocationZipcode: String? = null
 
-    @Column("location_name")
-    val locationName: String? = null
+    @Column("user_last_location_id")
+    var userLastLocationId: String? = null
 
-    @Column("location_lat")
-    val locationLat: Double? = null
+    @Column("user_last_location_name")
+    val userLastLocationName: String? = null
 
-    @Column("location_lng")
-    val locationLng: Double? = null
+    @Column("user_last_location_lat")
+    val userLastLocationLat: Double? = null
+
+    @Column("user_last_location_lng")
+    val userLastLocationLng: Double? = null
 }
 

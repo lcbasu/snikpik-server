@@ -9,11 +9,11 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
 
-@Table("users_by_location")
-class UsersByLocation {
+@Table("users_by_zipcode")
+class UsersByZipcode {
 
-    @PrimaryKeyColumn(name = "location_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    var locationId: String? = null
+    @PrimaryKeyColumn(name = "zipcode", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+    var zipcode: String? = null
 
     @PrimaryKeyColumn(name = "for_date", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
     var forDate: String? = null
@@ -25,14 +25,17 @@ class UsersByLocation {
     @PrimaryKeyColumn(name = "user_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
     var userId: String? = null
 
-    @Column("location_name")
-    val locationName: String? = null
+    @Column("user_last_location_id")
+    var userLastLocationId: String? = null
 
-    @Column("location_lat")
-    val locationLat: Double? = null
+    @Column("user_last_location_name")
+    val userLastLocationName: String? = null
 
-    @Column("location_lng")
-    val locationLng: Double? = null
+    @Column("user_last_location_lat")
+    val userLastLocationLat: Double? = null
+
+    @Column("user_last_location_lng")
+    val userLastLocationLng: Double? = null
 
     @Column("handle")
     var handle: String? = null

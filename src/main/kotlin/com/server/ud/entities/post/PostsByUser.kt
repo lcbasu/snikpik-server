@@ -43,6 +43,9 @@ class PostsByUser {
     @Column("location_id")
     var locationId: String? = null
 
+    @Column("zipcode")
+    var zipcode: String? = null
+
     @Column("location_name")
     val locationName: String? = null
 

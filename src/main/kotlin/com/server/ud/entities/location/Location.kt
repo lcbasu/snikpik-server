@@ -18,6 +18,10 @@ class Location {
     @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
     var createdAt: Instant = Instant.now()
 
+    @Indexed
+    @PrimaryKeyColumn(name = "zipcode", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
+    var zipcode: String? = null
+
     @Column
     val name: String? = null
 
