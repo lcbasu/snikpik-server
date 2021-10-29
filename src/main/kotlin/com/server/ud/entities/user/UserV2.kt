@@ -57,6 +57,9 @@ class UserV2 {
     @Column("user_last_zipcode")
     var userLastLocationZipcode: String? = null
 
+    @Column("user_last_google_place_id")
+    var userLastGooglePlaceId: String? = null
+
     @Column("user_last_location_id")
     var userLastLocationId: String? = null
 

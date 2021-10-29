@@ -25,6 +25,10 @@ class LocationByZipCode {
     @PrimaryKeyColumn(name = "location_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
     var locationId: String? = null
 
+    @Indexed
+    @PrimaryKeyColumn(name = "google_place_id", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
+    var googlePlaceId: String? = null
+
     @Column
     val name: String? = null
 

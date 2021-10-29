@@ -28,6 +28,9 @@ class UsersByZipcode {
     @Column("user_last_location_id")
     var userLastLocationId: String? = null
 
+    @Column("user_last_google_place_id")
+    var userLastGooglePlaceId: String? = null
+
     @Column("user_last_location_name")
     val userLastLocationName: String? = null
 

@@ -8,7 +8,19 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
 
-// Lat and Lng is from the center of the 5X5KM square
+/**
+ * The response from Google Maps Autocomplete
+ *
+ * will fill the following columns
+ *
+ * id -> Auto generated
+ * name -> Display name from Geo Response
+ * lat -> Latitude from Geo Response
+ * lng -> Longitude name from Geo Response
+ * zipcode -> Zipcode from Geo Response
+ * googlePlacesId -> Unique Google Place ID
+ *
+ * */
 @Table("locations")
 class Location {
 
@@ -21,6 +33,10 @@ class Location {
     @Indexed
     @PrimaryKeyColumn(name = "zipcode", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     var zipcode: String? = null
+
+    @Indexed
+    @PrimaryKeyColumn(name = "google_place_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
+    var googlePlaceId: String? = null
 
     @Column
     val name: String? = null
