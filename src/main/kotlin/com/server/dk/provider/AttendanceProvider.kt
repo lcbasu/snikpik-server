@@ -82,7 +82,7 @@ class AttendanceProvider {
 
         // Because for today, we will always cover that in the job that will run tomorrow
         if (savedAttendance.punchAt.toLocalDate().atStartOfDay().isBefore(DateUtils.dateTimeNow().toLocalDate().atStartOfDay())) {
-            employeeProvider.updateSalary(employee, DateUtils.toStringDate(savedAttendance.punchAt))
+            employeeProvider.updateSalary(employee, DateUtils.toStringForDate(savedAttendance.punchAt))
         }
 
         return savedAttendance;
@@ -288,7 +288,7 @@ class AttendanceProvider {
     fun getEmployeeAttendanceAggregateReport(employee: Employee, startDateTime: LocalDateTime, endDateTime: LocalDateTime): List<AttendanceTypeAggregateResponse> {
         return runBlocking {
             val employeeAttendanceDetails = mutableListOf<EmployeeAttendanceResponse>()
-            val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(startDateTime, endDateTime).map { DateUtils.toStringDate(it) }
+            val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(startDateTime, endDateTime).map { DateUtils.toStringForDate(it) }
 
             datesList.map { forDate ->
                 employeeAttendanceDetails.addAll(getEmployeeAttendanceResponse(employee, forDate))
@@ -602,10 +602,10 @@ class AttendanceProvider {
             val company = employee.company ?: error("Missing company for the employee")
             val companyWorkingMinutes = company.workingMinutes
 
-            val startDate = DateUtils.toStringDate(startTime)
-            val endDate = DateUtils.toStringDate(endTime)
+            val startDate = DateUtils.toStringForDate(startTime)
+            val endDate = DateUtils.toStringForDate(endTime)
 
-            val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(startTime, endTime).map { DateUtils.toStringDate(it) }
+            val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(startTime, endTime).map { DateUtils.toStringForDate(it) }
 
             val punchedAttendances = getAttendancesForEmployee(employee, datesList).groupBy { it.forDate }
             val attendancesByAdmin = getAttendancesByAdminForEmployee(employee, datesList).groupBy { it.id!!.forDate }
@@ -771,7 +771,7 @@ class AttendanceProvider {
 
     private fun getAttendanceSummaryMapForEmployee(employee: Employee, forYear: Int, forMonth: Int): Map<String, AttendanceInfoData> {
         val reportDuration = DateUtils.getReportDuration(forYear, forMonth)
-        val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(reportDuration.startTime, reportDuration.endTime).map { DateUtils.toStringDate(it) }
+        val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(reportDuration.startTime, reportDuration.endTime).map { DateUtils.toStringForDate(it) }
         val attendancesReport = mutableMapOf<String, AttendanceInfoData>()
         val company = employee.company ?: error("Company should always be present")
         datesList.map { forDate ->

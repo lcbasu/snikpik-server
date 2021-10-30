@@ -222,7 +222,7 @@ class PaymentProvider {
     fun getMonthlyPaymentSummary(company: Company, forYear: Int, forMonth: Int): List<MonthPayment> {
         val reportDuration = DateUtils.getReportDuration(forYear, forMonth)
         val startTime = reportDuration.startTime.minusMonths(GO_BACK_MONTHS)
-        val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(startTime, reportDuration.endTime).map { DateUtils.toStringDate(it) }
+        val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(startTime, reportDuration.endTime).map { DateUtils.toStringForDate(it) }
         val payments = getPayments(companyId = company.id, datesList = datesList)
         return runBlocking {
             val employees = employeeProvider.getEmployees(company, reportDuration.endTime)
@@ -332,7 +332,7 @@ class PaymentProvider {
     fun getMonthlyPaymentSummary(employee: Employee, forYear: Int, forMonth: Int): List<MonthPayment> {
         val reportDuration = DateUtils.getReportDuration(forYear, forMonth)
         val startTime = reportDuration.startTime.minusMonths(GO_BACK_MONTHS)
-        val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(startTime, reportDuration.endTime).map { DateUtils.toStringDate(it) }
+        val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(startTime, reportDuration.endTime).map { DateUtils.toStringForDate(it) }
         val payments = getPaymentsForEmployee(employeeId = employee.id, datesList = datesList)
         return getMonthlyPaymentSummary(listOf(employee), payments, datesList)
     }
@@ -440,14 +440,14 @@ class PaymentProvider {
     fun getEmployeeCompletePaymentDetails(employee: Employee, forYear: Int, forMonth: Int): EmployeeCompletePaymentDetailsResponse? {
         val randomDateInMonth = DateUtils.getRandomDateInMonth(forYear = forYear, forMonth = forMonth)
         val employeeWorkingDetailsForMonthWithDate = employeeProvider.getEmployeeWorkingDetailsForMonthWithDate(employee, randomDateInMonth)
-        val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(employeeWorkingDetailsForMonthWithDate.startDateTime, employeeWorkingDetailsForMonthWithDate.endDateTime).map { DateUtils.toStringDate(it) }
+        val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(employeeWorkingDetailsForMonthWithDate.startDateTime, employeeWorkingDetailsForMonthWithDate.endDateTime).map { DateUtils.toStringForDate(it) }
         val payments = getPaymentsForEmployee(employeeId = employee.id, datesList = datesList)
         val monthlyPayments = getMonthlyPaymentSummary(listOf(employee), payments, datesList)
         val dailyPayments = getDailyPayments(employee, payments, datesList)
         val monthlyPaymentsResponse = getMonthlyPaymentsResponse(monthlyPayments)
 
         val randomDateInLastMonth = randomDateInMonth.minusMonths(1)
-        val prevMonthDatesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(DateUtils.getStartDateForMonthWithDate(randomDateInLastMonth), DateUtils.getLastDateForMonthWithDate(randomDateInLastMonth)).map { DateUtils.toStringDate(it) }
+        val prevMonthDatesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(DateUtils.getStartDateForMonthWithDate(randomDateInLastMonth), DateUtils.getLastDateForMonthWithDate(randomDateInLastMonth)).map { DateUtils.toStringForDate(it) }
         val prevMonthPayments = getPaymentsForEmployee(employeeId = employee.id, datesList = prevMonthDatesList)
         val prevMonthMonthlyPayments = getMonthlyPaymentSummary(listOf(employee), prevMonthPayments, datesList)
 

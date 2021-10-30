@@ -1,8 +1,10 @@
 package com.server.ud.provider.post
 
 import com.server.common.utils.DateUtils
+import com.server.ud.dao.post.PostsByFollowingRepository
 import com.server.ud.dao.post.PostsByUserRepository
 import com.server.ud.entities.post.Post
+import com.server.ud.entities.post.PostsByFollowing
 import com.server.ud.entities.post.PostsByUser
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -10,17 +12,18 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
-class PostsByUserProvider {
+class PostsByFollowingProvider {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     @Autowired
-    private lateinit var postsByUserRepository: PostsByUserRepository
+    private lateinit var postsByFollowingRepository: PostsByFollowingRepository
 
-    fun save(post: Post): PostsByUser? {
+    fun save(post: Post, followerId: String): PostsByFollowing? {
         try {
-            val postsByUser = PostsByUser(
-                userId = post.userId,
+            val postsByFollowing = PostsByFollowing(
+                userId = followerId,
+                followingUserId = post.userId,
                 createdAt = DateUtils.getInstantNow(),
                 postId = post.postId,
                 postType = post.postType,
@@ -35,9 +38,9 @@ class PostsByUserProvider {
                 locationLat = post.locationLat,
                 locationLng = post.locationLng,
             )
-            return postsByUserRepository.save(postsByUser)
+            return postsByFollowingRepository.save(postsByFollowing)
         } catch (e: Exception) {
-            logger.error("Saving PostsByUser filed for ${post.postId}.")
+            logger.error("Saving PostsByFollowing filed for ${post.postId}.")
             e.printStackTrace()
             return null
         }

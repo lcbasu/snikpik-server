@@ -5,6 +5,11 @@ import com.server.ud.entities.post.Post
 import com.server.ud.enums.PostType
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class FakePostRequest(
+    var countOfPost: Int,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class SavePostRequest(
     var postType: PostType,
     var title: String? = null,

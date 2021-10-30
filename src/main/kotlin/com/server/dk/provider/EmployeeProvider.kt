@@ -98,7 +98,7 @@ class EmployeeProvider {
                 addedBy = createdByUser,
                 company = company,
                 employee = savedEmployee,
-                forDate = DateUtils.toStringDate(DateUtils.dateTimeNow()),
+                forDate = DateUtils.toStringForDate(DateUtils.dateTimeNow()),
                 paymentType = paymentType,
                 amountInPaisa = saveEmployeeRequest.openingBalanceInPaisa,
                 description = "Added by ${createdByUser.fullName} for opening balance"
@@ -149,8 +149,8 @@ class EmployeeProvider {
         // Yesterday is used for cases when this method is called by the auto scheduled job
         val yesterday = DateUtils.dateTimeNow().minusDays(1)
         val dateToBeUsed = if (forDate == null) yesterday else DateUtils.parseStandardDate(forDate)
-        val salaryAmountForDate = getSalaryAmountForDate(employee, DateUtils.toStringDate(dateToBeUsed))
-        paymentProvider.updateSalary(employee, salaryAmountForDate, DateUtils.toStringDate(dateToBeUsed))
+        val salaryAmountForDate = getSalaryAmountForDate(employee, DateUtils.toStringForDate(dateToBeUsed))
+        paymentProvider.updateSalary(employee, salaryAmountForDate, DateUtils.toStringForDate(dateToBeUsed))
     }
 
     // This is only for 1 day

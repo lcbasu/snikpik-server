@@ -10,49 +10,49 @@ import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
 
 @Table("posts_by_user")
-class PostsByUser {
+class PostsByUser (
 
     @PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    var userId: String? = null
+    var userId: String,
 
     @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
-    var createdAt: Instant = Instant.now()
+    var createdAt: Instant = Instant.now(),
 
     @Indexed
     @PrimaryKeyColumn(name = "post_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
-    var postId: String? = null
+    var postId: String,
 
     @PrimaryKeyColumn(name = "post_type", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
-    var postType: PostType? = null
+    var postType: PostType,
 
     @Column
-    var title: String? = null
+    var title: String? = null,
 
     @Column
-    var description: String? = null
+    var description: String? = null,
 
     @Column
-    var media: String? = null // MediaDetailsV2
+    var media: String? = null, // MediaDetailsV2
 
     @Column
-    var tags: String? = null // List of HashTagData
+    var tags: String? = null, // List of HashTagList
 
     @Column
-    var categories: String? = null //  List of CategoryV2
+    var categories: String? = null, //  List of CategoryV2
 
     @Column("location_id")
-    var locationId: String? = null
+    var locationId: String? = null,
 
     @Column("zipcode")
-    var zipcode: String? = null
+    var zipcode: String? = null,
 
     @Column("location_name")
-    val locationName: String? = null
+    val locationName: String? = null,
 
     @Column("location_lat")
-    val locationLat: Double? = null
+    val locationLat: Double? = null,
 
     @Column("location_lng")
-    val locationLng: Double? = null
-}
+    val locationLng: Double? = null,
+)
 

@@ -14,6 +14,7 @@ import java.time.Instant
 @Table("hash_tags")
 class HashTag {
 
+    // hashTagId and displayName should be same for all HashTag
     @PrimaryKeyColumn(name = "hash_tag_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var hashTagId: String? = null
 

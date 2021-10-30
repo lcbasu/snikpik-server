@@ -1,5 +1,6 @@
 package com.server.ud.entities.post
 
+import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
@@ -9,15 +10,11 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
 
-@Table("posts_by_zipcode")
-class PostsByZipcode (
+@Table("posts_by_category")
+class PostsByCategory (
 
-    // Keeping a composite key to create a partition for
-    // a location on daily basis
-    // otherwise a single location can lead to skewed partition
-    // when number of post from a single position increases
-    @PrimaryKeyColumn(name = "zipcode", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    var zipcode: String,
+    @PrimaryKeyColumn(name = "category_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+    var categoryId: CategoryV2,
 
     @PrimaryKeyColumn(name = "for_date", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
     var forDate: String,
@@ -38,6 +35,9 @@ class PostsByZipcode (
 
     @Column("location_id")
     var locationId: String? = null,
+
+    @Column("zipcode")
+    var zipcode: String? = null,
 
     @Column("location_name")
     val locationName: String? = null,

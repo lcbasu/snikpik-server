@@ -1,6 +1,10 @@
 package com.server.ud.entities.post
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
+import com.server.ud.model.HashTagData
+import com.server.ud.model.HashTagsList
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
@@ -36,13 +40,16 @@ class Post (
     var media: String? = null, // MediaDetailsV2
 
     @Column
-    var tags: String? = null, // List of HashTagData
+    var tags: String? = null, // List of HashTagsList
 
     @Column
     var categories: String? = null, //  List of CategoryV2
 
     @Column("location_id")
     var locationId: String? = null,
+
+    @Column("zipcode")
+    var zipcode: String? = null,
 
     @Column("location_name")
     val locationName: String? = null,
@@ -53,4 +60,31 @@ class Post (
     @Column("location_lng")
     val locationLng: Double? = null,
 )
+
+
+fun Post.getHashTags(): List<HashTagData> {
+    this.apply {
+        return try {
+            val tagsList = jacksonObjectMapper().readValue(tags, HashTagsList::class.java)
+            tagsList.tags
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+}
+
+fun Post.getCategories(): List<CategoryV2> {
+    this.apply {
+        return try {
+            val categoryIds = categories?.trim()?.split(",") ?: emptySet()
+            return categoryIds.map {
+                CategoryV2.valueOf(it)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList<CategoryV2>()
+        }
+    }
+}
 

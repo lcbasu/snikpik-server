@@ -1,5 +1,6 @@
 package com.server.ud.controller
 
+import com.server.ud.dto.FakePostRequest
 import com.server.ud.dto.SavePostRequest
 import com.server.ud.dto.SavedPostResponse
 import com.server.ud.service.post.PostService
@@ -21,7 +22,7 @@ class PostController {
     }
 
     @RequestMapping(value = ["/fakeSave"], method = [RequestMethod.POST])
-    fun fakeSavePosts(): List<SavedPostResponse>? {
-        return postService.fakeSavePosts()
+    fun fakeSavePostsWithCount(@RequestBody request: FakePostRequest): List<SavedPostResponse>? {
+        return postService.fakeSavePosts(request)
     }
 }

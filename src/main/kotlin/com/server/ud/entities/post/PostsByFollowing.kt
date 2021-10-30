@@ -9,18 +9,26 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
 
-@Table("posts_by_zipcode")
-class PostsByZipcode (
+/**
+ *
+ * user_id -> Lokesh
+ * following_user_id -> Amitabh Bachhan
+ *
+ * So whenever Amitabh Bachhan creates a post, we go ahead and add that post into posts_by_following
+ * table for the all the followers so that they(user, Lokesh) can see the feed from people who are
+ * being followed(Amitabh Bachhan) by that user (Lokesh)
+ *
+ *
+ * */
 
-    // Keeping a composite key to create a partition for
-    // a location on daily basis
-    // otherwise a single location can lead to skewed partition
-    // when number of post from a single position increases
-    @PrimaryKeyColumn(name = "zipcode", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    var zipcode: String,
+@Table("posts_by_following")
+class PostsByFollowing (
 
-    @PrimaryKeyColumn(name = "for_date", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
-    var forDate: String,
+    @PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+    var userId: String,
+
+    @PrimaryKeyColumn(name = "following_user_id", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
+    var followingUserId: String,
 
     @PrimaryKeyColumn(name = "created_at", ordinal = 2, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
     var createdAt: Instant = Instant.now(),
@@ -31,22 +39,6 @@ class PostsByZipcode (
 
     @PrimaryKeyColumn(name = "post_type", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
     var postType: PostType,
-
-    @Indexed
-    @PrimaryKeyColumn(name = "user_id", ordinal = 5, type = PrimaryKeyType.CLUSTERED)
-    var userId: String,
-
-    @Column("location_id")
-    var locationId: String? = null,
-
-    @Column("location_name")
-    val locationName: String? = null,
-
-    @Column("location_lat")
-    val locationLat: Double? = null,
-
-    @Column("location_lng")
-    val locationLng: Double? = null,
 
     @Column
     var title: String? = null,
@@ -63,5 +55,19 @@ class PostsByZipcode (
     @Column
     var categories: String? = null, //  List of CategoryV2
 
+    @Column("location_id")
+    var locationId: String? = null,
+
+    @Column("zipcode")
+    var zipcode: String? = null,
+
+    @Column("location_name")
+    val locationName: String? = null,
+
+    @Column("location_lat")
+    val locationLat: Double? = null,
+
+    @Column("location_lng")
+    val locationLng: Double? = null,
 )
 

@@ -9,28 +9,39 @@ import java.util.*
 import kotlin.math.floor
 
 object DateUtils {
-    private const val standardFormatter = "yyyy-MM-dd"
+    private const val standardForDateFormatter = "yyyy-MM-dd"
+    private const val standardForMonthFormatter = "yyyy-MM"
     private const val standardTimeZoneId = "UTC"
+    private val standardZoneOffset = ZoneOffset.UTC
 
     fun parseStandardDate(forDate: String): LocalDateTime =
-        LocalDate.parse(forDate, DateTimeFormatter.ofPattern(standardFormatter)).atStartOfDay()
+        LocalDate.parse(forDate, DateTimeFormatter.ofPattern(standardForDateFormatter)).atStartOfDay()
 
     fun parseEpochInMilliseconds(epochInMilliSeconds: Long): LocalDateTime =
         LocalDateTime.ofInstant(Instant.ofEpochSecond(epochInMilliSeconds / 1000), ZoneId.of(standardTimeZoneId))
 
     fun getEpoch(dateTime: LocalDateTime?): Long =
-        dateTime?.toEpochSecond(ZoneOffset.UTC) ?: 0
+        dateTime?.toEpochSecond(standardZoneOffset) ?: 0
 
-    fun getCurrentTimeInEpoch(): Long = dateTimeNow().toEpochSecond(ZoneOffset.UTC)
+    fun getCurrentTimeInEpoch(): Long = dateTimeNow().toEpochSecond(standardZoneOffset)
 
     fun dateTimeNow(): LocalDateTime =
         LocalDateTime.now(ZoneId.of(standardTimeZoneId))
 
-    fun toStringDate(dateTime: LocalDateTime): String =
-        dateTime.format(DateTimeFormatter.ofPattern(standardFormatter))
+    fun getInstantNow(): Instant =
+        dateTimeNow().toInstant(standardZoneOffset)
 
-    fun toStringDate(date: LocalDate): String =
-        date.format(DateTimeFormatter.ofPattern(standardFormatter))
+    fun toStringForDate(dateTime: LocalDateTime): String =
+        dateTime.format(DateTimeFormatter.ofPattern(standardForDateFormatter))
+
+    fun toStringForDate(date: LocalDate): String =
+        date.format(DateTimeFormatter.ofPattern(standardForDateFormatter))
+
+    fun toStringForMonth(dateTime: LocalDateTime): String =
+        dateTime.format(DateTimeFormatter.ofPattern(standardForMonthFormatter))
+
+    fun toStringForMonth(date: LocalDate): String =
+        date.format(DateTimeFormatter.ofPattern(standardForMonthFormatter))
 
     fun toLocalDate(dateTime: LocalDateTime): LocalDate = dateTime.toLocalDate()
 

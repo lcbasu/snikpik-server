@@ -4,11 +4,14 @@ import com.github.javafaker.Faker
 import com.server.common.entities.User
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.UniqueIdProvider
-import com.server.ud.service.post.ProcessPostSchedulerService
 import com.server.ud.dao.post.PostRepository
 import com.server.ud.dto.SavePostRequest
 import com.server.ud.entities.post.Post
 import com.server.ud.enums.PostType
+import com.server.ud.model.HashTagData
+import com.server.ud.model.HashTagsList
+import com.server.ud.model.convertToString
+import com.server.ud.service.post.ProcessPostSchedulerService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,8 +32,34 @@ class PostProvider {
     @Autowired
     private lateinit var processPostSchedulerService: ProcessPostSchedulerService
 
+    fun getPost(postId: String): Post? =
+        try {
+            val posts = postRepository.findAllByPostId(postId)
+            if (posts.size > 1) {
+                error("More than one post has same postId: $postId")
+            }
+            posts.firstOrNull()
+        } catch (e: Exception) {
+            logger.error("Getting Post for $postId failed.")
+            e.printStackTrace()
+            null
+        }
+
+
     fun save(user: User, request: SavePostRequest) : Post? {
         try {
+            val tags = HashTagsList(
+                tags = listOf(
+                    HashTagData(
+                        tagId = "TID1",
+                        displayName = "Tag ID 1",
+                    ),
+                    HashTagData(
+                        tagId = "TID2",
+                        displayName = "Tag ID 2",
+                    )
+                )
+            )
             val post = Post(
                 postId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.PST.name),
                 userId = user.id,
@@ -39,9 +68,10 @@ class PostProvider {
                 title = request.title,
                 description = request.description,
                 media = "",
-                tags = "TID1,TID2",
-                categories = "CID1,CID2",
+                tags = tags.convertToString(),
+                categories = "EXTERIOR,KITCHEN",
                 locationId = "LID1",
+                zipcode = "562125",
                 locationLat = 0.0,
                 locationLng = 0.0,
                 locationName = "Bangalore",)
@@ -54,12 +84,10 @@ class PostProvider {
         }
     }
 
-    fun fakeSave(user: User): List<Post> {
-        val totalFakePost = 25
+    fun fakeSave(user: User, countOfPost: Int): List<Post> {
         val posts = mutableListOf<Post?>()
-        for (i in 1..totalFakePost) {
+        for (i in 1..countOfPost) {
             val faker = Faker()
-
             val req = SavePostRequest(
                 postType = PostType.GENERIC_POST,
                 title = faker.book().title(),
@@ -69,10 +97,6 @@ class PostProvider {
             posts.add(save(user, req))
         }
         return posts.filterNotNull()
-    }
-
-    fun postProcessPost(postId: String) {
-        logger.info("Do post processing for postId: $postId")
     }
 
 }

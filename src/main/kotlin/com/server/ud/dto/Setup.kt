@@ -3,6 +3,7 @@ package com.server.ud.dto
 import com.server.dk.model.MediaDetailsV2
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.UserProfession
+import com.server.ud.model.HashTagData
 
 // Break down each request and response DTO
 // Likes should be a different call and video should be different. And so on.
@@ -42,10 +43,10 @@ data class PostLocation(
 //    val name: String
 //)
 
-data class HashTagData (
-    val tagId: String,
-    val displayName: String
-)
+//data class HashTagData (
+//    val tagId: String,
+//    val displayName: String
+//)
 
 interface PaginationDetails {
     val numFound: Long
