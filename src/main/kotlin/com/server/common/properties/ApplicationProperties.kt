@@ -6,7 +6,7 @@ import java.io.File
 
 @ConstructorBinding
 @ConfigurationProperties("aws")
-data class AwsProperties(var awsKey: String? = null, var awsSecret: String? = null, var amplify: AmplifyProperties) {
+data class AwsProperties(var awsKey: String? = null, var awsSecret: String? = null, var amplify: AmplifyProperties, var es: ESProperties) {
 
 //    data class DynamoDbProperties(var endpoint: String)
 
@@ -19,6 +19,7 @@ data class AwsProperties(var awsKey: String? = null, var awsSecret: String? = nu
      *
      * */
     data class AmplifyProperties(var wellKnownIssuer: String, var wellKnownUrlEndpoint: String)
+    data class ESProperties(var host: String, var port: Int, var protocol: String, var username: String, var password: String)
 }
 
 @ConstructorBinding

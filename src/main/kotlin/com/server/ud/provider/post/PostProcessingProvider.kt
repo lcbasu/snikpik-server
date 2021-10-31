@@ -36,6 +36,9 @@ class PostProcessingProvider {
     @Autowired
     private lateinit var postsByHashTagProvider: PostsByHashTagProvider
 
+    @Autowired
+    private lateinit var esPostProvider: ESPostProvider
+
     fun postProcessPost(postId: String) {
         // Update
         // Post By User
@@ -68,11 +71,16 @@ class PostProcessingProvider {
                     .map { it.await() }
             }
 
+            val savePostToESFuture = async {
+                esPostProvider.save(post)
+            }
+
             postsByUserFuture.await()
             postsByZipcodeFuture.await()
             followersFeedFuture.await()
             categoriesFeedFuture.await()
             hashTagsFeedFuture.await()
+            savePostToESFuture.await()
 
             logger.info("Post processing completed for postId: $postId")
         }

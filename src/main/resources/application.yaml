@@ -105,6 +105,12 @@ aws:
   amplify:
     well-known-issuer: ${AMPLIFY_WELL_KNOWN_ISSUER}
     well-known-url-endpoint: ${AMPLIFY_WELL_KNOWN_ENDPOINT}
+  es:
+    host: ${AWS_ES_HOST}
+    port: ${AWS_ES_PORT}
+    protocol: ${AWS_ES_PROTOCOL}
+    username: ${AWS_ES_USERNAME}
+    password: ${AWS_ES_PASSWORD}
 
 cloud:
   aws:

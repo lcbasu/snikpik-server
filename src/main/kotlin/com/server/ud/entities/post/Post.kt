@@ -11,6 +11,7 @@ import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.Indexed
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
+import org.springframework.data.elasticsearch.core.geo.GeoPoint
 import java.time.Instant
 
 @Table("posts")
@@ -61,6 +62,14 @@ class Post (
     val locationLng: Double? = null,
 )
 
+fun Post.getGeoPointData(): GeoPoint? {
+    this.apply {
+        if (locationLat != null && locationLng != null) {
+            return GeoPoint(locationLat,locationLng)
+        }
+        return null
+    }
+}
 
 fun Post.getHashTags(): List<HashTagData> {
     this.apply {
@@ -74,16 +83,16 @@ fun Post.getHashTags(): List<HashTagData> {
     }
 }
 
-fun Post.getCategories(): List<CategoryV2> {
+fun Post.getCategories(): Set<CategoryV2> {
     this.apply {
         return try {
             val categoryIds = categories?.trim()?.split(",") ?: emptySet()
             return categoryIds.map {
                 CategoryV2.valueOf(it)
-            }
+            }.toSet()
         } catch (e: Exception) {
             e.printStackTrace()
-            emptyList<CategoryV2>()
+            emptySet()
         }
     }
 }

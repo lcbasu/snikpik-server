@@ -4,8 +4,11 @@ import com.github.javafaker.Faker
 import com.server.common.entities.User
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.UniqueIdProvider
+import com.server.ud.dao.es.article.ESArticleRepository
 import com.server.ud.dao.post.PostRepository
 import com.server.ud.dto.SavePostRequest
+import com.server.ud.entities.es.article.Article
+import com.server.ud.entities.es.article.Author
 import com.server.ud.entities.post.Post
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagData
@@ -25,6 +28,9 @@ class PostProvider {
 
     @Autowired
     private lateinit var postRepository: PostRepository
+
+    @Autowired
+    private lateinit var esArticleRepository: ESArticleRepository
 
     @Autowired
     private lateinit var uniqueIdProvider: UniqueIdProvider
@@ -72,9 +78,10 @@ class PostProvider {
                 categories = "EXTERIOR,KITCHEN",
                 locationId = "LID1",
                 zipcode = "562125",
-                locationLat = 0.0,
-                locationLng = 0.0,
-                locationName = "Bangalore",)
+                locationLat = 1.1,
+                locationLng = 2.2,
+                locationName = "Bangalore",
+            )
             val savedPost = postRepository.save(post)
             processPostSchedulerService.createPostProcessingJob(savedPost)
             return savedPost
@@ -96,6 +103,15 @@ class PostProvider {
 
             posts.add(save(user, req))
         }
+
+        val article = Article(
+            id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.PST.name),
+            title = "Spring Data Elasticsearch",
+            authors = listOf(
+                Author("John Smith"),
+                Author("John Doe")
+            ))
+        esArticleRepository.save(article)
         return posts.filterNotNull()
     }
 
