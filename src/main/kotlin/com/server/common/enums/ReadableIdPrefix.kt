@@ -20,5 +20,6 @@ enum class ReadableIdPrefix {
     ETR, // Entity Tracking
 
     PST, // Post
+    LOC, // Location
 }
 

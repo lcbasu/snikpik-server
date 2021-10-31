@@ -29,11 +29,9 @@ class ResourceSave {
     @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
     var createdAt: Instant = Instant.now()
 
-    @Indexed
     @PrimaryKeyColumn(name = "resource_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     var resourceId: String? = null
 
-    @Indexed
     @PrimaryKeyColumn(name = "resource_type", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
     var resourceType: ResourceType? = null
 

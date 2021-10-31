@@ -1,9 +1,8 @@
 package com.server.ud.provider.post
 
 import com.server.ud.dao.es.post.ESPostRepository
-import com.server.ud.entities.es.article.ESPost
+import com.server.ud.entities.es.post.ESPost
 import com.server.ud.entities.post.Post
-import com.server.ud.entities.post.getCategories
 import com.server.ud.entities.post.getGeoPointData
 import com.server.ud.entities.post.getHashTags
 import org.slf4j.Logger

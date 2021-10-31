@@ -69,7 +69,7 @@ class ProcessPostSchedulerServiceImpl : ProcessPostSchedulerService() {
         return JobBuilder
             .newJob(ProcessPostJob::class.java)
             .withIdentity(jobKey)
-            .withDescription("Take Shop Online Job")
+            .withDescription("Process Post Job")
             .usingJobData(jobDataMap)
             .storeDurably()
             .build()
@@ -98,7 +98,7 @@ class ProcessPostSchedulerServiceImpl : ProcessPostSchedulerService() {
             .newTrigger()
             .forJob(jobDetail.key)
             .withIdentity(getTriggerKey(post))
-            .withDescription("Do post processing for post")
+            .withDescription("Do post processing")
             .startAt(getStartDateForAfterPostCreated())
             .build()
     }
@@ -109,7 +109,7 @@ class ProcessPostSchedulerServiceImpl : ProcessPostSchedulerService() {
     }
 
     private fun getStartDateForAfterPostCreated(): Date {
-        val startTime = DateUtils.dateTimeNow().plusSeconds(10)
+        val startTime = DateUtils.dateTimeNow().plusSeconds(5)
         return Date(DateUtils.getEpoch(startTime) * 1000)
     }
 }

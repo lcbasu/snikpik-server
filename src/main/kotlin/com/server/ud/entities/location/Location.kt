@@ -1,11 +1,15 @@
 package com.server.ud.entities.location
 
+import com.server.ud.entities.post.Post
+import com.server.ud.enums.LocationFor
+import com.server.ud.enums.PostType
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.Indexed
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
+import org.springframework.data.elasticsearch.core.geo.GeoPoint
 import java.time.Instant
 
 /**
@@ -22,29 +26,42 @@ import java.time.Instant
  *
  * */
 @Table("locations")
-class Location {
+class Location (
 
     @PrimaryKeyColumn(name = "location_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    var locationId: String? = null
+    var locationId: String,
 
     @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
-    var createdAt: Instant = Instant.now()
+    var createdAt: Instant = Instant.now(),
 
-    @Indexed
-    @PrimaryKeyColumn(name = "zipcode", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
-    var zipcode: String? = null
+    @PrimaryKeyColumn(name = "user_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
+    var userId: String,
 
-    @Indexed
-    @PrimaryKeyColumn(name = "google_place_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
-    var googlePlaceId: String? = null
+    @Column("location_for")
+    var locationFor: LocationFor,
 
-    @Column
-    val name: String? = null
+    @Column("zipcode")
+    var zipcode: String? = null,
 
-    @Column
-    val lat: Double? = null
+    @Column("google_place_id")
+    var googlePlaceId: String? = null,
 
     @Column
-    val lng:Double? = null
+    val name: String? = null,
+
+    @Column
+    val lat: Double? = null,
+
+    @Column
+    val lng:Double? = null,
+)
+
+fun Location.getGeoPointData(): GeoPoint? {
+    this.apply {
+        if (lat != null && lng != null) {
+            return GeoPoint(lat, lng)
+        }
+        return null
+    }
 }
 

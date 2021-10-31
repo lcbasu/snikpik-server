@@ -23,11 +23,9 @@ class Post (
     @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
     var createdAt: Instant = Instant.now(),
 
-    @Indexed
     @PrimaryKeyColumn(name = "user_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     var userId: String,
 
-    @Indexed
     @PrimaryKeyColumn(name = "post_type", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
     var postType: PostType,
 
@@ -48,6 +46,9 @@ class Post (
 
     @Column("location_id")
     var locationId: String? = null,
+
+    @Column("google_place_id")
+    var googlePlaceId: String? = null,
 
     @Column("zipcode")
     var zipcode: String? = null,

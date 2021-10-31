@@ -37,6 +37,9 @@ object DateUtils {
     fun toStringForDate(date: LocalDate): String =
         date.format(DateTimeFormatter.ofPattern(standardForDateFormatter))
 
+    fun toStringForDateDefault(): String =
+        dateTimeNow().format(DateTimeFormatter.ofPattern(standardForDateFormatter))
+
     fun toStringForMonth(dateTime: LocalDateTime): String =
         dateTime.format(DateTimeFormatter.ofPattern(standardForMonthFormatter))
 

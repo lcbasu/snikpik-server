@@ -17,15 +17,12 @@ class Follower {
     @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
     var createdAt: Instant = Instant.now()
 
-    @Indexed
     @PrimaryKeyColumn(name = "user_handle", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     val userHandle: String? = null
 
-    @Indexed
     @PrimaryKeyColumn(name = "follower_user_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
     var followerUserId: String? = null
 
-    @Indexed
     @PrimaryKeyColumn(name = "follower_handle", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
     var followerHandle: String? = null
 

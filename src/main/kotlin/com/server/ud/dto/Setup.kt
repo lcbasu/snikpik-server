@@ -16,27 +16,27 @@ import com.server.ud.model.HashTagData
 //    val name: String // Interior Designer, Architect, etc.
 //)
 
-interface Location {
+interface LocationResponse {
     val id: String // ID at the city or 5x5 KM square block level (Need to figure out a way)
     val name: String // City Level grouping and naming
     val lat: Double
     val lng:Double
 }
 
-data class UserLocation(
+data class UserLocationResponse(
     override val id: String,
     override val name: String,
     override val lat: Double,
     override val lng: Double,
-): Location
+): LocationResponse
 
 
-data class PostLocation(
+data class PostLocationResponse(
     override val id: String,
     override val name: String,
     override val lat: Double,
     override val lng: Double,
-): Location
+): LocationResponse
 
 //data class CategoryV2 (
 //    val categoryId: String,
@@ -119,7 +119,7 @@ data class VFVSingleUserDetail(
     val verified: Boolean,
     val dp: MediaDetailsV2,
     val profession: UserProfession,
-    val location: UserLocation,
+    val location: UserLocationResponse,
 )
 
 data class VFVFollowDetail(
@@ -252,7 +252,7 @@ data class PMFUserProfile (
     val verified: Boolean,
     val profession: UserProfession, // Like Interior Designer
     val businessName: String?, // at Godrej Interio
-    val location: Location,
+    val locationResponse: LocationResponse,
 )
 
 data class PMFSingleCard (
@@ -283,7 +283,7 @@ data class SMFUserProfile (
     val verified: Boolean,
     val profession: UserProfession,
     val businessName: String?, // at Oreo Paintings
-    val location: Location,
+    val locationResponse: LocationResponse,
 )
 
 data class SMFSingleCard (
@@ -313,7 +313,7 @@ data class OPVUserProfile (
     val dp: MediaDetailsV2,
     val verified: Boolean,
     val profession: UserProfession,
-    val location: Location,
+    val locationResponse: LocationResponse,
     val professionalSince: Long?,
 )
 
@@ -368,7 +368,7 @@ data class WPVUserProfile (
     val dp: MediaDetailsV2,
     val verified: Boolean,
     val profession: UserProfession,
-    val location: Location,
+    val locationResponse: LocationResponse,
     val professionalSince: Long?,
 )
 

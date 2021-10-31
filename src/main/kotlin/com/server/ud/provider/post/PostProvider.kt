@@ -4,22 +4,23 @@ import com.github.javafaker.Faker
 import com.server.common.entities.User
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.UniqueIdProvider
-import com.server.ud.dao.es.article.ESArticleRepository
 import com.server.ud.dao.post.PostRepository
 import com.server.ud.dto.SavePostRequest
-import com.server.ud.entities.es.article.Article
-import com.server.ud.entities.es.article.Author
+import com.server.ud.dto.sampleLocationRequests
 import com.server.ud.entities.post.Post
+import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagData
 import com.server.ud.model.HashTagsList
 import com.server.ud.model.convertToString
+import com.server.ud.provider.location.LocationProvider
 import com.server.ud.service.post.ProcessPostSchedulerService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.time.Instant
+import kotlin.random.Random
 
 @Component
 class PostProvider {
@@ -30,10 +31,10 @@ class PostProvider {
     private lateinit var postRepository: PostRepository
 
     @Autowired
-    private lateinit var esArticleRepository: ESArticleRepository
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
-    private lateinit var uniqueIdProvider: UniqueIdProvider
+    private lateinit var locationProvider: LocationProvider
 
     @Autowired
     private lateinit var processPostSchedulerService: ProcessPostSchedulerService
@@ -54,18 +55,9 @@ class PostProvider {
 
     fun save(user: User, request: SavePostRequest) : Post? {
         try {
-            val tags = HashTagsList(
-                tags = listOf(
-                    HashTagData(
-                        tagId = "TID1",
-                        displayName = "Tag ID 1",
-                    ),
-                    HashTagData(
-                        tagId = "TID2",
-                        displayName = "Tag ID 2",
-                    )
-                )
-            )
+            val location = request.locationRequest?.let {
+                locationProvider.save(user, it)
+            }
             val post = Post(
                 postId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.PST.name),
                 userId = user.id,
@@ -74,13 +66,14 @@ class PostProvider {
                 title = request.title,
                 description = request.description,
                 media = "",
-                tags = tags.convertToString(),
-                categories = "EXTERIOR,KITCHEN",
-                locationId = "LID1",
-                zipcode = "562125",
-                locationLat = 1.1,
-                locationLng = 2.2,
-                locationName = "Bangalore",
+                tags = request.tags.convertToString(),
+                categories = request.categories.joinToString(","),
+                locationId = location?.locationId,
+                zipcode = location?.zipcode,
+                locationLat = location?.lat,
+                locationLng = location?.lng,
+                locationName = location?.name,
+                googlePlaceId = location?.googlePlaceId
             )
             val savedPost = postRepository.save(post)
             processPostSchedulerService.createPostProcessingJob(savedPost)
@@ -98,20 +91,22 @@ class PostProvider {
             val req = SavePostRequest(
                 postType = PostType.GENERIC_POST,
                 title = faker.book().title(),
-                description = faker.book().publisher()
+                description = faker.book().publisher(),
+                tags = HashTagsList(listOf(
+                    HashTagData(
+                        tagId = "TID1",
+                        displayName = "Tag ID 1",
+                    ),
+                    HashTagData(
+                        tagId = "TID2",
+                        displayName = "Tag ID 2",
+                    )
+                )),
+                categories = setOf(CategoryV2.KITCHEN, CategoryV2.EXTERIOR),
+                locationRequest = sampleLocationRequests[Random.nextInt(sampleLocationRequests.size)]
             )
-
             posts.add(save(user, req))
         }
-
-        val article = Article(
-            id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.PST.name),
-            title = "Spring Data Elasticsearch",
-            authors = listOf(
-                Author("John Smith"),
-                Author("John Doe")
-            ))
-        esArticleRepository.save(article)
         return posts.filterNotNull()
     }
 

@@ -1,5 +1,6 @@
 package com.server.ud.entities.location
 
+import com.server.ud.enums.LocationFor
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
@@ -10,32 +11,35 @@ import java.time.Instant
 
 // Lat and Lng is from the center of the 5X5KM square
 @Table("locations_by_zipcode")
-class LocationByZipCode {
+class LocationsByZipcode (
 
     @PrimaryKeyColumn(name = "zipcode", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    var zipcode: String? = null
+    var zipcode: String,
 
     @PrimaryKeyColumn(name = "for_date", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
-    var forDate: String? = null
+    var forDate: String,
 
     @PrimaryKeyColumn(name = "created_at", ordinal = 2, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
-    var createdAt: Instant = Instant.now()
+    var createdAt: Instant = Instant.now(),
 
-    @Indexed
     @PrimaryKeyColumn(name = "location_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
-    var locationId: String? = null
+    var locationId: String? = null,
 
-    @Indexed
-    @PrimaryKeyColumn(name = "google_place_id", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
-    var googlePlaceId: String? = null
+    @PrimaryKeyColumn(name = "user_id", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
+    var userId: String,
+
+    @Column("location_for")
+    var locationFor: LocationFor,
+
+    @Column("google_place_id")
+    var googlePlaceId: String? = null,
 
     @Column
-    val name: String? = null
+    val name: String? = null,
 
     @Column
-    val lat: Double? = null
+    val lat: Double? = null,
 
     @Column
-    val lng:Double? = null
-}
-
+    val lng:Double? = null,
+)

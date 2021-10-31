@@ -21,11 +21,9 @@ class UserV2 {
     @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
     var createdAt: Instant = Instant.now()
 
-    @Indexed
     @PrimaryKeyColumn(name = "handle", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     var handle: String? = null
 
-    @Indexed
     @PrimaryKeyColumn(name = "absolute_mobile", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
     var absoluteMobile: String? = null
 

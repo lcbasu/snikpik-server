@@ -1,4 +1,4 @@
-package com.server.ud.entities.es.article
+package com.server.ud.entities.es.post
 
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagData
@@ -43,16 +43,10 @@ class ESPost (
 //    @Field(type = FieldType.Nested, includeInParent = true)
 //    var categories: Set<String>, //  List of CategoryV2
 
-    @MultiField(
-        mainField = Field(type = FieldType.Text, fielddata = true),
-        otherFields = [InnerField(suffix = "verbatim", type = FieldType.Keyword)]
-    )
+    @Field(type = FieldType.Keyword)
     var locationId: String? = null,
 
-    @MultiField(
-        mainField = Field(type = FieldType.Text, fielddata = true),
-        otherFields = [InnerField(suffix = "verbatim", type = FieldType.Keyword)]
-    )
+    @Field(type = FieldType.Keyword)
     var zipcode: String? = null,
 
     @MultiField(

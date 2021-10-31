@@ -22,7 +22,6 @@ class HashTag {
     var createdAt: Instant = Instant.now()
 
     // User who created this hashtag
-    @Indexed
     @PrimaryKeyColumn(name = "user_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     var userId: String? = null
 
