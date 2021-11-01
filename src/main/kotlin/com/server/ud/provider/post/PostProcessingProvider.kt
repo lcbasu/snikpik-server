@@ -2,6 +2,8 @@ package com.server.ud.provider.post
 
 import com.server.ud.entities.post.getCategories
 import com.server.ud.entities.post.getHashTags
+import com.server.ud.provider.location.ESLocationProvider
+import com.server.ud.provider.location.LocationProcessingProvider
 import com.server.ud.provider.social.FollowerProvider
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -39,6 +41,12 @@ class PostProcessingProvider {
     @Autowired
     private lateinit var esPostProvider: ESPostProvider
 
+    @Autowired
+    private lateinit var esLocationProvider: ESLocationProvider
+
+    @Autowired
+    private lateinit var locationProcessingProvider: LocationProcessingProvider
+
     fun postProcessPost(postId: String) {
         // Update
         // Post By User
@@ -49,6 +57,12 @@ class PostProcessingProvider {
         runBlocking {
             logger.info("Do post processing for postId: $postId")
             val post = postProvider.getPost(postId) ?: error("No post found for $postId while doing post processing.")
+            val esLocation = post.locationId?.let { esLocationProvider.getLocation(it) }
+            if (esLocation == null) {
+                // Location not processed.
+                // Process the location
+                locationProcessingProvider.processLocation(post.locationId!!)
+            }
             val postsByUserFuture = async {
                 postsByUserProvider.save(post)
             }

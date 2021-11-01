@@ -17,6 +17,14 @@ class ESLocationProvider {
     @Autowired
     private lateinit var esLocationRepository: ESLocationRepository
 
+    fun getLocation(locationId: String): ESLocation? =
+        try {
+            esLocationRepository.findById(locationId).get()
+        } catch (e: Exception) {
+            logger.error("Getting Location for $locationId failed.")
+            null
+        }
+
     fun save(location: Location) : ESLocation? {
         try {
             val esLocation = ESLocation(

@@ -109,7 +109,7 @@ class ProcessLocationSchedulerServiceImpl : ProcessLocationSchedulerService() {
     }
 
     private fun getStartDateForAfterLocationCreated(): Date {
-        val startTime = DateUtils.dateTimeNow().plusSeconds(5)
+        val startTime = DateUtils.dateTimeNow().plusSeconds(10)
         return Date(DateUtils.getEpoch(startTime) * 1000)
     }
 }

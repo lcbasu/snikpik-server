@@ -45,6 +45,12 @@ class LocationProcessingProvider {
         // 3. Save all the zipcodes into nearby_zipcodes_by_zipcode cassandra table
         runBlocking {
             logger.info("Do location processing for locationId: $locationId")
+            val esLocation = esLocationProvider.getLocation(locationId)
+            if (esLocation != null) {
+                // Location already processed.
+                logger.info("Location already processed for locationId: $locationId")
+                return@runBlocking
+            }
             val location = locationProvider.getLocation(locationId) ?: error("No location found for $locationId while processing.")
             val nearbyLocationsFuture = async { saveNearbyLocations(location) }
             val locationsByUserFuture = async { locationsByUserProvider.save(location) }
