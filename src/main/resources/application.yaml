@@ -8,9 +8,9 @@ spring:
   data:
     cassandra:
       keyspace-name: ${ASTRA_DB_KEYSPACE}
-      username: ${ASTRA_DB_USERNAME}
-      password: ${ASTRA_DB_PASSWORD}
-      # Create the schema on the fly if it doesn't exist
+#      username: ${ASTRA_DB_USERNAME}
+#      password: ${ASTRA_DB_PASSWORD}
+#      # Create the schema on the fly if it doesn't exist
       schema-action: CREATE_IF_NOT_EXISTS
       # Increase timeouts when connecting to Astra from a dev workstation
       request:
@@ -111,6 +111,9 @@ aws:
     protocol: ${AWS_ES_PROTOCOL}
     username: ${AWS_ES_USERNAME}
     password: ${AWS_ES_PASSWORD}
+  keyspace:
+    username: ${AWS_KEYSPACE_USERNAME}
+    password: ${AWS_KEYSPACE_PASSWORD}
 
 cloud:
   aws:

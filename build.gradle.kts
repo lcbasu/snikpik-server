@@ -35,6 +35,7 @@ dependencies {
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools:2.3.8.RELEASE")
 
+	implementation("software.aws.mcs:aws-sigv4-auth-cassandra-java-driver-plugin:4.0.4")
 	implementation("io.springfox:springfox-boot-starter:3.0.0")
 	implementation("com.nimbusds:nimbus-jose-jwt:9.9.3")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.0")

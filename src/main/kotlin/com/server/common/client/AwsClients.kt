@@ -7,6 +7,8 @@ import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
+import com.datastax.oss.driver.api.core.CqlSessionBuilder
+import com.datastax.oss.driver.api.core.config.DriverConfigLoader
 import com.server.common.properties.AwsProperties
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
@@ -17,10 +19,12 @@ import org.apache.http.impl.nio.client.HttpAsyncClientBuilder
 import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.cassandra.CqlSessionBuilderCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate
+import javax.net.ssl.SSLContext
 
 @Configuration
 class AwsClients {
@@ -93,6 +97,21 @@ class AwsClients {
     @Bean
     fun elasticsearchTemplate(): ElasticsearchOperations? {
         return ElasticsearchRestTemplate(getRestHighLevelClient())
+    }
+
+    @Bean
+    fun sessionBuilderCustomizer(): CqlSessionBuilderCustomizer? {
+        val loader = DriverConfigLoader.fromClasspath("application.conf")
+        return CqlSessionBuilderCustomizer {
+                builder: CqlSessionBuilder -> builder
+            .withConfigLoader(loader)
+            .withAuthCredentials(awsProperties.keyspace.username, awsProperties.keyspace.password)
+            .withLocalDatacenter("ap-south-1")
+            .withSslContext(SSLContext.getDefault())
+            .withKeyspace("dk_unboxd_db")
+
+            //.withCloudSecureConnectBundle(objectData)
+        }
     }
 
 }
