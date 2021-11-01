@@ -11,6 +11,7 @@ import com.server.common.enums.RoleType
 import com.server.common.model.FirebaseAuthUser
 import com.server.dk.provider.CompanyProvider
 import com.server.dk.provider.EmployeeProvider
+import com.server.ud.provider.user.UserV2Provider
 import com.twilio.rest.lookups.v1.PhoneNumber
 import io.sentry.Sentry
 import org.slf4j.Logger
@@ -38,6 +39,9 @@ class AuthProvider {
 
     @Autowired
     private lateinit var uniqueIdProvider: UniqueIdProvider
+
+    @Autowired
+    private lateinit var userV2Provider: UserV2Provider
 
     fun getUser(userId: String): User? =
         try {
@@ -176,7 +180,10 @@ class AuthProvider {
         newUser.uid = uid
         newUser.anonymous = isAnonymous(uid = uid, absoluteMobile = sanitizePhoneNumber)
 
-        return userRepository.save(newUser)
+        // Copy over the details to new user DB in cassandra
+        val savedUser = userRepository.save(newUser)
+        userV2Provider.save(savedUser)
+        return savedUser
     }
 
     fun getOrCreateUserByPhoneNumber(absoluteMobile: String): User? {
