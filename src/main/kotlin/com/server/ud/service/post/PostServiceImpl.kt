@@ -1,10 +1,9 @@
 package com.server.ud.service.post
 
 import com.server.common.provider.AuthProvider
-import com.server.ud.dto.FakePostRequest
-import com.server.ud.dto.SavePostRequest
-import com.server.ud.dto.SavedPostResponse
-import com.server.ud.dto.toSavedUserPostResponse
+import com.server.ud.dto.*
+import com.server.ud.entities.post.Post
+import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.post.PostProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -37,5 +36,9 @@ class PostServiceImpl : PostService() {
         return posts.map {
             it.toSavedUserPostResponse()
         }
+    }
+
+    override fun getPosts(request: PaginatedRequest): CassandraPageV2<Post?>? {
+        return postProvider.getPosts(request)
     }
 }

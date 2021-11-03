@@ -5,19 +5,22 @@ import com.server.common.entities.User
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.UniqueIdProvider
 import com.server.ud.dao.post.PostRepository
-import com.server.ud.dto.SavePostRequest
-import com.server.ud.dto.sampleLocationRequests
+import com.server.ud.dto.*
 import com.server.ud.entities.post.Post
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagData
 import com.server.ud.model.HashTagsList
 import com.server.ud.model.convertToString
+import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.location.LocationProvider
 import com.server.ud.service.post.ProcessPostSchedulerService
+import com.server.ud.utils.pagination.PaginationRequestUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.cassandra.core.query.CassandraPageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 import java.time.Instant
 import kotlin.random.Random
@@ -38,6 +41,9 @@ class PostProvider {
 
     @Autowired
     private lateinit var processPostSchedulerService: ProcessPostSchedulerService
+
+    @Autowired
+    private lateinit var paginationRequestUtil: PaginationRequestUtil
 
     fun getPost(postId: String): Post? =
         try {
@@ -108,6 +114,20 @@ class PostProvider {
             posts.add(save(user, req))
         }
         return posts.filterNotNull()
+    }
+
+    fun getPosts(request: PaginatedRequest): CassandraPageV2<Post?>? {
+        return getPageOfPosts(request.limit, request.pagingState)
+    }
+
+    fun getPageOfPosts(limit: Int, pagingState: String?): CassandraPageV2<Post?>? {
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        return getPageOfUsers(pageRequest)
+    }
+
+    fun getPageOfUsers(cassandraPageRequest: CassandraPageRequest?): CassandraPageV2<Post?>? {
+        val userSlice = postRepository.findAll(cassandraPageRequest as Pageable)
+        return CassandraPageV2(userSlice)
     }
 
 }
