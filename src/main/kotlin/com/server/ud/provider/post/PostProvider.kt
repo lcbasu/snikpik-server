@@ -5,7 +5,9 @@ import com.server.common.entities.User
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.UniqueIdProvider
 import com.server.ud.dao.post.PostRepository
-import com.server.ud.dto.*
+import com.server.ud.dto.PaginatedRequest
+import com.server.ud.dto.SavePostRequest
+import com.server.ud.dto.sampleLocationRequests
 import com.server.ud.entities.post.Post
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
@@ -13,6 +15,7 @@ import com.server.ud.model.HashTagData
 import com.server.ud.model.HashTagsList
 import com.server.ud.model.convertToString
 import com.server.ud.pagination.CassandraPageV2
+import com.server.ud.provider.like.LikesCountByResourceProvider
 import com.server.ud.provider.location.LocationProvider
 import com.server.ud.service.post.ProcessPostSchedulerService
 import com.server.ud.utils.pagination.PaginationRequestUtil
@@ -44,6 +47,9 @@ class PostProvider {
 
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
+
+    @Autowired
+    private lateinit var likesCountByResourceProgression: LikesCountByResourceProvider
 
     fun getPost(postId: String): Post? =
         try {
@@ -112,6 +118,17 @@ class PostProvider {
                 locationRequest = sampleLocationRequests[Random.nextInt(sampleLocationRequests.size)]
             )
             posts.add(save(user, req))
+        }
+        posts.filterNotNull().map {
+            // Simulate liking
+            val randomCount = Random.nextInt(4, 20)
+            for (i in 1..randomCount) {
+                likesCountByResourceProgression.increaseLike(it.postId)
+            }
+            // Try decreasing likes more than it has been increased and check behaviour
+            for (i in 1..(randomCount+1)) {
+                likesCountByResourceProgression.decreaseLike(it.postId)
+            }
         }
         return posts.filterNotNull()
     }

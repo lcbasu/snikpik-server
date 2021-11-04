@@ -17,3 +17,9 @@ Create Shop -> Create Username -> Add Products -> Add Categories
 
 Customers:
 Visit Link -> Add to cart -> Login -> Add Address -> Select Payment Mode -> Place Order
+
+
+## Cassandra Counters
+https://docs.datastax.com/en/cql-oss/3.3/cql/cql_using/useCountersConcept.html
+
+Because counters are implemented differently from other columns, counter columns can only be created in dedicated tables. A counter column must have the datatype counter data type. This data type cannot be assigned to a column that serves as the primary key or partition key. To implement a counter column, create a table that only includes:
