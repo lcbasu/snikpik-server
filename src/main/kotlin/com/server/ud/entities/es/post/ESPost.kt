@@ -1,5 +1,6 @@
 package com.server.ud.entities.es.post
 
+import com.server.common.utils.DateUtils
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagData
 import org.springframework.data.annotation.Id
@@ -14,7 +15,7 @@ class ESPost (
     var postId: String,
 
     @Field(type = FieldType.Date_Nanos)
-    var createdAt: Instant = Instant.now(),
+    var createdAt: Instant = DateUtils.getInstantNow(),
 
     @Field(type = FieldType.Keyword)
     var userId: String,

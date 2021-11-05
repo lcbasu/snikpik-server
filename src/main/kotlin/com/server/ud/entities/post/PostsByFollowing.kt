@@ -1,5 +1,6 @@
 package com.server.ud.entities.post
 
+import com.server.common.utils.DateUtils
 import com.server.ud.enums.PostType
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
@@ -31,7 +32,7 @@ class PostsByFollowing (
     var followingUserId: String,
 
     @PrimaryKeyColumn(name = "created_at", ordinal = 2, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
-    var createdAt: Instant = Instant.now(),
+    var createdAt: Instant = DateUtils.getInstantNow(),
 
     @PrimaryKeyColumn(name = "post_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
     var postId: String,

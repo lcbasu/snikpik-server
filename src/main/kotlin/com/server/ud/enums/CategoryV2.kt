@@ -44,4 +44,11 @@ enum class CategoryV2(
             media = emptyList()
         )
     ),
+    ALL(
+        CategoryGroupV2.HOME,
+        "All",
+        MediaDetails(
+            media = emptyList()
+        )
+    ),
 }

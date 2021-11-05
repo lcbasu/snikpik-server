@@ -1,10 +1,10 @@
 package com.server.ud.entities.post
 
+import com.server.common.utils.DateUtils
 import com.server.ud.enums.PostType
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
-import org.springframework.data.cassandra.core.mapping.Indexed
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
@@ -20,10 +20,10 @@ class PostsByZipcode (
     var zipcode: String,
 
     @PrimaryKeyColumn(name = "for_date", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
-    var forDate: String,
+    var forDate: Instant = DateUtils.getInstantToday(),
 
     @PrimaryKeyColumn(name = "created_at", ordinal = 2, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
-    var createdAt: Instant = Instant.now(),
+    var createdAt: Instant = DateUtils.getInstantNow(),
 
     @PrimaryKeyColumn(name = "post_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
     var postId: String,

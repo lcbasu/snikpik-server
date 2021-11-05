@@ -4,6 +4,7 @@ import com.github.javafaker.Faker
 import com.server.common.entities.User
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.UniqueIdProvider
+import com.server.dk.model.convertToString
 import com.server.ud.dao.post.PostRepository
 import com.server.ud.dto.PaginatedRequest
 import com.server.ud.dto.SavePostRequest
@@ -77,7 +78,7 @@ class PostProvider {
                 postType = request.postType,
                 title = request.title,
                 description = request.description,
-                media = "",
+                media = request.mediaDetails?.convertToString(),
                 tags = request.tags.convertToString(),
                 categories = request.categories.joinToString(","),
                 locationId = location?.locationId,
@@ -119,17 +120,17 @@ class PostProvider {
             )
             posts.add(save(user, req))
         }
-        posts.filterNotNull().map {
-            // Simulate liking
-            val randomCount = Random.nextInt(4, 20)
-            for (i in 1..randomCount) {
-                likesCountByResourceProgression.increaseLike(it.postId)
-            }
-            // Try decreasing likes more than it has been increased and check behaviour
-            for (i in 1..(randomCount+1)) {
-                likesCountByResourceProgression.decreaseLike(it.postId)
-            }
-        }
+//        posts.filterNotNull().map {
+//            // Simulate liking
+//            val randomCount = Random.nextInt(2, 5)
+//            for (i in 1..randomCount) {
+//                likesCountByResourceProgression.increaseLike(it.postId)
+//            }
+//            // Try decreasing likes more than it has been increased and check behaviour
+//            for (i in 1..(randomCount+1)) {
+//                likesCountByResourceProgression.decreaseLike(it.postId)
+//            }
+//        }
         return posts.filterNotNull()
     }
 

@@ -25,8 +25,8 @@ class PostsByZipcodeProvider {
             }
             val postsByZipcode = PostsByZipcode(
                 zipcode = post.zipcode!!,
-                forDate = DateUtils.toStringForDate(DateUtils.dateTimeNow()),
-                createdAt = DateUtils.getInstantNow(),
+                forDate = DateUtils.getInstantDate(post.createdAt),
+                createdAt = post.createdAt,
                 postId = post.postId,
                 postType = post.postType,
                 userId = post.userId,

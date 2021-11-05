@@ -2,12 +2,16 @@ package com.server.ud.provider.post
 
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostsByCategoryRepository
+import com.server.ud.dto.ExploreFeedRequest
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.PostsByCategory
 import com.server.ud.enums.CategoryV2
+import com.server.ud.pagination.CassandraPageV2
+import com.server.ud.utils.pagination.PaginationRequestUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 
 @Component
@@ -18,12 +22,17 @@ class PostsByCategoryProvider {
     @Autowired
     private lateinit var postsByCategoryRepository: PostsByCategoryRepository
 
+    @Autowired
+    private lateinit var paginationRequestUtil: PaginationRequestUtil
+
+    val getFeedFromPastDays = 7L
+
     fun save(post: Post, categoryId: CategoryV2): PostsByCategory? {
         try {
             val postsByZipcode = PostsByCategory(
                 categoryId = categoryId,
-                forDate = DateUtils.toStringForDate(DateUtils.dateTimeNow()),
-                createdAt = DateUtils.getInstantNow(),
+                forDate = DateUtils.getInstantDate(post.createdAt),
+                createdAt = post.createdAt,
                 postId = post.postId,
                 postType = post.postType,
                 userId = post.userId,
@@ -44,6 +53,13 @@ class PostsByCategoryProvider {
             e.printStackTrace()
             return null
         }
+    }
+
+    fun getFeedForCategory(request: ExploreFeedRequest): CassandraPageV2<PostsByCategory> {
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
+//        val postsSlice = postsByCategoryRepository.findAllByCategoryId(request.category, pageRequest as Pageable)
+         val postsSliceV2 = postsByCategoryRepository.findAllByCategoryIdAndForDate(request.category, DateUtils.getInstantFromLocalDateTime(DateUtils.parseStandardDate(request.forDate)), pageRequest as Pageable)
+        return CassandraPageV2(postsSliceV2)
     }
 
 }

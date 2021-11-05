@@ -1,5 +1,6 @@
 package com.server.ud.entities.reply
 
+import com.server.common.utils.DateUtils
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
@@ -15,7 +16,7 @@ class RepliesByComment {
     var commentId: String? = null
 
     @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
-    var createdAt: Instant = Instant.now()
+    var createdAt: Instant = DateUtils.getInstantNow()
 
     @PrimaryKeyColumn(name = "reply_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     var replyId: String? = null

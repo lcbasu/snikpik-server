@@ -1,5 +1,6 @@
 package com.server.ud.entities.location
 
+import com.server.common.utils.DateUtils
 import com.server.ud.entities.post.Post
 import com.server.ud.enums.LocationFor
 import com.server.ud.enums.PostType
@@ -32,7 +33,7 @@ class Location (
     var locationId: String,
 
     @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
-    var createdAt: Instant = Instant.now(),
+    var createdAt: Instant = DateUtils.getInstantNow(),
 
     @PrimaryKeyColumn(name = "user_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     var userId: String,

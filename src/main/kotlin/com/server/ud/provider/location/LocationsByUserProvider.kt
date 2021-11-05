@@ -21,7 +21,7 @@ class LocationsByUserProvider {
         try {
             val locationByUser = LocationsByUser(
                 userId = location.userId,
-                forDate = DateUtils.toStringForDateDefault(),
+                forDate = DateUtils.getInstantDate(location.createdAt),
                 locationId = location.locationId,
                 locationFor = location.locationFor,
                 createdAt = location.createdAt,

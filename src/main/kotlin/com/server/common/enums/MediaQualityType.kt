@@ -7,5 +7,4 @@ enum class MediaQualityType {
     LOW,
     LOWEST,
     ORIGINAL,
-    THUMBNAIL,
 }

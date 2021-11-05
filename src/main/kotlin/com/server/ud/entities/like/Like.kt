@@ -1,5 +1,6 @@
 package com.server.ud.entities.like
 
+import com.server.common.utils.DateUtils
 import com.server.ud.enums.ResourceType
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
@@ -27,7 +28,7 @@ class Like {
     var likeId: String? = null
 
     @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
-    var createdAt: Instant = Instant.now()
+    var createdAt: Instant = DateUtils.getInstantNow()
 
     @PrimaryKeyColumn(name = "resource_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     var resourceId: String? = null

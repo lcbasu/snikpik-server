@@ -7,13 +7,13 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
 
 @Table("likes_count_by_resource")
-class LikesCountByResource (
+class LikesCountByResource {
 
     @PrimaryKeyColumn(name = "resource_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    var resourceId: String,
+    var resourceId: String? = null
 
     @Column("likes_count")
     @CassandraType(type = CassandraType.Name.COUNTER)
-    var likesCount: Long = 0
-)
+    var likesCount: Long? = null
+}
 

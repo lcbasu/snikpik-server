@@ -1,6 +1,7 @@
 package com.server.dk.model
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.server.common.enums.ContentType
 import com.server.common.enums.MediaQualityType
 import com.server.common.enums.MediaType
 
@@ -23,6 +24,7 @@ data class SingleMediaDetail(
     val mediaUrl: String,
     val mimeType: String,
     val mediaType: MediaType? = MediaType.IMAGE,
+    val contentType: ContentType? = ContentType.ACTUAL,
     val mediaQualityType: MediaQualityType? = MediaQualityType.HIGH,
     val lengthInSeconds: Long? = 0, // Only applicable for Video and GIF
     val width: Int?,

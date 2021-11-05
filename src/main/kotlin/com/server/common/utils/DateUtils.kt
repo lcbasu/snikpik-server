@@ -28,8 +28,22 @@ object DateUtils {
     fun dateTimeNow(): LocalDateTime =
         LocalDateTime.now(ZoneId.of(standardTimeZoneId))
 
+    fun getInstantFromLocalDateTime(localDateTime: LocalDateTime): Instant =
+        localDateTime.toInstant(standardZoneOffset)
+
     fun getInstantNow(): Instant =
         dateTimeNow().toInstant(standardZoneOffset)
+
+    /**
+     *
+     * Instant for the start of the day
+     *
+     * */
+    fun getInstantToday(): Instant =
+        dateTimeNow().toLocalDate().atStartOfDay().toInstant(standardZoneOffset)
+
+    fun getInstantDate(forInstant: Instant): Instant =
+         parseEpochInMilliseconds(forInstant.toEpochMilli()).toLocalDate().atStartOfDay().toInstant(standardZoneOffset)
 
     fun toStringForDate(dateTime: LocalDateTime): String =
         dateTime.format(DateTimeFormatter.ofPattern(standardForDateFormatter))
@@ -116,5 +130,9 @@ object DateUtils {
 
     fun toDate(fromLocalDateTime: LocalDateTime): Date {
         return Date.from(fromLocalDateTime.atZone(ZoneId.of(standardTimeZoneId)).toInstant())
+    }
+
+    fun getDateInPast(daysInPast: Long) : LocalDateTime {
+        return dateTimeNow().minusDays(daysInPast)
     }
 }

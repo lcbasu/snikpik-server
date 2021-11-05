@@ -34,7 +34,7 @@ class LikesCountByResourceProvider {
     }
     fun decreaseLike(resourceId: String) {
         val existing = getLikesCountByResource(resourceId)
-        if (existing != null && existing.likesCount > 0) {
+        if (existing?.likesCount != null && existing.likesCount!! > 0) {
             likesCountByResourceRepository.decrementLikes(resourceId)
             logger.warn("Decreased like for resourceId: $resourceId")
         } else {

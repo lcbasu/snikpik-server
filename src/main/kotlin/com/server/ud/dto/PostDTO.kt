@@ -1,6 +1,8 @@
 package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.server.dk.model.MediaDetails
+import com.server.dk.model.MediaDetailsV2
 import com.server.ud.entities.post.Post
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
@@ -20,6 +22,7 @@ data class SavePostRequest(
     val tags: HashTagsList = HashTagsList(emptyList()),
     val categories: Set<CategoryV2> = emptySet(),
     val locationRequest: SaveLocationRequest? = null,
+    var mediaDetails: MediaDetailsV2? = null,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

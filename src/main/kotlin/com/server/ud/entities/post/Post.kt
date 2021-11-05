@@ -1,6 +1,7 @@
 package com.server.ud.entities.post
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.server.common.utils.DateUtils
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagData
@@ -21,7 +22,7 @@ class Post (
     var postId: String,
 
     @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
-    var createdAt: Instant = Instant.now(),
+    var createdAt: Instant = DateUtils.getInstantNow(),
 
     @PrimaryKeyColumn(name = "user_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     var userId: String,

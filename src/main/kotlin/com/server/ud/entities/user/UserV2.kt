@@ -1,6 +1,7 @@
 package com.server.ud.entities.user
 
 import com.server.common.enums.NotificationTokenProvider
+import com.server.common.utils.DateUtils
 import com.server.ud.enums.UserProfession
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
@@ -18,7 +19,7 @@ class UserV2 (
     var userId: String,
 
     @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
-    var createdAt: Instant = Instant.now(),
+    var createdAt: Instant = DateUtils.getInstantNow(),
 
     @Column("absolute_mobile")
     var absoluteMobile: String? = null,

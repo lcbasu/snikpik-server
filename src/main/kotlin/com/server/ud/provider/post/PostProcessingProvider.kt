@@ -2,6 +2,7 @@ package com.server.ud.provider.post
 
 import com.server.ud.entities.post.getCategories
 import com.server.ud.entities.post.getHashTags
+import com.server.ud.enums.CategoryV2
 import com.server.ud.provider.location.ESLocationProvider
 import com.server.ud.provider.location.LocationProcessingProvider
 import com.server.ud.provider.social.FollowerProvider
@@ -79,6 +80,7 @@ class PostProcessingProvider {
                     .map { async { postsByCategoryProvider.save(post, it) } }
                     .map { it.await() }
             }
+            val allCategoryFeedFuture = async { postsByCategoryProvider.save(post, CategoryV2.ALL) }
             val hashTagsFeedFuture = async {
                 post.getHashTags()
                     .map { async { postsByHashTagProvider.save(post, it) } }
@@ -93,6 +95,7 @@ class PostProcessingProvider {
             postsByZipcodeFuture.await()
             followersFeedFuture.await()
             categoriesFeedFuture.await()
+            allCategoryFeedFuture.await()
             hashTagsFeedFuture.await()
             savePostToESFuture.await()
 
