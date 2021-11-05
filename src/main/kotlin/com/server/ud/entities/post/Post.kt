@@ -2,6 +2,7 @@ package com.server.ud.entities.post
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.utils.DateUtils
+import com.server.dk.model.MediaDetailsV2
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagData
@@ -9,7 +10,6 @@ import com.server.ud.model.HashTagsList
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
-import org.springframework.data.cassandra.core.mapping.Indexed
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
 import org.springframework.data.elasticsearch.core.geo.GeoPoint
@@ -63,6 +63,16 @@ class Post (
     @Column("location_lng")
     val locationLng: Double? = null,
 )
+
+fun Post.getMediaDetails(): MediaDetailsV2? {
+    this.apply {
+        return try {
+            jacksonObjectMapper().readValue(media, MediaDetailsV2::class.java)
+        } catch (e: Exception) {
+            null
+        }
+    }
+}
 
 fun Post.getGeoPointData(): GeoPoint? {
     this.apply {

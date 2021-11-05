@@ -6,6 +6,7 @@ import com.server.common.provider.UniqueIdProvider
 import com.server.ud.dao.location.LocationRepository
 import com.server.ud.dto.SaveLocationRequest
 import com.server.ud.entities.location.Location
+import com.server.ud.entities.user.UserV2
 import com.server.ud.service.location.ProcessLocationSchedulerService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -40,12 +41,12 @@ class LocationProvider {
             null
         }
 
-    fun save(user: User, request: SaveLocationRequest) : Location? {
+    fun save(user: UserV2, request: SaveLocationRequest) : Location? {
         try {
             val location = Location(
                 locationId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.LOC.name),
                 locationFor = request.locationFor,
-                userId = user.id,
+                userId = user.userId,
                 createdAt = Instant.now(),
                 zipcode = request.zipcode,
                 googlePlaceId = request.googlePlaceId,
@@ -58,7 +59,7 @@ class LocationProvider {
             processLocationSchedulerService.createLocationProcessingJob(location)
             return savedLocation
         } catch (e: Exception) {
-            logger.error("Saved location into cassandra failed for request: $request for userId: ${user.id}")
+            logger.error("Saved location into cassandra failed for request: $request for userId: ${user.userId}")
             e.printStackTrace()
             return null
         }

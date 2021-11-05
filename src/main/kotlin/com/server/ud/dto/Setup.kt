@@ -16,96 +16,12 @@ import com.server.ud.model.HashTagData
 //    val name: String // Interior Designer, Architect, etc.
 //)
 
-interface LocationResponse {
-    val id: String // ID at the city or 5x5 KM square block level (Need to figure out a way)
-    val name: String // City Level grouping and naming
-    val lat: Double
-    val lng:Double
-}
-
-data class UserLocationResponse(
-    override val id: String,
-    override val name: String,
-    override val lat: Double,
-    override val lng: Double,
-): LocationResponse
-
-
-data class PostLocationResponse(
-    override val id: String,
-    override val name: String,
-    override val lat: Double,
-    override val lng: Double,
-): LocationResponse
-
-//data class CategoryV2 (
-//    val categoryId: String,
-//    val name: String
-//)
-
-//data class HashTagData (
-//    val tagId: String,
-//    val displayName: String
-//)
-
-interface PaginationDetails {
-    val numFound: Long
-    val startIndex: Long
-    val endIndex: Long
-}
-
-interface FollowingFollower {
-    val loggedInUserId: String
-    val otherUserId: String
-    val followed: Boolean
-}
-
-interface PostMiniDetail{
-    val postId: String
-    val userId: String
-    val media: MediaDetailsV2
-    val title: String?
-}
-
-// ExploreTabView -> ETV
-data class ETVCategories(
-    val categories: List<CategoryV2>
-)
-
-data class ETVPostDetail(
-    override val postId: String,
-    override val userId: String,
-    override val media: MediaDetailsV2,
-    override val title: String?
-): PostMiniDetail
-
-data class ETVUserDetail(
-    val userId: String,
-    val name: String,
-    val dp: MediaDetailsV2
-)
-
-data class ETVLikesDetail(
-    val postId: String,
-    val likes: Long,
-    val liked: Boolean
-)
-
-data class ETVResultList(
-    val posts: List<ETVPostDetail>,
-    override val numFound: Long,
-    override val startIndex: Long,
-    override val endIndex: Long,
-): PaginationDetails
-
-
-
 // VideoFeedView -> VFV
 
 data class VFVSinglePostDetail(
     override val postId: String,
     override val userId: String,
-    override val media: MediaDetailsV2,
+    override val media: MediaDetailsV2?,
     override val title: String?
 ): PostMiniDetail
 
@@ -411,7 +327,7 @@ data class WPVPostsList (
 data class WPVSavedSinglePostDetail(
     override val postId: String,
     override val userId: String,
-    override val media: MediaDetailsV2,
+    override val media: MediaDetailsV2?,
     override val title: String?
 ): PostMiniDetail
 

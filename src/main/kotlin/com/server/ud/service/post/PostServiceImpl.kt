@@ -19,13 +19,13 @@ class PostServiceImpl : PostService() {
 
     override fun savePost(savePostRequest: SavePostRequest): SavedPostResponse? {
         val requestContext = authProvider.validateRequest()
-        val post = postProvider.save(requestContext.user, savePostRequest)
+        val post = postProvider.save(requestContext.userV2, savePostRequest)
         return post?.toSavedUserPostResponse()
     }
 
     override fun fakeSavePosts(request: FakePostRequest): List<SavedPostResponse>? {
         val requestContext = authProvider.validateRequest()
-        val user = requestContext.user
+        val user = requestContext.userV2
 
         if (user.absoluteMobile != "+919742097429") error("Only Admin is allowed to do this.")
 

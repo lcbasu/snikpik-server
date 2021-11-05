@@ -1,7 +1,9 @@
 package com.server.ud.entities.user
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.utils.DateUtils
+import com.server.dk.model.MediaDetailsV2
 import com.server.ud.enums.UserProfession
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
@@ -29,6 +31,9 @@ class UserV2 (
 
     @Column("handle")
     var handle: String? = null,
+
+    @Column
+    var dp: String? = null, // MediaDetailsV2
 
     @Column
     var uid: String? = "",
@@ -70,4 +75,15 @@ class UserV2 (
     @Column("user_last_location_lng")
     val userLastLocationLng: Double? = null,
 )
+
+
+fun UserV2.getMediaDetailsForDP(): MediaDetailsV2? {
+    this.apply {
+        return try {
+            jacksonObjectMapper().readValue(dp, MediaDetailsV2::class.java)
+        } catch (e: Exception) {
+            null
+        }
+    }
+}
 

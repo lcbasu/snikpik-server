@@ -17,7 +17,7 @@ class LikesCountByResourceProvider {
 
     fun getLikesCountByResource(resourceId: String): LikesCountByResource? =
     try {
-        val resourceLikes = likesCountByResourceRepository.findAllByPostId(resourceId)
+        val resourceLikes = likesCountByResourceRepository.findAllByResourceId(resourceId)
         if (resourceLikes.size > 1) {
             error("More than one likes has same resourceId: $resourceId")
         }

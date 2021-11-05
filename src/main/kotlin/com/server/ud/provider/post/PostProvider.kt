@@ -1,7 +1,6 @@
 package com.server.ud.provider.post
 
 import com.github.javafaker.Faker
-import com.server.common.entities.User
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.UniqueIdProvider
 import com.server.dk.model.convertToString
@@ -10,13 +9,13 @@ import com.server.ud.dto.PaginatedRequest
 import com.server.ud.dto.SavePostRequest
 import com.server.ud.dto.sampleLocationRequests
 import com.server.ud.entities.post.Post
+import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagData
 import com.server.ud.model.HashTagsList
 import com.server.ud.model.convertToString
 import com.server.ud.pagination.CassandraPageV2
-import com.server.ud.provider.like.LikesCountByResourceProvider
 import com.server.ud.provider.location.LocationProvider
 import com.server.ud.service.post.ProcessPostSchedulerService
 import com.server.ud.utils.pagination.PaginationRequestUtil
@@ -49,9 +48,6 @@ class PostProvider {
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
 
-    @Autowired
-    private lateinit var likesCountByResourceProgression: LikesCountByResourceProvider
-
     fun getPost(postId: String): Post? =
         try {
             val posts = postRepository.findAllByPostId(postId)
@@ -65,15 +61,14 @@ class PostProvider {
             null
         }
 
-
-    fun save(user: User, request: SavePostRequest) : Post? {
+    fun save(user: UserV2, request: SavePostRequest) : Post? {
         try {
             val location = request.locationRequest?.let {
                 locationProvider.save(user, it)
             }
             val post = Post(
                 postId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.PST.name),
-                userId = user.id,
+                userId = user.userId,
                 createdAt = Instant.now(),
                 postType = request.postType,
                 title = request.title,
@@ -97,7 +92,7 @@ class PostProvider {
         }
     }
 
-    fun fakeSave(user: User, countOfPost: Int): List<Post> {
+    fun fakeSave(user: UserV2, countOfPost: Int): List<Post> {
         val posts = mutableListOf<Post?>()
         for (i in 1..countOfPost) {
             val faker = Faker()

@@ -1,6 +1,5 @@
 package com.server.ud.provider.user
 
-import com.server.common.dao.UserRepository
 import com.server.common.entities.User
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.user.UserV2Repository
@@ -18,23 +17,24 @@ class UserV2Provider {
     @Autowired
     private lateinit var userV2Repository: UserV2Repository
 
-    @Autowired
-    private lateinit var userRepository: UserRepository
-
     fun getUser(userId: String): UserV2? =
         try {
-            userV2Repository.findById(userId).get()
+            val users = userV2Repository.findAllByUserId(userId)
+            if (users.size > 1) {
+                error("More than one user has same userId: $userId")
+            }
+            users.firstOrNull()
         } catch (e: Exception) {
-            logger.error("Getting UserV2 for $userId failed.")
+            logger.error("Getting User for $userId failed.")
+            e.printStackTrace()
             null
         }
 
-    fun createForAll() {
-        userRepository.findAll().toList().filterNotNull().map {
-            save(it)
-        }
-    }
-
+//    fun createForAll() {
+//        userRepository.findAll().toList().filterNotNull().map {
+//            save(it)
+//        }
+//    }
 
     fun save(user: User) : UserV2? {
         try {
@@ -58,8 +58,11 @@ class UserV2Provider {
                 userLastLocationLat = null,
                 userLastLocationLng = null,
             )
-            return userV2Repository.save(userV2)
+            val savedUser = userV2Repository.save(userV2)
+            logger.info("UserV2 saved with userId: ${savedUser.userId}.")
+            return savedUser
         } catch (e: Exception) {
+            logger.error("Saving UserV2 for ${user.id} failed.")
             e.printStackTrace()
             return null
         }

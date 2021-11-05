@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository
 interface LikesCountByResourceRepository : CassandraRepository<LikesCountByResource?, String?> {
 
     @Query("select * from likes_count_by_resource where resource_id = ?0")
-    fun findAllByPostId(resourceId: String?): List<LikesCountByResource>
+    fun findAllByResourceId(resourceId: String?): List<LikesCountByResource>
 
     @Query("UPDATE likes_count_by_resource SET likes_count = likes_count + 1 WHERE resource_id = ?0")
     fun incrementLikes(resourceId: String)

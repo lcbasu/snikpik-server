@@ -12,4 +12,7 @@ enum class JobGroupType {
 
     ProcessLocationJob_Job,
     ProcessLocationJob_Trigger,
+
+    ProcessLikeJob_Job,
+    ProcessLikeJob_Trigger,
 }

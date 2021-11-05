@@ -204,6 +204,7 @@ class AuthProvider {
     // isPublic Should always be set in the controller
     fun validateRequest(companyServerIdOrUsername: String? = null, employeeId: String? = null, requiredRoleTypes: Set<RoleType> = emptySet()): RequestContext {
         val requestingUser = getRequestUserEntity() ?: error("User is required to be logged in!")
+        val requestingUserV2 = userV2Provider.getUser(requestingUser.id) ?: userV2Provider.save(requestingUser) ?: error("Error while getting UserV2 from User")
 
         var company: Company? = null
         var userRoles: List<UserRole> = emptyList()
@@ -274,6 +275,7 @@ class AuthProvider {
 
         return RequestContext(
             user = requestingUser,
+            userV2 = requestingUserV2,
             company = company,
             employee = employee,
             userRoles = userRoles
