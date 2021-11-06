@@ -10,21 +10,24 @@ import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
 
 @Table("replies_by_comment")
-class RepliesByComment {
+class RepliesByComment (
 
     @PrimaryKeyColumn(name = "comment_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    var commentId: String? = null
+    var commentId: String,
 
     @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
-    var createdAt: Instant = DateUtils.getInstantNow()
+    var createdAt: Instant,
 
     @PrimaryKeyColumn(name = "reply_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
-    var replyId: String? = null
+    var replyId: String,
 
     @PrimaryKeyColumn(name = "user_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
-    var userId: String? = null
+    var userId: String,
+
+    @Column("reply_text")
+    var replyText: String,
 
     @Column
-    var replyText: String? = null
-}
+    var media: String? = null, // MediaDetailsV2
+)
 

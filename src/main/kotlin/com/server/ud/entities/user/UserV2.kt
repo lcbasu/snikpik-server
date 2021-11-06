@@ -76,8 +76,18 @@ class UserV2 (
     val userLastLocationLng: Double? = null,
 )
 
-
 fun UserV2.getMediaDetailsForDP(): MediaDetailsV2? {
+    this.apply {
+        return try {
+            jacksonObjectMapper().readValue(dp, MediaDetailsV2::class.java)
+        } catch (e: Exception) {
+            null
+        }
+    }
+}
+
+
+fun UserV2.getLocationDetails(): MediaDetailsV2? {
     this.apply {
         return try {
             jacksonObjectMapper().readValue(dp, MediaDetailsV2::class.java)

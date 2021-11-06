@@ -5,6 +5,7 @@ import com.server.ud.entities.post.getHashTags
 import com.server.ud.enums.CategoryV2
 import com.server.ud.provider.location.ESLocationProvider
 import com.server.ud.provider.location.LocationProcessingProvider
+import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
 import com.server.ud.provider.social.FollowerProvider
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -48,6 +49,9 @@ class PostProcessingProvider {
     @Autowired
     private lateinit var locationProcessingProvider: LocationProcessingProvider
 
+    @Autowired
+    private lateinit var nearbyPostsByZipcodeProvider: NearbyPostsByZipcodeProvider
+
     fun postProcessPost(postId: String) {
         // Update
         // Post By User
@@ -64,25 +68,37 @@ class PostProcessingProvider {
                 // Process the location
                 locationProcessingProvider.processLocation(post.locationId!!)
             }
+
             val postsByUserFuture = async {
                 postsByUserProvider.save(post)
             }
+
             val postsByZipcodeFuture = async {
                 postsByZipcodeProvider.save(post)
             }
+
+            val savePostIntoNearbyZipcode = async {
+                nearbyPostsByZipcodeProvider.save(post)
+            }
+
             val followersFeedFuture = async {
                 followerProvider.getFollowers(post.userId)
                 ?.map { async { it.followerUserId?.let { postsByFollowingProvider.save(post, it) } } }
                 ?.map { it.await() }
             }
+
             val categoriesFeedFuture = async {
                 post.getCategories()
                     .map { async { postsByCategoryProvider.save(post, it) } }
                     .map { it.await() }
             }
-            val allCategoryFeedFuture = async { postsByCategoryProvider.save(post, CategoryV2.ALL) }
+
+            val allCategoryFeedFuture = async {
+                postsByCategoryProvider.save(post, CategoryV2.ALL)
+            }
+
             val hashTagsFeedFuture = async {
-                post.getHashTags()
+                post.getHashTags().tags
                     .map { async { postsByHashTagProvider.save(post, it) } }
                     .map { it.await() }
             }
@@ -93,6 +109,7 @@ class PostProcessingProvider {
 
             postsByUserFuture.await()
             postsByZipcodeFuture.await()
+            savePostIntoNearbyZipcode.await()
             followersFeedFuture.await()
             categoriesFeedFuture.await()
             allCategoryFeedFuture.await()

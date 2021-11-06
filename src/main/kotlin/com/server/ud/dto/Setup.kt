@@ -16,62 +16,6 @@ import com.server.ud.model.HashTagData
 //    val name: String // Interior Designer, Architect, etc.
 //)
 
-// VideoFeedView -> VFV
-
-data class VFVSinglePostDetail(
-    override val postId: String,
-    override val userId: String,
-    override val media: MediaDetailsV2?,
-    override val title: String?
-): PostMiniDetail
-
-data class VFVSingleTagDetail(
-    val tags: List<HashTagData>
-)
-
-data class VFVSingleUserDetail(
-    val userId: String,
-    val handle: String,
-    val verified: Boolean,
-    val dp: MediaDetailsV2,
-    val profession: UserProfession,
-    val location: UserLocationResponse,
-)
-
-data class VFVFollowDetail(
-    override val loggedInUserId: String,
-    override val otherUserId: String,
-    override val followed: Boolean
-): FollowingFollower
-
-data class VFVSingleLikesDetail(
-    val postId: String,
-
-    val likes: Long,
-    val liked: Boolean,
-)
-
-data class VFVSingleCommentsDetail(
-    val postId: String,
-
-    val comments: Long,
-    val commented: Boolean,
-)
-
-data class VFVSingleSaveDetail(
-    val postId: String,
-
-    val saves: Long,
-    val saved: Boolean,
-)
-
-data class VFVResultList(
-    val posts: List<VFVSinglePostDetail>,
-    override val numFound: Long,
-    override val startIndex: Long,
-    override val endIndex: Long,
-): PaginationDetails
-
 // PostCommentView -> PCV
 data class PCVPostDetail (
     val postId: String,
@@ -152,11 +96,11 @@ data class CFVUserDetail(
     val profession: UserProfession,
 )
 
-data class CFVFollowDetail(
-    override val loggedInUserId: String,
-    override val otherUserId: String,
-    override val followed: Boolean
-): FollowingFollower
+//data class CFVFollowDetail(
+//    override val loggedInUserId: String,
+//    override val otherUserId: String,
+//    override val followed: Boolean
+//): FollowingFollower(loggedInUserId, otherUserId, followed)
 
 // ProfessionalMarketplaceFeed -> PMF
 
@@ -183,11 +127,11 @@ data class PMFResult (
     override val endIndex: Long,
 ): PaginationDetails
 
-data class PMFFollowDetail(
-    override val loggedInUserId: String,
-    override val otherUserId: String,
-    override val followed: Boolean
-): FollowingFollower
+//data class PMFFollowDetail(
+//    override val loggedInUserId: String,
+//    override val otherUserId: String,
+//    override val followed: Boolean
+//): FollowingFollower(loggedInUserId, otherUserId, followed)
 
 // SuppliersMarketplaceFeed -> SMF
 
@@ -214,11 +158,11 @@ data class SMFResult (
     override val endIndex: Long,
 ): PaginationDetails
 
-data class SMFFollowDetail(
-    override val loggedInUserId: String,
-    override val otherUserId: String,
-    override val followed: Boolean
-): FollowingFollower
+//data class SMFFollowDetail(
+//    override val loggedInUserId: String,
+//    override val otherUserId: String,
+//    override val followed: Boolean
+//): FollowingFollower(loggedInUserId, otherUserId, followed)
 
 // OthersProfileView -> OPV
 
@@ -233,11 +177,11 @@ data class OPVUserProfile (
     val professionalSince: Long?,
 )
 
-data class OPVFollowDetail(
-    override val loggedInUserId: String,
-    override val otherUserId: String,
-    override val followed: Boolean
-): FollowingFollower
+//data class OPVFollowDetail(
+//    override val loggedInUserId: String,
+//    override val otherUserId: String,
+//    override val followed: Boolean
+//): FollowingFollower(loggedInUserId, otherUserId, followed)
 
 data class OPVPostCount(
     val userId: String,

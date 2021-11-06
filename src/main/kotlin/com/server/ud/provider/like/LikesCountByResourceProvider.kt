@@ -42,7 +42,4 @@ class LikesCountByResourceProvider {
         }
     }
 
-    fun resetLikes(resourceId: String) =
-        likesCountByResourceRepository.setLikesCount(resourceId, 0)
-
 }

@@ -1,8 +1,6 @@
 package com.server.ud.entities.like
 
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
-import org.springframework.data.cassandra.core.mapping.CassandraType
-import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
 
@@ -11,17 +9,15 @@ import org.springframework.data.cassandra.core.mapping.Table
  * This table store the data about whether a user liked a resource or not
  *
  * */
-@Table("likes_count_by_resource_and_user")
-class LikesCountByResourceAndUser {
+@Table("like_for_resource_by_user")
+class LikeForResourceByUser (
 
     @PrimaryKeyColumn(name = "resource_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    var resourceId: String? = null
+    var resourceId: String,
 
     @PrimaryKeyColumn(name = "user_id", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
-    var userId: String? = null
+    var userId: String,
 
-    @Column("likes_count")
-    @CassandraType(type = CassandraType.Name.COUNTER)
-    var likesCount: Long? = null
-}
+    var liked: Boolean = false
+)
 

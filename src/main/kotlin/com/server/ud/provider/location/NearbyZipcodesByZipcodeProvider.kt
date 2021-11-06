@@ -15,6 +15,15 @@ class NearbyZipcodesByZipcodeProvider {
     @Autowired
     private lateinit var nearbyZipcodesByZipcodeRepository: NearbyZipcodesByZipcodeRepository
 
+    fun getNearbyZipcodesByZipcode(zipcode: String): List<NearbyZipcodesByZipcode> =
+        try {
+            nearbyZipcodesByZipcodeRepository.findAllByZipcode(zipcode)
+        } catch (e: Exception) {
+            logger.error("Getting NearbyZipcodesByZipcode for $zipcode failed.")
+            e.printStackTrace()
+            emptyList()
+        }
+
     fun save(forZipcode: String, nearbyZipcodes: Set<String>) : List<NearbyZipcodesByZipcode> {
         try {
             val savedLocationByZipcode = nearbyZipcodesByZipcodeRepository.saveAll(

@@ -25,7 +25,7 @@ class LikeProcessingProvider {
     private lateinit var likesCountByResourceProvider: LikesCountByResourceProvider
 
     @Autowired
-    private lateinit var likesCountByResourceAndUserProvider: LikesCountByResourceAndUserProvider
+    private lateinit var likeForResourceByUserProvider: LikeForResourceByUserProvider
 
     @Autowired
     private lateinit var likesCountByUserProvider: LikesCountByUserProvider
@@ -37,7 +37,7 @@ class LikeProcessingProvider {
             val likesByResourceFuture = async { likesByResourceProvider.save(like) }
             val likesByUserFuture = async { likesByUserProvider.save(like) }
             val likesCountByResourceFuture = async { if (like.liked) likesCountByResourceProvider.increaseLike(like.resourceId) else likesCountByResourceProvider.decreaseLike(like.resourceId) }
-            val likesCountByResourceAndUserFuture = async { if (like.liked) likesCountByResourceAndUserProvider.increaseLike(like.resourceId, like.userId) else likesCountByResourceAndUserProvider.decreaseLike(like.resourceId, like.userId) }
+            val likesCountByResourceAndUserFuture = async { likeForResourceByUserProvider.setLike(like.resourceId, like.userId, like.liked) }
             val likesCountByUserFuture = async { if (like.liked) likesCountByUserProvider.increaseLike(like.userId) else likesCountByUserProvider.decreaseLike(like.userId) }
             likesByResourceFuture.await()
             likesByUserFuture.await()

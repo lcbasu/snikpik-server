@@ -11,7 +11,6 @@ data class HashTagsList (
     val tags: List<HashTagData>
 )
 
-
 fun HashTagsList.convertToString(): String {
     this.apply {
         return jacksonObjectMapper().writeValueAsString(this)

@@ -25,12 +25,6 @@ data class ExploreTabViewUserDetail(
     val dp: MediaDetailsV2?
 )
 
-data class ExploreTabViewLikesDetail(
-    val postId: String,
-    val likes: Long,
-    val liked: Boolean
-)
-
 data class ExploreTabViewResponse(
     val posts: List<ExploreTabViewPostDetail>,
     override val count: Int? = null,
@@ -45,7 +39,6 @@ data class ExploreFeedRequest (
     override val limit: Int = 10,
     override val pagingState: String? = null, // YYYY-MM-DD
 ): PaginationRequest(limit, pagingState)
-
 
 fun PostsByCategory.toExploreTabViewPostDetail(): ExploreTabViewPostDetail {
     this.apply {

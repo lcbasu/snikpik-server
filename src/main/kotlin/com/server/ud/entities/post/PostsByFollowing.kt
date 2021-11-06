@@ -31,14 +31,14 @@ class PostsByFollowing (
     @PrimaryKeyColumn(name = "following_user_id", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
     var followingUserId: String,
 
-    @PrimaryKeyColumn(name = "created_at", ordinal = 2, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
+    @PrimaryKeyColumn(name = "post_type", ordinal = 2, type = PrimaryKeyType.PARTITIONED)
+    var postType: PostType,
+
+    @PrimaryKeyColumn(name = "created_at", ordinal = 3, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
     var createdAt: Instant = DateUtils.getInstantNow(),
 
-    @PrimaryKeyColumn(name = "post_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
+    @PrimaryKeyColumn(name = "post_id", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
     var postId: String,
-
-    @PrimaryKeyColumn(name = "post_type", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
-    var postType: PostType,
 
     @Column
     var title: String? = null,

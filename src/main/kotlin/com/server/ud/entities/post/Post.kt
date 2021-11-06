@@ -83,14 +83,13 @@ fun Post.getGeoPointData(): GeoPoint? {
     }
 }
 
-fun Post.getHashTags(): List<HashTagData> {
+fun Post.getHashTags(): HashTagsList {
     this.apply {
         return try {
-            val tagsList = jacksonObjectMapper().readValue(tags, HashTagsList::class.java)
-            tagsList.tags
+            return jacksonObjectMapper().readValue(tags, HashTagsList::class.java)
         } catch (e: Exception) {
             e.printStackTrace()
-            emptyList()
+            HashTagsList(emptyList())
         }
     }
 }

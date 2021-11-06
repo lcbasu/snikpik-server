@@ -15,4 +15,13 @@ enum class JobGroupType {
 
     ProcessLikeJob_Job,
     ProcessLikeJob_Trigger,
+
+    ProcessSocialRelationJob_Job,
+    ProcessSocialRelationJob_Trigger,
+
+    ProcessCommentJob_Job,
+    ProcessCommentJob_Trigger,
+
+    ProcessReplyJob_Job,
+    ProcessReplyJob_Trigger,
 }

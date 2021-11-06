@@ -6,6 +6,7 @@ import com.server.ud.dto.ExploreFeedRequest
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.PostsByCategory
 import com.server.ud.enums.CategoryV2
+import com.server.ud.enums.PostType
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.utils.pagination.PaginationRequestUtil
 import org.slf4j.Logger
@@ -57,9 +58,8 @@ class PostsByCategoryProvider {
 
     fun getFeedForCategory(request: ExploreFeedRequest): CassandraPageV2<PostsByCategory> {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
-//        val postsSlice = postsByCategoryRepository.findAllByCategoryId(request.category, pageRequest as Pageable)
-         val postsSliceV2 = postsByCategoryRepository.findAllByCategoryIdAndForDate(request.category, DateUtils.getInstantFromLocalDateTime(DateUtils.parseStandardDate(request.forDate)), pageRequest as Pageable)
-        return CassandraPageV2(postsSliceV2)
+         val posts = postsByCategoryRepository.findAllByCategoryIdAndPostTypeAndForDate(request.category, PostType.GENERIC_POST, DateUtils.getInstantFromLocalDateTime(DateUtils.parseStandardDate(request.forDate)), pageRequest as Pageable)
+        return CassandraPageV2(posts)
     }
 
 }

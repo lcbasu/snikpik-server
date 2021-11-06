@@ -1,5 +1,6 @@
 package com.server.ud.controller
 
+import com.server.ud.dto.ResourceLikesDetail
 import com.server.ud.dto.SaveLikeRequest
 import com.server.ud.entities.like.Like
 import com.server.ud.service.post.LikeService
@@ -14,7 +15,12 @@ class LikeController {
     private lateinit var likeService: LikeService
 
     @RequestMapping(value = ["/save"], method = [RequestMethod.POST])
-    fun saveLike(@RequestBody saveLikeRequest: SaveLikeRequest): Like? {
-        return likeService.saveLike(saveLikeRequest)
+    fun saveLike(@RequestBody request: SaveLikeRequest): Like? {
+        return likeService.saveLike(request)
+    }
+
+    @RequestMapping(value = ["/getResourceLikesDetail"], method = [RequestMethod.GET])
+    fun getResourceLikesDetail(@RequestParam resourceId: String): ResourceLikesDetail {
+        return likeService.getResourceLikesDetail(resourceId)
     }
 }

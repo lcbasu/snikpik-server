@@ -21,5 +21,7 @@ enum class ReadableIdPrefix {
 
     PST, // Post
     LOC, // Location
+    CMT, // Location
+    RPL, // Location
 }
 

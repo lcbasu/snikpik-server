@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("ud/post")
 class PostController {
+
     @Autowired
     private lateinit var postService: PostService
 

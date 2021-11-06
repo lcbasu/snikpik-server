@@ -1,12 +1,9 @@
 package com.server.ud.controller
 
 import com.server.ud.dto.ExploreFeedRequest
-import com.server.ud.dto.ExploreTabViewLikesDetail
 import com.server.ud.dto.ExploreTabViewResponse
 import com.server.ud.dto.ExploreTabViewUserDetail
-import com.server.ud.entities.post.PostsByCategory
 import com.server.ud.enums.CategoryV2
-import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.service.post.ExploreFeedService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestMapping
@@ -15,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("ud/explore")
+@RequestMapping("ud/feed/explore")
 class ExploreFeedController {
 
     @Autowired
@@ -39,10 +36,5 @@ class ExploreFeedController {
     @RequestMapping(value = ["/getUserInfo"], method = [RequestMethod.GET])
     fun getUserInfo(@RequestParam userId: String): ExploreTabViewUserDetail {
         return exploreFeedService.getUserInfo(userId)
-    }
-
-    @RequestMapping(value = ["/getPostLikeInfo"], method = [RequestMethod.GET])
-    fun getPostLikeInfo(@RequestParam postId: String): ExploreTabViewLikesDetail {
-        return exploreFeedService.getPostLikeInfo(postId)
     }
 }

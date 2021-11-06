@@ -41,8 +41,4 @@ class LikesCountByUserProvider {
             logger.warn("The likes count is already zero. So skipping decreasing it further for userId: $userId")
         }
     }
-
-    fun resetLikes(userId: String) =
-        likesCountByUserRepository.setLikesCount(userId, 0)
-
 }
