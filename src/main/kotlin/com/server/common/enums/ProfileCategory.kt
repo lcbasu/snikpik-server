@@ -1,6 +1,6 @@
 package com.server.common.enums
 
-enum class UserProfileType {
+enum class ProfileCategory {
     PROFESSIONAL,
     SUPPLIER,
     OWNER,

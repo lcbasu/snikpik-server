@@ -26,7 +26,7 @@ class UserServiceImpl : UserService() {
         val absoluteMobile = firebaseAuthUserPrincipal?.getAbsoluteMobileNumber() ?: ""
         val uid = firebaseAuthUserPrincipal?.getUid() ?: ""
         // if already saved then return that value or save a new one
-        var user = authProvider.getRequestUserEntity() ?: authProvider.createUser(absoluteMobile = absoluteMobile, fullName = absoluteMobile, uid = uid)
+        var user = authProvider.getRequestUserEntity() ?: authProvider.createUser(absoluteMobile = absoluteMobile, fullName = null, uid = uid)
 //        if (uid.isNotBlank() && uid.isNotEmpty() && (user.uid?.isBlank() == true || user.uid?.isEmpty() == true)) {
 //            user = authProvider.updateUserUid(user.id, uid)
 //        }

@@ -5,7 +5,6 @@ import com.server.ud.entities.post.getHashTags
 import com.server.ud.enums.CategoryV2
 import com.server.ud.provider.location.ESLocationProvider
 import com.server.ud.provider.location.LocationProcessingProvider
-import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
 import com.server.ud.provider.social.FollowerProvider
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -27,6 +26,9 @@ class PostProcessingProvider {
 
     @Autowired
     private lateinit var postsByUserProvider: PostsByUserProvider
+
+    @Autowired
+    private lateinit var postsCountByUserProvider: PostsCountByUserProvider
 
     @Autowired
     private lateinit var followerProvider: FollowerProvider
@@ -73,6 +75,10 @@ class PostProcessingProvider {
                 postsByUserProvider.save(post)
             }
 
+            val postsCountByUserFuture = async {
+                postsCountByUserProvider.increaseCommentCount(post.userId)
+            }
+
             val postsByZipcodeFuture = async {
                 postsByZipcodeProvider.save(post)
             }
@@ -108,6 +114,7 @@ class PostProcessingProvider {
             }
 
             postsByUserFuture.await()
+            postsCountByUserFuture.await()
             postsByZipcodeFuture.await()
             savePostIntoNearbyZipcode.await()
             followersFeedFuture.await()

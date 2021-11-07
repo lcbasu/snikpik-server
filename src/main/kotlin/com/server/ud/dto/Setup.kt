@@ -1,7 +1,7 @@
 package com.server.ud.dto
 
 import com.server.dk.model.MediaDetailsV2
-import com.server.ud.enums.UserProfession
+import com.server.common.enums.ProfileType
 
 // Break down each request and response DTO
 // Likes should be a different call and video should be different. And so on.
@@ -9,8 +9,8 @@ import com.server.ud.enums.UserProfession
 // Common
 //
 //data class UserProfession (
-//    val professionId: String, // ID1, ID2
-//    val professionType: UserProfileType,
+//    val userProfileTypeId: String, // ID1, ID2
+//    val userProfileTypeType: UserProfileType,
 //    val name: String // Interior Designer, Architect, etc.
 //)
 
@@ -30,7 +30,7 @@ data class CFVUserDetail(
     val name: String,
     val dp: MediaDetailsV2,
     val verified: Boolean,
-    val profession: UserProfession,
+    val profileType: ProfileType,
 )
 
 //data class CFVFollowDetail(
@@ -38,31 +38,6 @@ data class CFVUserDetail(
 //    override val otherUserId: String,
 //    override val followed: Boolean
 //): FollowingFollower(loggedInUserId, otherUserId, followed)
-
-// ProfessionalMarketplaceFeed -> PMF
-
-data class PMFUserProfile (
-    val userId: String,
-    val handle: String,
-    val name: String,
-    val dp: MediaDetailsV2,
-    val verified: Boolean,
-    val profession: UserProfession, // Like Interior Designer
-    val businessName: String?, // at Godrej Interio
-    val locationResponse: LocationResponse,
-)
-
-data class PMFSingleCard (
-    val profession: UserProfession,
-    val professionals: List<PMFUserProfile>,
-)
-
-data class PMFResult (
-    val professionals: List<PMFSingleCard>,
-    override val numFound: Long,
-    override val startIndex: Long,
-    override val endIndex: Long,
-): PaginationDetails
 
 //data class PMFFollowDetail(
 //    override val loggedInUserId: String,
@@ -78,18 +53,18 @@ data class SMFUserProfile (
     val name: String,
     val dp: MediaDetailsV2,
     val verified: Boolean,
-    val profession: UserProfession,
+    val profileType: ProfileType,
     val businessName: String?, // at Oreo Paintings
     val locationResponse: LocationResponse,
 )
 
 data class SMFSingleCard (
-    val profession: UserProfession,
-    val professionals: List<SMFUserProfile>,
+    val profileType: ProfileType,
+    val suppliers: List<SMFUserProfile>,
 )
 
 data class SMFResult (
-    val professionals: List<SMFSingleCard>,
+    val suppliers: List<SMFSingleCard>,
     override val numFound: Long,
     override val startIndex: Long,
     override val endIndex: Long,
@@ -109,7 +84,7 @@ data class OPVUserProfile (
     val name: String,
     val dp: MediaDetailsV2,
     val verified: Boolean,
-    val profession: UserProfession,
+    val profileType: ProfileType,
     val locationResponse: LocationResponse,
     val professionalSince: Long?,
 )
@@ -164,7 +139,7 @@ data class WPVUserProfile (
     val name: String,
     val dp: MediaDetailsV2,
     val verified: Boolean,
-    val profession: UserProfession,
+    val profileType: ProfileType,
     val locationResponse: LocationResponse,
     val professionalSince: Long?,
 )

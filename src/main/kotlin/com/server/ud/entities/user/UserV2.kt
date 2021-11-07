@@ -2,9 +2,9 @@ package com.server.ud.entities.user
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.enums.NotificationTokenProvider
+import com.server.common.enums.ProfileType
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
-import com.server.ud.enums.UserProfession
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
@@ -15,7 +15,7 @@ import javax.persistence.EnumType
 import javax.persistence.Enumerated
 
 @Table("users")
-class UserV2 (
+data class UserV2 (
 
     @PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var userId: String,
@@ -45,7 +45,7 @@ class UserV2 (
     var verified: Boolean = false,
 
     @Column
-    var profession: UserProfession? = null,
+    var profiles: String? = null, // Set of ProfileType as String
 
     @Column("full_name")
     var fullName: String? = "",
@@ -86,14 +86,16 @@ fun UserV2.getMediaDetailsForDP(): MediaDetailsV2? {
     }
 }
 
-
-fun UserV2.getLocationDetails(): MediaDetailsV2? {
+fun UserV2.getProfiles(): Set<ProfileType> {
     this.apply {
         return try {
-            jacksonObjectMapper().readValue(dp, MediaDetailsV2::class.java)
+            val profileIds = profiles?.trim()?.split(",") ?: emptySet()
+            return profileIds.map {
+                ProfileType.valueOf(it)
+            }.toSet()
         } catch (e: Exception) {
-            null
+            e.printStackTrace()
+            emptySet()
         }
     }
 }
-

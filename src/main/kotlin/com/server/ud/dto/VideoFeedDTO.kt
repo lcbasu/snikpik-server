@@ -6,7 +6,8 @@ import com.server.ud.entities.post.getHashTags
 import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getMediaDetailsForDP
-import com.server.ud.enums.UserProfession
+import com.server.common.enums.ProfileType
+import com.server.ud.entities.user.getProfiles
 import com.server.ud.model.HashTagsList
 
 // VideoFeedView -> VFV
@@ -24,7 +25,7 @@ data class VideoFeedViewSingleUserDetail(
     val handle: String?,
     val verified: Boolean,
     val dp: MediaDetailsV2?,
-    val profession: UserProfession?,
+    val profiles: Set<ProfileType>,
     val location: LocationResponse?,
 )
 
@@ -78,7 +79,7 @@ fun UserV2.toVideoFeedViewSingleUserDetail(): VideoFeedViewSingleUserDetail {
             handle = handle,
             verified = verified,
             dp = getMediaDetailsForDP(),
-            profession = profession,
+            profiles = getProfiles(),
             location = userLastLocationId?.let {
                 LocationResponse(
                     id = userLastLocationId!!,

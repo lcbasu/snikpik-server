@@ -1,14 +1,17 @@
 package com.server.common.provider
 
-import com.server.common.entities.User
 import com.server.common.dao.UserRepository
-import com.server.dk.dto.RequestContext
-import com.server.dk.dto.PhoneVerificationResponse
-import com.server.dk.entities.*
+import com.server.common.entities.User
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.enums.RoleType
 import com.server.common.model.FirebaseAuthUser
+import com.server.dk.dto.PhoneVerificationResponse
+import com.server.dk.dto.RequestContext
+import com.server.dk.entities.Address
+import com.server.dk.entities.Company
+import com.server.dk.entities.Employee
+import com.server.dk.entities.UserRole
 import com.server.dk.provider.CompanyProvider
 import com.server.dk.provider.EmployeeProvider
 import com.server.ud.provider.user.UserV2Provider
@@ -182,14 +185,14 @@ class AuthProvider {
 
         // Copy over the details to new user DB in cassandra
         val savedUser = userRepository.save(newUser)
-        userV2Provider.save(savedUser)
+        userV2Provider.saveDKUserToUD(savedUser)
         return savedUser
     }
 
     fun getOrCreateUserByPhoneNumber(absoluteMobile: String): User? {
         val sanitizePhoneNumber = getSanitizePhoneNumber(absoluteMobile) ?: return null
         return getUserByMobile(sanitizePhoneNumber) ?:
-        createUser(absoluteMobile = sanitizePhoneNumber, fullName = absoluteMobile, uid = "")
+        createUser(absoluteMobile = sanitizePhoneNumber, fullName = null, uid = "")
     }
 
     fun getOrCreateUserByUid(uid: String): User? {
@@ -204,7 +207,7 @@ class AuthProvider {
     // isPublic Should always be set in the controller
     fun validateRequest(companyServerIdOrUsername: String? = null, employeeId: String? = null, requiredRoleTypes: Set<RoleType> = emptySet()): RequestContext {
         val requestingUser = getRequestUserEntity() ?: error("User is required to be logged in!")
-        val requestingUserV2 = userV2Provider.getUser(requestingUser.id) ?: userV2Provider.save(requestingUser) ?: error("Error while getting UserV2 from User")
+        val requestingUserV2 = userV2Provider.getUser(requestingUser.id) ?: userV2Provider.saveDKUserToUD(requestingUser) ?: error("Error while getting UserV2 from User")
 
         var company: Company? = null
         var userRoles: List<UserRole> = emptyList()
