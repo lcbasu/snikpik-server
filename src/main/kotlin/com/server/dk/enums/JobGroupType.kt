@@ -24,4 +24,7 @@ enum class JobGroupType {
 
     ProcessReplyJob_Job,
     ProcessReplyJob_Trigger,
+
+    ProcessBookmarkJob_Job,
+    ProcessBookmarkJob_Trigger,
 }

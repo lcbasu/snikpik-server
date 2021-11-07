@@ -5,7 +5,7 @@ import com.server.common.entities.UniqueId
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-import java.util.UUID
+import java.util.*
 import kotlin.math.abs
 
 
@@ -13,7 +13,7 @@ import kotlin.math.abs
 class UniqueIdProvider {
 
     val maximumTryout = 10
-    val uuidMinLength = 30
+    val uuidMinLength = 15
     val uuidMaxLength = 30
 
     @Autowired

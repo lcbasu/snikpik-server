@@ -1,9 +1,6 @@
 package com.server.ud.controller
 
-import com.server.ud.dto.FakePostRequest
-import com.server.ud.dto.PaginatedRequest
-import com.server.ud.dto.SavePostRequest
-import com.server.ud.dto.SavedPostResponse
+import com.server.ud.dto.*
 import com.server.ud.entities.post.Post
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.service.post.PostService
@@ -35,5 +32,10 @@ class PostController {
                 pagingState
             )
         )
+    }
+
+    @RequestMapping(value = ["/getPost"], method = [RequestMethod.GET])
+    fun getPost(@RequestParam postId: String): Post? {
+        return postService.getPost(postId)
     }
 }

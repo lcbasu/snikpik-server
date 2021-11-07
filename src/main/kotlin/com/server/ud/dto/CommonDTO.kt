@@ -5,30 +5,32 @@ import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 
 
-open class LocationResponse (
-    open val id: String, // ID at the city or 5x5 KM square block level (Need to figure out a way)
-    open val name: String?, // City Level grouping and naming
-    open val lat: Double?,
-    open val lng: Double?,
-    open val zipcode: String?,
+data class LocationResponse (
+    val id: String, // ID at the city or 5x5 KM square block level (Need to figure out a way)
+    val name: String?, // City Level grouping and naming
+    val lat: Double?,
+    val lng: Double?,
+    val zipcode: String?,
+    val googlePlaceId: String?,
 )
 
-data class UserLocationResponse(
-    override val id: String,
-    override val name: String?,
-    override val lat: Double?,
-    override val lng: Double?,
-    override val zipcode: String?,
-): LocationResponse(id, name, lat, lng, zipcode)
-
-
-data class PostLocationResponse(
-    override val id: String,
-    override val name: String?,
-    override val lat: Double?,
-    override val lng: Double?,
-    override val zipcode: String?,
-): LocationResponse(id, name, lat, lng, zipcode)
+//data class UserLocationResponse(
+//    override val id: String,
+//    override val name: String?,
+//    override val lat: Double?,
+//    override val lng: Double?,
+//    override val zipcode: String?,
+//    override val googlePlaceId: String?,
+//): LocationResponse(id, name, lat, lng, zipcode, googlePlaceId)
+//
+//
+//data class PostLocationResponse(
+//    override val id: String,
+//    override val name: String?,
+//    override val lat: Double?,
+//    override val lng: Double?,
+//    override val zipcode: String?,
+//): LocationResponse(id, name, lat, lng, zipcode)
 
 interface PaginationDetails {
     val numFound: Long
@@ -62,20 +64,24 @@ open class PaginationResponse (
     open val hasNext: Boolean? = null
 )
 
-data class ResourceLikesDetailForUser(
+data class ResourceLikesReportDetailForUser(
     val userId: String,
     val liked: Boolean
 )
 
-data class ResourceLikesDetail(
+data class ResourceLikesReportDetail(
     val resourceId: String,
     val likes: Long,
-    val userLevelInfo: ResourceLikesDetailForUser
+    val userLevelInfo: ResourceLikesReportDetailForUser
 )
 
-data class ResourceSavesDetailForUser(
-    val resourceId: String,
+data class BookmarkReportDetailForUser(
     val userId: String,
-    val saves: Long,
-    val saved: Boolean
+    val bookmarked: Boolean
+)
+
+data class BookmarkReportDetail(
+    val resourceId: String,
+    val bookmarks: Long,
+    val userLevelInfo: BookmarkReportDetailForUser
 )

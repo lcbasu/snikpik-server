@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface LikeForResourceByUserRepository : CassandraRepository<LikeForResourceByUser?, String?> {
 
-    @Query("select * from likes_count_by_resource_and_user where resource_id = ?0 and user_id = ?1")
+    @Query("select * from like_for_resource_by_user where resource_id = ?0 and user_id = ?1")
     fun findAllByResourceAndUserId(resourceId: String, userId: String): List<LikeForResourceByUser>
 }

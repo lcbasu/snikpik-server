@@ -23,6 +23,9 @@ object DateUtils {
     fun getEpoch(dateTime: LocalDateTime?): Long =
         dateTime?.toEpochSecond(standardZoneOffset) ?: 0
 
+    fun getEpoch(forInstant: Instant): Long =
+        getEpoch(getInstantDateTime(forInstant))
+
     fun getCurrentTimeInEpoch(): Long = dateTimeNow().toEpochSecond(standardZoneOffset)
 
     fun dateTimeNow(): LocalDateTime =
@@ -44,6 +47,9 @@ object DateUtils {
 
     fun getInstantDate(forInstant: Instant): Instant =
          parseEpochInMilliseconds(forInstant.toEpochMilli()).toLocalDate().atStartOfDay().toInstant(standardZoneOffset)
+
+    fun getInstantDateTime(forInstant: Instant): LocalDateTime =
+        parseEpochInMilliseconds(forInstant.toEpochMilli())
 
     fun toStringForDate(dateTime: LocalDateTime): String =
         dateTime.format(DateTimeFormatter.ofPattern(standardForDateFormatter))

@@ -39,7 +39,7 @@ class ReplyServiceImpl : ReplyService() {
         return ReplyReportDetail(
             commentId = commentId,
             replies = repliesCount,
-            userLevelInfo = CommentReplyDetailForUser(
+            userLevelInfo = ReplyDetailForUser(
                 userId = requestContext.userV2.userId,
                 replied = replied
             )

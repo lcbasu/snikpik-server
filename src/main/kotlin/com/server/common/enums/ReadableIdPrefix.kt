@@ -23,5 +23,6 @@ enum class ReadableIdPrefix {
     LOC, // Location
     CMT, // Location
     RPL, // Location
+    BMK, // Location
 }
 

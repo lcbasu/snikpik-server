@@ -41,4 +41,8 @@ class PostServiceImpl : PostService() {
     override fun getPosts(request: PaginatedRequest): CassandraPageV2<Post?>? {
         return postProvider.getPosts(request)
     }
+
+    override fun getPost(postId: String): Post? {
+        return postProvider.getPost(postId)
+    }
 }

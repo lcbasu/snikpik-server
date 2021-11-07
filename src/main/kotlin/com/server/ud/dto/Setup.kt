@@ -1,9 +1,7 @@
 package com.server.ud.dto
 
 import com.server.dk.model.MediaDetailsV2
-import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.UserProfession
-import com.server.ud.model.HashTagData
 
 // Break down each request and response DTO
 // Likes should be a different call and video should be different. And so on.
@@ -15,67 +13,6 @@ import com.server.ud.model.HashTagData
 //    val professionType: UserProfileType,
 //    val name: String // Interior Designer, Architect, etc.
 //)
-
-// PostCommentView -> PCV
-data class PCVPostDetail (
-    val postId: String,
-    val media: MediaDetailsV2,
-)
-
-data class PCVCommentCountDetail (
-    val postId: String,
-    val count: Long,
-)
-
-data class PCVSingleCommentDetail (
-    val commentId: String,
-    val userId: String,
-    val text: String,
-    val commentedAt: Long,
-)
-
-data class PCVResultList(
-    val comments: List<PCVSingleCommentDetail>,
-    override val numFound: Long,
-    override val startIndex: Long,
-    override val endIndex: Long,
-): PaginationDetails
-
-data class PCVSingleCommentUserDetail (
-    val userId: String,
-    val handle: String,
-    val name: String,
-    val dp: MediaDetailsV2,
-    val verified: Boolean,
-)
-
-data class PCVSingleCommentLikeDetail (
-    val commentId: String,
-    val likes: Long,
-    val liked: Boolean,
-)
-
-data class PCVSingleCommentReplyDetail (
-    val commentId: String,
-    val replyId: String,
-    val text: String,
-    val repliedAt: Long,
-)
-
-data class PCVSingleCommentReplyUserDetail (
-    val userId: String,
-    val handle: String,
-    val name: String,
-    val dp: MediaDetailsV2,
-    val verified: Boolean,
-)
-
-data class PCVSingleCommentRepliesList(
-    val replies: List<PCVSingleCommentReplyDetail>,
-    override val numFound: Long,
-    override val startIndex: Long,
-    override val endIndex: Long,
-): PaginationDetails
 
 // CommunityFeedView -> CFV
 

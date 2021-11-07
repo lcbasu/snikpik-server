@@ -25,7 +25,7 @@ data class VideoFeedViewSingleUserDetail(
     val verified: Boolean,
     val dp: MediaDetailsV2?,
     val profession: UserProfession?,
-    val location: UserLocationResponse?,
+    val location: LocationResponse?,
 )
 
 //data class VideoFeedViewFollowDetail(
@@ -40,17 +40,17 @@ data class VideoFeedViewSingleUserDetail(
 //    val liked: Boolean,
 //)
 
-data class VideoFeedViewSingleCommentsDetail(
-    val postId: String,
-    val comments: Long,
-    val commented: Boolean,
-)
-
-data class VideoFeedViewSingleSaveDetail(
-    val postId: String,
-    val saves: Long,
-    val saved: Boolean,
-)
+//data class VideoFeedViewSingleCommentsDetail(
+//    val postId: String,
+//    val comments: Long,
+//    val commented: Boolean,
+//)
+//
+//data class VideoFeedViewSingleSaveDetail(
+//    val postId: String,
+//    val saves: Long,
+//    val saved: Boolean,
+//)
 
 data class VideoFeedViewResultList(
     val posts: List<VideoFeedViewSinglePostDetail>,
@@ -80,12 +80,13 @@ fun UserV2.toVideoFeedViewSingleUserDetail(): VideoFeedViewSingleUserDetail {
             dp = getMediaDetailsForDP(),
             profession = profession,
             location = userLastLocationId?.let {
-                UserLocationResponse(
+                LocationResponse(
                     id = userLastLocationId!!,
                     name = userLastLocationName,
                     lat = userLastLocationLat,
                     lng = userLastLocationLng,
                     zipcode = userLastLocationZipcode,
+                    googlePlaceId = userLastGooglePlaceId,
                 )
             },
         )
