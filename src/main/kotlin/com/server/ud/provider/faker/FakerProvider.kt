@@ -64,12 +64,12 @@ class FakerProvider {
                 description = faker.book().publisher(),
                 tags = HashTagsList(listOf(
                     HashTagData(
-                        tagId = "TID1",
-                        displayName = "Tag ID 1",
+                        tagId = "newhouse",
+                        displayName = "newhouse",
                     ),
                     HashTagData(
-                        tagId = "TID2",
-                        displayName = "Tag ID 2",
+                        tagId = "lakesideview",
+                        displayName = "lakesideview",
                     )
                 )),
                 categories = setOf(CategoryV2.KITCHEN, CategoryV2.EXTERIOR),

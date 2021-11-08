@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.server.common.utils.DateUtils
 import com.server.ud.enums.LocationFor
 import org.springframework.data.annotation.Id
-import org.springframework.data.elasticsearch.annotations.*
+import org.springframework.data.elasticsearch.annotations.Document
+import org.springframework.data.elasticsearch.annotations.Field
+import org.springframework.data.elasticsearch.annotations.FieldType
+import org.springframework.data.elasticsearch.annotations.GeoPointField
 import org.springframework.data.elasticsearch.core.geo.GeoPoint
-import java.time.Instant
 
 /**
  * The response from Google Maps Autocomplete
@@ -43,10 +45,7 @@ class ESLocation (
     @Field(type = FieldType.Keyword)
     var googlePlaceId: String? = null,
 
-    @MultiField(
-        mainField = Field(type = FieldType.Text, fielddata = true),
-        otherFields = [InnerField(suffix = "verbatim", type = FieldType.Keyword)]
-    )
+    @Field(type = FieldType.Text)
     val name: String? = null,
 
     @Field(type = FieldType.Double)

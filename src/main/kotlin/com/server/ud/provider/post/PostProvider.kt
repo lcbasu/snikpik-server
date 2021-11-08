@@ -10,6 +10,7 @@ import com.server.ud.dto.SavePostRequest
 import com.server.ud.dto.sampleLocationRequests
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.user.UserV2
+import com.server.ud.entities.user.getProfiles
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagData
@@ -81,7 +82,12 @@ class PostProvider {
                 locationLat = location?.lat,
                 locationLng = location?.lng,
                 locationName = location?.name,
-                googlePlaceId = location?.googlePlaceId
+                googlePlaceId = location?.googlePlaceId,
+                userName = user.fullName,
+                userMobile = user.absoluteMobile,
+                userHandle = user.handle,
+                userCountryCode = user.countryCode,
+                userProfile = user.getProfiles().firstOrNull()
             )
             val savedPost = postRepository.save(post)
             processPostSchedulerService.createPostProcessingJob(savedPost)
@@ -102,12 +108,12 @@ class PostProvider {
                 description = faker.book().publisher(),
                 tags = HashTagsList(listOf(
                     HashTagData(
-                        tagId = "TID1",
-                        displayName = "Tag ID 1",
+                        tagId = "newhouse",
+                        displayName = "newhouse",
                     ),
                     HashTagData(
-                        tagId = "TID2",
-                        displayName = "Tag ID 2",
+                        tagId = "lakesideview",
+                        displayName = "lakesideview",
                     )
                 )),
                 categories = setOf(CategoryV2.KITCHEN, CategoryV2.EXTERIOR),

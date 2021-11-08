@@ -1,11 +1,11 @@
 package com.server.ud.entities.post
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.server.common.enums.ProfileType
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
-import com.server.ud.model.HashTagData
 import com.server.ud.model.HashTagsList
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
@@ -32,6 +32,21 @@ class Post (
 
     @Column
     var title: String? = null,
+
+    @Column("user_handle")
+    var userHandle: String? = null,
+
+    @Column("user_name")
+    var userName: String? = null,
+
+    @Column("user_mobile")
+    var userMobile: String? = null,
+
+    @Column("user_country_code")
+    var userCountryCode: String? = null,
+
+    @Column("user_profile")
+    var userProfile: ProfileType? = null,
 
     @Column
     var description: String? = null,

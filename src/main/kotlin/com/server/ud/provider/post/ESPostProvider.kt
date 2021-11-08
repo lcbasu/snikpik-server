@@ -35,7 +35,12 @@ class ESPostProvider {
                 locationLat = post.locationLat,
                 locationLng = post.locationLng,
                 locationName = post.locationName,
-                geoPoint = post.getGeoPointData()
+                geoPoint = post.getGeoPointData(),
+                userHandle = post.userHandle,
+                userMobile = post.userMobile,
+                userName = post.userName,
+                userCountryCode = post.userCountryCode,
+                userProfile = post.userProfile
             )
             val savedESPost = esPostRepository.save(esPost)
             logger.info("Saved post to elastic search postId: ${savedESPost.postId}")

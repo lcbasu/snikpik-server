@@ -1,10 +1,14 @@
 package com.server.ud.entities.es.post
 
+import com.server.common.enums.ProfileType
 import com.server.common.utils.DateUtils
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagData
 import org.springframework.data.annotation.Id
-import org.springframework.data.elasticsearch.annotations.*
+import org.springframework.data.elasticsearch.annotations.Document
+import org.springframework.data.elasticsearch.annotations.Field
+import org.springframework.data.elasticsearch.annotations.FieldType
+import org.springframework.data.elasticsearch.annotations.GeoPointField
 import org.springframework.data.elasticsearch.core.geo.GeoPoint
 import java.time.Instant
 
@@ -20,19 +24,13 @@ class ESPost (
     @Field(type = FieldType.Keyword)
     var userId: String,
 
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Keyword)
     var postType: PostType,
 
-    @MultiField(
-        mainField = Field(type = FieldType.Text, fielddata = true),
-        otherFields = [InnerField(suffix = "verbatim", type = FieldType.Keyword)]
-    )
+    @Field(type = FieldType.Text)
     var title: String? = null,
 
-    @MultiField(
-        mainField = Field(type = FieldType.Text, fielddata = true),
-        otherFields = [InnerField(suffix = "verbatim", type = FieldType.Keyword)]
-    )
+    @Field(type = FieldType.Text)
     var description: String? = null,
 
     @Field(type = FieldType.Text)
@@ -50,10 +48,7 @@ class ESPost (
     @Field(type = FieldType.Keyword)
     var zipcode: String? = null,
 
-    @MultiField(
-        mainField = Field(type = FieldType.Text, fielddata = true),
-        otherFields = [InnerField(suffix = "verbatim", type = FieldType.Keyword)]
-    )
+    @Field(type = FieldType.Text)
     val locationName: String? = null,
 
     @Field(type = FieldType.Double)
@@ -64,6 +59,21 @@ class ESPost (
 
     @GeoPointField
     val geoPoint: GeoPoint? = null,
+
+    @Field(type = FieldType.Text)
+    var userHandle: String? = null,
+
+    @Field(type = FieldType.Text)
+    var userName: String? = null,
+
+    @Field(type = FieldType.Text)
+    var userMobile: String? = null,
+
+    @Field(type = FieldType.Text)
+    var userCountryCode: String? = null,
+
+    @Field(type = FieldType.Keyword)
+    var userProfile: ProfileType? = null,
 )
 
 
