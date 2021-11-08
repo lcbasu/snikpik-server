@@ -13,8 +13,8 @@ import kotlin.math.abs
 class UniqueIdProvider {
 
     val maximumTryout = 10
-    val uuidMinLength = 15
-    val uuidMaxLength = 30
+    val uuidMinLength = 10
+    val uuidMaxLength = 13 // 3(For prefix - Fixed) + 10 (Random)
 
     @Autowired
     private lateinit var uniqueIdRepository: UniqueIdRepository
