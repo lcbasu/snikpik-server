@@ -1,12 +1,17 @@
 package com.server.ud.provider.user
 
+import com.server.common.enums.ProfileCategory
 import com.server.ud.dao.user.UsersByZipcodeAndProfileCategoryRepository
+import com.server.ud.dto.MarketplaceUserFeedRequest
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.UsersByZipcodeAndProfileCategory
 import com.server.ud.entities.user.getProfiles
+import com.server.ud.pagination.CassandraPageV2
+import com.server.ud.utils.pagination.PaginationRequestUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 
 @Component
@@ -19,6 +24,18 @@ class UsersByZipcodeAndProfileProvider {
 
     @Autowired
     private lateinit var pointerForUsersInMarketplaceProvider: PointerForUsersInMarketplaceProvider
+
+    @Autowired
+    private lateinit var paginationRequestUtil: PaginationRequestUtil
+
+    fun getFeedForMarketplaceUsers(userV2: UserV2, request: MarketplaceUserFeedRequest): CassandraPageV2<UsersByZipcodeAndProfileCategory> {
+        if (userV2.userLastLocationZipcode == null) {
+            error("User needs to set a location to get professionals near him.")
+        }
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
+        val users = usersByZipcodeAndProfileCategoryRepository.findAllByZipcodeAndProfileCategory(userV2.userLastLocationZipcode!!, request.profileCategory, pageRequest as Pageable)
+        return CassandraPageV2(users)
+    }
 
     fun save(userV2: UserV2): List<UsersByZipcodeAndProfileCategory> {
         try {

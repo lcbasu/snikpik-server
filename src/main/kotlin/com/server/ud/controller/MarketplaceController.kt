@@ -1,35 +1,33 @@
 package com.server.ud.controller
 
-import com.server.ud.dto.FakePostRequest
-import com.server.ud.dto.PaginatedRequest
-import com.server.ud.dto.SavePostRequest
-import com.server.ud.dto.SavedPostResponse
-import com.server.ud.entities.post.Post
-import com.server.ud.pagination.CassandraPageV2
+import com.server.common.enums.ProfileCategory
+import com.server.ud.dto.MarketplaceUserFeedRequest
+import com.server.ud.dto.MarketplaceUserFeedResponse
 import com.server.ud.service.marketplace.MarketplaceService
-import com.server.ud.service.post.PostService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("ud/post")
+@RequestMapping("ud/feed/marketplace")
 class MarketplaceController {
 
     @Autowired
     private lateinit var marketplaceService: MarketplaceService
 
-//    @RequestMapping(value = ["/getProfessionals"], method = [RequestMethod.GET])
-//    fun getProfessionals(@RequestParam limit: Int, @RequestParam pagingState: String?): CassandraPageV2<Post?>? {
-//        return marketplaceService.getProfessionals(
-//            PaginatedRequest(
-//                limit,
-//                pagingState
-//            )
-//        )
-//    }
-//
-//    @RequestMapping(value = ["/getPost"], method = [RequestMethod.GET])
-//    fun getPost(@RequestParam postId: String): Post? {
-//        return postService.getPost(postId)
-//    }
+    @RequestMapping(value = ["/getFeedForMarketplaceUsers"], method = [RequestMethod.GET])
+    fun getFeedForMarketplaceUsers(@RequestParam profileCategory: ProfileCategory,
+                            @RequestParam limit: Int,
+                            @RequestParam pagingState: String?): MarketplaceUserFeedResponse {
+        return marketplaceService.getFeedForMarketplaceUsers(
+            MarketplaceUserFeedRequest(
+                profileCategory,
+                limit,
+                pagingState
+            )
+        )
+    }
+
 }

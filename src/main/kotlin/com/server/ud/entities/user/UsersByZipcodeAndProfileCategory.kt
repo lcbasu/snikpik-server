@@ -1,8 +1,10 @@
 package com.server.ud.entities.user
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.enums.ProfileCategory
 import com.server.common.enums.ProfileType
 import com.server.common.enums.UserPositionInMarketplace
+import com.server.dk.model.MediaDetailsV2
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
@@ -59,3 +61,27 @@ class UsersByZipcodeAndProfileCategory (
     var fullName: String? = "",
 )
 
+
+fun UsersByZipcodeAndProfileCategory.getMediaDetailsForDP(): MediaDetailsV2? {
+    this.apply {
+        return try {
+            jacksonObjectMapper().readValue(dp, MediaDetailsV2::class.java)
+        } catch (e: Exception) {
+            null
+        }
+    }
+}
+
+fun UsersByZipcodeAndProfileCategory.getProfiles(): Set<ProfileType> {
+    this.apply {
+        return try {
+            val profileIds = profiles?.trim()?.split(",") ?: emptySet()
+            return profileIds.map {
+                ProfileType.valueOf(it)
+            }.toSet()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptySet()
+        }
+    }
+}
