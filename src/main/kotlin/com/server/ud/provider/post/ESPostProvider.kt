@@ -1,7 +1,9 @@
 package com.server.ud.provider.post
 
+import com.server.ud.dao.es.post.ESPostAutoSuggestRepository
 import com.server.ud.dao.es.post.ESPostRepository
 import com.server.ud.entities.es.post.ESPost
+import com.server.ud.entities.es.post.ESPostAutoSuggest
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.getGeoPointData
 import com.server.ud.entities.post.getHashTags
@@ -17,6 +19,9 @@ class ESPostProvider {
 
     @Autowired
     private lateinit var esPostRepository: ESPostRepository
+
+    @Autowired
+    private lateinit var esPostAutoSuggestRepository: ESPostAutoSuggestRepository
 
     fun save(post: Post) : ESPost? {
         try {
@@ -43,6 +48,24 @@ class ESPostProvider {
                 userProfile = post.userProfile
             )
             val savedESPost = esPostRepository.save(esPost)
+
+            esPostAutoSuggestRepository.save(ESPostAutoSuggest(
+                postId = post.postId,
+                suggestionText = setOf(
+                    post.media,
+                    post.description,
+                    post.locationName,
+                    post.userHandle,
+                    post.userMobile,
+                    post.userName,
+//                    "Embassy Golf Links Business Park",
+//                    "Golf Links Business Park",
+//                    "Links Business Park",
+//                    "Business Park",
+//                    "Park",
+                ).filterNotNull().toSet()
+            ))
+
             logger.info("Saved post to elastic search postId: ${savedESPost.postId}")
             return savedESPost
         } catch (e: Exception) {
