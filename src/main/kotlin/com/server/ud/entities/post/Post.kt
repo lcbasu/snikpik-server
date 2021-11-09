@@ -16,7 +16,7 @@ import org.springframework.data.elasticsearch.core.geo.GeoPoint
 import java.time.Instant
 
 @Table("posts")
-class Post (
+data class Post (
 
     @PrimaryKeyColumn(name = "post_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var postId: String,

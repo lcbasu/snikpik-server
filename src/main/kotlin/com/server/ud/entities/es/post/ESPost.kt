@@ -1,7 +1,7 @@
 package com.server.ud.entities.es.post
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.server.common.enums.ProfileType
-import com.server.common.utils.DateUtils
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagData
 import org.springframework.data.annotation.Id
@@ -10,8 +10,8 @@ import org.springframework.data.elasticsearch.annotations.Field
 import org.springframework.data.elasticsearch.annotations.FieldType
 import org.springframework.data.elasticsearch.annotations.GeoPointField
 import org.springframework.data.elasticsearch.core.geo.GeoPoint
-import java.time.Instant
 
+@JsonIgnoreProperties(ignoreUnknown = true) // Used while parsing Search result to ES Post
 @Document(indexName = "posts")
 class ESPost (
 
@@ -19,7 +19,7 @@ class ESPost (
     var postId: String,
 
     @Field(type = FieldType.Date_Nanos)
-    var createdAt: Instant = DateUtils.getInstantNow(),
+    var createdAt: Long,
 
     @Field(type = FieldType.Keyword)
     var userId: String,

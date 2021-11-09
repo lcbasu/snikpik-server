@@ -85,3 +85,22 @@ data class BookmarkReportDetail(
     val bookmarks: Long,
     val userLevelInfo: BookmarkReportDetailForUser
 )
+
+// Never request for more than page size of 100
+// Even though ES limits pagination to 10K results.
+// But that is the extreme case
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/paginate-search-results.html#paginate-search-results
+open class PaginationSearchRequest (
+    open val typedText: String,
+    open val from: Int = 10,
+    @Min(1)
+    @Max(100)
+    open val size: Int = 10,
+)
+
+open class PaginationSearchResponse (
+    open val typedText: String,
+    open val from: Int,
+    open val size: Int,
+    open val numFound: Long
+)

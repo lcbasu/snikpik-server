@@ -1,5 +1,6 @@
 package com.server.ud.provider.post
 
+import com.server.common.utils.DateUtils
 import com.server.ud.dao.es.post.ESPostRepository
 import com.server.ud.entities.es.post.ESPost
 import com.server.ud.entities.post.Post
@@ -23,7 +24,7 @@ class ESPostProvider {
             val esPost = ESPost(
                 postId = post.postId,
                 userId = post.userId,
-                createdAt = post.createdAt,
+                createdAt = DateUtils.getEpoch(post.createdAt),
                 postType = post.postType,
                 title = post.title,
                 description = post.description,

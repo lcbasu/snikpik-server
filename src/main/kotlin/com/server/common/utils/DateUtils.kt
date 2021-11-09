@@ -20,6 +20,9 @@ object DateUtils {
     fun parseEpochInMilliseconds(epochInMilliSeconds: Long): LocalDateTime =
         LocalDateTime.ofInstant(Instant.ofEpochSecond(epochInMilliSeconds / 1000), ZoneId.of(standardTimeZoneId))
 
+    fun getEpochNow(): Long =
+        dateTimeNow().toEpochSecond(standardZoneOffset)
+
     fun getEpoch(dateTime: LocalDateTime?): Long =
         dateTime?.toEpochSecond(standardZoneOffset) ?: 0
 
