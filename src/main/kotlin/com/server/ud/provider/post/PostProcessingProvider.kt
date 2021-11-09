@@ -46,6 +46,9 @@ class PostProcessingProvider {
     private lateinit var esPostProvider: ESPostProvider
 
     @Autowired
+    private lateinit var esPostAutoSuggestProvider: ESPostAutoSuggestProvider
+
+    @Autowired
     private lateinit var esLocationProvider: ESLocationProvider
 
     @Autowired
@@ -113,6 +116,10 @@ class PostProcessingProvider {
                 esPostProvider.save(post)
             }
 
+            val savePostAutoSuggestToESFuture = async {
+                esPostAutoSuggestProvider.save(post)
+            }
+
             postsByUserFuture.await()
             postsCountByUserFuture.await()
             postsByZipcodeFuture.await()
@@ -122,6 +129,7 @@ class PostProcessingProvider {
             allCategoryFeedFuture.await()
             hashTagsFeedFuture.await()
             savePostToESFuture.await()
+            savePostAutoSuggestToESFuture.await()
 
             logger.info("Post processing completed for postId: $postId")
         }
