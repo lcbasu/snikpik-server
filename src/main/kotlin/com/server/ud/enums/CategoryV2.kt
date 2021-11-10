@@ -27,11 +27,13 @@ enum class CategoryGroupV2(
 }
 enum class CategoryV2(
     val categoryGroup: CategoryGroupV2,
+    val order: Int,
     val displayName: String,
     val mediaDetails: MediaDetails
 ) {
     EXTERIOR(
         CategoryGroupV2.HOME,
+        1,
         "Exterior",
         MediaDetails(
             media = emptyList()
@@ -39,6 +41,7 @@ enum class CategoryV2(
     ),
     KITCHEN(
         CategoryGroupV2.HOME,
+        2,
         "Kitchen",
         MediaDetails(
             media = emptyList()
@@ -46,6 +49,7 @@ enum class CategoryV2(
     ),
     ALL(
         CategoryGroupV2.HOME,
+        0,
         "All",
         MediaDetails(
             media = emptyList()
