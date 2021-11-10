@@ -78,3 +78,7 @@ data class PdfProperties(val salarySlip: SalarySlipProperties) {
 data class DatastaxProperties(val astra: AstraProperties) {
     data class AstraProperties(var secureConnectBundleS3Bucket: String, var secureConnectBundleS3key: String)
 }
+
+@ConstructorBinding
+@ConfigurationProperties("cloudinary")
+data class CloudinaryProperties(val cloudName: String, val apiKey: String, val apiSecret: String)

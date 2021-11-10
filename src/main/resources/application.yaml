@@ -1,10 +1,20 @@
 server:
   port: 5000
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
 datastax:
   astra:
     secure-connect-bundle-s3-bucket: ${ASTRA_DB_BUNDLE_S3_BUCKET}
     secure-connect-bundle-s3-key: ${ASTRA_DB_BUNDLE_S3_KEY}
+multipart:
+  enabled: true
 spring:
+  http:
+    multipart:
+      max-request-size: 500000KB
+      max-file-size: 500000KB
   data:
     cassandra:
       keyspace-name: ${ASTRA_DB_KEYSPACE}

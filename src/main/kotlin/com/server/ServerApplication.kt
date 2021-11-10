@@ -8,6 +8,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 
 @SpringBootApplication
 @EnableConfigurationProperties(
+	CloudinaryProperties::class,
 	DatastaxProperties::class,
 	SecurityProperties::class,
 	AwsProperties::class,
