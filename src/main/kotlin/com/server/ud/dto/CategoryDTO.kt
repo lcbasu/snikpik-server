@@ -20,7 +20,7 @@ data class AllCategoryV2Response(
 
 data class CategoryV2Response(
     val id: CategoryV2,
-    val order: Int,
+    val placementOrder: Int,
     val categoryGroup: CategoryGroupV2,
     val displayName: String,
     val mediaDetails: MediaDetails
@@ -30,7 +30,7 @@ fun CategoryV2.toCategoryV2Response(): CategoryV2Response {
     this.apply {
         return CategoryV2Response(
             id = this,
-            order = order,
+            placementOrder = placementOrder,
             categoryGroup = categoryGroup,
             displayName = displayName,
             mediaDetails = mediaDetails,

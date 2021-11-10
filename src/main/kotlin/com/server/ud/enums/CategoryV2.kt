@@ -27,7 +27,7 @@ enum class CategoryGroupV2(
 }
 enum class CategoryV2(
     val categoryGroup: CategoryGroupV2,
-    val order: Int,
+    val placementOrder: Int,
     val displayName: String,
     val mediaDetails: MediaDetails
 ) {
