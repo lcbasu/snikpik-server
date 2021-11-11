@@ -1,7 +1,7 @@
 package com.server.common.service
 
 import com.server.common.model.Credentials
-import com.server.common.model.FirebaseAuthUser
+import com.server.common.model.UserDetailsFromToken
 import com.server.common.properties.SecurityProperties
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContextHolder
@@ -17,14 +17,14 @@ class SecurityServiceImpl : SecurityService() {
 
     @Autowired
     var securityProps: SecurityProperties? = null
-    override fun user(): FirebaseAuthUser? {
-        var firebaseAuthUserPrincipal: FirebaseAuthUser? = null
+    override fun user(): UserDetailsFromToken? {
+        var userDetailsFromTokenPrincipal: UserDetailsFromToken? = null
         val securityContext = SecurityContextHolder.getContext()
         val principal = securityContext.authentication.principal
-        if (principal is FirebaseAuthUser) {
-            firebaseAuthUserPrincipal = principal as FirebaseAuthUser
+        if (principal is UserDetailsFromToken) {
+            userDetailsFromTokenPrincipal = principal as UserDetailsFromToken
         }
-        return firebaseAuthUserPrincipal
+        return userDetailsFromTokenPrincipal
     }
     override fun credentials(): Credentials {
         val securityContext = SecurityContextHolder.getContext()

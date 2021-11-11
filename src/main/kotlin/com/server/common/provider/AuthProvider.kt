@@ -5,7 +5,7 @@ import com.server.common.entities.User
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.enums.RoleType
-import com.server.common.model.FirebaseAuthUser
+import com.server.common.model.UserDetailsFromToken
 import com.server.dk.dto.PhoneVerificationResponse
 import com.server.common.model.RequestContext
 import com.server.dk.entities.Address
@@ -68,14 +68,14 @@ class AuthProvider {
 
     }
 
-    fun getFirebaseAuthUser(): FirebaseAuthUser? {
-        var firebaseAuthUserPrincipal: FirebaseAuthUser? = null
+    fun getFirebaseAuthUser(): UserDetailsFromToken? {
+        var userDetailsFromTokenPrincipal: UserDetailsFromToken? = null
         val securityContext = SecurityContextHolder.getContext()
         val principal = securityContext.authentication.principal
-        if (principal is FirebaseAuthUser) {
-            firebaseAuthUserPrincipal = principal as FirebaseAuthUser
+        if (principal is UserDetailsFromToken) {
+            userDetailsFromTokenPrincipal = principal as UserDetailsFromToken
         }
-        return firebaseAuthUserPrincipal
+        return userDetailsFromTokenPrincipal
     }
 
     fun getRequestUserEntity(): User? {

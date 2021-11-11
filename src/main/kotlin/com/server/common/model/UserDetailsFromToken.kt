@@ -1,6 +1,6 @@
 package com.server.common.model
 
-data class FirebaseAuthUser(
+data class UserDetailsFromToken(
         private val serialVersionUID: Long = 4408418647685225829L,
         private val uid: String? = null,
         private val name: String? = null,

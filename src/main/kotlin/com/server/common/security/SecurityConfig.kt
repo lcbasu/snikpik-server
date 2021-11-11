@@ -79,6 +79,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers(
                     "/seoData/**",
+                    "/auth/**",
                     "/v2/api-docs",
                 "/configuration/ui",
                 "/swagger-resources/**",
@@ -88,6 +89,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                 "/webjars/**").permitAll()
                 .antMatchers(
                     "/seoData/**",
+                    "/auth/**",
                     "/v2/api-docs",
                     "/configuration/ui",
                     "/swagger-resources",

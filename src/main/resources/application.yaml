@@ -101,6 +101,7 @@ security:
     - /session/login
     - /public/*
     - /seoData/*
+    - /auth/*
   exposed-headers:
     - X-Xsrf-Token
 

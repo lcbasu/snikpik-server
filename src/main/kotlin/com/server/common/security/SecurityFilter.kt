@@ -2,7 +2,7 @@ package com.server.common.security
 
 import com.server.common.enums.CredentialType
 import com.server.common.model.Credentials
-import com.server.common.model.FirebaseAuthUser
+import com.server.common.model.UserDetailsFromToken
 import com.server.common.properties.AwsProperties
 import com.server.common.properties.SecurityProperties
 import com.server.common.service.SecurityService
@@ -42,9 +42,10 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
 
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
-        if (securityService?.isPublic() == false) {
-            verifyToken(request)
-        }
+//        if (securityService?.isPublic() == false) {
+//            verifyToken(request)
+//        }
+        verifyToken(request)
         filterChain.doFilter(request, response)
     }
 
@@ -109,11 +110,10 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
         } catch (e: Exception) {
             e.printStackTrace()
             logger.error("Token Verification Exception:: ${e.localizedMessage}")
-            Sentry.captureException(e)
         }
         decodedToken?.let {
-            val firebaseAuthUser = if (type == CredentialType.ID_TOKEN_FIREBASE && it is FirebaseToken) {
-                FirebaseAuthUser(
+            val userDetailsFromToken = if (type == CredentialType.ID_TOKEN_FIREBASE && it is FirebaseToken) {
+                UserDetailsFromToken(
                     uid = it.uid,
                     name = it.name,
                     absoluteMobile = it.claims["phone_number"] as String?,
@@ -121,7 +121,7 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
                     issuer = it.issuer
                 )
             } else if (type == CredentialType.ID_TOKEN_COGNITO && it is JWTClaimsSet) {
-                FirebaseAuthUser(
+                UserDetailsFromToken(
                     uid = it.getStringClaim("sub"),
                     name = it.getStringClaim("name"),
                     absoluteMobile = it.getStringClaim("phone_number"),
@@ -132,7 +132,7 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
                 error("Incorrect object type defined for principal")
             }
             val authentication = UsernamePasswordAuthenticationToken(
-                firebaseAuthUser,
+                userDetailsFromToken,
                 Credentials(type, it, token, session),
                 null)
             authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
