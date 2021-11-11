@@ -1,10 +1,8 @@
-package com.server.common.service.impl
+package com.server.common.service
 
 import com.server.common.model.Credentials
 import com.server.common.model.FirebaseAuthUser
 import com.server.common.properties.SecurityProperties
-import com.server.common.security.CookieUtils
-import com.server.common.service.SecurityService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service

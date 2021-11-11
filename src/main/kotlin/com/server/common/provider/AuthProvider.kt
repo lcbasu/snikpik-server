@@ -7,7 +7,7 @@ import com.server.common.enums.ReadableIdPrefix
 import com.server.common.enums.RoleType
 import com.server.common.model.FirebaseAuthUser
 import com.server.dk.dto.PhoneVerificationResponse
-import com.server.dk.dto.RequestContext
+import com.server.common.model.RequestContext
 import com.server.dk.entities.Address
 import com.server.dk.entities.Company
 import com.server.dk.entities.Employee
