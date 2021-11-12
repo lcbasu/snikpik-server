@@ -102,6 +102,7 @@ security:
     - /public/*
     - /seoData/*
     - /auth/*
+    - /consumeAPI/*
   exposed-headers:
     - X-Xsrf-Token
 
