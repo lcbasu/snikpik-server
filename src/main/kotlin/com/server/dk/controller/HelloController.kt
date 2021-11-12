@@ -20,7 +20,7 @@ class HelloController {
 
     @RequestMapping("/public/{id}")
     fun public(@PathVariable id: String): String? {
-        return "Greetings from DukaanKhata! $id"
+        return "Greetings from DK! $id"
     }
 
     @RequestMapping(value = ["/getUniqueId/{prefix}"], method = [RequestMethod.GET])
