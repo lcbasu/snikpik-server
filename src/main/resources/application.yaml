@@ -90,6 +90,13 @@ security:
     - X-Xsrf-Token
     - Cache-Control
     - Id-Token
+    - x-amz-sns-message-type
+    - x-amz-sns-message-id
+    - x-amz-sns-topic-arn
+    - Content-Length
+    - Host
+    - Connection
+    - User-Agent
   allowed-public-apis:
     - /swagger-ui.html
     - /swagger-resources/*
