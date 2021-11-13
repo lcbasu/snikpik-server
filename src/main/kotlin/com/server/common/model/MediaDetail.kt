@@ -27,8 +27,8 @@ data class SingleMediaDetail(
     val contentType: ContentType? = ContentType.ACTUAL,
     val mediaQualityType: MediaQualityType? = MediaQualityType.HIGH,
     val lengthInSeconds: Long? = 0, // Only applicable for Video and GIF
-    val width: Int?,
-    val height: Int?
+    val width: Int? = 0,
+    val height: Int? = 0
 )
 
 data class MediaDetailsV2(

@@ -1,18 +1,28 @@
 package com.server.ud.provider.post
 
 import com.github.javafaker.Faker
+import com.server.common.entities.MediaProcessingDetail
+import com.server.common.enums.ContentType
+import com.server.common.enums.MediaQualityType
+import com.server.common.enums.MediaType
 import com.server.common.enums.ReadableIdPrefix
+import com.server.common.provider.MediaHandlerProvider
+import com.server.common.provider.MediaInputDetail
 import com.server.common.provider.UniqueIdProvider
+import com.server.dk.model.MediaDetailsV2
+import com.server.dk.model.SingleMediaDetail
 import com.server.dk.model.convertToString
 import com.server.ud.dao.post.PostRepository
 import com.server.ud.dto.PaginatedRequest
 import com.server.ud.dto.SavePostRequest
 import com.server.ud.dto.sampleLocationRequests
 import com.server.ud.entities.post.Post
+import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getProfiles
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
+import com.server.ud.enums.ResourceType
 import com.server.ud.model.HashTagData
 import com.server.ud.model.HashTagsList
 import com.server.ud.model.convertToString
@@ -48,6 +58,9 @@ class PostProvider {
 
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
+
+    @Autowired
+    private lateinit var mediaHandlerProvider: MediaHandlerProvider
 
     fun getPost(postId: String): Post? =
         try {
@@ -90,12 +103,76 @@ class PostProvider {
                 userProfile = user.getProfiles().firstOrNull()
             )
             val savedPost = postRepository.save(post)
-            processPostSchedulerService.createPostProcessingJob(savedPost)
+            handlePostSaved(savedPost)
             return savedPost
         } catch (e: Exception) {
             e.printStackTrace()
             return null
         }
+    }
+
+    fun updateMedia(post: Post, media: String) {
+        try {
+            postRepository.updateMedia(post.postId, media)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun handlePostSaved(savedPost: Post) {
+
+        val videoMedia = savedPost.getMediaDetails()?.media?.filter { it.mediaType == MediaType.VIDEO } ?: emptyList()
+        // Only one video has to be present for processing
+        // Otherwise the flow breaks for now
+        // Figure out a better way in future
+        if (videoMedia.size == 1) {
+            try {
+                // Do media processing
+                // CRITICAL:
+                // Assumption 1: Right now we are assuming only one VIDEO asset being uploaded
+                // Assumption 2: Media files are always with USERID/RANDOMID.EXTENSION -> File Unique ID: USERID/RANDOMID
+
+                // Ideally there should be only one video
+                val mediaAsset = videoMedia.first()
+                val fileInfo = mediaHandlerProvider.getFileInfo(mediaAsset.mediaUrl)
+                mediaHandlerProvider.saveMediaDetailsAfterSavingResource(
+                    MediaInputDetail(
+                        fileUniqueId = fileInfo.fileUniqueId,
+                        forUser = fileInfo.userId,
+                        inputFilePath = mediaAsset.mediaUrl,
+                        resourceType = ResourceType.POST,
+                        resourceId = savedPost.postId,
+                    )
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // Fallback to normal processing
+                processPostSchedulerService.createPostProcessingJob(savedPost)
+            }
+        } else {
+            processPostSchedulerService.createPostProcessingJob(savedPost)
+        }
+    }
+
+    // Right now only for video
+    fun handleProcessedMedia(updatedMediaDetail: MediaProcessingDetail) {
+        val post = getPost(updatedMediaDetail.resourceId ?: error("Missing resource Id for file: ${updatedMediaDetail.id}")) ?: error("No post found for ${updatedMediaDetail.resourceId} while doing post processing.")
+        try {
+            val exisingMediaList = post.getMediaDetails()?.media ?: emptyList()
+            val otherMediaUrlList = exisingMediaList.filterNot { it.mediaUrl == updatedMediaDetail.inputFilePath }
+            val newMedia = otherMediaUrlList + listOf(SingleMediaDetail(
+                mediaUrl = updatedMediaDetail.outputFilePath ?: error(" Missing output file path for file: ${updatedMediaDetail.id}"),
+                mimeType = "video",
+                mediaType = MediaType.VIDEO,
+                contentType = ContentType.ACTUAL,
+                mediaQualityType = MediaQualityType.HIGH
+            ))
+            updateMedia(post, MediaDetailsV2(newMedia).convertToString())
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        // Now do the post-processing with new media URL
+        processPostSchedulerService.createPostProcessingJob(post)
     }
 
     fun fakeSave(user: UserV2, countOfPost: Int): List<Post> {
@@ -121,17 +198,6 @@ class PostProvider {
             )
             posts.add(save(user, req))
         }
-//        posts.filterNotNull().map {
-//            // Simulate liking
-//            val randomCount = Random.nextInt(2, 5)
-//            for (i in 1..randomCount) {
-//                likesCountByResourceProgression.increaseLike(it.postId)
-//            }
-//            // Try decreasing likes more than it has been increased and check behaviour
-//            for (i in 1..(randomCount+1)) {
-//                likesCountByResourceProgression.decreaseLike(it.postId)
-//            }
-//        }
         return posts.filterNotNull()
     }
 

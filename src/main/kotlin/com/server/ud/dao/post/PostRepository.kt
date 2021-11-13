@@ -11,4 +11,7 @@ interface PostRepository : CassandraRepository<Post?, String?> {
 //    fun findByUserId(userId: String?): List<PostsByUser>
     @Query("select * from posts where post_id = ?0")
     fun findAllByPostId(postId: String?): List<Post>
+
+    @Query("UPDATE posts SET media = ?1 WHERE post_id = ?0")
+    fun updateMedia(postId: String, media: String): Post
 }

@@ -1,5 +1,6 @@
 package com.server.ud.provider.comment
 
+import com.server.common.entities.MediaProcessingDetail
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.UniqueIdProvider
 import com.server.dk.model.convertToString
@@ -60,6 +61,10 @@ class CommentProvider {
             e.printStackTrace()
             return null
         }
+    }
+
+    fun handleProcessedMedia(updatedMediaDetail: MediaProcessingDetail) {
+        TODO("Not yet implemented")
     }
 
 }

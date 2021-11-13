@@ -1,5 +1,6 @@
 package com.server.common.service
 
+import com.server.common.controller.ProcessedVideoMessage
 import com.server.common.enums.MediaType
 import com.server.common.provider.AuthProvider
 import com.server.common.provider.MediaHandlerProvider
@@ -21,6 +22,10 @@ class MediaHandlerServiceImpl : MediaHandlerService() {
         val requestContext = authProvider.validateRequest()
         if (requestContext.user.anonymous) error("Only logged in users can upload media files")
         return mediaHandlerProvider.uploadFile(file, mediaType)
+    }
+
+    override fun startProcessingAfterVideoProcessing(message: ProcessedVideoMessage?) {
+        mediaHandlerProvider.startProcessingAfterVideoProcessing(message)
     }
 
 }

@@ -18,8 +18,9 @@ class MediaHandlerController {
     @Autowired
     private lateinit var mediaHandlerService: MediaHandlerService
 
-    @PostMapping("/upload")
-    fun uploadFile(@RequestParam("file") file: MultipartFile, @RequestParam("mediaType") mediaType: MediaType): MediaDetailsV2 {
-        return mediaHandlerService.uploadFile(file, mediaType)
-    }
+    // DO NOT ALLOW UPLOADS directly though server. Use AWS Lambda
+//    @PostMapping("/upload")
+//    fun uploadFile(@RequestParam("file") file: MultipartFile, @RequestParam("mediaType") mediaType: MediaType): MediaDetailsV2 {
+//        return mediaHandlerService.uploadFile(file, mediaType)
+//    }
 }

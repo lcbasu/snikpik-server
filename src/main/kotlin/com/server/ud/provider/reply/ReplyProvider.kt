@@ -1,5 +1,6 @@
 package com.server.ud.provider.reply
 
+import com.server.common.entities.MediaProcessingDetail
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.UniqueIdProvider
 import com.server.dk.model.convertToString
@@ -59,5 +60,9 @@ class ReplyProvider {
             e.printStackTrace()
             return null
         }
+    }
+
+    fun handleProcessedMedia(updatedMediaDetail: MediaProcessingDetail) {
+        TODO("Not yet implemented")
     }
 }
