@@ -21,6 +21,7 @@ class ConsumeApiController {
     @RequestMapping(value = ["/awsVideoProcessingCompleted"], method = [RequestMethod.POST])
     @ResponseBody
     fun awsVideoProcessingCompleted(@RequestBody request: ProcessedVideoSNSRequest, response: HttpServletResponse){
+        logger.info("Call mediaHandlerService for InputFile: ${request.Message?.InputFile}")
         mediaHandlerService.startProcessingAfterVideoProcessing(request.Message)
     }
 }
