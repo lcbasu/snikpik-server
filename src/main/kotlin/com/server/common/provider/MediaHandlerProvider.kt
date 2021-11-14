@@ -213,7 +213,7 @@ class MediaHandlerProvider {
         return convertedFile
     }
 
-    fun saveMediaDetailsAfterSavingResource(request: MediaInputDetail, addedBy: User? = null) {
+    fun saveOrUpdateMediaDetailsAfterSavingResource(request: MediaInputDetail, addedBy: User? = null) {
         val existing = getMediaProcessingDetail(request.fileUniqueId)
         if (existing == null) {
             saveSaveMediaInputDetailRequest(request, addedBy)

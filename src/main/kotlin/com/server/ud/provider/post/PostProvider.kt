@@ -113,7 +113,13 @@ class PostProvider {
 
     fun updateMedia(post: Post, media: String) {
         try {
-            postRepository.updateMedia(post.postId, media)
+            postRepository.updateMedia(
+                media = media,
+                postId = post.postId,
+                createdAt = post.createdAt,
+                userId = post.userId,
+                postType = post.postType
+            )
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -135,7 +141,7 @@ class PostProvider {
                 // Ideally there should be only one video
                 val mediaAsset = videoMedia.first()
                 val fileInfo = mediaHandlerProvider.getFileInfo(mediaAsset.mediaUrl)
-                mediaHandlerProvider.saveMediaDetailsAfterSavingResource(
+                mediaHandlerProvider.saveOrUpdateMediaDetailsAfterSavingResource(
                     MediaInputDetail(
                         fileUniqueId = fileInfo.fileUniqueId,
                         forUser = fileInfo.userId,
@@ -147,32 +153,33 @@ class PostProvider {
             } catch (e: Exception) {
                 e.printStackTrace()
                 // Fallback to normal processing
-                processPostSchedulerService.createPostProcessingJob(savedPost)
+                processPostSchedulerService.createPostProcessingJob(savedPost.postId)
             }
         } else {
-            processPostSchedulerService.createPostProcessingJob(savedPost)
+            processPostSchedulerService.createPostProcessingJob(savedPost.postId)
         }
     }
 
     // Right now only for video
     fun handleProcessedMedia(updatedMediaDetail: MediaProcessingDetail) {
         val post = getPost(updatedMediaDetail.resourceId ?: error("Missing resource Id for file: ${updatedMediaDetail.id}")) ?: error("No post found for ${updatedMediaDetail.resourceId} while doing post processing.")
-        try {
-            val exisingMediaList = post.getMediaDetails()?.media ?: emptyList()
+        val exisingMediaList = post.getMediaDetails()?.media ?: emptyList()
+        val newMedia = try {
             val otherMediaUrlList = exisingMediaList.filterNot { it.mediaUrl == updatedMediaDetail.inputFilePath }
-            val newMedia = otherMediaUrlList + listOf(SingleMediaDetail(
+            otherMediaUrlList + listOf(SingleMediaDetail(
                 mediaUrl = updatedMediaDetail.outputFilePath ?: error(" Missing output file path for file: ${updatedMediaDetail.id}"),
                 mimeType = "video",
                 mediaType = MediaType.VIDEO,
                 contentType = ContentType.ACTUAL,
                 mediaQualityType = MediaQualityType.HIGH
             ))
-            updateMedia(post, MediaDetailsV2(newMedia).convertToString())
         } catch (e: Exception) {
             e.printStackTrace()
+            exisingMediaList
         }
+        updateMedia(post, MediaDetailsV2(newMedia).convertToString())
         // Now do the post-processing with new media URL
-        processPostSchedulerService.createPostProcessingJob(post)
+        processPostSchedulerService.createPostProcessingJob(post.postId)
     }
 
     fun fakeSave(user: UserV2, countOfPost: Int): List<Post> {

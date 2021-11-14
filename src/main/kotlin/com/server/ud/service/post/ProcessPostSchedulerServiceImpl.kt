@@ -2,7 +2,6 @@ package com.server.ud.service.post
 
 import com.server.common.utils.DateUtils
 import com.server.dk.enums.JobGroupType
-import com.server.ud.entities.post.Post
 import com.server.ud.jobs.ProcessPostJob
 import org.quartz.*
 import org.slf4j.Logger
@@ -19,43 +18,43 @@ class ProcessPostSchedulerServiceImpl : ProcessPostSchedulerService() {
     @Autowired
     private lateinit var scheduler: Scheduler
 
-    override fun createPostProcessingJob(post: Post): Post {
+    override fun createPostProcessingJob(postId: String): String {
         try {
-            val jobDetail = getJobDetail(post)
-            val oldTrigger = getExistingTrigger(post)
+            val jobDetail = getJobDetail(postId)
+            val oldTrigger = getExistingTrigger(postId)
             if (scheduler.checkExists(jobDetail.key) || oldTrigger != null) {
                 // Delete old data
-                deleteExistingJob(post)
+                deleteExistingJob(postId)
                 // Make recursive call
-                return createPostProcessingJob(post)
+                return createPostProcessingJob(postId)
             } else {
-                val newTrigger = createNewTrigger(post, jobDetail)
+                val newTrigger = createNewTrigger(postId, jobDetail)
                 scheduler.scheduleJob(jobDetail, newTrigger)
             }
-            logger.info("Post processing job scheduled for post: ${post.postId} with jobKey: ${jobDetail.key}")
+            logger.info("Post processing job scheduled for post: ${postId} with jobKey: ${jobDetail.key}")
         } catch (e: Exception) {
-            logger.error("[CRITICAL]Scheduling of Job failed for processing after post creation for postId: ${post.postId}")
+            logger.error("[CRITICAL]Scheduling of Job failed for processing after post creation for postId: ${postId}")
             e.printStackTrace()
         }
-        return post
+        return postId
     }
 
-    private fun deleteExistingJob(post: Post): Post {
+    private fun deleteExistingJob(postId: String): String {
         try {
-            val jobKey = getJobKey(post)
-            val triggerKey = getTriggerKey(post)
+            val jobKey = getJobKey(postId)
+            val triggerKey = getTriggerKey(postId)
             scheduler.unscheduleJob(triggerKey)
             scheduler.deleteJob(jobKey)
-            logger.info("Un-scheduling Post processing job for post: ${post.postId} with jobKey: $jobKey")
+            logger.info("Un-scheduling Post processing job for post: ${postId} with jobKey: $jobKey")
         } catch (e: Exception) {
-            logger.error("[CRITICAL]Un-Scheduling of Job failed for taking shop online for companyId: ${post.postId}")
+            logger.error("[CRITICAL]Un-Scheduling of Job failed for taking shop online for companyId: ${postId}")
             e.printStackTrace()
         }
-        return post
+        return postId
     }
 
-    private fun getJobDetail(post: Post): JobDetail {
-        val jobKey = getJobKey(post)
+    private fun getJobDetail(postId: String): JobDetail {
+        val jobKey = getJobKey(postId)
         try {
             val jobDetail = scheduler.getJobDetail(jobKey)
             if (Objects.nonNull(jobDetail)) {
@@ -65,7 +64,7 @@ class ProcessPostSchedulerServiceImpl : ProcessPostSchedulerService() {
             e.printStackTrace()
         }
         val jobDataMap = JobDataMap()
-        jobDataMap["id"] = post.postId.toString()
+        jobDataMap["id"] = postId
         return JobBuilder
             .newJob(ProcessPostJob::class.java)
             .withIdentity(jobKey)
@@ -75,13 +74,12 @@ class ProcessPostSchedulerServiceImpl : ProcessPostSchedulerService() {
             .build()
     }
 
-    private fun getJobKey(post: Post): JobKey {
-        val id: String = post.postId.toString()
-        return JobKey(id, JobGroupType.ProcessPostJob_Job.name)
+    private fun getJobKey(postId: String): JobKey {
+        return JobKey(postId, JobGroupType.ProcessPostJob_Job.name)
     }
 
-    private fun getExistingTrigger(post: Post): Trigger? {
-        val triggerKey = getTriggerKey(post)
+    private fun getExistingTrigger(postId: String): Trigger? {
+        val triggerKey = getTriggerKey(postId)
         try {
             val trigger = scheduler.getTrigger(triggerKey)
             if (Objects.nonNull(trigger)) {
@@ -93,19 +91,18 @@ class ProcessPostSchedulerServiceImpl : ProcessPostSchedulerService() {
         return null
     }
 
-    private fun createNewTrigger(post: Post, jobDetail: JobDetail): Trigger {
+    private fun createNewTrigger(postId: String, jobDetail: JobDetail): Trigger {
         return TriggerBuilder
             .newTrigger()
             .forJob(jobDetail.key)
-            .withIdentity(getTriggerKey(post))
+            .withIdentity(getTriggerKey(postId))
             .withDescription("Do post processing")
             .startAt(getStartDateForAfterPostCreated())
             .build()
     }
 
-    private fun getTriggerKey(post: Post): TriggerKey {
-        val id: String = post.postId.toString()
-        return TriggerKey(id, JobGroupType.ProcessPostJob_Trigger.name)
+    private fun getTriggerKey(postId: String): TriggerKey {
+        return TriggerKey(postId, JobGroupType.ProcessPostJob_Trigger.name)
     }
 
     private fun getStartDateForAfterPostCreated(): Date {

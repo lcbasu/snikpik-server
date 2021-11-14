@@ -1,6 +1,7 @@
 package com.server.ud.provider.faker
 
 import com.github.javafaker.Faker
+import com.server.dk.model.sampleVideoMedia
 import com.server.ud.dto.*
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.entities.comment.Comment
@@ -49,6 +50,12 @@ class FakerProvider {
             error("Max of 25 fake data points in any category is allowed are allowed to be created at one time")
         }
 
+        if (request.countOfPost < 1 ||
+            request.maxCountOfComments < 1 ||
+            request.maxCountOfReplies < 1) {
+            error("Minimum value required is 1 for all the above fields.")
+        }
+
         val posts = mutableListOf<Post?>()
         val comments = mutableListOf<Comment?>()
         val replies = mutableListOf<Reply?>()
@@ -73,14 +80,15 @@ class FakerProvider {
                     )
                 )),
                 categories = setOf(CategoryV2.KITCHEN, CategoryV2.EXTERIOR),
-                locationRequest = sampleLocationRequests[Random.nextInt(sampleLocationRequests.size)]
+                locationRequest = sampleLocationRequests[Random.nextInt(sampleLocationRequests.size)],
+                mediaDetails = sampleVideoMedia[Random.nextInt(sampleVideoMedia.size)]
             )
             posts.add(postProvider.save(user, req))
         }
 
 
         posts.filterNotNull().map {
-            val randomCount = Random.nextInt(1, request.maxCountOfComments)
+            val randomCount = Random.nextInt(0, request.maxCountOfComments)
             for (i in 1..randomCount) {
                 comments.add(commentProvider.save(user, SaveCommentRequest(
                     postId = it.postId,
@@ -91,7 +99,7 @@ class FakerProvider {
         }
 
         comments.filterNotNull().map {
-            val randomCount = Random.nextInt(1, request.maxCountOfReplies)
+            val randomCount = Random.nextInt(0, request.maxCountOfReplies)
             for (i in 1..randomCount) {
                 replies.add(replyProvider.save(user, SaveCommentReplyRequest(
                     commentId = it.commentId,
