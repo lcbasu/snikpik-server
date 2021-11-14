@@ -50,7 +50,7 @@ class ConsumeApiController {
             val messageMessage = message.getOrDefault("Message", "NOT_FOUND")
             logger.info("messageMessage: $messageMessage")
             val processedVideoMessage = getProcessedVideoMessage(messageMessage.toString())
-            logger.info("processedVideoMessage.id: ${processedVideoMessage?.Id}")
+            logger.info("processedVideoMessage: ${processedVideoMessage}")
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
         }
