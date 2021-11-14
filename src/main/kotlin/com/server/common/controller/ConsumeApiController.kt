@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestController
-import java.io.*
+import java.io.ByteArrayInputStream
+import java.io.InputStream
 import java.util.*
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -36,9 +37,7 @@ class ConsumeApiController {
             while (scanner.hasNextLine()) {
                 builder.append(scanner.nextLine())
             }
-
             logger.info("builder: ${builder.toString()}")
-
             // Parse the JSON message
             val stream: InputStream = ByteArrayInputStream(builder.toString().toByteArray())
             val message = jacksonObjectMapper().readValue(stream, MutableMap::class.java)
@@ -49,13 +48,11 @@ class ConsumeApiController {
             logger.info("messageMessage: $messageMessage")
             val processedVideoMessage = getProcessedVideoMessage(messageMessage.toString())
             logger.info("processedVideoMessage: ${processedVideoMessage}")
+            logger.info("Call mediaHandlerService for InputFile: ${processedVideoMessage?.InputFile}")
+            mediaHandlerService.startProcessingAfterVideoProcessing(processedVideoMessage)
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
         }
-//        val body = getBody(request)
-//        logger.info("body: $body")
-//        logger.info("Call mediaHandlerService for InputFile: ${bodyObject?.Message?.InputFile}")
-//        mediaHandlerService.startProcessingAfterVideoProcessing(bodyObject?.Message)
     }
 
     fun getProcessedVideoMessage(message: String): ProcessedVideoMessage? {
