@@ -47,7 +47,8 @@ class ConsumeApiController {
             val message = jacksonObjectMapper().readValue(stream, MutableMap::class.java)
 
             logger.info("message: ${message.toString()}")
-            logger.info("messageType: ${message["Type"]}")
+            logger.info("messageType: ${message.getOrDefault("Type", "NOT_FOUND")}")
+            logger.info("messageMessage: ${message.getOrDefault("Message", "NOT_FOUND")}")
 
             val bodyObject = try {
                 jacksonObjectMapper().readValue(stream, ProcessedVideoSNSRequestBody::class.java)
@@ -69,24 +70,6 @@ class ConsumeApiController {
 //        logger.info("body: $body")
 //        logger.info("Call mediaHandlerService for InputFile: ${bodyObject?.Message?.InputFile}")
 //        mediaHandlerService.startProcessingAfterVideoProcessing(bodyObject?.Message)
-    }
-
-    @Throws(IOException::class)
-    fun getBody(request: HttpServletRequest): String? {
-        try {
-            val inputStream: InputStream = request.inputStream
-            val bufferedReader = BufferedReader(InputStreamReader(inputStream))
-            val stringBuilder = StringBuilder()
-            var line: String? = bufferedReader.readLine()
-            while (line != null) {
-                stringBuilder.append(line)
-                line = bufferedReader.readLine()
-            }
-            return stringBuilder.toString()
-        } catch (e: IOException) {
-            logger.error("Error while reading request body", e)
-            return null
-        }
     }
 }
 
