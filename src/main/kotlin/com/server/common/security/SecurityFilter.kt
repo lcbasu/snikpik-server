@@ -50,14 +50,14 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
     }
 
     private fun verifyToken(request: HttpServletRequest) {
-        logger.info("Verifying token for request: ${request.toString()}")
+//        logger.info("Verifying token for request: ${request.toString()}")
         var session: String? = null
         var decodedToken: Any? = null
         var type: CredentialType? = null
         val strictServerSessionEnabled: Boolean = securityProps?.firebaseProps?.enableStrictServerSession == true
         val sessionCookie: Cookie? = cookieUtils?.getCookie("session")
         val token: String? = securityService?.getBearerToken(request)
-        logger.info("Token to verify: $token")
+//        logger.info("Token to verify: $token")
         try {
             if (sessionCookie != null) {
                 session = sessionCookie.value
@@ -73,7 +73,7 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
                         decodedToken = FirebaseAuth.getInstance().verifyIdToken(token)
                         type = CredentialType.ID_TOKEN_FIREBASE
                     } catch (e: Exception) {
-                        logger.info("Token is not from Firebase Auth. Trying Cognito Auth.")
+//                        logger.info("Token is not from Firebase Auth. Trying Cognito Auth.")
                     }
 
                     // Option 2: Try Cognito
@@ -94,22 +94,24 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
                         8.You can now trust the claims inside the token.
                          */
 
-                        if (!isIssuedCorrectly(claimsSet)) {
-                            error("Issuer ${claimsSet.issuer} in JWT token doesn't match cognito idp ${awsProperties.amplify.wellKnownIssuer}")
-                        }
+//                        if (!isIssuedCorrectly(claimsSet)) {
+//                            error("Issuer ${claimsSet.issuer} in JWT token doesn't match cognito idp ${awsProperties.amplify.wellKnownIssuer}")
+//                        }
+//
+//                        if (!isIdToken(claimsSet)) {
+//                            error("JWT Token doesn't seem to be an ID Token")
+//                        }
 
-                        if (!isIdToken(claimsSet)) {
-                            error("JWT Token doesn't seem to be an ID Token")
+                        if (isIssuedCorrectly(claimsSet) && isIdToken(claimsSet)) {
+                            decodedToken = claimsSet
+                            type = CredentialType.ID_TOKEN_COGNITO
                         }
-
-                        decodedToken = claimsSet
-                        type = CredentialType.ID_TOKEN_COGNITO
                     }
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
-            logger.error("Token Verification Exception:: ${e.localizedMessage}")
+//            e.printStackTrace()
+//            logger.error("Token Verification Exception:: ${e.localizedMessage}")
         }
         decodedToken?.let {
             val userDetailsFromToken = if (type == CredentialType.ID_TOKEN_FIREBASE && it is FirebaseToken) {
