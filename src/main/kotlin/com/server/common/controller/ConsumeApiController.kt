@@ -49,13 +49,15 @@ class ConsumeApiController {
             logger.info("message: ${message.toString()}")
             logger.info("messageType: ${message["Type"]}")
 
-            // Confirm the subscription
-            if (message["Type"] == "SubscriptionConfirmation") {
-//                val sns = AmazonSNSClient(
-//                    PropertiesCredentials(SnsConfirmerServlet::class.java.getResourceAsStream("AwsCredentials.properties"))
-//                )
-//                sns.confirmSubscription(ConfirmSubscriptionRequest(message["TopicArn"], message["Token"]))
+            val bodyObject = try {
+                jacksonObjectMapper().readValue(stream, ProcessedVideoSNSRequestBody::class.java)
+            } catch (e: Exception) {
+                null
             }
+
+            logger.info("bodyObject: ${bodyObject.toString()}")
+            logger.info("MessageId: ${bodyObject?.MessageId}")
+
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
         }
@@ -65,11 +67,6 @@ class ConsumeApiController {
 
 //        val body = getBody(request)
 //        logger.info("body: $body")
-//        val bodyObject = try {
-//            jacksonObjectMapper().readValue(body, ProcessedVideoSNSRequestBody::class.java)
-//        } catch (e: Exception) {
-//            null
-//        }
 //        logger.info("Call mediaHandlerService for InputFile: ${bodyObject?.Message?.InputFile}")
 //        mediaHandlerService.startProcessingAfterVideoProcessing(bodyObject?.Message)
     }
