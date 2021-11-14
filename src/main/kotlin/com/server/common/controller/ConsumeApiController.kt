@@ -47,6 +47,7 @@ class ConsumeApiController {
             val message = jacksonObjectMapper().readValue(stream, MutableMap::class.java)
 
             logger.info("message: ${message.toString()}")
+            logger.info("messageType: ${message["Type"]}")
 
             // Confirm the subscription
             if (message["Type"] == "SubscriptionConfirmation") {
