@@ -8,7 +8,7 @@ import com.server.ud.dao.reply.CommentReplyRepository
 import com.server.ud.dto.SaveCommentReplyRequest
 import com.server.ud.entities.reply.Reply
 import com.server.ud.entities.user.UserV2
-import com.server.ud.service.reply.ProcessReplySchedulerService
+import com.server.ud.provider.job.JobProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,7 +24,7 @@ class ReplyProvider {
     private lateinit var commentReplyRepository: CommentReplyRepository
 
     @Autowired
-    private lateinit var processReplySchedulerService: ProcessReplySchedulerService
+    private lateinit var jobProvider: JobProvider
 
     @Autowired
     private lateinit var uniqueIdProvider: UniqueIdProvider
@@ -54,7 +54,7 @@ class ReplyProvider {
                 media = request.mediaDetails?.convertToString(),
             )
             val savedReply = commentReplyRepository.save(reply)
-            processReplySchedulerService.createReplyProcessingJob(savedReply)
+            jobProvider.scheduleProcessingForReply(savedReply.replyId)
             return savedReply
         } catch (e: Exception) {
             e.printStackTrace()

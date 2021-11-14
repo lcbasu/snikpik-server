@@ -7,6 +7,7 @@ import com.server.ud.dao.user.UserV2Repository
 import com.server.ud.dto.*
 import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.LocationFor
+import com.server.ud.provider.job.JobProvider
 import com.server.ud.provider.location.LocationProvider
 import com.server.ud.service.user.ProcessUserV2SchedulerService
 import org.slf4j.Logger
@@ -23,7 +24,7 @@ class UserV2Provider {
     private lateinit var userV2Repository: UserV2Repository
 
     @Autowired
-    private lateinit var processUserV2SchedulerService: ProcessUserV2SchedulerService
+    private lateinit var jobProvider: JobProvider
 
     @Autowired
     private lateinit var usersByHandleProvider: UsersByHandleProvider
@@ -48,7 +49,7 @@ class UserV2Provider {
         try {
             val savedUser = userV2Repository.save(userV2)
             logger.info("UserV2 saved with userId: ${savedUser.userId}.")
-            processUserV2SchedulerService.createUserV2ProcessingJob(savedUser)
+            jobProvider.scheduleProcessingForUserV2(savedUser.userId)
             return savedUser
         } catch (e: Exception) {
             logger.error("Saving UserV2 for ${userV2.userId} failed.")

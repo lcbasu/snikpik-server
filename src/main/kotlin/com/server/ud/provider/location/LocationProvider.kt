@@ -1,13 +1,12 @@
 package com.server.ud.provider.location
 
-import com.server.common.entities.User
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.UniqueIdProvider
 import com.server.ud.dao.location.LocationRepository
 import com.server.ud.dto.SaveLocationRequest
 import com.server.ud.entities.location.Location
 import com.server.ud.entities.user.UserV2
-import com.server.ud.service.location.ProcessLocationSchedulerService
+import com.server.ud.provider.job.JobProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,7 +25,7 @@ class LocationProvider {
     private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
-    private lateinit var processLocationSchedulerService: ProcessLocationSchedulerService
+    private lateinit var jobProvider: JobProvider
 
     fun getLocation(locationId: String): Location? =
         try {
@@ -56,7 +55,7 @@ class LocationProvider {
             )
             val savedLocation = locationRepository.save(location)
             logger.info("Saved location into cassandra with locationId: ${savedLocation.locationId}")
-            processLocationSchedulerService.createLocationProcessingJob(location)
+            jobProvider.scheduleProcessingForLocation(savedLocation.locationId)
             return savedLocation
         } catch (e: Exception) {
             logger.error("Saved location into cassandra failed for request: $request for userId: ${user.userId}")

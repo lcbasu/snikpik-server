@@ -7,7 +7,7 @@ import com.server.ud.dto.SaveBookmarkRequest
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.BookmarkUpdateAction
-import com.server.ud.service.bookmark.ProcessBookmarkSchedulerService
+import com.server.ud.provider.job.JobProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,7 +25,7 @@ class BookmarkProvider {
     private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
-    private lateinit var processBookmarkSchedulerService: ProcessBookmarkSchedulerService
+    private lateinit var jobProvider: JobProvider
 
     fun getBookmark(bookmarkId: String): Bookmark? =
         try {
@@ -50,7 +50,7 @@ class BookmarkProvider {
                 bookmarked = request.action == BookmarkUpdateAction.ADD
             )
             val savedBookmark = bookmarkRepository.save(bookmark)
-            processBookmarkSchedulerService.createBookmarkProcessingJob(savedBookmark)
+            jobProvider.scheduleProcessingForBookmark(savedBookmark.bookmarkId)
             return savedBookmark
         } catch (e: Exception) {
             e.printStackTrace()

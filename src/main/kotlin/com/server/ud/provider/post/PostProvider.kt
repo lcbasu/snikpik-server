@@ -27,8 +27,8 @@ import com.server.ud.model.HashTagData
 import com.server.ud.model.HashTagsList
 import com.server.ud.model.convertToString
 import com.server.ud.pagination.CassandraPageV2
+import com.server.ud.provider.job.JobProvider
 import com.server.ud.provider.location.LocationProvider
-import com.server.ud.service.post.ProcessPostSchedulerService
 import com.server.ud.utils.pagination.PaginationRequestUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -54,7 +54,7 @@ class PostProvider {
     private lateinit var locationProvider: LocationProvider
 
     @Autowired
-    private lateinit var processPostSchedulerService: ProcessPostSchedulerService
+    private lateinit var jobProvider: JobProvider
 
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
@@ -153,10 +153,10 @@ class PostProvider {
             } catch (e: Exception) {
                 e.printStackTrace()
                 // Fallback to normal processing
-                processPostSchedulerService.createPostProcessingJob(savedPost.postId)
+                jobProvider.scheduleProcessingForPost(savedPost.postId)
             }
         } else {
-            processPostSchedulerService.createPostProcessingJob(savedPost.postId)
+            jobProvider.scheduleProcessingForPost(savedPost.postId)
         }
     }
 
@@ -179,7 +179,7 @@ class PostProvider {
         }
         updateMedia(post, MediaDetailsV2(newMedia).convertToString())
         // Now do the post-processing with new media URL
-        processPostSchedulerService.createPostProcessingJob(post.postId)
+        jobProvider.scheduleProcessingForPost(post.postId)
     }
 
     fun fakeSave(user: UserV2, countOfPost: Int): List<Post> {

@@ -1,9 +1,9 @@
 package com.server.ud.provider.social
 
+import com.server.common.utils.CommonUtils
 import com.server.ud.dao.social.SocialRelationRepository
 import com.server.ud.entities.social.SocialRelation
-import com.server.ud.service.post.ProcessPostSchedulerService
-import com.server.ud.service.social.ProcessSocialRelationSchedulerService
+import com.server.ud.provider.job.JobProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,7 +18,7 @@ class SocialRelationProvider {
     private lateinit var socialRelationRepository: SocialRelationRepository
 
     @Autowired
-    private lateinit var processSocialRelationSchedulerService: ProcessSocialRelationSchedulerService
+    private lateinit var jobProvider: JobProvider
 
     fun getSocialRelation(fromUserId: String, toUserId: String): SocialRelation? =
     try {
@@ -41,12 +41,15 @@ class SocialRelationProvider {
                 following = following,
             )
             val savedRelation = socialRelationRepository.save(relation)
-            processSocialRelationSchedulerService.createSocialRelationProcessingJob(savedRelation)
+            jobProvider.scheduleProcessingForSocialRelation(getId(savedRelation))
             return savedRelation
         } catch (e: Exception) {
             e.printStackTrace()
             return null
         }
     }
+
+    private fun getId(socialRelation: SocialRelation) =
+        "${socialRelation.fromUserId}${CommonUtils.STRING_SEPARATOR}${socialRelation.toUserId}"
 
 }

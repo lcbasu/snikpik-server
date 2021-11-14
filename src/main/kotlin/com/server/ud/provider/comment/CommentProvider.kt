@@ -8,7 +8,7 @@ import com.server.ud.dao.comment.CommentRepository
 import com.server.ud.dto.SaveCommentRequest
 import com.server.ud.entities.comment.Comment
 import com.server.ud.entities.user.UserV2
-import com.server.ud.service.comment.ProcessCommentSchedulerService
+import com.server.ud.provider.job.JobProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,7 +24,7 @@ class CommentProvider {
     private lateinit var commentRepository: CommentRepository
 
     @Autowired
-    private lateinit var processCommentSchedulerService: ProcessCommentSchedulerService
+    private lateinit var jobProvider: JobProvider
 
     @Autowired
     private lateinit var uniqueIdProvider: UniqueIdProvider
@@ -55,7 +55,7 @@ class CommentProvider {
                 media = request.mediaDetails?.convertToString(),
             )
             val savedComment = commentRepository.save(comment)
-            processCommentSchedulerService.createCommentProcessingJob(savedComment)
+            jobProvider.scheduleProcessingForComment(savedComment.commentId)
             return savedComment
         } catch (e: Exception) {
             e.printStackTrace()
