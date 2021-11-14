@@ -49,16 +49,6 @@ class ConsumeApiController {
             logger.info("message: ${message.toString()}")
             logger.info("messageType: ${message.getOrDefault("Type", "NOT_FOUND")}")
             logger.info("messageMessage: ${message.getOrDefault("Message", "NOT_FOUND")}")
-
-            val bodyObject = try {
-                jacksonObjectMapper().readValue(stream, ProcessedVideoSNSRequestBody::class.java)
-            } catch (e: Exception) {
-                null
-            }
-
-            logger.info("bodyObject: ${bodyObject.toString()}")
-            logger.info("MessageId: ${bodyObject?.MessageId}")
-
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
         }
