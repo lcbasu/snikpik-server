@@ -48,7 +48,9 @@ class ConsumeApiController {
 
             logger.info("message: ${message.toString()}")
             logger.info("messageType: ${message.getOrDefault("Type", "NOT_FOUND")}")
-            logger.info("messageMessage: ${message.getOrDefault("Message", "NOT_FOUND")}")
+            val messageMessage = message.getOrDefault("Message", "NOT_FOUND")
+            logger.info("messageMessage: $messageMessage")
+            getMessageMessage(messageMessage.toString())
 
             val bodyObject = try {
                 jacksonObjectMapper().readValue(stream, ProcessedVideoSNSRequestBody::class.java)
@@ -70,6 +72,18 @@ class ConsumeApiController {
 //        logger.info("body: $body")
 //        logger.info("Call mediaHandlerService for InputFile: ${bodyObject?.Message?.InputFile}")
 //        mediaHandlerService.startProcessingAfterVideoProcessing(bodyObject?.Message)
+    }
+
+    fun getMessageMessage(message: String) {
+        logger.info("message: $message")
+        val messageObject = try {
+            jacksonObjectMapper().readValue(message, MutableMap::class.java)
+        } catch (e: Exception) {
+            null
+        }
+        messageObject?.let {
+            logger.info("messageObject: $messageObject")
+        }
     }
 }
 
