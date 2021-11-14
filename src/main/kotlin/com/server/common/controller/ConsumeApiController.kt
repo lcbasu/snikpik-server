@@ -1,6 +1,5 @@
 package com.server.common.controller
 
-import com.amazonaws.auth.PropertiesCredentials
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -50,17 +49,8 @@ class ConsumeApiController {
             logger.info("messageType: ${message.getOrDefault("Type", "NOT_FOUND")}")
             val messageMessage = message.getOrDefault("Message", "NOT_FOUND")
             logger.info("messageMessage: $messageMessage")
-            getMessageMessage(messageMessage.toString())
-
-            val bodyObject = try {
-                jacksonObjectMapper().readValue(stream, ProcessedVideoSNSRequestBody::class.java)
-            } catch (e: Exception) {
-                null
-            }
-
-            logger.info("bodyObject: ${bodyObject.toString()}")
-            logger.info("MessageId: ${bodyObject?.MessageId}")
-
+            val processedVideoMessage = getProcessedVideoMessage(messageMessage.toString())
+            logger.info("processedVideoMessage.id: ${processedVideoMessage?.Id}")
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
         }
@@ -74,23 +64,26 @@ class ConsumeApiController {
 //        mediaHandlerService.startProcessingAfterVideoProcessing(bodyObject?.Message)
     }
 
-    fun getMessageMessage(message: String): ProcessedVideoMessage? {
+    fun getProcessedVideoMessage(message: String): ProcessedVideoMessage? {
         logger.info("message: $message")
         return try {
             val messageObject = jacksonObjectMapper().readValue(message, MutableMap::class.java)
             return messageObject?.let {
                 logger.info("messageObject: $messageObject")
-                val outputFiles = jacksonObjectMapper().readValue(messageObject["HLS_GROUP"].toString(), MutableList::class.java)
-                logger.info("outputFiles: $outputFiles")
+                val Outputs = jacksonObjectMapper().readValue(messageObject["Outputs"].toString(), MutableMap::class.java)
+                logger.info("Outputs: $Outputs")
+                val HLS_GROUP = jacksonObjectMapper().readValue(Outputs["HLS_GROUP"].toString(), MutableList::class.java)
+                logger.info("HLS_GROUP: $HLS_GROUP")
                 ProcessedVideoMessage(
                     Id = messageObject.getOrDefault("Id", "NOT_FOUND").toString(),
                     InputFile = messageObject.getOrDefault("InputFile", "NOT_FOUND").toString(),
                     Outputs = Outputs(
-                        outputFiles.map { it.toString() }
+                        HLS_GROUP.map { it.toString() }
                     ),
                 )
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
     }
