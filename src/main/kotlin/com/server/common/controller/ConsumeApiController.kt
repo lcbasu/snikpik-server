@@ -74,15 +74,24 @@ class ConsumeApiController {
 //        mediaHandlerService.startProcessingAfterVideoProcessing(bodyObject?.Message)
     }
 
-    fun getMessageMessage(message: String) {
+    fun getMessageMessage(message: String): ProcessedVideoMessage? {
         logger.info("message: $message")
-        val messageObject = try {
-            jacksonObjectMapper().readValue(message, MutableMap::class.java)
+        return try {
+            val messageObject = jacksonObjectMapper().readValue(message, MutableMap::class.java)
+            return messageObject?.let {
+                logger.info("messageObject: $messageObject")
+                val outputFiles = jacksonObjectMapper().readValue(messageObject["HLS_GROUP"].toString(), MutableList::class.java)
+                logger.info("outputFiles: $outputFiles")
+                ProcessedVideoMessage(
+                    Id = messageObject.getOrDefault("Id", "NOT_FOUND").toString(),
+                    InputFile = messageObject.getOrDefault("InputFile", "NOT_FOUND").toString(),
+                    Outputs = Outputs(
+                        outputFiles.map { it.toString() }
+                    ),
+                )
+            }
         } catch (e: Exception) {
             null
-        }
-        messageObject?.let {
-            logger.info("messageObject: $messageObject")
         }
     }
 }
@@ -105,7 +114,7 @@ data class ProcessedVideoSNSRequestBody (
 data class ProcessedVideoMessage (
     val Id : String?,
     val InputFile : String?,
-    val InputDetails : InputDetails?,
+    val InputDetails : InputDetails? = null,
     val Outputs : Outputs?
 )
 
