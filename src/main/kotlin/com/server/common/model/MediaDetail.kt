@@ -49,6 +49,13 @@ val sampleVideoMedia = listOf(
             mimeType = "video",
             mediaType = MediaType.VIDEO
         )
+    )),
+    MediaDetailsV2(listOf(
+        SingleMediaDetail(
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USR03D5DB98C4644E3F815F9BFD67/USR03D5DB98C4644E3F815F9BFD67_-_5611d9c3-4837-492c-b5a1-4f624dc2e012.mp4",
+            mimeType = "video",
+            mediaType = MediaType.VIDEO
+        )
     ))
 )
 
