@@ -49,7 +49,7 @@ class ConsumeApiController {
             val processedVideoMessage = getProcessedVideoMessage(messageMessage.toString())
             logger.info("processedVideoMessage: ${processedVideoMessage}")
             logger.info("Call mediaHandlerService for InputFile: ${processedVideoMessage?.InputFile}")
-            mediaHandlerService.startProcessingAfterVideoProcessing(processedVideoMessage)
+            mediaHandlerService.startProcessingAfterVideoProcessing(processedVideoMessage?.Outputs?.processedVideoUrls?.filterNotNull()?.toSet() ?: emptySet())
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
         }

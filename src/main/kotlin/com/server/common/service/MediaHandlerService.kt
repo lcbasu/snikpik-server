@@ -7,5 +7,5 @@ import org.springframework.web.multipart.MultipartFile
 
 abstract class MediaHandlerService {
     abstract fun uploadFile(file: MultipartFile, mediaType: MediaType): MediaDetailsV2
-    abstract fun startProcessingAfterVideoProcessing(message: ProcessedVideoMessage?)
+    abstract fun startProcessingAfterVideoProcessing(processedVideoUrls : Set<String>)
 }

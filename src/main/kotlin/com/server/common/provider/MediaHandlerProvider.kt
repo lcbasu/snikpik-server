@@ -3,13 +3,13 @@ package com.server.common.provider
 import com.cloudinary.Cloudinary
 import com.cloudinary.EagerTransformation
 import com.cloudinary.utils.ObjectUtils
-import com.server.common.controller.ProcessedVideoMessage
 import com.server.common.dao.MediaProcessingDetailRepository
 import com.server.common.entities.MediaProcessingDetail
 import com.server.common.entities.User
 import com.server.common.enums.ContentType
 import com.server.common.enums.MediaQualityType
 import com.server.common.enums.MediaType
+import com.server.common.utils.CommonUtils
 import com.server.dk.model.MediaDetailsV2
 import com.server.dk.model.SingleMediaDetail
 import com.server.ud.enums.ResourceType
@@ -225,46 +225,40 @@ class MediaHandlerProvider {
         logger.info("userId: ${request.forUser}")
     }
 
-    fun startProcessingAfterVideoProcessing(message: ProcessedVideoMessage?) {
+    fun startProcessingAfterVideoProcessing(processedVideoUrls : Set<String>) {
 
         // "InputFile":
         // "s3://unboxed-video-ingestion-to-deliver-source71e471f1-1uyj9h1m9ewum/assets01
-        // /userUploads/USR03D5DB98C4644E3F815F9BFD67/PST423BDFS/7818bc22-b8e4-4adb-a73f-6c06bfc65b7a.mp4"
-        val inputFile = message?.InputFile ?:
-        error("Input file is required to find what was the resource type of video processed")
+        // /userUploads/USR03D5DB98C4644E3F815F9BFD67/USR03D5DB98C4644E3F815F9BFD67_-_1340df61-b9e8-493d-a2d4-3cb61a2772a4.mp4"
 
-        val outputFile = message.Outputs?.processedVideoUrls?.firstOrNull() ?:
-        error("Input file is required to find what was the resource type of video processed")
+        processedVideoUrls.map {
+            val fileInfo = getFileInfoFromFilePath(it, false)
 
-        val fileInfo = getFileInfo(inputFile)
+            val existing = getMediaProcessingDetail(fileInfo.fileUniqueId)
 
-        val existing = getMediaProcessingDetail(fileInfo.fileUniqueId)
-
-        val request = MediaOutputDetail(
-            fileUniqueId = fileInfo.fileUniqueId,
-            forUser = fileInfo.userId,
-            outputFilePath = outputFile,
-        )
-        if (existing == null) {
-            saveSaveMediaOutputDetailRequest(request)
-        } else {
-            updateMediaOutputDetailRequest(request)
+            val request = MediaOutputDetail(
+                fileUniqueId = fileInfo.fileUniqueId,
+                forUser = fileInfo.userId,
+                outputFilePath = it,
+            )
+            if (existing == null) {
+                saveSaveMediaOutputDetailRequest(request)
+            } else {
+                updateMediaOutputDetailRequest(request)
+            }
+            logger.info("fileUniqueId: ${fileInfo.fileUniqueId}")
+            logger.info("userId: ${fileInfo.userId}")
         }
-        logger.info("fileUniqueId: ${fileInfo.fileUniqueId}")
-        logger.info("userId: ${fileInfo.userId}")
     }
 
-    fun getFileInfo(fileName: String): FileInfo {
-        val userStartIndex = fileName.indexOf("USR")
-        val userEndIndex = fileName.indexOf("/", userStartIndex)
-        val userId = fileName.substring(userStartIndex, userEndIndex)
+    fun getFileInfoFromFilePath(fileName: String, isInput: Boolean): FileInfo {
+        val userStartIndex = if (isInput) fileName.lastIndexOf("USR") else fileName.indexOf("USR")
         val extensionStartIndex = fileName.lastIndexOf(".")
-
         val fileUniqueId = fileName.substring(userStartIndex, extensionStartIndex)
-
+        val (userId, fileId) = fileUniqueId.split(CommonUtils.STRING_SEPARATOR)
         return if (fileUniqueId.isNotBlank()) {
             // Video is for Comment
-            logger.info("Process media with fileUniqueId: $fileUniqueId")
+            logger.info("Get media details from fileUniqueId: $fileUniqueId")
             FileInfo(userId = userId, fileUniqueId = fileUniqueId)
         } else {
             error("Failed to get uniqueFileId for processed video with fileName: $fileName")

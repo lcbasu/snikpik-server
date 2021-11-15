@@ -136,11 +136,11 @@ class PostProvider {
                 // Do media processing
                 // CRITICAL:
                 // Assumption 1: Right now we are assuming only one VIDEO asset being uploaded
-                // Assumption 2: Media files are always with USERID/RANDOMID.EXTENSION -> File Unique ID: USERID/RANDOMID
+                // Assumption 2: Media files are always with USERID/USERID_-_RANDOMID.EXTENSION -> File Unique ID: USERID/RANDOMID
 
                 // Ideally there should be only one video
                 val mediaAsset = videoMedia.first()
-                val fileInfo = mediaHandlerProvider.getFileInfo(mediaAsset.mediaUrl)
+                val fileInfo = mediaHandlerProvider.getFileInfoFromFilePath(mediaAsset.mediaUrl, true)
                 mediaHandlerProvider.saveOrUpdateMediaDetailsAfterSavingResource(
                     MediaInputDetail(
                         fileUniqueId = fileInfo.fileUniqueId,

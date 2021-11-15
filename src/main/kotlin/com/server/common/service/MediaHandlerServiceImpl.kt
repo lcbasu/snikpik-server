@@ -24,8 +24,8 @@ class MediaHandlerServiceImpl : MediaHandlerService() {
         return mediaHandlerProvider.uploadFile(file, mediaType)
     }
 
-    override fun startProcessingAfterVideoProcessing(message: ProcessedVideoMessage?) {
-        mediaHandlerProvider.startProcessingAfterVideoProcessing(message)
+    override fun startProcessingAfterVideoProcessing(processedVideoUrls : Set<String>) {
+        mediaHandlerProvider.startProcessingAfterVideoProcessing(processedVideoUrls)
     }
 
 }
