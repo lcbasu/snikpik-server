@@ -35,29 +35,41 @@ data class MediaDetailsV2(
     val media: List<SingleMediaDetail>
 )
 
-val sampleVideoMedia = listOf<MediaDetailsV2>(
+val sampleVideoMedia = listOf(
     MediaDetailsV2(listOf(
         SingleMediaDetail(
-            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USR03D5DB98C4644E3F815F9BFD67/7818bc22-b8e4-4adb-a73f-6c06bfc65b7a.mp4",
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USR03D5DB98C4644E3F815F9BFD67/90c5f365-6faa-412b-aa2a-65ec4e7b9011.mp4",
             mimeType = "video",
             mediaType = MediaType.VIDEO
         )
     )),
     MediaDetailsV2(listOf(
         SingleMediaDetail(
-            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USR03D5DB98C4644E3F815F9BFD67/93bcc7a3-9f27-4955-ab44-a1cfd739fc9c.mp4",
-            mimeType = "video",
-            mediaType = MediaType.VIDEO
-        )
-    )),
-    MediaDetailsV2(listOf(
-        SingleMediaDetail(
-            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USR03D5DB98C4644E3F815F9BFD67/a0cadb39-bb7f-4f2d-9323-df9601ca2c71.mp4",
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USR03D5DB98C4644E3F815F9BFD67/91df0202-293e-4d5a-8e81-41aa106ced58.mp4",
             mimeType = "video",
             mediaType = MediaType.VIDEO
         )
     ))
 )
+
+val sampleImageMedia = listOf(
+    MediaDetailsV2(listOf(
+        SingleMediaDetail(
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USR03D5DB98C4644E3F815F9BFD67/a88f2fb5-9782-40f9-b0b3-a49b1344c324.jpeg",
+            mimeType = "image",
+            mediaType = MediaType.IMAGE
+        )
+    )),
+    MediaDetailsV2(listOf(
+        SingleMediaDetail(
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USR03D5DB98C4644E3F815F9BFD67/94b5c46e-54df-4a6c-a658-ddd21865664e.jpeg",
+            mimeType = "image",
+            mediaType = MediaType.IMAGE
+        )
+    ))
+)
+
+val sampleMedia = sampleImageMedia + sampleVideoMedia
 
 fun MediaDetailsV2.convertToString(): String {
     this.apply {

@@ -1,7 +1,7 @@
 package com.server.ud.provider.faker
 
 import com.github.javafaker.Faker
-import com.server.dk.model.sampleVideoMedia
+import com.server.dk.model.sampleMedia
 import com.server.ud.dto.*
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.entities.comment.Comment
@@ -81,7 +81,7 @@ class FakerProvider {
                 )),
                 categories = setOf(CategoryV2.KITCHEN, CategoryV2.EXTERIOR),
                 locationRequest = sampleLocationRequests[Random.nextInt(sampleLocationRequests.size)],
-                mediaDetails = sampleVideoMedia[Random.nextInt(sampleVideoMedia.size)]
+                mediaDetails = sampleMedia[Random.nextInt(sampleMedia.size)]
             )
             posts.add(postProvider.save(user, req))
         }
