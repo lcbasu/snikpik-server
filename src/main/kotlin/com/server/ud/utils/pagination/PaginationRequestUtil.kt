@@ -20,7 +20,7 @@ class PaginationRequestUtil {
             pagingState?.let { Bytes.fromHexString(it) }
         } catch (e: Exception) {
             logger.error("Error while getting paging state for pagingState: $pagingState")
-            e.printStackTrace()
+//            e.printStackTrace()
             null
         }
     }
