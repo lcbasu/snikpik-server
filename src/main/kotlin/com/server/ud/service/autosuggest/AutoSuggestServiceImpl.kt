@@ -10,7 +10,7 @@ class AutoSuggestServiceImpl : AutoSuggestService() {
 
     @Autowired
     private lateinit var autoSuggestProvider: AutoSuggestProvider
-    override fun getPostAutoSuggestion(typesText: String): AutoSuggestResult {
-        return autoSuggestProvider.getPostAutoSuggest(typesText)
+    override fun getPostAutoSuggestion(typedText: String): AutoSuggestResult {
+        return autoSuggestProvider.getPostAutoSuggest(typedText)
     }
 }

@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("ud/post")
+@RequestMapping("ud/autoSuggest")
 class AutoSuggestController {
 
     @Autowired
     private lateinit var autoSuggestService: AutoSuggestService
 
     @RequestMapping(value = ["/getPostAutoSuggestion"], method = [RequestMethod.GET])
-    fun getPostAutoSuggestion(@RequestParam typesText: String): AutoSuggestResult {
-        return autoSuggestService.getPostAutoSuggestion(typesText)
+    fun getPostAutoSuggestion(@RequestParam typedText: String): AutoSuggestResult {
+        return autoSuggestService.getPostAutoSuggestion(typedText)
     }
 }
