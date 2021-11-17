@@ -1,7 +1,9 @@
 package com.server.ud.entities.es.post
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.enums.ProfileType
+import com.server.dk.model.MediaDetailsV2
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagData
 import org.springframework.data.annotation.Id
@@ -76,4 +78,12 @@ class ESPost (
     var userProfile: ProfileType? = null,
 )
 
-
+fun ESPost.getMediaDetails(): MediaDetailsV2? {
+    this.apply {
+        return try {
+            jacksonObjectMapper().readValue(media, MediaDetailsV2::class.java)
+        } catch (e: Exception) {
+            null
+        }
+    }
+}

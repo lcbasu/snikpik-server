@@ -3,6 +3,7 @@ package com.server.ud.provider.search
 import com.server.ud.dto.PostsSearchResponse
 import com.server.ud.dto.UDSearchRequest
 import com.server.ud.dto.getESPost
+import com.server.ud.dto.getPost
 import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.client.RequestOptions
@@ -50,9 +51,9 @@ class SearchProvider {
 
             val posts = searchResponse.hits.hits.map {
                 it.getESPost()
-            }.filterNotNull()
+            }.filterNotNull().filter { it.media != null }
             PostsSearchResponse(
-                posts = posts,
+                posts = posts.map { it.getPost() },
                 typedText = request.typedText,
                 from = request.from,
                 size = request.size,
