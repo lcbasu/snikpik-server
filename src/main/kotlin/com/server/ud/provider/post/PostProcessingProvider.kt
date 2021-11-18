@@ -79,7 +79,7 @@ class PostProcessingProvider {
             }
 
             val postsCountByUserFuture = async {
-                postsCountByUserProvider.increaseCommentCount(post.userId)
+                postsCountByUserProvider.increasePostCount(post.userId)
             }
 
             val postsByZipcodeFuture = async {

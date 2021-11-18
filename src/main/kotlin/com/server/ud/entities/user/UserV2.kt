@@ -18,53 +18,53 @@ import javax.persistence.Enumerated
 data class UserV2 (
 
     @PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    var userId: String,
+    val userId: String,
 
     @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
-    var createdAt: Instant = DateUtils.getInstantNow(),
+    val createdAt: Instant = DateUtils.getInstantNow(),
 
     @Column("absolute_mobile")
-    var absoluteMobile: String? = null,
+    val absoluteMobile: String? = null,
 
     @Column("country_code")
-    var countryCode: String? = null,
+    val countryCode: String? = null,
 
     @Column("handle")
-    var handle: String? = null,
+    val handle: String? = null,
 
     @Column
-    var dp: String? = null, // MediaDetailsV2
+    val dp: String? = null, // MediaDetailsV2
 
     @Column
-    var uid: String? = "",
+    val uid: String? = "",
 
     @Column
-    var anonymous: Boolean = false,
+    val anonymous: Boolean = false,
 
     @Column
-    var verified: Boolean = false,
+    val verified: Boolean = false,
 
     @Column
-    var profiles: String? = null, // Set of ProfileType as String
+    val profiles: String? = null, // Set of ProfileType as String
 
     @Column("full_name")
-    var fullName: String? = "",
+    val fullName: String? = "",
 
     @Column("notification_token")
-    var notificationToken: String? = "",
+    val notificationToken: String? = "",
 
     @Column("notification_token_provider")
     @Enumerated(EnumType.STRING)
-    var notificationTokenProvider: NotificationTokenProvider? = NotificationTokenProvider.FIREBASE,
+    val notificationTokenProvider: NotificationTokenProvider? = NotificationTokenProvider.FIREBASE,
 
     @Column("user_last_zipcode")
-    var userLastLocationZipcode: String? = null,
+    val userLastLocationZipcode: String? = null,
 
     @Column("user_last_google_place_id")
-    var userLastGooglePlaceId: String? = null,
+    val userLastGooglePlaceId: String? = null,
 
     @Column("user_last_location_id")
-    var userLastLocationId: String? = null,
+    val userLastLocationId: String? = null,
 
     @Column("user_last_location_name")
     val userLastLocationName: String? = null,

@@ -1,10 +1,7 @@
 package com.server.ud.service.like
 
 import com.server.common.provider.AuthProvider
-import com.server.ud.dto.ResourceLikesReportDetail
-import com.server.ud.dto.ResourceLikesReportDetailForUser
-import com.server.ud.dto.SaveLikeRequest
-import com.server.ud.entities.like.Like
+import com.server.ud.dto.*
 import com.server.ud.provider.like.LikeForResourceByUserProvider
 import com.server.ud.provider.like.LikeProvider
 import com.server.ud.provider.like.LikesCountByResourceProvider
@@ -26,9 +23,9 @@ class LikeServiceImpl : LikeService() {
     @Autowired
     private lateinit var likeForResourceByUserProvider: LikeForResourceByUserProvider
 
-    override fun saveLike(request: SaveLikeRequest): Like? {
+    override fun saveLike(request: SaveLikeRequest): SavedLikeResponse? {
         val requestContext = authProvider.validateRequest()
-        return likeProvider.save(requestContext.userV2, request)
+        return likeProvider.save(requestContext.userV2, request)?.toSavedLikeResponse()
     }
 
     override fun getResourceLikesDetail(resourceId: String): ResourceLikesReportDetail {

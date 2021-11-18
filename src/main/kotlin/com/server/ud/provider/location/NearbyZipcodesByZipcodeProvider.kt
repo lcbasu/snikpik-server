@@ -26,6 +26,7 @@ class NearbyZipcodesByZipcodeProvider {
 
     fun save(forZipcode: String, nearbyZipcodes: Set<String>) : List<NearbyZipcodesByZipcode> {
         try {
+            if (nearbyZipcodes.isEmpty()) return emptyList()
             val savedLocationByZipcode = nearbyZipcodesByZipcodeRepository.saveAll(
                 nearbyZipcodes.map {
                     NearbyZipcodesByZipcode(

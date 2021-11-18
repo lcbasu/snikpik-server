@@ -29,8 +29,8 @@ class PostsCountByUserProvider {
             null
         }
 
-    fun increaseCommentCount(userId: String) {
+    fun increasePostCount(userId: String) {
         postsCountByUserRepository.incrementPostCount(userId)
-        logger.warn("Increased comment for userId: $userId")
+        logger.warn("Increased post count for userId: $userId")
     }
 }

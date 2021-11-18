@@ -2,10 +2,12 @@ package com.server.ud.provider.location
 
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.UniqueIdProvider
+import com.server.common.utils.DateUtils
 import com.server.ud.dao.location.LocationRepository
 import com.server.ud.dto.SaveLocationRequest
 import com.server.ud.entities.location.Location
 import com.server.ud.entities.user.UserV2
+import com.server.ud.enums.LocationFor
 import com.server.ud.provider.job.JobProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -17,6 +19,10 @@ import java.time.Instant
 class LocationProvider {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
+
+    private val randomLocationId = "LOC_RANDOM"
+    private val randomLocationZipcode = "ZZZZZZ"
+    private val randomLocationName = "Global"
 
     @Autowired
     private lateinit var locationRepository: LocationRepository
@@ -40,12 +46,12 @@ class LocationProvider {
             null
         }
 
-    fun save(user: UserV2, request: SaveLocationRequest) : Location? {
+    fun save(userId: String, request: SaveLocationRequest) : Location? {
         try {
             val location = Location(
                 locationId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.LOC.name),
                 locationFor = request.locationFor,
-                userId = user.userId,
+                userId = userId,
                 createdAt = Instant.now(),
                 zipcode = request.zipcode,
                 googlePlaceId = request.googlePlaceId,
@@ -58,7 +64,38 @@ class LocationProvider {
             jobProvider.scheduleProcessingForLocation(savedLocation.locationId)
             return savedLocation
         } catch (e: Exception) {
-            logger.error("Saved location into cassandra failed for request: $request for userId: ${user.userId}")
+            logger.error("Saved location into cassandra failed for request: $request for userId: ${userId}")
+            e.printStackTrace()
+            return null
+        }
+    }
+
+    // To be used for cases where there are no location of post or for the user
+    fun getOrSaveRandomLocation(userId: String, locationFor: LocationFor) : Location? {
+        try {
+            // Get
+            getLocation(randomLocationId)?.let {
+                return it
+            }
+
+            // Save will be called only once
+            // Keeping it here so that if we reset the DB,
+            // this save happens and the future calls
+            // do not happen
+            val location = Location(
+                locationId = randomLocationId,
+                locationFor = locationFor,
+                userId = userId,
+                createdAt = Instant.now(),
+                zipcode = randomLocationZipcode,
+                name = randomLocationName,
+            )
+            val savedLocation = locationRepository.save(location)
+            logger.info("Saved location into cassandra with locationId: ${savedLocation.locationId}")
+            jobProvider.scheduleProcessingForLocation(savedLocation.locationId)
+            return savedLocation
+        } catch (e: Exception) {
+            logger.error("Saved location into cassandra failed locationFor: $locationFor for userId: $userId")
             e.printStackTrace()
             return null
         }

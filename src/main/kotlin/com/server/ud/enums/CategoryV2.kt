@@ -39,6 +39,14 @@ enum class CategoryV2(
             media = emptyList()
         )
     ),
+    INTERIOR(
+        CategoryGroupV2.HOME,
+        1,
+        "Interior",
+        MediaDetails(
+            media = emptyList()
+        )
+    ),
     KITCHEN(
         CategoryGroupV2.HOME,
         2,

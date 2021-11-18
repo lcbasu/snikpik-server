@@ -122,7 +122,7 @@ class UserV2Provider {
             lng = request.lng,
         )
 
-        val location = locationProvider.save(user, locationRequest) ?: error("Error saving location for userId: ${request.userId}")
+        val location = locationProvider.save(user.userId, locationRequest) ?: error("Error saving location for userId: ${request.userId}")
 
         val newUserToBeSaved = user.copy(
             userLastLocationId = location.locationId,

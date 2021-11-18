@@ -9,6 +9,7 @@ import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.MediaHandlerProvider
 import com.server.common.provider.MediaInputDetail
 import com.server.common.provider.UniqueIdProvider
+import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
 import com.server.dk.model.SingleMediaDetail
 import com.server.dk.model.convertToString
@@ -16,11 +17,13 @@ import com.server.ud.dao.post.PostRepository
 import com.server.ud.dto.PaginatedRequest
 import com.server.ud.dto.SavePostRequest
 import com.server.ud.dto.sampleLocationRequests
+import com.server.ud.entities.location.Location
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getProfiles
 import com.server.ud.enums.CategoryV2
+import com.server.ud.enums.LocationFor
 import com.server.ud.enums.PostType
 import com.server.ud.enums.ResourceType
 import com.server.ud.model.HashTagData
@@ -33,6 +36,10 @@ import com.server.ud.utils.pagination.PaginationRequestUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.cassandra.core.cql.Ordering
+import org.springframework.data.cassandra.core.cql.PrimaryKeyType
+import org.springframework.data.cassandra.core.mapping.Column
+import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.query.CassandraPageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
@@ -77,9 +84,30 @@ class PostProvider {
 
     fun save(user: UserV2, request: SavePostRequest) : Post? {
         try {
-            val location = request.locationRequest?.let {
-                locationProvider.save(user, it)
+            var location = request.locationRequest?.let {
+                locationProvider.save(user.userId, it)
             }
+
+            if (location == null && user.userLastLocationId != null && user.userLastLocationZipcode != null) {
+                // User location of user for the post
+                location = Location(
+                    locationId = user.userLastLocationId,
+                    createdAt = user.createdAt,
+                    userId = user.userId,
+                    locationFor = if (request.postType == PostType.GENERIC_POST) LocationFor.GENERIC_POST else LocationFor.COMMUNITY_WALL_POST,
+                    zipcode = user.userLastLocationZipcode,
+                    googlePlaceId = user.userLastGooglePlaceId,
+                    name = user.userLastLocationName,
+                    lat = user.userLastLocationLat,
+                    lng = user.userLastLocationLng,
+                )
+            }
+
+            // Assign a random location if location is not present in request and user also has no location
+            if (location == null) {
+                location = locationProvider.getOrSaveRandomLocation(userId = user.userId, locationFor = if (request.postType == PostType.GENERIC_POST) LocationFor.GENERIC_POST else LocationFor.COMMUNITY_WALL_POST)
+            }
+
             val post = Post(
                 postId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.PST.name),
                 userId = user.userId,

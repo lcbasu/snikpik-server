@@ -1,31 +1,32 @@
 package com.server.ud.dto
 
+import com.server.common.dto.ProfileTypeResponse
+import com.server.common.dto.toProfileTypeResponse
 import com.server.dk.model.MediaDetailsV2
 import com.server.ud.entities.post.NearbyPostsByZipcode
 import com.server.ud.entities.post.getHashTags
 import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getMediaDetailsForDP
-import com.server.common.enums.ProfileType
 import com.server.ud.entities.user.getProfiles
 import com.server.ud.model.HashTagsList
 
 // VideoFeedView -> VFV
 
 data class VideoFeedViewSinglePostDetail(
-    val postId: String,
-    val userId: String,
-    val media: MediaDetailsV2?,
-    val title: String?,
-    val tags: HashTagsList
-)
+    val tags: HashTagsList,
+    override val postId: String,
+    override val userId: String,
+    override val media: MediaDetailsV2?,
+    override val title: String?
+): PostMiniDetail
 
 data class VideoFeedViewSingleUserDetail(
     val userId: String,
     val handle: String?,
     val verified: Boolean,
     val dp: MediaDetailsV2?,
-    val profiles: Set<ProfileType>,
+    val profileTypeToShow: ProfileTypeResponse?,
     val location: LocationResponse?,
 )
 
@@ -79,10 +80,10 @@ fun UserV2.toVideoFeedViewSingleUserDetail(): VideoFeedViewSingleUserDetail {
             handle = handle,
             verified = verified,
             dp = getMediaDetailsForDP(),
-            profiles = getProfiles(),
+            profileTypeToShow = getProfiles().firstOrNull()?.toProfileTypeResponse(),
             location = userLastLocationId?.let {
                 LocationResponse(
-                    id = userLastLocationId!!,
+                    id = userLastLocationId,
                     name = userLastLocationName,
                     lat = userLastLocationLat,
                     lng = userLastLocationLng,
