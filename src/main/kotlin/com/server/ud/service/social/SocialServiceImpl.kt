@@ -24,7 +24,11 @@ class SocialServiceImpl : SocialService() {
 
     override fun setRelation(request: SocialRelationRequest): SocialRelationResponse {
         val requestContext = authProvider.validateRequest()
-        val savedRelation = socialRelationProvider.save(fromUserId = requestContext.userV2.userId, toUserId = request.toUserId, following = request.following) ?: error("Error while saving social relation for ${requestContext.userV2.userId} toUser: ${request.toUserId}")
+        val savedRelation = socialRelationProvider.save(
+            fromUserId = requestContext.userV2.userId,
+            toUserId = request.toUserId,
+            following = request.following,
+            scheduleJob = true) ?: error("Error while saving social relation for ${requestContext.userV2.userId} toUser: ${request.toUserId}")
         return savedRelation.toSocialRelationResponse()
     }
 }

@@ -10,7 +10,7 @@ data class SocialRelationRequest (
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class SocialRelationResponse (
+data class SocialRelationResponse (
     var fromUserId: String,
     var toUserId: String,
     val following: Boolean,

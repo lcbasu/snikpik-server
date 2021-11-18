@@ -33,7 +33,7 @@ class SocialRelationProvider {
         null
     }
 
-    fun save(fromUserId: String, toUserId: String, following: Boolean) : SocialRelation? {
+    fun save(fromUserId: String, toUserId: String, following: Boolean = true, scheduleJob: Boolean = true) : SocialRelation? {
         try {
             val relation = SocialRelation(
                 fromUserId = fromUserId,
@@ -41,7 +41,9 @@ class SocialRelationProvider {
                 following = following,
             )
             val savedRelation = socialRelationRepository.save(relation)
-            jobProvider.scheduleProcessingForSocialRelation(getId(savedRelation))
+            if (scheduleJob) {
+                jobProvider.scheduleProcessingForSocialRelation(getId(savedRelation))
+            }
             return savedRelation
         } catch (e: Exception) {
             e.printStackTrace()

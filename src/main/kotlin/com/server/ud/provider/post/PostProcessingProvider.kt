@@ -5,7 +5,7 @@ import com.server.ud.entities.post.getHashTags
 import com.server.ud.enums.CategoryV2
 import com.server.ud.provider.location.ESLocationProvider
 import com.server.ud.provider.location.LocationProcessingProvider
-import com.server.ud.provider.social.FollowerProvider
+import com.server.ud.provider.social.FollowersByUserProvider
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
@@ -31,7 +31,7 @@ class PostProcessingProvider {
     private lateinit var postsCountByUserProvider: PostsCountByUserProvider
 
     @Autowired
-    private lateinit var followerProvider: FollowerProvider
+    private lateinit var followersByUserProvider: FollowersByUserProvider
 
     @Autowired
     private lateinit var postsByFollowingProvider: PostsByFollowingProvider
@@ -91,7 +91,7 @@ class PostProcessingProvider {
             }
 
             val followersFeedFuture = async {
-                followerProvider.getFollowers(post.userId)
+                followersByUserProvider.getFollowers(post.userId)
                 ?.map { async { it.followerUserId?.let { postsByFollowingProvider.save(post, it) } } }
                 ?.map { it.await() }
             }

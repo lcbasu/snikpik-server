@@ -1,6 +1,15 @@
 package com.server.ud.provider.faker
 
 import com.github.javafaker.Faker
+import com.server.common.entities.User
+import com.server.common.enums.MediaType
+import com.server.common.enums.NotificationTokenProvider
+import com.server.common.enums.ProfileType
+import com.server.common.provider.AuthProvider
+import com.server.common.utils.DateUtils
+import com.server.dk.model.MediaDetailsV2
+import com.server.dk.model.SingleMediaDetail
+import com.server.dk.model.convertToString
 import com.server.dk.model.sampleMedia
 import com.server.ud.dto.*
 import com.server.ud.entities.bookmark.Bookmark
@@ -8,6 +17,7 @@ import com.server.ud.entities.comment.Comment
 import com.server.ud.entities.like.Like
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.reply.Reply
+import com.server.ud.entities.social.SocialRelation
 import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.*
 import com.server.ud.model.HashTagData
@@ -17,6 +27,9 @@ import com.server.ud.provider.comment.CommentProvider
 import com.server.ud.provider.like.LikeProvider
 import com.server.ud.provider.post.PostProvider
 import com.server.ud.provider.reply.ReplyProvider
+import com.server.ud.provider.social.SocialRelationProcessingProvider
+import com.server.ud.provider.social.SocialRelationProvider
+import com.server.ud.provider.user.UserV2Provider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,6 +40,15 @@ import kotlin.random.Random
 class FakerProvider {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
+
+    private val maxPostToFake = 25
+    private val minPostToFake = 1
+
+    @Autowired
+    private lateinit var authProvider: AuthProvider
+
+    @Autowired
+    private lateinit var userV2Provider: UserV2Provider
 
     @Autowired
     private lateinit var postProvider: PostProvider
@@ -43,16 +65,121 @@ class FakerProvider {
     @Autowired
     private lateinit var bookmarkProvider: BookmarkProvider
 
+    @Autowired
+    private lateinit var socialRelationProvider: SocialRelationProvider
+
+    @Autowired
+    private lateinit var socialRelationProcessingProvider: SocialRelationProcessingProvider
+
+    fun createFakeDataRandomly(): List<Any> {
+
+        val result = mutableListOf<Any?>()
+
+        // Create some fake users -> Done
+        // Create some fake professionals -> Done
+        // Create some fake suppliers -> Done
+        // Create some fake following and followers -> Done
+        // Create some fake posts
+        // Create some fake comments
+        // Create some fake likes
+        // Create some fake bookmarks
+
+        val faker = Faker()
+
+        // Use ONLY provider methods to change values
+        // This will help in testing the flow as well
+
+        val usersToCreate = Random.nextInt(1, 25)
+        val usersV1 = mutableListOf<User>()
+        for (i in 1..usersToCreate) {
+            usersV1.add(authProvider.createUserV1())
+        }
+
+        result.addAll(usersV1)
+
+        val usersV2 = usersV1.mapNotNull {
+            val profiles = ProfileType.values().toList().shuffled().take(Random.nextInt(1, ProfileType.values().size))
+            val location = sampleLocationRequests.shuffled().first()
+            val userV2 = userV2Provider.saveUserV2(UserV2 (
+                userId = it.id,
+                createdAt = DateUtils.getInstantFromLocalDateTime(it.createdAt),
+                absoluteMobile = it.absoluteMobile,
+                countryCode = it.countryCode,
+                handle = faker.name().username(),
+                dp = MediaDetailsV2(listOf(SingleMediaDetail(
+                    mediaUrl = "https://i.pravatar.cc/150?u=${it.id}",
+                    mediaType = MediaType.IMAGE,
+                ))).convertToString(),
+                uid = it.uid,
+                anonymous = false,
+                verified = Random.nextInt(1, 100) % 5 == 0,
+                profiles = profiles.joinToString(","),
+                fullName = faker.name().fullName(),
+                notificationToken = null,
+                notificationTokenProvider = NotificationTokenProvider.FIREBASE
+            ), false) ?: error("Error saving userV2 for userId: ${it.id}")
+            // This save will also take care of creating the job to process location data
+            userV2Provider.updateUserV2Location(UpdateUserV2LocationRequest (
+                userId = userV2.userId,
+                lat = location.lat!!,
+                lng = location.lng!!,
+                zipcode = location.zipcode!!,
+                name = location.name,
+                googlePlaceId = location.googlePlaceId,
+            ))
+        }
+        result.addAll(usersV2)
+
+        // Follow random people
+        val socialRelations = mutableListOf<SocialRelation?>()
+        for(userV2 in usersV2) {
+            val usersToFollow = usersV2.shuffled().take(Random.nextInt(1, usersV2.size))
+            for(userToFollow in usersToFollow) {
+                if (userToFollow.userId != userV2.userId) { // Do not follow oneself
+                    socialRelations.add(socialRelationProvider.save(
+                        fromUserId = userV2.userId,
+                        toUserId = userToFollow.userId,
+                        following = true,
+                        scheduleJob = false
+                    ))
+                }
+            }
+        }
+        result.addAll(socialRelations)
+
+        socialRelations.filterNotNull().map {
+            socialRelationProcessingProvider.processSocialRelation(
+                fromUserId = it.fromUserId,
+                toUserId = it.toUserId,
+            )
+        }
+
+        val usersToCreatePostsFor = usersV2.shuffled().take(Random.nextInt(1, usersV2.size))
+        for (userV2 in usersToCreatePostsFor) {
+            result.addAll(createFakeData(
+                user = userV2,
+                request = FakerRequest(
+                    countOfPost = Random.nextInt(1, maxPostToFake),
+                    maxCountOfComments = Random.nextInt(1, maxPostToFake),
+                    maxCountOfReplies = Random.nextInt(1, maxPostToFake),
+                ),
+            ))
+        }
+
+        return result.filterNotNull()
+    }
+
+
     fun createFakeData(user: UserV2, request: FakerRequest): List<Any> {
-        if (request.countOfPost > 25 ||
-            request.maxCountOfComments > 25 ||
-            request.maxCountOfReplies > 25) {
+        if (request.countOfPost > maxPostToFake ||
+            request.maxCountOfComments > maxPostToFake ||
+            request.maxCountOfReplies > maxPostToFake) {
             error("Max of 25 fake data points in any category is allowed are allowed to be created at one time")
         }
 
-        if (request.countOfPost < 1 ||
-            request.maxCountOfComments < 1 ||
-            request.maxCountOfReplies < 1) {
+        if (request.countOfPost < minPostToFake ||
+            request.maxCountOfComments < minPostToFake ||
+            request.maxCountOfReplies < minPostToFake) {
             error("Minimum value required is 1 for all the above fields.")
         }
 

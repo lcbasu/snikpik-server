@@ -24,4 +24,13 @@ class FakerServiceImpl : FakerService() {
 
         return FakerResponse(result = fakerProvider.createFakeData(user, request))
     }
+
+    override fun createFakeDataRandomly(): FakerResponse {
+        val requestContext = authProvider.validateRequest()
+        val user = requestContext.userV2
+
+        if (user.absoluteMobile != "+919742097429") error("Only Admin is allowed to do this.")
+
+        return FakerResponse(result = fakerProvider.createFakeDataRandomly())
+    }
 }

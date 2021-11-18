@@ -20,4 +20,9 @@ class FakerController {
         return fakerService.createFakeData(request)
     }
 
+    @RequestMapping(value = ["/createFakeDataRandomly"], method = [RequestMethod.POST])
+    fun createFakeDataRandomly(): FakerResponse {
+        return fakerService.createFakeDataRandomly()
+    }
+
 }

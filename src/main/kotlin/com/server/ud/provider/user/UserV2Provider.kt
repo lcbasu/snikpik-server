@@ -45,11 +45,13 @@ class UserV2Provider {
             null
         }
 
-    fun saveUserV2(userV2: UserV2) : UserV2? {
+    fun saveUserV2(userV2: UserV2, scheduleJob: Boolean = true) : UserV2? {
         try {
             val savedUser = userV2Repository.save(userV2)
             logger.info("UserV2 saved with userId: ${savedUser.userId}.")
-            jobProvider.scheduleProcessingForUserV2(savedUser.userId)
+            if (scheduleJob) {
+                jobProvider.scheduleProcessingForUserV2(savedUser.userId)
+            }
             return savedUser
         } catch (e: Exception) {
             logger.error("Saving UserV2 for ${userV2.userId} failed.")
@@ -58,7 +60,7 @@ class UserV2Provider {
         }
     }
 
-    fun saveDKUserToUD(user: User) : UserV2? {
+    fun saveDKUserToUD(user: User, scheduleJob: Boolean = true) : UserV2? {
         try {
             val userV2 = UserV2(
                 userId = user.id,
@@ -72,7 +74,7 @@ class UserV2Provider {
                 notificationTokenProvider = user.notificationTokenProvider,
             )
             logger.info("Completed")
-            return saveUserV2(userV2)
+            return saveUserV2(userV2, scheduleJob)
         } catch (e: Exception) {
             logger.error("Saving UserV2 for ${user.id} failed.")
             e.printStackTrace()

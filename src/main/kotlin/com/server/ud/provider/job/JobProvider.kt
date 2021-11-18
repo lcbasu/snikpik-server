@@ -4,16 +4,21 @@ import com.server.dk.enums.JobGroupType
 import com.server.ud.jobs.*
 import com.server.ud.service.scheduler.GenericSchedulerService
 import com.server.ud.service.scheduler.JobRequest
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
 class JobProvider {
 
+    private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
+
     @Autowired
     private lateinit var genericSchedulerService: GenericSchedulerService
 
     fun scheduleProcessingForPost(postId: String) {
+        logger.info("scheduleProcessingForPost: Job scheduled for $postId")
         genericSchedulerService.scheduleJob(JobRequest(
             genericId = postId,
             job = ProcessPostJob::class.java,
@@ -25,6 +30,7 @@ class JobProvider {
     }
 
     fun scheduleProcessingForReply(replyId: String) {
+        logger.info("scheduleProcessingForReply: Job scheduled for $replyId")
         genericSchedulerService.scheduleJob(JobRequest(
             genericId = replyId,
             job = ProcessReplyJob::class.java,
@@ -36,6 +42,7 @@ class JobProvider {
     }
 
     fun scheduleProcessingForBookmark(bookmarkId: String) {
+        logger.info("scheduleProcessingForBookmark: Job scheduled for $bookmarkId")
         genericSchedulerService.scheduleJob(JobRequest(
             genericId = bookmarkId,
             job = ProcessBookmarkJob::class.java,
@@ -47,6 +54,7 @@ class JobProvider {
     }
 
     fun scheduleProcessingForComment(commentId: String) {
+        logger.info("scheduleProcessingForComment: Job scheduled for $commentId")
         genericSchedulerService.scheduleJob(JobRequest(
             genericId = commentId,
             job = ProcessCommentJob::class.java,
@@ -58,6 +66,7 @@ class JobProvider {
     }
 
     fun scheduleProcessingForLike(likeId: String) {
+        logger.info("scheduleProcessingForLike: Job scheduled for $likeId")
         genericSchedulerService.scheduleJob(JobRequest(
             genericId = likeId,
             job = ProcessLikeJob::class.java,
@@ -69,6 +78,7 @@ class JobProvider {
     }
 
     fun scheduleProcessingForLocation(locationId: String) {
+        logger.info("scheduleProcessingForLocation: Job scheduled for $locationId")
         genericSchedulerService.scheduleJob(JobRequest(
             genericId = locationId,
             job = ProcessLocationJob::class.java,
@@ -80,6 +90,7 @@ class JobProvider {
     }
 
     fun scheduleProcessingForSocialRelation(socialRelationId: String) {
+        logger.info("scheduleProcessingForSocialRelation: Job scheduled for $socialRelationId")
         genericSchedulerService.scheduleJob(JobRequest(
             genericId = socialRelationId,
             job = ProcessSocialRelationJob::class.java,
@@ -91,6 +102,7 @@ class JobProvider {
     }
 
     fun scheduleProcessingForUserV2(userV2Id: String) {
+        logger.info("scheduleProcessingForUserV2: Job scheduled for $userV2Id")
         genericSchedulerService.scheduleJob(JobRequest(
             genericId = userV2Id,
             job = ProcessUserV2Job::class.java,

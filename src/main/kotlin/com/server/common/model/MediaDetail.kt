@@ -23,7 +23,7 @@ fun MediaDetails.convertToString(): String {
 data class SingleMediaDetail(
     val mediaUrl: String,
     val mediaType: MediaType = MediaType.IMAGE,
-    val mimeType: String?,
+    val mimeType: String? = null,
     val contentType: ContentType? = ContentType.ACTUAL,
     val mediaQualityType: MediaQualityType? = MediaQualityType.HIGH,
     val lengthInSeconds: Long? = 0, // Only applicable for Video and GIF
@@ -32,7 +32,7 @@ data class SingleMediaDetail(
 )
 
 data class MediaDetailsV2(
-    val media: List<SingleMediaDetail>
+    val media: List<SingleMediaDetail> = emptyList()
 )
 
 val sampleVideoMedia = listOf(

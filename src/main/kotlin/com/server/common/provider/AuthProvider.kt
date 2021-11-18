@@ -131,6 +131,13 @@ class AuthProvider {
     }
 
     fun createUser(absoluteMobile: String? = null, fullName: String? = null, uid: String? = null): User {
+        // Copy over the details to new user DB in cassandra
+        val savedUser = createUserV1(absoluteMobile, fullName, uid)
+        userV2Provider.saveDKUserToUD(savedUser, false)
+        return savedUser
+    }
+
+    fun createUserV1(absoluteMobile: String? = null, fullName: String? = null, uid: String? = null): User {
         val sanitizePhoneNumber = getSanitizePhoneNumber(absoluteMobile) ?: ""
 
         if (sanitizePhoneNumber.isNotBlank() && sanitizePhoneNumber.startsWith("+").not()) {
@@ -183,10 +190,7 @@ class AuthProvider {
         newUser.uid = uid
         newUser.anonymous = isAnonymous(uid = uid, absoluteMobile = sanitizePhoneNumber)
 
-        // Copy over the details to new user DB in cassandra
-        val savedUser = userRepository.save(newUser)
-        userV2Provider.saveDKUserToUD(savedUser)
-        return savedUser
+        return userRepository.save(newUser)
     }
 
     fun getOrCreateUserByPhoneNumber(absoluteMobile: String): User? {
