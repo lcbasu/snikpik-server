@@ -161,9 +161,9 @@ class FakerProvider {
             result.addAll(createFakeData(
                 user = userV2,
                 request = FakerRequest(
-                    countOfPost = Random.nextInt(1, maxPostToFake),
-                    maxCountOfComments = Random.nextInt(1, maxPostToFake),
-                    maxCountOfReplies = Random.nextInt(1, maxPostToFake),
+                    countOfPost = Random.nextInt(minPostToFake+1, maxPostToFake),
+                    maxCountOfComments = Random.nextInt(minPostToFake+1, maxPostToFake),
+                    maxCountOfReplies = Random.nextInt(minPostToFake+1, maxPostToFake),
                 ),
             ))
         }

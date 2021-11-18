@@ -1,5 +1,6 @@
 package com.server.ud.provider.job
 
+import com.server.common.utils.DateUtils
 import com.server.dk.enums.JobGroupType
 import com.server.ud.jobs.*
 import com.server.ud.service.scheduler.GenericSchedulerService
@@ -121,6 +122,19 @@ class JobProvider {
             description = "Process Post For Followers",
             groupTypeForJob = JobGroupType.ProcessPostForFollowersJob_Job,
             groupTypeForTrigger = JobGroupType.ProcessPostForFollowersJob_Trigger,
+            scheduleAfterSeconds = 10,
+        ))
+    }
+
+    fun scheduleFakeDataGeneration() {
+        val id = DateUtils.getEpochNow().toString()
+        logger.info("scheduleFakeDataGeneration: Job scheduled for id: $id")
+        genericSchedulerService.scheduleJob(JobRequest(
+            genericId = id,
+            job = CreateFakeDataJob::class.java,
+            description = "Create Fake Data",
+            groupTypeForJob = JobGroupType.FakeDataGenerationJob_Job,
+            groupTypeForTrigger = JobGroupType.FakeDataGenerationJob_Trigger,
             scheduleAfterSeconds = 10,
         ))
     }

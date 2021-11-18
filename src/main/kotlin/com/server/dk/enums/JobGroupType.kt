@@ -33,4 +33,7 @@ enum class JobGroupType {
 
     ProcessUserV2Job_Job,
     ProcessUserV2Job_Trigger,
+
+    FakeDataGenerationJob_Job,
+    FakeDataGenerationJob_Trigger,
 }
