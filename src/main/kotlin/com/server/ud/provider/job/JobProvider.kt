@@ -113,4 +113,16 @@ class JobProvider {
         ))
     }
 
+    fun scheduleProcessingForPostForFollowers(postId: String) {
+        logger.info("scheduleProcessingForPostForFollowers: Job scheduled for $postId")
+        genericSchedulerService.scheduleJob(JobRequest(
+            genericId = postId,
+            job = ProcessPostForFollowersJob::class.java,
+            description = "Process Post For Followers",
+            groupTypeForJob = JobGroupType.ProcessPostForFollowersJob_Job,
+            groupTypeForTrigger = JobGroupType.ProcessPostForFollowersJob_Trigger,
+            scheduleAfterSeconds = 10,
+        ))
+    }
+
 }

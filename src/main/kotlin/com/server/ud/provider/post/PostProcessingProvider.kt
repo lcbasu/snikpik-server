@@ -1,11 +1,15 @@
 package com.server.ud.provider.post
 
+import com.server.ud.dto.GetFollowersRequest
+import com.server.ud.entities.post.PostsByFollowing
 import com.server.ud.entities.post.getCategories
 import com.server.ud.entities.post.getHashTags
 import com.server.ud.enums.CategoryV2
+import com.server.ud.provider.job.JobProvider
 import com.server.ud.provider.location.ESLocationProvider
 import com.server.ud.provider.location.LocationProcessingProvider
 import com.server.ud.provider.social.FollowersByUserProvider
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
@@ -57,6 +61,9 @@ class PostProcessingProvider {
     @Autowired
     private lateinit var nearbyPostsByZipcodeProvider: NearbyPostsByZipcodeProvider
 
+    @Autowired
+    private lateinit var jobProvider: JobProvider
+
     fun postProcessPost(postId: String) {
         // Update
         // Post By User
@@ -90,12 +97,6 @@ class PostProcessingProvider {
                 nearbyPostsByZipcodeProvider.save(post)
             }
 
-            val followersFeedFuture = async {
-                followersByUserProvider.getFollowers(post.userId)
-                ?.map { async { it.followerUserId?.let { postsByFollowingProvider.save(post, it) } } }
-                ?.map { it.await() }
-            }
-
             val categoriesFeedFuture = async {
                 post.getCategories()
                     .map { async { postsByCategoryProvider.save(post, it) } }
@@ -124,7 +125,6 @@ class PostProcessingProvider {
             postsCountByUserFuture.await()
             postsByZipcodeFuture.await()
             savePostIntoNearbyZipcode.await()
-            followersFeedFuture.await()
             categoriesFeedFuture.await()
             allCategoryFeedFuture.await()
             hashTagsFeedFuture.await()
@@ -132,6 +132,63 @@ class PostProcessingProvider {
             savePostAutoSuggestToESFuture.await()
 
             logger.info("Post processing completed for postId: $postId")
+
+            // Schedule Heavy job to be done in isolation
+            jobProvider.scheduleProcessingForPostForFollowers(postId)
+        }
+    }
+
+    fun processPostForFollowers(postId: String) {
+        // Update
+        // Post By User
+        // Post By Zipcode (Nearby Feed)
+        // Follower Feed
+        // Category Feed
+        // Tags Feed
+        runBlocking {
+            logger.info("Do post processing for postId: $postId for followers of the original poster.")
+            val post = postProvider.getPost(postId) ?: error("No post found for $postId while doing post processing.")
+            val userId = post.userId
+
+            var followersResponse = followersByUserProvider.getFeedForFollowersResponse(
+                GetFollowersRequest(
+                    userId = userId,
+                    limit = 5,
+                    pagingState = "NOT_SET",
+                )
+            )
+            logger.info("followersResponse: ${followersResponse.followers.size}")
+            logger.info(followersResponse.followers.toString())
+
+            val followersFeedFuture: MutableList<Deferred<List<PostsByFollowing?>>> = mutableListOf()
+
+            followersFeedFuture.add(async {
+                followersResponse.followers.map {
+                    postsByFollowingProvider.save(post, it.followerUserId)
+                }
+            })
+
+            while (followersResponse.hasNext != null && followersResponse.hasNext == true) {
+                followersFeedFuture.add(async {
+                    followersResponse.followers.map {
+                        postsByFollowingProvider.save(post, it.followerUserId)
+                    }
+                })
+
+                followersResponse = followersByUserProvider.getFeedForFollowersResponse(
+                    GetFollowersRequest(
+                        userId = userId,
+                        limit = 10,
+                        pagingState = followersResponse.pagingState,
+                    )
+                )
+
+                logger.info("followersResponse: ${followersResponse.followers.size}")
+                logger.info(followersResponse.followers.toString())
+            }
+
+            followersFeedFuture.map { it.await() }
+            logger.info("Followers Post processing completed for postId: $postId for followers of the original poster with userId: $userId.")
         }
     }
 

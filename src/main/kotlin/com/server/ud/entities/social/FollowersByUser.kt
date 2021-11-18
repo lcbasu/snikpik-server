@@ -14,7 +14,14 @@ class FollowersByUser (
     @PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var userId: String,
 
-    @PrimaryKeyColumn(name = "for_date", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
+    // Not partitioning on date as it ias hard to get all followers by date
+    // as we do not know when they started following
+    // and the most prominent use case of this api
+    // is during saving post for followers which is a very frequent use case
+    // So we can not just allow for_date partition and
+    // @AllowFilter on query, that will be equally bad
+    // Keeping for_date as cluster so that we can query based on date if we want to
+    @PrimaryKeyColumn(name = "for_date", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
     var forDate: Instant = DateUtils.getInstantToday(),
 
     @PrimaryKeyColumn(name = "created_at", ordinal = 2, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)

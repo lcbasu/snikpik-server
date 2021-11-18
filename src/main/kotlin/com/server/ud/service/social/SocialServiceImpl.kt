@@ -1,9 +1,7 @@
 package com.server.ud.service.social
 
 import com.server.common.provider.AuthProvider
-import com.server.ud.dto.SocialRelationRequest
-import com.server.ud.dto.SocialRelationResponse
-import com.server.ud.dto.toSocialRelationResponse
+import com.server.ud.dto.*
 import com.server.ud.provider.social.SocialRelationProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -30,5 +28,10 @@ class SocialServiceImpl : SocialService() {
             following = request.following,
             scheduleJob = true) ?: error("Error while saving social relation for ${requestContext.userV2.userId} toUser: ${request.toUserId}")
         return savedRelation.toSocialRelationResponse()
+    }
+
+    override fun getFollowers(request: GetFollowersRequest): FollowersResponse? {
+        val requestContext = authProvider.validateRequest()
+        return socialRelationProvider.getFollowers(request)
     }
 }

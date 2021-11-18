@@ -38,9 +38,11 @@ class PostsByFollowingProvider {
                 locationLat = post.locationLat,
                 locationLng = post.locationLng,
             )
-            return postsByFollowingRepository.save(postsByFollowing)
+            val saved = postsByFollowingRepository.save(postsByFollowing)
+            logger.info("Saved PostsByFollowing for postId:${saved.postId}, followerId: $followerId and followingUserId: ${saved.followingUserId}.")
+            return saved
         } catch (e: Exception) {
-            logger.error("Saving PostsByFollowing filed for ${post.postId}.")
+            logger.error("Saving PostsByFollowing failed for ${post.postId}.")
             e.printStackTrace()
             return null
         }

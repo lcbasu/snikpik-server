@@ -1,7 +1,35 @@
 package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.server.common.utils.DateUtils
+import com.server.ud.entities.social.FollowersByUser
 import com.server.ud.entities.social.SocialRelation
+
+data class FollowersByUserResponse (
+    var userId: String,
+    var forDate: Long,
+    var createdAt: Long,
+    var followerUserId: String,
+    val userHandle: String? = null,
+    var followerHandle: String? = null,
+    val userFullName: String? = null,
+    val followerFullName: String? = null,
+)
+
+data class FollowersResponse(
+    var userId: String,
+    val followers: List<FollowersByUserResponse>,
+    override val count: Int? = null,
+    override val pagingState: String? = null,
+    override val hasNext: Boolean? = null,
+): PaginationResponse(count, pagingState, hasNext)
+
+
+data class GetFollowersRequest (
+    val userId: String,
+    override val limit: Int = 10,
+    override val pagingState: String? = null,
+): PaginationRequest(limit, pagingState)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SocialRelationRequest (
@@ -25,3 +53,21 @@ fun SocialRelation.toSocialRelationResponse(): SocialRelationResponse {
         )
     }
 }
+
+
+fun FollowersByUser.toSocialRelationResponse(): FollowersByUserResponse {
+    this.apply {
+        return FollowersByUserResponse(
+            userId = userId,
+            forDate = DateUtils.getEpoch(forDate),
+            createdAt = DateUtils.getEpoch(createdAt),
+            followerUserId = followerUserId,
+            userHandle = userHandle,
+            followerHandle = followerHandle,
+            userFullName = userFullName,
+            followerFullName = followerFullName,
+        )
+    }
+}
+
+

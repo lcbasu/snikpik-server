@@ -2,6 +2,8 @@ package com.server.ud.provider.social
 
 import com.server.common.utils.CommonUtils
 import com.server.ud.dao.social.SocialRelationRepository
+import com.server.ud.dto.FollowersResponse
+import com.server.ud.dto.GetFollowersRequest
 import com.server.ud.entities.social.SocialRelation
 import com.server.ud.provider.job.JobProvider
 import org.slf4j.Logger
@@ -19,6 +21,9 @@ class SocialRelationProvider {
 
     @Autowired
     private lateinit var jobProvider: JobProvider
+
+    @Autowired
+    private lateinit var followersByUserProvider: FollowersByUserProvider
 
     fun getSocialRelation(fromUserId: String, toUserId: String): SocialRelation? =
     try {
@@ -53,5 +58,9 @@ class SocialRelationProvider {
 
     private fun getId(socialRelation: SocialRelation) =
         "${socialRelation.fromUserId}${CommonUtils.STRING_SEPARATOR}${socialRelation.toUserId}"
+
+    fun getFollowers(request: GetFollowersRequest): FollowersResponse? {
+        return followersByUserProvider.getFeedForFollowersResponse(request)
+    }
 
 }

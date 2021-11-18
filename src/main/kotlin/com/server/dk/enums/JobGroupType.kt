@@ -10,6 +10,9 @@ enum class JobGroupType {
     ProcessPostJob_Job,
     ProcessPostJob_Trigger,
 
+    ProcessPostForFollowersJob_Job,
+    ProcessPostForFollowersJob_Trigger,
+
     ProcessLocationJob_Job,
     ProcessLocationJob_Trigger,
 

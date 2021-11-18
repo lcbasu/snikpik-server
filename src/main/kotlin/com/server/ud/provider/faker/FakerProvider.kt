@@ -41,8 +41,10 @@ class FakerProvider {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
+    private val minUsersToFake = 5
+    private val maxUsersToFake = 25
     private val maxPostToFake = 25
-    private val minPostToFake = 1
+    private val minPostToFake = 5
 
     @Autowired
     private lateinit var authProvider: AuthProvider
@@ -89,7 +91,7 @@ class FakerProvider {
         // Use ONLY provider methods to change values
         // This will help in testing the flow as well
 
-        val usersToCreate = Random.nextInt(1, 25)
+        val usersToCreate = Random.nextInt(minUsersToFake, maxUsersToFake)
         val usersV1 = mutableListOf<User>()
         for (i in 1..usersToCreate) {
             usersV1.add(authProvider.createUserV1())
