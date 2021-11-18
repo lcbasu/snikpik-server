@@ -9,7 +9,6 @@ import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.LocationFor
 import com.server.ud.provider.job.JobProvider
 import com.server.ud.provider.location.LocationProvider
-import com.server.ud.service.user.ProcessUserV2SchedulerService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
