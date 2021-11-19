@@ -1,9 +1,7 @@
 package com.server.ud.service.bookmark
 
 import com.server.common.provider.AuthProvider
-import com.server.ud.dto.BookmarkReportDetail
-import com.server.ud.dto.BookmarkReportDetailForUser
-import com.server.ud.dto.SaveBookmarkRequest
+import com.server.ud.dto.*
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.provider.bookmark.BookmarkForResourceByUserProvider
 import com.server.ud.provider.bookmark.BookmarkProvider
@@ -27,9 +25,9 @@ class BookmarkServiceImpl : BookmarkService() {
     @Autowired
     private lateinit var bookmarkForResourceByUserProvider: BookmarkForResourceByUserProvider
 
-    override fun saveBookmark(request: SaveBookmarkRequest): Bookmark {
+    override fun saveBookmark(request: SaveBookmarkRequest): SavedBookmarkResponse? {
         val requestContext = authProvider.validateRequest()
-        return bookmarkProvider.save(requestContext.userV2, request) ?: error("Error while saving bookmark")
+        return bookmarkProvider.save(requestContext.userV2, request)?.toSavedBookmarkResponse()
     }
 
     override fun getBookmarkReportDetail(resourceId: String): BookmarkReportDetail {
