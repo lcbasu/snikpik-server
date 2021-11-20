@@ -3,6 +3,7 @@ package com.server.common.service
 import com.server.dk.dto.*
 import com.server.dk.provider.AddressProvider
 import com.server.common.provider.AuthProvider
+import com.server.common.provider.SecurityProvider
 import com.server.common.provider.UserRoleProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -19,9 +20,12 @@ class UserServiceImpl : UserService() {
     @Autowired
     private lateinit var addressProvider: AddressProvider
 
+    @Autowired
+    private lateinit var securityProvider: SecurityProvider
+
     // Save data using the auth token credentials
     override fun saveUser(): SavedUserResponse? {
-        val firebaseAuthUserPrincipal = authProvider.getFirebaseAuthUser()
+        val firebaseAuthUserPrincipal = securityProvider.getFirebaseAuthUser()
         val absoluteMobile = firebaseAuthUserPrincipal?.getAbsoluteMobileNumber() ?: ""
         val uid = firebaseAuthUserPrincipal?.getUid() ?: ""
         // if already saved then return that value or save a new one

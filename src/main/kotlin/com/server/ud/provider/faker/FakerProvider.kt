@@ -1,11 +1,11 @@
 package com.server.ud.provider.faker
 
 import com.github.javafaker.Faker
-import com.server.common.entities.User
 import com.server.common.enums.MediaType
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.enums.ProfileType
-import com.server.common.provider.AuthProvider
+import com.server.common.enums.ReadableIdPrefix
+import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
 import com.server.dk.model.SingleMediaDetail
@@ -47,10 +47,10 @@ class FakerProvider {
     private val minPostToFake = 5
 
     @Autowired
-    private lateinit var authProvider: AuthProvider
+    private lateinit var userV2Provider: UserV2Provider
 
     @Autowired
-    private lateinit var userV2Provider: UserV2Provider
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
     private lateinit var postProvider: PostProvider
@@ -92,34 +92,29 @@ class FakerProvider {
         // This will help in testing the flow as well
 
         val usersToCreate = Random.nextInt(minUsersToFake, maxUsersToFake)
-        val usersV1 = mutableListOf<User>()
+        val usersV2 = mutableListOf<UserV2>()
         for (i in 1..usersToCreate) {
-            usersV1.add(authProvider.createUserV1())
-        }
-
-        result.addAll(usersV1)
-
-        val usersV2 = usersV1.mapNotNull {
             val profiles = ProfileType.values().toList().shuffled().take(Random.nextInt(1, ProfileType.values().size))
             val location = sampleLocationRequests.shuffled().first()
+            val id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.FKE.name)
             val userV2 = userV2Provider.saveUserV2(UserV2 (
-                userId = it.id,
-                createdAt = DateUtils.getInstantFromLocalDateTime(it.createdAt),
-                absoluteMobile = it.absoluteMobile,
-                countryCode = it.countryCode,
+                userId = id,
+                createdAt = DateUtils.getInstantNow(),
+                absoluteMobile = "",
+                countryCode = "",
                 handle = faker.name().username(),
                 dp = MediaDetailsV2(listOf(SingleMediaDetail(
-                    mediaUrl = "https://i.pravatar.cc/150?u=${it.id}",
+                    mediaUrl = "https://i.pravatar.cc/150?u=${id}",
                     mediaType = MediaType.IMAGE,
                 ))).convertToString(),
-                uid = it.uid,
+                uid = id,
                 anonymous = false,
                 verified = Random.nextInt(1, 100) % 5 == 0,
                 profiles = profiles.joinToString(","),
                 fullName = faker.name().fullName(),
                 notificationToken = null,
                 notificationTokenProvider = NotificationTokenProvider.FIREBASE
-            ), false) ?: error("Error saving userV2 for userId: ${it.id}")
+            ), false) ?: error("Error saving userV2 for userId: ${id}")
             // This save will also take care of creating the job to process location data
             userV2Provider.updateUserV2Location(UpdateUserV2LocationRequest (
                 userId = userV2.userId,
@@ -129,8 +124,8 @@ class FakerProvider {
                 name = location.name,
                 googlePlaceId = location.googlePlaceId,
             ))
+            usersV2.add(userV2)
         }
-        result.addAll(usersV2)
 
         // Follow random people
         val socialRelations = mutableListOf<SocialRelation?>()
@@ -159,7 +154,7 @@ class FakerProvider {
         val usersToCreatePostsFor = usersV2.shuffled().take(Random.nextInt(1, usersV2.size))
         for (userV2 in usersToCreatePostsFor) {
             result.addAll(createFakeData(
-                user = userV2,
+                userId = userV2.userId,
                 request = FakerRequest(
                     countOfPost = Random.nextInt(minPostToFake+1, maxPostToFake),
                     maxCountOfComments = Random.nextInt(minPostToFake+1, maxPostToFake),
@@ -172,7 +167,7 @@ class FakerProvider {
     }
 
 
-    fun createFakeData(user: UserV2, request: FakerRequest): List<Any> {
+    fun createFakeData(userId: String, request: FakerRequest): List<Any> {
         if (request.countOfPost > maxPostToFake ||
             request.maxCountOfComments > maxPostToFake ||
             request.maxCountOfReplies > maxPostToFake) {
@@ -212,14 +207,14 @@ class FakerProvider {
                 locationRequest = sampleLocationRequests[Random.nextInt(sampleLocationRequests.size)],
                 mediaDetails = sampleMedia[Random.nextInt(sampleMedia.size)]
             )
-            posts.add(postProvider.save(user, req))
+            posts.add(postProvider.save(userId, req))
         }
 
 
         posts.filterNotNull().map {
             val randomCount = Random.nextInt(0, request.maxCountOfComments)
             for (i in 1..randomCount) {
-                comments.add(commentProvider.save(user, SaveCommentRequest(
+                comments.add(commentProvider.save(userId, SaveCommentRequest(
                     postId = it.postId,
                     postType = it.postType,
                     text = faker.lorem().sentence(),
@@ -230,7 +225,7 @@ class FakerProvider {
         comments.filterNotNull().map {
             val randomCount = Random.nextInt(0, request.maxCountOfReplies)
             for (i in 1..randomCount) {
-                replies.add(replyProvider.save(user, SaveCommentReplyRequest(
+                replies.add(replyProvider.save(userId, SaveCommentReplyRequest(
                     commentId = it.commentId,
                     postId = it.postId,
                     text = faker.lorem().sentence(),
@@ -240,12 +235,12 @@ class FakerProvider {
 
 
         posts.filterNotNull().map {
-            likes.add(likeProvider.save(user, SaveLikeRequest(
+            likes.add(likeProvider.save(userId, SaveLikeRequest(
                 resourceType = ResourceType.POST,
                 resourceId = it.postId,
                 action = LikeUpdateAction.ADD,
             )))
-            bookmarks.add(bookmarkProvider.save(user, SaveBookmarkRequest(
+            bookmarks.add(bookmarkProvider.save(userId, SaveBookmarkRequest(
                     resourceType = ResourceType.POST,
                     resourceId = it.postId,
                     action = BookmarkUpdateAction.ADD,
@@ -253,12 +248,12 @@ class FakerProvider {
         }
 
         comments.filterNotNull().map {
-            likes.add(likeProvider.save(user, SaveLikeRequest(
+            likes.add(likeProvider.save(userId, SaveLikeRequest(
                 resourceType = ResourceType.POST_COMMENT,
                 resourceId = it.commentId,
                 action = LikeUpdateAction.ADD,
             )))
-            bookmarks.add(bookmarkProvider.save(user, SaveBookmarkRequest(
+            bookmarks.add(bookmarkProvider.save(userId, SaveBookmarkRequest(
                 resourceType = ResourceType.POST_COMMENT,
                 resourceId = it.commentId,
                 action = BookmarkUpdateAction.ADD,
@@ -266,12 +261,12 @@ class FakerProvider {
         }
 
         replies.filterNotNull().map {
-            likes.add(likeProvider.save(user, SaveLikeRequest(
+            likes.add(likeProvider.save(userId, SaveLikeRequest(
                 resourceType = ResourceType.POST_COMMENT_REPLY,
                 resourceId = it.replyId,
                 action = LikeUpdateAction.ADD,
             )))
-            bookmarks.add(bookmarkProvider.save(user, SaveBookmarkRequest(
+            bookmarks.add(bookmarkProvider.save(userId, SaveBookmarkRequest(
                 resourceType = ResourceType.POST_COMMENT_REPLY,
                 resourceId = it.replyId,
                 action = BookmarkUpdateAction.ADD,

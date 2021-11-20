@@ -7,7 +7,6 @@ import com.server.dk.model.convertToString
 import com.server.ud.dao.comment.CommentRepository
 import com.server.ud.dto.SaveCommentRequest
 import com.server.ud.entities.comment.Comment
-import com.server.ud.entities.user.UserV2
 import com.server.ud.provider.job.JobProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -43,11 +42,11 @@ class CommentProvider {
             null
         }
 
-    fun save(user: UserV2, request: SaveCommentRequest) : Comment? {
+    fun save(userId: String, request: SaveCommentRequest) : Comment? {
         try {
             val comment = Comment(
                 commentId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.CMT.name),
-                userId = user.userId,
+                userId = userId,
                 createdAt = Instant.now(),
                 postType = request.postType,
                 postId = request.postId,

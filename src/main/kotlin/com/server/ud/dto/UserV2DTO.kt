@@ -3,8 +3,10 @@ package com.server.ud.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.enums.ProfileType
+import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
 import com.server.ud.entities.user.UserV2
+import com.server.ud.entities.user.getMediaDetailsForDP
 import com.server.ud.entities.user.getProfiles
 import java.time.Instant
 
@@ -52,9 +54,9 @@ data class SavedUserV2Response(
     val countryCode: String?,
     val notificationToken: String?,
     val notificationTokenProvider: NotificationTokenProvider?,
-    var createdAt: Instant,
+    var createdAt: Long?,
     var handle: String?,
-    var dp: String?, // MediaDetailsV2
+    var dp: MediaDetailsV2?, // MediaDetailsV2
     var verified: Boolean?,
     var profiles: Set<ProfileType>,
     var userLastLocationZipcode: String?,
@@ -76,9 +78,9 @@ fun UserV2.toSavedUserV2Response(): SavedUserV2Response {
             countryCode = countryCode,
             notificationToken = notificationToken,
             notificationTokenProvider = notificationTokenProvider,
-            createdAt = createdAt,
+            createdAt = DateUtils.getEpoch(createdAt),
             handle = handle,
-            dp = dp,
+            dp = getMediaDetailsForDP(),
             verified = verified,
             profiles = getProfiles(),
             userLastLocationZipcode = userLastLocationZipcode,

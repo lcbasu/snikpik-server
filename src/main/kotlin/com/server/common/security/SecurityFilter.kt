@@ -115,12 +115,15 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
         }
         decodedToken?.let {
             val userDetailsFromToken = if (type == CredentialType.ID_TOKEN_FIREBASE && it is FirebaseToken) {
+                val phone = it.claims["phone_number"] as String?
+                val email = it.email
                 UserDetailsFromToken(
                     uid = it.uid,
                     name = it.name,
                     absoluteMobile = it.claims["phone_number"] as String?,
                     picture = it.picture,
-                    issuer = it.issuer
+                    issuer = it.issuer,
+                    anonymous = phone == null && email == null
                 )
             } else if (type == CredentialType.ID_TOKEN_COGNITO && it is JWTClaimsSet) {
                 UserDetailsFromToken(
@@ -128,7 +131,8 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
                     name = it.getStringClaim("name"),
                     absoluteMobile = it.getStringClaim("phone_number"),
                     picture = null,
-                    issuer = "AWS_COGNITO"
+                    issuer = "AWS_COGNITO",
+                    anonymous = false,
                 )
             } else {
                 error("Incorrect object type defined for principal")

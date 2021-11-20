@@ -1,6 +1,9 @@
 package com.server.common.enums
 
 enum class ReadableIdPrefix {
+
+    FKE, // Fake
+
     PRD, // Product
     CLC, // Collection
     ORD, // Product Order

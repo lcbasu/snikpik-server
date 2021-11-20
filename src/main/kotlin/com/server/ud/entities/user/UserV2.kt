@@ -89,6 +89,9 @@ fun UserV2.getMediaDetailsForDP(): MediaDetailsV2? {
 fun UserV2.getProfiles(): Set<ProfileType> {
     this.apply {
         return try {
+            if (profiles.isNullOrBlank()) {
+                return emptySet()
+            }
             val profileIds = profiles?.trim()?.split(",") ?: emptySet()
             return profileIds.map {
                 ProfileType.valueOf(it)

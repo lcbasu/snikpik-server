@@ -9,7 +9,6 @@ import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.MediaHandlerProvider
 import com.server.common.provider.MediaInputDetail
 import com.server.common.provider.UniqueIdProvider
-import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
 import com.server.dk.model.SingleMediaDetail
 import com.server.dk.model.convertToString
@@ -32,14 +31,11 @@ import com.server.ud.model.convertToString
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.job.JobProvider
 import com.server.ud.provider.location.LocationProvider
+import com.server.ud.provider.user.UserV2Provider
 import com.server.ud.utils.pagination.PaginationRequestUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.cassandra.core.cql.Ordering
-import org.springframework.data.cassandra.core.cql.PrimaryKeyType
-import org.springframework.data.cassandra.core.mapping.Column
-import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.query.CassandraPageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
@@ -69,6 +65,9 @@ class PostProvider {
     @Autowired
     private lateinit var mediaHandlerProvider: MediaHandlerProvider
 
+    @Autowired
+    private lateinit var userV2Provider: UserV2Provider
+
     fun getPost(postId: String): Post? =
         try {
             val posts = postRepository.findAllByPostId(postId)
@@ -82,11 +81,13 @@ class PostProvider {
             null
         }
 
-    fun save(user: UserV2, request: SavePostRequest) : Post? {
+    fun save(userId: String, request: SavePostRequest) : Post? {
         try {
             var location = request.locationRequest?.let {
-                locationProvider.save(user.userId, it)
+                locationProvider.save(userId, it)
             }
+
+            val user = userV2Provider.getUser(userId) ?: error("Missing user for userId: $userId")
 
             if (location == null && user.userLastLocationId != null && user.userLastLocationZipcode != null) {
                 // User location of user for the post
@@ -210,7 +211,7 @@ class PostProvider {
         jobProvider.scheduleProcessingForPost(post.postId)
     }
 
-    fun fakeSave(user: UserV2, countOfPost: Int): List<Post> {
+    fun fakeSave(userId: String, countOfPost: Int): List<Post> {
         val posts = mutableListOf<Post?>()
         for (i in 1..countOfPost) {
             val faker = Faker()
@@ -231,7 +232,7 @@ class PostProvider {
                 categories = setOf(CategoryV2.KITCHEN, CategoryV2.EXTERIOR),
                 locationRequest = sampleLocationRequests[Random.nextInt(sampleLocationRequests.size)]
             )
-            posts.add(save(user, req))
+            posts.add(save(userId, req))
         }
         return posts.filterNotNull()
     }

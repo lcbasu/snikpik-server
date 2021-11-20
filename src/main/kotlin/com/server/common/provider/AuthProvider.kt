@@ -46,6 +46,9 @@ class AuthProvider {
     @Autowired
     private lateinit var userV2Provider: UserV2Provider
 
+    @Autowired
+    private lateinit var securityProvider: SecurityProvider
+
     fun getUser(userId: String): User? =
         try {
             userRepository.findById(userId).get()
@@ -59,7 +62,7 @@ class AuthProvider {
     fun makeSureThePublicRequestHasUserEntity(): User {
         val requestingUser = getRequestUserEntity()
         if (requestingUser == null) {
-            val uid = getFirebaseAuthUser()?.getUid() ?: error("User needs to be logged in through phone number or anonymously.")
+            val uid = securityProvider.getFirebaseAuthUser()?.getUid() ?: error("User needs to be logged in through phone number or anonymously.")
             logger.warn("Creating user for anonymous user with uid: $uid")
             Sentry.captureMessage("Creating user for anonymous user with uid: $uid")
             return createUser(uid = uid)
@@ -68,18 +71,8 @@ class AuthProvider {
 
     }
 
-    fun getFirebaseAuthUser(): UserDetailsFromToken? {
-        var userDetailsFromTokenPrincipal: UserDetailsFromToken? = null
-        val securityContext = SecurityContextHolder.getContext()
-        val principal = securityContext.authentication.principal
-        if (principal is UserDetailsFromToken) {
-            userDetailsFromTokenPrincipal = principal as UserDetailsFromToken
-        }
-        return userDetailsFromTokenPrincipal
-    }
-
     fun getRequestUserEntity(): User? {
-        val firebaseAuthUserPrincipal = getFirebaseAuthUser()
+        val firebaseAuthUserPrincipal = securityProvider.getFirebaseAuthUser()
         val absoluteMobile = firebaseAuthUserPrincipal?.getAbsoluteMobileNumber() ?: ""
         val uid = firebaseAuthUserPrincipal?.getUid() ?: ""
         // if both are empty then we need to create a new account

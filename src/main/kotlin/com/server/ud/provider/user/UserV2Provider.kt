@@ -1,7 +1,13 @@
 package com.server.ud.provider.user
 
 import com.server.common.entities.User
+import com.server.common.enums.MediaType
+import com.server.common.enums.NotificationTokenProvider
+import com.server.common.enums.ProfileType
+import com.server.common.provider.SecurityProvider
 import com.server.common.utils.DateUtils
+import com.server.dk.model.MediaDetailsV2
+import com.server.dk.model.SingleMediaDetail
 import com.server.dk.model.convertToString
 import com.server.ud.dao.user.UserV2Repository
 import com.server.ud.dto.*
@@ -31,6 +37,9 @@ class UserV2Provider {
     @Autowired
     private lateinit var locationProvider: LocationProvider
 
+    @Autowired
+    private lateinit var securityProvider: SecurityProvider
+
     fun getUser(userId: String): UserV2? =
         try {
             val users = userV2Repository.findAllByUserId(userId)
@@ -46,6 +55,10 @@ class UserV2Provider {
 
     fun saveUserV2(userV2: UserV2, scheduleJob: Boolean = true) : UserV2? {
         try {
+            getUser(userV2.userId)?.let {
+                logger.error("User already exists for ${userV2.userId}")
+                return it
+            }
             val savedUser = userV2Repository.save(userV2)
             logger.info("UserV2 saved with userId: ${savedUser.userId}.")
             if (scheduleJob) {
@@ -133,6 +146,30 @@ class UserV2Provider {
             userLastLocationName = location.name,
             userLastGooglePlaceId = location.googlePlaceId)
         return saveUserV2(newUserToBeSaved)
+    }
+
+    fun saveUserV2(): UserV2? {
+        val firebaseAuthUser = securityProvider.validateRequest()
+        return saveUserV2(UserV2 (
+            userId = firebaseAuthUser.getUid(),
+            createdAt = DateUtils.getInstantNow(),
+            absoluteMobile = firebaseAuthUser.getAbsoluteMobileNumber(),
+            countryCode = "",
+            handle = firebaseAuthUser.getHandle(),
+            dp = firebaseAuthUser.getPicture()?.let { MediaDetailsV2(listOf(
+                SingleMediaDetail(
+                    mediaUrl = it,
+                    mediaType = MediaType.IMAGE,
+                )
+            )).convertToString() },
+            uid = firebaseAuthUser.getUid(),
+            anonymous = firebaseAuthUser.getIsAnonymous() == true,
+            verified = false,
+            profiles = emptyList<ProfileType>().joinToString(","),
+            fullName = firebaseAuthUser.getName(),
+            notificationToken = null,
+            notificationTokenProvider = NotificationTokenProvider.FIREBASE
+        ))
     }
 
 }

@@ -40,11 +40,11 @@ class LikeProvider {
             null
         }
 
-    fun save(user: UserV2, request: SaveLikeRequest) : Like? {
+    fun save(userId: String, request: SaveLikeRequest) : Like? {
         try {
             val like = Like(
                 likeId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.LIK.name),
-                userId = user.userId,
+                userId = userId,
                 resourceId = request.resourceId,
                 resourceType = request.resourceType,
                 liked = request.action == LikeUpdateAction.ADD

@@ -42,12 +42,12 @@ class ReplyProvider {
             null
         }
 
-    fun save(user: UserV2, request: SaveCommentReplyRequest) : Reply? {
+    fun save(userId: String, request: SaveCommentReplyRequest) : Reply? {
         try {
             val reply = Reply(
                 replyId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.RPL.name),
                 commentId = request.commentId,
-                userId = user.userId,
+                userId = userId,
                 createdAt = Instant.now(),
                 postId = request.postId,
                 text = request.text,

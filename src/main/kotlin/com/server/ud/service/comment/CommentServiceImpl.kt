@@ -1,6 +1,6 @@
 package com.server.ud.service.comment
 
-import com.server.common.provider.AuthProvider
+import com.server.common.provider.SecurityProvider
 import com.server.ud.dto.*
 import com.server.ud.provider.comment.CommentForPostByUserProvider
 import com.server.ud.provider.comment.CommentProvider
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 class CommentServiceImpl : CommentService() {
 
     @Autowired
-    private lateinit var authProvider: AuthProvider
+    private lateinit var securityProvider: SecurityProvider
 
     @Autowired
     private lateinit var commentProvider: CommentProvider
@@ -32,23 +32,23 @@ class CommentServiceImpl : CommentService() {
     private lateinit var userV2Provider: UserV2Provider
 
     override fun saveComment(request: SaveCommentRequest): SavedCommentResponse {
-        val requestContext = authProvider.validateRequest()
-        val comment = commentProvider.save(requestContext.userV2, request) ?: error("Failed to save comment for postId: ${request.postId}")
+        val userDetailsFromToken = securityProvider.validateRequest()
+        val comment = commentProvider.save(userDetailsFromToken.getUid(), request) ?: error("Failed to save comment for postId: ${request.postId}")
         return comment.toSavedCommentResponse()
     }
 
     override fun getCommentReportDetail(postId: String): CommentReportDetail {
-        val requestContext = authProvider.validateRequest()
+        val userDetailsFromToken = securityProvider.validateRequest()
         val commentsCountByResource = commentsCountByPostProvider.getCommentsCountByPost(postId)?.commentsCount ?: 0
         val commented = commentForPostByUserProvider.getCommentForPostByUser(
             postId = postId,
-            userId = requestContext.userV2.userId
+            userId = userDetailsFromToken.getUid()
         )?.commented ?: false
         return CommentReportDetail(
             postId = postId,
             comments = commentsCountByResource,
             userLevelInfo = CommentDetailForUser(
-                userId = requestContext.userV2.userId,
+                userId = userDetailsFromToken.getUid(),
                 commented = commented
             )
         )

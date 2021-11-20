@@ -5,7 +5,6 @@ import com.server.common.provider.UniqueIdProvider
 import com.server.ud.dao.bookmark.BookmarkRepository
 import com.server.ud.dto.SaveBookmarkRequest
 import com.server.ud.entities.bookmark.Bookmark
-import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.BookmarkUpdateAction
 import com.server.ud.provider.job.JobProvider
 import org.slf4j.Logger
@@ -40,11 +39,11 @@ class BookmarkProvider {
             null
         }
 
-    fun save(user: UserV2, request: SaveBookmarkRequest) : Bookmark? {
+    fun save(userId: String, request: SaveBookmarkRequest) : Bookmark? {
         try {
             val bookmark = Bookmark(
                 bookmarkId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.BMK.name),
-                userId = user.userId,
+                userId = userId,
                 resourceId = request.resourceId,
                 resourceType = request.resourceType,
                 bookmarked = request.action == BookmarkUpdateAction.ADD
