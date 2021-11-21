@@ -2,7 +2,7 @@ package com.server.dk.model
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.enums.ContentType
-import com.server.common.enums.MediaPresenceType
+import com.server.ud.enums.MediaPresenceType
 import com.server.common.enums.MediaQualityType
 import com.server.common.enums.MediaType
 

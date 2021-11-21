@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.enums.ProfileType
 import com.server.dk.model.MediaDetailsV2
-import com.server.common.enums.MediaPresenceType
+import com.server.ud.enums.MediaPresenceType
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagData
 import org.springframework.data.annotation.Id

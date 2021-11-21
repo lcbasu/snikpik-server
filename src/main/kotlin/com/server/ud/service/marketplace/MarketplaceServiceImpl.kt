@@ -23,7 +23,7 @@ class MarketplaceServiceImpl : MarketplaceService() {
 
     override fun getFeedForMarketplaceUsers(request: MarketplaceUserFeedRequest): MarketplaceUserFeedResponse {
         val userDetailsFromToken = securityProvider.validateRequest()
-        val user = userV2Provider.getUser(userId = userDetailsFromToken.getUid()) ?: error("Unable to find user for Id: ${userDetailsFromToken.getUid()}")
+        val user = userV2Provider.getUser(userId = userDetailsFromToken.getUserIdToUse()) ?: error("Unable to find user for Id: ${userDetailsFromToken.getUserIdToUse()}")
         val result = usersByZipcodeAndProfileProvider.getFeedForMarketplaceUsers(user, request)
         return MarketplaceUserFeedResponse(
             users = result.content?.filterNotNull()?.map { it.toMarketplaceUserDetail(user.userLastLocationName) } ?: emptyList(),

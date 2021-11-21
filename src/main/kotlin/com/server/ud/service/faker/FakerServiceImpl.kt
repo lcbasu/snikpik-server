@@ -26,7 +26,7 @@ class FakerServiceImpl : FakerService() {
 
 //        if (user.absoluteMobile != "+919742097429") error("Only Admin is allowed to do this.")
 
-        return FakerResponse(result = fakerProvider.createFakeData(userDetailsFromToken.getUid(), request))
+        return FakerResponse(result = fakerProvider.createFakeData(userDetailsFromToken.getUserIdToUse(), request))
     }
 
     override fun createFakeDataRandomly(): String {

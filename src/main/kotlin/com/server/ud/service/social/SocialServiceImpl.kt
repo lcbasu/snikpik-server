@@ -17,16 +17,16 @@ class SocialServiceImpl : SocialService() {
 
     override fun getRelation(otherUserId: String): SocialRelationResponse? {
         val requestContext = securityProvider.validateRequest()
-        return socialRelationProvider.getSocialRelation(fromUserId = requestContext.getUid(), toUserId = otherUserId)?.toSocialRelationResponse()
+        return socialRelationProvider.getSocialRelation(fromUserId = requestContext.getUserIdToUse(), toUserId = otherUserId)?.toSocialRelationResponse()
     }
 
     override fun setRelation(request: SocialRelationRequest): SocialRelationResponse {
         val requestContext = securityProvider.validateRequest()
         val savedRelation = socialRelationProvider.save(
-            fromUserId = requestContext.getUid(),
+            fromUserId = requestContext.getUserIdToUse(),
             toUserId = request.toUserId,
             following = request.following,
-            scheduleJob = true) ?: error("Error while saving social relation for ${requestContext.getUid()} toUser: ${request.toUserId}")
+            scheduleJob = true) ?: error("Error while saving social relation for ${requestContext.getUserIdToUse()} toUser: ${request.toUserId}")
         return savedRelation.toSocialRelationResponse()
     }
 

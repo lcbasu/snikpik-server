@@ -3,7 +3,7 @@ package com.server.ud.entities.post
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
-import com.server.common.enums.MediaPresenceType
+import com.server.ud.enums.MediaPresenceType
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagsList
 import org.springframework.data.cassandra.core.cql.Ordering

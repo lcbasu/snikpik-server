@@ -1,13 +1,12 @@
 package com.server.ud.provider.post
 
 import com.github.javafaker.Faker
-import com.server.common.entities.MediaProcessingDetail
+import com.server.ud.entities.MediaProcessingDetail
 import com.server.common.enums.ContentType
 import com.server.common.enums.MediaQualityType
 import com.server.common.enums.MediaType
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.MediaHandlerProvider
-import com.server.common.provider.MediaInputDetail
 import com.server.common.provider.RandomIdProvider
 import com.server.dk.model.MediaDetailsV2
 import com.server.dk.model.SingleMediaDetail
@@ -26,6 +25,7 @@ import com.server.ud.enums.LocationFor
 import com.server.ud.enums.PostType
 import com.server.ud.enums.ResourceType
 import com.server.ud.model.HashTagsList
+import com.server.ud.model.MediaInputDetail
 import com.server.ud.model.convertToString
 import com.server.ud.model.sampleHashTags
 import com.server.ud.pagination.CassandraPageV2
@@ -199,12 +199,12 @@ class PostProvider {
 
     // Right now only for video
     fun handleProcessedMedia(updatedMediaDetail: MediaProcessingDetail) {
-        val post = getPost(updatedMediaDetail.resourceId ?: error("Missing resource Id for file: ${updatedMediaDetail.id}")) ?: error("No post found for ${updatedMediaDetail.resourceId} while doing post processing.")
+        val post = getPost(updatedMediaDetail.resourceId ?: error("Missing resource Id for file: ${updatedMediaDetail.fileUniqueId}")) ?: error("No post found for ${updatedMediaDetail.resourceId} while doing post processing.")
         val exisingMediaList = post.getMediaDetails()?.media ?: emptyList()
         val newMedia = try {
             val otherMediaUrlList = exisingMediaList.filterNot { it.mediaUrl == updatedMediaDetail.inputFilePath }
             otherMediaUrlList + listOf(SingleMediaDetail(
-                mediaUrl = updatedMediaDetail.outputFilePath ?: error(" Missing output file path for file: ${updatedMediaDetail.id}"),
+                mediaUrl = updatedMediaDetail.outputFilePath ?: error(" Missing output file path for file: ${updatedMediaDetail.fileUniqueId}"),
                 mimeType = "video",
                 mediaType = MediaType.VIDEO,
                 contentType = ContentType.ACTUAL,

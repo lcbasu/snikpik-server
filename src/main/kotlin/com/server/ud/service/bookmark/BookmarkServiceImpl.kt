@@ -25,7 +25,7 @@ class BookmarkServiceImpl : BookmarkService() {
 
     override fun saveBookmark(request: SaveBookmarkRequest): SavedBookmarkResponse? {
         val userDetailsFromToken = securityProvider.validateRequest()
-        return bookmarkProvider.save(userDetailsFromToken.getUid(), request)?.toSavedBookmarkResponse()
+        return bookmarkProvider.save(userDetailsFromToken.getUserIdToUse(), request)?.toSavedBookmarkResponse()
     }
 
     override fun getBookmarkReportDetail(resourceId: String): BookmarkReportDetail {
@@ -33,13 +33,13 @@ class BookmarkServiceImpl : BookmarkService() {
         val bookmarksCountByResource = bookmarksCountByResourceProvider.getBookmarksCountByResource(resourceId)?.bookmarksCount ?: 0
         val bookmarked = bookmarkForResourceByUserProvider.getBookmarkForResourceByUser(
             resourceId = resourceId,
-            userId = userDetailsFromToken.getUid()
+            userId = userDetailsFromToken.getUserIdToUse()
         )?.bookmarked ?: false
         return BookmarkReportDetail(
             resourceId = resourceId,
             bookmarks = bookmarksCountByResource,
             userLevelInfo = BookmarkReportDetailForUser(
-                userId = userDetailsFromToken.getUid(),
+                userId = userDetailsFromToken.getUserIdToUse(),
                 bookmarked = bookmarked
             )
         )

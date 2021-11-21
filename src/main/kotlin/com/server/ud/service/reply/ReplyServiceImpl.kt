@@ -25,7 +25,7 @@ class ReplyServiceImpl : ReplyService() {
 
     override fun saveReply(request: SaveCommentReplyRequest): SavedCommentReplyResponse {
         val userDetailsFromToken = securityProvider.validateRequest()
-        val comment = replyProvider.save(userDetailsFromToken.getUid(), request) ?: error("Failed to save reply for commentId: ${request.commentId}")
+        val comment = replyProvider.save(userDetailsFromToken.getUserIdToUse(), request) ?: error("Failed to save reply for commentId: ${request.commentId}")
         return comment.toSavedCommentReplyResponse()
     }
 
@@ -34,13 +34,13 @@ class ReplyServiceImpl : ReplyService() {
         val repliesCount = repliesCountByCommentProvider.getRepliesCountByComment(commentId)?.repliesCount ?: 0
         val replied = replyForCommentByUserProvider.getRepliesForCommentByUser(
             commentId = commentId,
-            userId = userDetailsFromToken.getUid()
+            userId = userDetailsFromToken.getUserIdToUse()
         )?.replied ?: false
         return ReplyReportDetail(
             commentId = commentId,
             replies = repliesCount,
             userLevelInfo = ReplyDetailForUser(
-                userId = userDetailsFromToken.getUid(),
+                userId = userDetailsFromToken.getUserIdToUse(),
                 replied = replied
             )
         )

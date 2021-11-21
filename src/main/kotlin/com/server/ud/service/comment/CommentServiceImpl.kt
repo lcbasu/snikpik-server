@@ -33,7 +33,7 @@ class CommentServiceImpl : CommentService() {
 
     override fun saveComment(request: SaveCommentRequest): SavedCommentResponse {
         val userDetailsFromToken = securityProvider.validateRequest()
-        val comment = commentProvider.save(userDetailsFromToken.getUid(), request) ?: error("Failed to save comment for postId: ${request.postId}")
+        val comment = commentProvider.save(userDetailsFromToken.getUserIdToUse(), request) ?: error("Failed to save comment for postId: ${request.postId}")
         return comment.toSavedCommentResponse()
     }
 
@@ -42,13 +42,13 @@ class CommentServiceImpl : CommentService() {
         val commentsCountByResource = commentsCountByPostProvider.getCommentsCountByPost(postId)?.commentsCount ?: 0
         val commented = commentForPostByUserProvider.getCommentForPostByUser(
             postId = postId,
-            userId = userDetailsFromToken.getUid()
+            userId = userDetailsFromToken.getUserIdToUse()
         )?.commented ?: false
         return CommentReportDetail(
             postId = postId,
             comments = commentsCountByResource,
             userLevelInfo = CommentDetailForUser(
-                userId = userDetailsFromToken.getUid(),
+                userId = userDetailsFromToken.getUserIdToUse(),
                 commented = commented
             )
         )

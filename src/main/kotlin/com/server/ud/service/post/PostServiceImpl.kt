@@ -19,7 +19,7 @@ class PostServiceImpl : PostService() {
 
     override fun savePost(savePostRequest: SavePostRequest): SavedPostResponse? {
         val requestContext = securityProvider.validateRequest()
-        val post = postProvider.save(requestContext.getUid(), savePostRequest)
+        val post = postProvider.save(requestContext.getUserIdToUse(), savePostRequest)
         return post?.toSavedUserPostResponse()
     }
 
@@ -32,7 +32,7 @@ class PostServiceImpl : PostService() {
         if (request.countOfPost > 25) error("Only 25 posts are allowed to be created at one time")
         if (request.countOfPost < 1) error("Minimum 1 post needs to be created")
 
-        val posts = postProvider.fakeSave(requestContext.getUid(), request.countOfPost)
+        val posts = postProvider.fakeSave(requestContext.getUserIdToUse(), request.countOfPost)
         return posts.map {
             it.toSavedUserPostResponse()
         }

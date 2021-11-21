@@ -1,9 +1,9 @@
 package com.server.ud.provider.user
 
-import com.server.common.entities.User
 import com.server.common.enums.MediaType
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.enums.ProfileType
+import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.SecurityProvider
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
@@ -42,9 +42,10 @@ class UserV2Provider {
 
     fun getUser(userId: String): UserV2? =
         try {
-            val users = userV2Repository.findAllByUserId(userId)
+            val userIdToFind = if (userId.startsWith(ReadableIdPrefix.USR.name)) userId else "${ReadableIdPrefix.USR.name}$userId"
+            val users = userV2Repository.findAllByUserId(userIdToFind)
             if (users.size > 1) {
-                error("More than one user has same userId: $userId")
+                error("More than one user has same userId: $userIdToFind")
             }
             users.firstOrNull()
         } catch (e: Exception) {
@@ -67,28 +68,6 @@ class UserV2Provider {
             return savedUser
         } catch (e: Exception) {
             logger.error("Saving UserV2 for ${userV2.userId} failed.")
-            e.printStackTrace()
-            return null
-        }
-    }
-
-    fun saveDKUserToUD(user: User, scheduleJob: Boolean = true) : UserV2? {
-        try {
-            val userV2 = UserV2(
-                userId = user.id,
-                createdAt = DateUtils.toDate(user.createdAt).toInstant(),
-                absoluteMobile = user.absoluteMobile,
-                countryCode = user.countryCode,
-                uid = user.uid,
-                anonymous = user.anonymous,
-                fullName = user.fullName,
-                notificationToken = user.notificationToken,
-                notificationTokenProvider = user.notificationTokenProvider,
-            )
-            logger.info("Completed")
-            return saveUserV2(userV2, scheduleJob)
-        } catch (e: Exception) {
-            logger.error("Saving UserV2 for ${user.id} failed.")
             e.printStackTrace()
             return null
         }
@@ -151,7 +130,7 @@ class UserV2Provider {
     fun saveUserV2(): UserV2? {
         val firebaseAuthUser = securityProvider.validateRequest()
         return saveUserV2(UserV2 (
-            userId = firebaseAuthUser.getUid(),
+            userId = firebaseAuthUser.getUserIdToUse(),
             createdAt = DateUtils.getInstantNow(),
             absoluteMobile = firebaseAuthUser.getAbsoluteMobileNumber(),
             countryCode = "",
@@ -163,7 +142,7 @@ class UserV2Provider {
                     mediaType = MediaType.IMAGE,
                 )
             )).convertToString() },
-            uid = firebaseAuthUser.getUid(),
+            uid = "firebaseAuthUser.getUid()",
             anonymous = firebaseAuthUser.getIsAnonymous() == true,
             verified = false,
             profiles = emptyList<ProfileType>().joinToString(","),

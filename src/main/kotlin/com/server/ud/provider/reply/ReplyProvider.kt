@@ -1,6 +1,6 @@
 package com.server.ud.provider.reply
 
-import com.server.common.entities.MediaProcessingDetail
+import com.server.ud.entities.MediaProcessingDetail
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.RandomIdProvider
 import com.server.dk.model.convertToString

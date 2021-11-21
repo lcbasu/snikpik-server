@@ -126,7 +126,6 @@ class AuthProvider {
     fun createUser(absoluteMobile: String? = null, fullName: String? = null, uid: String? = null): User {
         // Copy over the details to new user DB in cassandra
         val savedUser = createUserV1(absoluteMobile, fullName, uid)
-        userV2Provider.saveDKUserToUD(savedUser, false)
         return savedUser
     }
 
@@ -204,7 +203,6 @@ class AuthProvider {
     // isPublic Should always be set in the controller
     fun validateRequest(companyServerIdOrUsername: String? = null, employeeId: String? = null, requiredRoleTypes: Set<RoleType> = emptySet()): RequestContext {
         val requestingUser = getRequestUserEntity() ?: error("User is required to be logged in!")
-        val requestingUserV2 = userV2Provider.getUser(requestingUser.id) ?: userV2Provider.saveDKUserToUD(requestingUser) ?: error("Error while getting UserV2 from User")
 
         var company: Company? = null
         var userRoles: List<UserRole> = emptyList()
@@ -275,7 +273,6 @@ class AuthProvider {
 
         return RequestContext(
             user = requestingUser,
-            userV2 = requestingUserV2,
             company = company,
             employee = employee,
             userRoles = userRoles

@@ -102,7 +102,7 @@ class FakerProvider {
             val location = sampleLocationRequests.shuffled().first()
             val id = randomIdProvider.getRandomIdFor(ReadableIdPrefix.FKE)
             val userV2 = userV2Provider.saveUserV2(UserV2 (
-                userId = id,
+                userId = "${ReadableIdPrefix.USR}$id",
                 createdAt = DateUtils.getInstantNow(),
                 absoluteMobile = "",
                 countryCode = "",
@@ -160,9 +160,7 @@ class FakerProvider {
             result.addAll(createFakeData(
                 userId = userV2.userId,
                 request = FakerRequest(
-                    countOfPost = Random.nextInt(minPostToFake, maxPostToFake),
-                    maxCountOfComments = Random.nextInt(minCommentsToFake, maxCommentsToFake),
-                    maxCountOfReplies = Random.nextInt(minRepliesToFake, maxRepliesToFake),
+                    countOfPost = Random.nextInt(minPostToFake, maxPostToFake)
                 ),
             ))
         }
@@ -172,16 +170,12 @@ class FakerProvider {
 
 
     fun createFakeData(userId: String, request: FakerRequest): List<Any> {
-        if (request.countOfPost > maxPostToFake ||
-            request.maxCountOfComments > maxPostToFake ||
-            request.maxCountOfReplies > maxPostToFake) {
-            error("Max of 25 fake data points in any category is allowed are allowed to be created at one time")
+        if (request.countOfPost > maxPostToFake) {
+            error("Max of $maxPostToFake fake data points in any category is allowed are allowed to be created at one time")
         }
 
-        if (request.countOfPost < minPostToFake ||
-            request.maxCountOfComments < minPostToFake ||
-            request.maxCountOfReplies < minPostToFake) {
-            error("Minimum value required is 1 for all the above fields.")
+        if (request.countOfPost < 1) {
+            error("Minimum value required is 1 for posts.")
         }
 
         val posts = mutableListOf<Post?>()
@@ -208,7 +202,7 @@ class FakerProvider {
         }
 
         posts.filterNotNull().map {
-            val randomCount = Random.nextInt(0, request.maxCountOfComments)
+            val randomCount = Random.nextInt(0, maxCommentsToFake)
             for (i in 1..randomCount) {
                 comments.add(commentProvider.save(userId, SaveCommentRequest(
                     postId = it.postId,
@@ -219,7 +213,7 @@ class FakerProvider {
         }
 
         comments.filterNotNull().map {
-            val randomCount = Random.nextInt(0, request.maxCountOfReplies)
+            val randomCount = Random.nextInt(0, maxRepliesToFake)
             for (i in 1..randomCount) {
                 replies.add(replyProvider.save(userId, SaveCommentReplyRequest(
                     commentId = it.commentId,

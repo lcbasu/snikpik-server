@@ -1,5 +1,7 @@
 package com.server.common.model
 
+import com.server.common.enums.ReadableIdPrefix
+
 data class UserDetailsFromToken(
         private val serialVersionUID: Long = 4408418647685225829L,
         private val uid: String,
@@ -31,6 +33,10 @@ data class UserDetailsFromToken(
 
     fun getUid(): String {
         return uid
+    }
+
+    fun getUserIdToUse(): String {
+        return "${ReadableIdPrefix.USR.name}$uid"
     }
 
     fun getIsAnonymous(): Boolean? {

@@ -1,4 +1,4 @@
-package com.server.common.enums
+package com.server.ud.enums
 
 enum class MediaPresenceType {
     ONLY_IMAGE,

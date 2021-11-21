@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class FakerRequest(
-    var countOfPost: Int,
-    var maxCountOfComments: Int,
-    var maxCountOfReplies: Int,
+    var countOfPost: Int
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
