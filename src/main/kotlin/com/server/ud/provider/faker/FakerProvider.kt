@@ -43,8 +43,12 @@ class FakerProvider {
 
     private val minUsersToFake = 5
     private val maxUsersToFake = 25
-    private val maxPostToFake = 25
-    private val minPostToFake = 5
+    private val minPostToFake = 20
+    private val maxPostToFake = 50
+    private val minCommentsToFake = 2
+    private val maxCommentsToFake = 3
+    private val minRepliesToFake = 2
+    private val maxRepliesToFake = 3
 
     @Autowired
     private lateinit var userV2Provider: UserV2Provider
@@ -156,9 +160,9 @@ class FakerProvider {
             result.addAll(createFakeData(
                 userId = userV2.userId,
                 request = FakerRequest(
-                    countOfPost = Random.nextInt(minPostToFake+1, maxPostToFake),
-                    maxCountOfComments = Random.nextInt(minPostToFake+1, maxPostToFake),
-                    maxCountOfReplies = Random.nextInt(minPostToFake+1, maxPostToFake),
+                    countOfPost = Random.nextInt(minPostToFake, maxPostToFake),
+                    maxCountOfComments = Random.nextInt(minCommentsToFake, maxCommentsToFake),
+                    maxCountOfReplies = Random.nextInt(minRepliesToFake, maxRepliesToFake),
                 ),
             ))
         }
