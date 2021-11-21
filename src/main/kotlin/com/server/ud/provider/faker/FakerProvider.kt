@@ -5,7 +5,7 @@ import com.server.common.enums.MediaType
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.enums.ProfileType
 import com.server.common.enums.ReadableIdPrefix
-import com.server.common.provider.UniqueIdProvider
+import com.server.common.provider.RandomIdProvider
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
 import com.server.dk.model.SingleMediaDetail
@@ -50,7 +50,7 @@ class FakerProvider {
     private lateinit var userV2Provider: UserV2Provider
 
     @Autowired
-    private lateinit var uniqueIdProvider: UniqueIdProvider
+    private lateinit var randomIdProvider: RandomIdProvider
 
     @Autowired
     private lateinit var postProvider: PostProvider
@@ -96,7 +96,7 @@ class FakerProvider {
         for (i in 1..usersToCreate) {
             val profiles = ProfileType.values().toList().shuffled().take(Random.nextInt(1, ProfileType.values().size))
             val location = sampleLocationRequests.shuffled().first()
-            val id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.FKE.name)
+            val id = randomIdProvider.getTimeBasedRandomIdFor(ReadableIdPrefix.FKE)
             val userV2 = userV2Provider.saveUserV2(UserV2 (
                 userId = id,
                 createdAt = DateUtils.getInstantNow(),

@@ -8,7 +8,7 @@ import com.server.common.enums.MediaType
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.MediaHandlerProvider
 import com.server.common.provider.MediaInputDetail
-import com.server.common.provider.UniqueIdProvider
+import com.server.common.provider.RandomIdProvider
 import com.server.dk.model.MediaDetailsV2
 import com.server.dk.model.SingleMediaDetail
 import com.server.dk.model.convertToString
@@ -51,7 +51,7 @@ class PostProvider {
     private lateinit var postRepository: PostRepository
 
     @Autowired
-    private lateinit var uniqueIdProvider: UniqueIdProvider
+    private lateinit var randomIdProvider: RandomIdProvider
 
     @Autowired
     private lateinit var locationProvider: LocationProvider
@@ -109,8 +109,15 @@ class PostProvider {
                 location = locationProvider.getOrSaveRandomLocation(userId = user.userId, locationFor = if (request.postType == PostType.GENERIC_POST) LocationFor.GENERIC_POST else LocationFor.COMMUNITY_WALL_POST)
             }
 
+            var postId = randomIdProvider.getTimeBasedRandomIdFor(ReadableIdPrefix.PST)
+
+            getPost(postId) ?.let {
+                postId += randomIdProvider.getRandomId()
+                logger.error("Post already exists for postId: $postId so generating a new Id: $postId")
+            }
+
             val post = Post(
-                postId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.PST.name),
+                postId = postId,
                 userId = user.userId,
                 createdAt = Instant.now(),
                 postType = request.postType,

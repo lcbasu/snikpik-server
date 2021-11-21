@@ -32,6 +32,8 @@ data class UserV2 (
     @Column("handle")
     val handle: String? = null,
 
+    val email: String? = null,
+
     @Column
     val dp: String? = null, // MediaDetailsV2
 

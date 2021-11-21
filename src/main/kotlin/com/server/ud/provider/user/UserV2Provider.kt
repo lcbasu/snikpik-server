@@ -156,6 +156,7 @@ class UserV2Provider {
             absoluteMobile = firebaseAuthUser.getAbsoluteMobileNumber(),
             countryCode = "",
             handle = firebaseAuthUser.getHandle(),
+            email = firebaseAuthUser.getEmail(),
             dp = firebaseAuthUser.getPicture()?.let { MediaDetailsV2(listOf(
                 SingleMediaDetail(
                     mediaUrl = it,

@@ -1,7 +1,7 @@
 package com.server.ud.provider.bookmark
 
 import com.server.common.enums.ReadableIdPrefix
-import com.server.common.provider.UniqueIdProvider
+import com.server.common.provider.RandomIdProvider
 import com.server.ud.dao.bookmark.BookmarkRepository
 import com.server.ud.dto.SaveBookmarkRequest
 import com.server.ud.entities.bookmark.Bookmark
@@ -21,7 +21,7 @@ class BookmarkProvider {
     private lateinit var bookmarkRepository: BookmarkRepository
 
     @Autowired
-    private lateinit var uniqueIdProvider: UniqueIdProvider
+    private lateinit var randomIdProvider: RandomIdProvider
 
     @Autowired
     private lateinit var jobProvider: JobProvider
@@ -42,7 +42,7 @@ class BookmarkProvider {
     fun save(userId: String, request: SaveBookmarkRequest) : Bookmark? {
         try {
             val bookmark = Bookmark(
-                bookmarkId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.BMK.name),
+                bookmarkId = randomIdProvider.getTimeBasedRandomIdFor(ReadableIdPrefix.BMK),
                 userId = userId,
                 resourceId = request.resourceId,
                 resourceType = request.resourceType,

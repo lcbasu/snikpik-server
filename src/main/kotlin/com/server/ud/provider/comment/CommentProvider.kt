@@ -2,7 +2,7 @@ package com.server.ud.provider.comment
 
 import com.server.common.entities.MediaProcessingDetail
 import com.server.common.enums.ReadableIdPrefix
-import com.server.common.provider.UniqueIdProvider
+import com.server.common.provider.RandomIdProvider
 import com.server.dk.model.convertToString
 import com.server.ud.dao.comment.CommentRepository
 import com.server.ud.dto.SaveCommentRequest
@@ -26,8 +26,7 @@ class CommentProvider {
     private lateinit var jobProvider: JobProvider
 
     @Autowired
-    private lateinit var uniqueIdProvider: UniqueIdProvider
-
+    private lateinit var randomIdProvider: RandomIdProvider
 
     fun getComment(commentId: String): Comment? =
         try {
@@ -45,7 +44,7 @@ class CommentProvider {
     fun save(userId: String, request: SaveCommentRequest) : Comment? {
         try {
             val comment = Comment(
-                commentId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.CMT.name),
+                commentId = randomIdProvider.getTimeBasedRandomIdFor(ReadableIdPrefix.CMT),
                 userId = userId,
                 createdAt = Instant.now(),
                 postType = request.postType,

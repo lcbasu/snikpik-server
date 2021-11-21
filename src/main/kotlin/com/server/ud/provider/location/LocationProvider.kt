@@ -1,12 +1,10 @@
 package com.server.ud.provider.location
 
 import com.server.common.enums.ReadableIdPrefix
-import com.server.common.provider.UniqueIdProvider
-import com.server.common.utils.DateUtils
+import com.server.common.provider.RandomIdProvider
 import com.server.ud.dao.location.LocationRepository
 import com.server.ud.dto.SaveLocationRequest
 import com.server.ud.entities.location.Location
-import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.LocationFor
 import com.server.ud.provider.job.JobProvider
 import org.slf4j.Logger
@@ -28,7 +26,7 @@ class LocationProvider {
     private lateinit var locationRepository: LocationRepository
 
     @Autowired
-    private lateinit var uniqueIdProvider: UniqueIdProvider
+    private lateinit var randomIdProvider: RandomIdProvider
 
     @Autowired
     private lateinit var jobProvider: JobProvider
@@ -49,7 +47,7 @@ class LocationProvider {
     fun save(userId: String, request: SaveLocationRequest) : Location? {
         try {
             val location = Location(
-                locationId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.LOC.name),
+                locationId = randomIdProvider.getTimeBasedRandomIdFor(ReadableIdPrefix.LOC),
                 locationFor = request.locationFor,
                 userId = userId,
                 createdAt = Instant.now(),
