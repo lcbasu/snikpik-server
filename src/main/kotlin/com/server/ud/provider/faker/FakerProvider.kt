@@ -192,7 +192,7 @@ class FakerProvider {
             val req = SavePostRequest(
                 postType = postType,
                 title = faker.book().title(),
-                description = faker.book().publisher(),
+                description = faker.lorem().sentence(300),
                 tags = HashTagsList(sampleHashTags.shuffled().take(Random.nextInt(1, sampleHashTags.size))),
                 categories = categories.toSet(),
                 locationRequest = sampleLocationRequests[Random.nextInt(sampleLocationRequests.size)],

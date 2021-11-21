@@ -39,21 +39,42 @@ data class MediaDetailsV2(
 val sampleVideoMedia = listOf(
     MediaDetailsV2(listOf(
         SingleMediaDetail(
-            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USR03D5DB98C4644E3F815F9BFD67/90c5f365-6faa-412b-aa2a-65ec4e7b9011.mp4",
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2_-_d960ceab-f83a-4581-aa9d-0af2f231bd45.mp4",
             mimeType = "video",
             mediaType = MediaType.VIDEO
         )
     )),
     MediaDetailsV2(listOf(
         SingleMediaDetail(
-            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USR03D5DB98C4644E3F815F9BFD67/91df0202-293e-4d5a-8e81-41aa106ced58.mp4",
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2_-_aca6ad85-4a8f-4bb2-a597-afad052d8a95.mp4",
             mimeType = "video",
             mediaType = MediaType.VIDEO
         )
     )),
     MediaDetailsV2(listOf(
         SingleMediaDetail(
-            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USR03D5DB98C4644E3F815F9BFD67/USR03D5DB98C4644E3F815F9BFD67_-_5611d9c3-4837-492c-b5a1-4f624dc2e012.mp4",
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2_-_992b56d6-6184-45c9-8542-6611c2a2d514.mp4",
+            mimeType = "video",
+            mediaType = MediaType.VIDEO
+        )
+    )),
+    MediaDetailsV2(listOf(
+        SingleMediaDetail(
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2_-_96de4124-b01b-4002-9d63-f2c285d3be03.mp4",
+            mimeType = "video",
+            mediaType = MediaType.VIDEO
+        )
+    )),
+    MediaDetailsV2(listOf(
+        SingleMediaDetail(
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2_-_93a43e2b-7fae-442a-b451-cd2e6e7c4eaf.mp4",
+            mimeType = "video",
+            mediaType = MediaType.VIDEO
+        )
+    )),
+    MediaDetailsV2(listOf(
+        SingleMediaDetail(
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2_-_30b32cf0-9a18-46a0-8757-a336ba9529c4.mp4",
             mimeType = "video",
             mediaType = MediaType.VIDEO
         )
@@ -63,14 +84,70 @@ val sampleVideoMedia = listOf(
 val sampleImageMedia = listOf(
     MediaDetailsV2(listOf(
         SingleMediaDetail(
-            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USR03D5DB98C4644E3F815F9BFD67/a88f2fb5-9782-40f9-b0b3-a49b1344c324.jpeg",
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2/pexels-atbo-245208.jpg",
             mimeType = "image",
             mediaType = MediaType.IMAGE
         )
     )),
     MediaDetailsV2(listOf(
         SingleMediaDetail(
-            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USR03D5DB98C4644E3F815F9BFD67/94b5c46e-54df-4a6c-a658-ddd21865664e.jpeg",
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2/pexels-daria-shevtsova-1029803.jpg",
+            mimeType = "image",
+            mediaType = MediaType.IMAGE
+        )
+    )),
+    MediaDetailsV2(listOf(
+        SingleMediaDetail(
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2/pexels-dmitry-zvolskiy-2082087.jpg",
+            mimeType = "image",
+            mediaType = MediaType.IMAGE
+        )
+    )),
+    MediaDetailsV2(listOf(
+        SingleMediaDetail(
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2/pexels-dominika-roseclay-1139784.jpg",
+            mimeType = "image",
+            mediaType = MediaType.IMAGE
+        )
+    )),
+    MediaDetailsV2(listOf(
+        SingleMediaDetail(
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2/pexels-ksenia-chernaya-5806989.jpg",
+            mimeType = "image",
+            mediaType = MediaType.IMAGE
+        )
+    )),
+    MediaDetailsV2(listOf(
+        SingleMediaDetail(
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2/pexels-ksenia-chernaya-6021777.jpg",
+            mimeType = "image",
+            mediaType = MediaType.IMAGE
+        )
+    )),
+    MediaDetailsV2(listOf(
+        SingleMediaDetail(
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2/pexels-mister-mister-2442904.jpg",
+            mimeType = "image",
+            mediaType = MediaType.IMAGE
+        )
+    )),
+    MediaDetailsV2(listOf(
+        SingleMediaDetail(
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2/pexels-pixabay-462235.jpg",
+            mimeType = "image",
+            mediaType = MediaType.IMAGE
+        )
+    )),
+    MediaDetailsV2(listOf(
+        SingleMediaDetail(
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2/pexels-rachel-claire-5865687.jpg",
+            mimeType = "image",
+            mediaType = MediaType.IMAGE
+        )
+    )),
+    MediaDetailsV2(listOf(
+        SingleMediaDetail(
+            mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/userUploads/USRT4AnvDzKN0Or7IS98FOOLTNzmxN2/pexels-vecislavas-popa-1571460.jpg",
             mimeType = "image",
             mediaType = MediaType.IMAGE
         )
