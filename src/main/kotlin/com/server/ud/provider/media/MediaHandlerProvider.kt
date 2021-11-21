@@ -77,7 +77,7 @@ class MediaHandlerProvider {
     fun updateMediaInputDetailRequest(request: MediaInputDetail) : MediaProcessingDetail? {
         try {
             val mediaDetail = getMediaProcessingDetail(request.fileUniqueId) ?: error("Media details not present for ${request.fileUniqueId}")
-            if (mediaDetail.forUser != request.forUser) error("Media being updated for incorrect user for requestId:${request.fileUniqueId}")
+//            if (mediaDetail.forUser != request.forUser) error("Media being updated for incorrect user for requestId:${request.fileUniqueId}")
             mediaDetail.inputFilePath = request.inputFilePath
             mediaDetail.inputFilePresent = request.inputFilePath.isBlank().not()
             mediaDetail.resourceType = request.resourceType
@@ -110,7 +110,7 @@ class MediaHandlerProvider {
     fun updateMediaOutputDetailRequest(request: MediaOutputDetail) : MediaProcessingDetail? {
         try {
             val mediaDetail = getMediaProcessingDetail(request.fileUniqueId) ?: error("Media details not present for ${request.fileUniqueId}")
-            if (mediaDetail.forUser != request.forUser) error("Media being updated for incorrect user for requestId:${request.fileUniqueId}")
+//            if (mediaDetail.forUser != request.forUser) error("Media being updated for incorrect user for requestId:${request.fileUniqueId}")
             mediaDetail.outputFilePath = request.outputFilePath
             mediaDetail.outputFilePresent = request.outputFilePath.isBlank().not()
             val updatedMediaDetail = mediaProcessingDetailRepository.save(mediaDetail)

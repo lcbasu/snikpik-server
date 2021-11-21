@@ -148,14 +148,15 @@ class PostProvider {
         }
     }
 
-    fun updateMedia(post: Post, media: String) {
+    fun updateMedia(post: Post, media: MediaDetailsV2) {
         try {
             postRepository.updateMedia(
-                media = media,
+                media = media.convertToString(),
                 postId = post.postId,
                 createdAt = post.createdAt,
                 userId = post.userId,
-                postType = post.postType
+                postType = post.postType,
+                mediaPresenceType = getMediaPresenceType(media),
             )
         } catch (e: Exception) {
             e.printStackTrace()
@@ -214,7 +215,7 @@ class PostProvider {
             e.printStackTrace()
             exisingMediaList
         }
-        updateMedia(post, MediaDetailsV2(newMedia).convertToString())
+        updateMedia(post, MediaDetailsV2(newMedia))
         // Now do the post-processing with new media URL
         jobProvider.scheduleProcessingForPost(post.postId)
     }

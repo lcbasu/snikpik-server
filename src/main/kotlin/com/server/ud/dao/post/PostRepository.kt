@@ -1,6 +1,7 @@
 package com.server.ud.dao.post
 
 import com.server.ud.entities.post.Post
+import com.server.ud.enums.MediaPresenceType
 import com.server.ud.enums.PostType
 import org.springframework.data.cassandra.repository.CassandraRepository
 import org.springframework.data.cassandra.repository.Query
@@ -24,6 +25,6 @@ interface PostRepository : CassandraRepository<Post?, String?> {
      *
      * Hence, adding these columns while updating data
      * */
-    @Query("UPDATE posts SET media = ?0 WHERE post_id = ?1 and created_at = ?2 and user_id = ?3 and post_type = ?4")
-    fun updateMedia(media: String, postId: String, createdAt: Instant, userId: String, postType: PostType)
+    @Query("UPDATE posts SET media = ?0 WHERE post_id = ?1 and created_at = ?2 and user_id = ?3 and post_type = ?4 and media_presence_type = ?5")
+    fun updateMedia(media: String, postId: String, createdAt: Instant, userId: String, postType: PostType, mediaPresenceType: MediaPresenceType)
 }
