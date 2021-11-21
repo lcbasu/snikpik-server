@@ -8,7 +8,6 @@ import com.server.dk.model.MediaDetailsV2
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getMediaDetailsForDP
 import com.server.ud.entities.user.getProfiles
-import java.time.Instant
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateUserV2HandleRequest (
@@ -42,6 +41,13 @@ data class UpdateUserV2LocationRequest (
     var zipcode: String,
     val name: String?,
     var googlePlaceId: String?,
+)
+
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AWSLambdaAuthResponse(
+    var userId: String,
+    val anonymous: Boolean = false
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

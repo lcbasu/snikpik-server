@@ -22,6 +22,12 @@ class UserV2Controller {
         return userV2Service.saveUserV2()
     }
 
+    @RequestMapping(value = ["/getAWSLambdaAuthDetails"], method = [RequestMethod.GET])
+    fun getAWSLambdaAuthDetails(): AWSLambdaAuthResponse? {
+        securityProvider.validateRequest()
+        return userV2Service.getAWSLambdaAuthDetails()
+    }
+
     @RequestMapping(value = ["/getUser"], method = [RequestMethod.GET])
     fun getUser(@RequestParam userId: String): SavedUserV2Response? {
         securityProvider.validateRequest()

@@ -10,4 +10,5 @@ abstract class UserV2Service {
     abstract fun updateUserV2Name(request: UpdateUserV2NameRequest): SavedUserV2Response?
     abstract fun updateUserV2Location(request: UpdateUserV2LocationRequest): SavedUserV2Response?
     abstract fun saveUserV2(): SavedUserV2Response?
+    abstract fun getAWSLambdaAuthDetails(): AWSLambdaAuthResponse?
 }

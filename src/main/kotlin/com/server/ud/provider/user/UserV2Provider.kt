@@ -152,4 +152,14 @@ class UserV2Provider {
         ))
     }
 
+    fun getAWSLambdaAuthDetails(): AWSLambdaAuthResponse? {
+        val userDetails = securityProvider.validateRequest()
+        userDetails.getUserIdToUse()
+        val userV2 = getUser(userDetails.getUserIdToUse()) ?: error("No user found with userId: ${userDetails.getUserIdToUse()}")
+        return AWSLambdaAuthResponse(
+            userId = userV2.userId,
+            anonymous = userV2.anonymous
+        )
+    }
+
 }
