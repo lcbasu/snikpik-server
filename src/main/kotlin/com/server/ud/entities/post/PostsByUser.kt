@@ -1,11 +1,11 @@
 package com.server.ud.entities.post
 
 import com.server.common.utils.DateUtils
+import com.server.common.enums.MediaPresenceType
 import com.server.ud.enums.PostType
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
-import org.springframework.data.cassandra.core.mapping.Indexed
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
@@ -24,6 +24,9 @@ class PostsByUser (
 
     @PrimaryKeyColumn(name = "post_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
     var postId: String,
+
+    @PrimaryKeyColumn(name = "media_presence_type", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
+    var mediaPresenceType: MediaPresenceType,
 
     @Column
     var title: String? = null,

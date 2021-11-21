@@ -46,7 +46,7 @@ class LikeProvider {
             // As like is very high frequency call
             // So checking uniqueness will increase the latency
             val like = Like(
-                likeId = randomIdProvider.getTimeBasedRandomIdFor(ReadableIdPrefix.LIK),
+                likeId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.LIK),
                 userId = userId,
                 resourceId = request.resourceId,
                 resourceType = request.resourceType,

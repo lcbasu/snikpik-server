@@ -3,6 +3,7 @@ package com.server.ud.entities.reply
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
+import com.server.ud.enums.PostType
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
@@ -27,6 +28,9 @@ class Reply (
 
     @PrimaryKeyColumn(name = "user_id", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
     var userId: String,
+
+    @PrimaryKeyColumn(name = "post_type", ordinal = 5, type = PrimaryKeyType.CLUSTERED)
+    var postType: PostType,
 
     @Column
     var text: String,

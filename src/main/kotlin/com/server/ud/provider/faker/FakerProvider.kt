@@ -20,8 +20,8 @@ import com.server.ud.entities.reply.Reply
 import com.server.ud.entities.social.SocialRelation
 import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.*
-import com.server.ud.model.HashTagData
 import com.server.ud.model.HashTagsList
+import com.server.ud.model.sampleHashTags
 import com.server.ud.provider.bookmark.BookmarkProvider
 import com.server.ud.provider.comment.CommentProvider
 import com.server.ud.provider.like.LikeProvider
@@ -96,7 +96,7 @@ class FakerProvider {
         for (i in 1..usersToCreate) {
             val profiles = ProfileType.values().toList().shuffled().take(Random.nextInt(1, ProfileType.values().size))
             val location = sampleLocationRequests.shuffled().first()
-            val id = randomIdProvider.getTimeBasedRandomIdFor(ReadableIdPrefix.FKE)
+            val id = randomIdProvider.getRandomIdFor(ReadableIdPrefix.FKE)
             val userV2 = userV2Provider.saveUserV2(UserV2 (
                 userId = id,
                 createdAt = DateUtils.getInstantNow(),
@@ -189,27 +189,19 @@ class FakerProvider {
         val faker = Faker()
 
         for (i in 1..request.countOfPost) {
+            val postType = PostType.values().toList().shuffled().first()
+            val categories = CategoryV2.values().toList().shuffled().take(Random.nextInt(1, CategoryV2.values().size))
             val req = SavePostRequest(
-                postType = PostType.GENERIC_POST,
+                postType = postType,
                 title = faker.book().title(),
                 description = faker.book().publisher(),
-                tags = HashTagsList(listOf(
-                    HashTagData(
-                        tagId = "newhouse",
-                        displayName = "newhouse",
-                    ),
-                    HashTagData(
-                        tagId = "lakesideview",
-                        displayName = "lakesideview",
-                    )
-                )),
-                categories = setOf(CategoryV2.KITCHEN, CategoryV2.EXTERIOR),
+                tags = HashTagsList(sampleHashTags.shuffled().take(Random.nextInt(1, sampleHashTags.size))),
+                categories = categories.toSet(),
                 locationRequest = sampleLocationRequests[Random.nextInt(sampleLocationRequests.size)],
                 mediaDetails = sampleMedia[Random.nextInt(sampleMedia.size)]
             )
             posts.add(postProvider.save(userId, req))
         }
-
 
         posts.filterNotNull().map {
             val randomCount = Random.nextInt(0, request.maxCountOfComments)
@@ -228,6 +220,7 @@ class FakerProvider {
                 replies.add(replyProvider.save(userId, SaveCommentReplyRequest(
                     commentId = it.commentId,
                     postId = it.postId,
+                    postType = it.postType,
                     text = faker.lorem().sentence(),
                 )))
             }
@@ -236,12 +229,12 @@ class FakerProvider {
 
         posts.filterNotNull().map {
             likes.add(likeProvider.save(userId, SaveLikeRequest(
-                resourceType = ResourceType.POST,
+                resourceType = getResourcePostType(it.postType),
                 resourceId = it.postId,
                 action = LikeUpdateAction.ADD,
             )))
             bookmarks.add(bookmarkProvider.save(userId, SaveBookmarkRequest(
-                    resourceType = ResourceType.POST,
+                    resourceType = getResourcePostType(it.postType),
                     resourceId = it.postId,
                     action = BookmarkUpdateAction.ADD,
             )))
@@ -249,12 +242,12 @@ class FakerProvider {
 
         comments.filterNotNull().map {
             likes.add(likeProvider.save(userId, SaveLikeRequest(
-                resourceType = ResourceType.POST_COMMENT,
+                resourceType = getResourceCommentType(it.postType),
                 resourceId = it.commentId,
                 action = LikeUpdateAction.ADD,
             )))
             bookmarks.add(bookmarkProvider.save(userId, SaveBookmarkRequest(
-                resourceType = ResourceType.POST_COMMENT,
+                resourceType = getResourceCommentType(it.postType),
                 resourceId = it.commentId,
                 action = BookmarkUpdateAction.ADD,
             )))
@@ -262,12 +255,12 @@ class FakerProvider {
 
         replies.filterNotNull().map {
             likes.add(likeProvider.save(userId, SaveLikeRequest(
-                resourceType = ResourceType.POST_COMMENT_REPLY,
+                resourceType = getResourceReplyType(it.postType),
                 resourceId = it.replyId,
                 action = LikeUpdateAction.ADD,
             )))
             bookmarks.add(bookmarkProvider.save(userId, SaveBookmarkRequest(
-                resourceType = ResourceType.POST_COMMENT_REPLY,
+                resourceType = getResourceReplyType(it.postType),
                 resourceId = it.replyId,
                 action = BookmarkUpdateAction.ADD,
             )))

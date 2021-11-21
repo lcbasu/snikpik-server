@@ -37,6 +37,7 @@ class PostsByCategoryProvider {
                 postId = post.postId,
                 postType = post.postType,
                 userId = post.userId,
+                mediaPresenceType = post.mediaPresenceType,
                 locationId = post.locationId,
                 zipcode = post.zipcode,
                 locationName = post.locationName,

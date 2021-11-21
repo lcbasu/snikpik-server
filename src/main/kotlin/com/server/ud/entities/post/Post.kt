@@ -5,6 +5,7 @@ import com.server.common.enums.ProfileType
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
 import com.server.ud.enums.CategoryV2
+import com.server.common.enums.MediaPresenceType
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagsList
 import org.springframework.data.cassandra.core.cql.Ordering
@@ -29,6 +30,9 @@ data class Post (
 
     @PrimaryKeyColumn(name = "post_type", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
     var postType: PostType,
+
+    @PrimaryKeyColumn(name = "media_presence_type", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
+    var mediaPresenceType: MediaPresenceType,
 
     @Column
     var title: String? = null,

@@ -29,6 +29,7 @@ class ESPostProvider {
                 title = post.title,
                 description = post.description,
                 media = post.media,
+                mediaPresenceType = post.mediaPresenceType,
                 tags = post.getHashTags().tags,
 //                categories = post.getCategories(),
                 locationId = post.locationId,

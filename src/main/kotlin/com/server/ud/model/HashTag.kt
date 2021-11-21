@@ -16,3 +16,22 @@ fun HashTagsList.convertToString(): String {
         return jacksonObjectMapper().writeValueAsString(this)
     }
 }
+
+val sampleHashTags = listOf(
+    HashTagData(
+        tagId = "newhouse",
+        displayName = "newhouse",
+    ),
+    HashTagData(
+        tagId = "lakesideview",
+        displayName = "lakesideview",
+    ),
+    HashTagData(
+        tagId = "bigkitchen",
+        displayName = "bigkitchen",
+    ),
+    HashTagData(
+        tagId = "tenniscourt",
+        displayName = "tenniscourt",
+    )
+)

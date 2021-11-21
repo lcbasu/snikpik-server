@@ -62,7 +62,7 @@ class RandomIdProvider {
         return timeBased().toString()
     }
 
-    fun getTimeBasedRandomIdFor(prefix: ReadableIdPrefix) : String {
-        return "${prefix.name}${timeBased().toString()}"
+    fun getRandomIdFor(prefix: ReadableIdPrefix) : String {
+        return "${prefix.name}${UUID.randomUUID().toString()}"
     }
 }

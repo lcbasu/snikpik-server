@@ -44,7 +44,7 @@ class CommentProvider {
     fun save(userId: String, request: SaveCommentRequest) : Comment? {
         try {
             val comment = Comment(
-                commentId = randomIdProvider.getTimeBasedRandomIdFor(ReadableIdPrefix.CMT),
+                commentId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.CMT),
                 userId = userId,
                 createdAt = Instant.now(),
                 postType = request.postType,

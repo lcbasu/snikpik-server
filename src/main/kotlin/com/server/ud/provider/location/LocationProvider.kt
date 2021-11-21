@@ -47,7 +47,7 @@ class LocationProvider {
     fun save(userId: String, request: SaveLocationRequest) : Location? {
         try {
             val location = Location(
-                locationId = randomIdProvider.getTimeBasedRandomIdFor(ReadableIdPrefix.LOC),
+                locationId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.LOC),
                 locationFor = request.locationFor,
                 userId = userId,
                 createdAt = Instant.now(),

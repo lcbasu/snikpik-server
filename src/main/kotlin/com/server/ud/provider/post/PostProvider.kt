@@ -12,6 +12,7 @@ import com.server.common.provider.RandomIdProvider
 import com.server.dk.model.MediaDetailsV2
 import com.server.dk.model.SingleMediaDetail
 import com.server.dk.model.convertToString
+import com.server.dk.model.getMediaPresenceType
 import com.server.ud.dao.post.PostRepository
 import com.server.ud.dto.PaginatedRequest
 import com.server.ud.dto.SavePostRequest
@@ -19,15 +20,14 @@ import com.server.ud.dto.sampleLocationRequests
 import com.server.ud.entities.location.Location
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.getMediaDetails
-import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getProfiles
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.LocationFor
 import com.server.ud.enums.PostType
 import com.server.ud.enums.ResourceType
-import com.server.ud.model.HashTagData
 import com.server.ud.model.HashTagsList
 import com.server.ud.model.convertToString
+import com.server.ud.model.sampleHashTags
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.job.JobProvider
 import com.server.ud.provider.location.LocationProvider
@@ -109,7 +109,7 @@ class PostProvider {
                 location = locationProvider.getOrSaveRandomLocation(userId = user.userId, locationFor = if (request.postType == PostType.GENERIC_POST) LocationFor.GENERIC_POST else LocationFor.COMMUNITY_WALL_POST)
             }
 
-            var postId = randomIdProvider.getTimeBasedRandomIdFor(ReadableIdPrefix.PST)
+            var postId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.PST)
 
             getPost(postId) ?.let {
                 postId += randomIdProvider.getRandomId()
@@ -124,6 +124,7 @@ class PostProvider {
                 title = request.title,
                 description = request.description,
                 media = request.mediaDetails?.convertToString(),
+                mediaPresenceType = getMediaPresenceType(request.mediaDetails),
                 tags = request.tags.convertToString(),
                 categories = request.categories.joinToString(","),
                 locationId = location?.locationId,
@@ -226,16 +227,7 @@ class PostProvider {
                 postType = PostType.GENERIC_POST,
                 title = faker.book().title(),
                 description = faker.book().publisher(),
-                tags = HashTagsList(listOf(
-                    HashTagData(
-                        tagId = "newhouse",
-                        displayName = "newhouse",
-                    ),
-                    HashTagData(
-                        tagId = "lakesideview",
-                        displayName = "lakesideview",
-                    )
-                )),
+                tags = HashTagsList(sampleHashTags.shuffled().take(Random.nextInt(1, sampleHashTags.size))),
                 categories = setOf(CategoryV2.KITCHEN, CategoryV2.EXTERIOR),
                 locationRequest = sampleLocationRequests[Random.nextInt(sampleLocationRequests.size)]
             )

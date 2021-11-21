@@ -26,6 +26,7 @@ class PostsByHashTagProvider {
                 createdAt = post.createdAt,
                 postId = post.postId,
                 postType = post.postType,
+                mediaPresenceType = post.mediaPresenceType,
                 userId = post.userId,
                 hashTagDisplayName = hashTagData.displayName,
                 locationId = post.locationId,

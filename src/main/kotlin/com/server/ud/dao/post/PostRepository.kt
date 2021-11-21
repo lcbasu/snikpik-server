@@ -25,5 +25,5 @@ interface PostRepository : CassandraRepository<Post?, String?> {
      * Hence, adding these columns while updating data
      * */
     @Query("UPDATE posts SET media = ?0 WHERE post_id = ?1 and created_at = ?2 and user_id = ?3 and post_type = ?4")
-    fun updateMedia(media: String, postId: String, createdAt: Instant, userId: String, postType: PostType): Post
+    fun updateMedia(media: String, postId: String, createdAt: Instant, userId: String, postType: PostType)
 }

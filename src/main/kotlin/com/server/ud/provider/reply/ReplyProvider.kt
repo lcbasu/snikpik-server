@@ -44,11 +44,12 @@ class ReplyProvider {
     fun save(userId: String, request: SaveCommentReplyRequest) : Reply? {
         try {
             val reply = Reply(
-                replyId = randomIdProvider.getTimeBasedRandomIdFor(ReadableIdPrefix.RPL),
+                replyId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.RPL),
                 commentId = request.commentId,
                 userId = userId,
                 createdAt = Instant.now(),
                 postId = request.postId,
+                postType = request.postType,
                 text = request.text,
                 media = request.mediaDetails?.convertToString(),
             )
