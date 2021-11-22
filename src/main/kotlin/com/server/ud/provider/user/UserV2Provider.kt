@@ -56,10 +56,6 @@ class UserV2Provider {
 
     fun saveUserV2(userV2: UserV2, scheduleJob: Boolean = true) : UserV2? {
         try {
-            getUser(userV2.userId)?.let {
-                logger.error("User already exists for ${userV2.userId}")
-                return it
-            }
             val savedUser = userV2Repository.save(userV2)
             logger.info("UserV2 saved with userId: ${savedUser.userId}.")
             if (scheduleJob) {

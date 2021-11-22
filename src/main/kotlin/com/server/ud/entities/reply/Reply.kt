@@ -4,8 +4,8 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
 import com.server.ud.enums.PostType
-import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
+import org.springframework.data.cassandra.core.mapping.CassandraType
 import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
@@ -17,19 +17,20 @@ class Reply (
     @PrimaryKeyColumn(name = "reply_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var replyId: String,
 
-    @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
+    @Column("created_at")
+    @CassandraType(type = CassandraType.Name.TIMESTAMP)
     var createdAt: Instant = DateUtils.getInstantNow(),
 
-    @PrimaryKeyColumn(name = "comment_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
+    @Column("comment_id")
     var commentId: String,
 
-    @PrimaryKeyColumn(name = "post_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
+    @Column("post_id")
     var postId: String,
 
-    @PrimaryKeyColumn(name = "user_id", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
+    @Column("user_id")
     var userId: String,
 
-    @PrimaryKeyColumn(name = "post_type", ordinal = 5, type = PrimaryKeyType.CLUSTERED)
+    @Column("post_type")
     var postType: PostType,
 
     @Column

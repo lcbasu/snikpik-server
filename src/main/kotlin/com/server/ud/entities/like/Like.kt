@@ -2,8 +2,8 @@ package com.server.ud.entities.like
 
 import com.server.common.utils.DateUtils
 import com.server.ud.enums.ResourceType
-import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
+import org.springframework.data.cassandra.core.mapping.CassandraType
 import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
@@ -26,16 +26,17 @@ class Like (
     @PrimaryKeyColumn(name = "like_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var likeId: String,
 
-    @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
+    @Column("created_at")
+    @CassandraType(type = CassandraType.Name.TIMESTAMP)
     var createdAt: Instant = DateUtils.getInstantNow(),
 
-    @PrimaryKeyColumn(name = "resource_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
+    @Column("resource_id")
     var resourceId: String,
 
-    @PrimaryKeyColumn(name = "resource_type", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
+    @Column("resource_type")
     var resourceType: ResourceType,
 
-    @PrimaryKeyColumn(name = "user_id", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
+    @Column("user_id")
     var userId: String,
 
     // True or false based on like or unlike

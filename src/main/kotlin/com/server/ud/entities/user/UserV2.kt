@@ -5,8 +5,8 @@ import com.server.common.enums.NotificationTokenProvider
 import com.server.common.enums.ProfileType
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
-import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
+import org.springframework.data.cassandra.core.mapping.CassandraType
 import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
@@ -20,8 +20,9 @@ data class UserV2 (
     @PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     val userId: String,
 
-    @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
-    val createdAt: Instant = DateUtils.getInstantNow(),
+    @Column("created_at")
+    @CassandraType(type = CassandraType.Name.TIMESTAMP)
+    var createdAt: Instant = DateUtils.getInstantNow(),
 
     @Column("absolute_mobile")
     val absoluteMobile: String? = null,

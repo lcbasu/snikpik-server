@@ -7,8 +7,8 @@ import com.server.dk.model.MediaDetailsV2
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagsList
-import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
+import org.springframework.data.cassandra.core.mapping.CassandraType
 import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
@@ -21,13 +21,16 @@ data class Post (
     @PrimaryKeyColumn(name = "post_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var postId: String,
 
-    @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
+    @Column("created_at")
+    @CassandraType(type = CassandraType.Name.TIMESTAMP)
     var createdAt: Instant = DateUtils.getInstantNow(),
 
-    @PrimaryKeyColumn(name = "user_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
+    @Column("user_id")
+    @CassandraType(type = CassandraType.Name.TIMESTAMP)
     var userId: String,
 
-    @PrimaryKeyColumn(name = "post_type", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
+    @Column("post_type")
+    @CassandraType(type = CassandraType.Name.TIMESTAMP)
     var postType: PostType,
 
     @Column
