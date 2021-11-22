@@ -41,10 +41,10 @@ class FakerProvider {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
-    private val minUsersToFake = 5
-    private val maxUsersToFake = 25
+    private val minUsersToFake = 2
+    private val maxUsersToFake = 5
     private val minPostToFake = 2
-    private val maxPostToFake = 10
+    private val maxPostToFake = 5
     private val minCommentsToFake = 2
     private val maxCommentsToFake = 3
     private val minRepliesToFake = 2
