@@ -47,6 +47,7 @@ data class FollowingFollowerResponse (
 interface PostMiniDetail{
     val postId: String
     val userId: String
+    val createdAt: Long
     val media: MediaDetailsV2?
     val title: String?
 }

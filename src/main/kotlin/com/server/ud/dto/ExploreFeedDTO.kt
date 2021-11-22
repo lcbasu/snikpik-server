@@ -1,5 +1,6 @@
 package com.server.ud.dto
 
+import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
 import com.server.ud.entities.post.PostsByCategory
 import com.server.ud.entities.post.getMediaDetails
@@ -15,6 +16,7 @@ data class ExploreTabViewCategories(
 data class ExploreTabViewPostDetail(
     override val postId: String,
     override val userId: String,
+    override val createdAt: Long,
     override val media: MediaDetailsV2?,
     override val title: String?
 ): PostMiniDetail
@@ -47,6 +49,7 @@ fun PostsByCategory.toExploreTabViewPostDetail(): ExploreTabViewPostDetail {
             userId = userId,
             media = getMediaDetails(),
             title = title,
+            createdAt = DateUtils.getEpoch(createdAt)
         )
     }
 }

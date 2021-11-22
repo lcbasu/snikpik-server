@@ -5,11 +5,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.dk.model.MediaDetailsV2
 import com.server.ud.entities.es.post.ESPost
 import com.server.ud.entities.es.post.getMediaDetails
-import com.server.ud.entities.post.Post
-import com.server.ud.entities.post.getGeoPointData
-import com.server.ud.enums.CategoryV2
 import org.elasticsearch.search.SearchHit
-import org.springframework.data.elasticsearch.core.geo.GeoPoint
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -22,6 +18,7 @@ data class UDSearchRequest(
 data class SRPPostResponse(
     override val postId: String,
     override val userId: String,
+    override val createdAt: Long,
     override val media: MediaDetailsV2?,
     override val title: String?
 ): PostMiniDetail
@@ -51,6 +48,7 @@ fun ESPost.getPost(): SRPPostResponse {
         return SRPPostResponse(
             postId = postId,
             userId = userId,
+            createdAt = createdAt,
             media = getMediaDetails(),
             title = title,
         )

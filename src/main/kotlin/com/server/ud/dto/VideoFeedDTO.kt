@@ -2,6 +2,7 @@ package com.server.ud.dto
 
 import com.server.common.dto.ProfileTypeResponse
 import com.server.common.dto.toProfileTypeResponse
+import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
 import com.server.ud.entities.post.NearbyPostsByZipcode
 import com.server.ud.entities.post.getHashTags
@@ -17,6 +18,7 @@ data class VideoFeedViewSinglePostDetail(
     val tags: HashTagsList,
     override val postId: String,
     override val userId: String,
+    override val createdAt: Long,
     override val media: MediaDetailsV2?,
     override val title: String?
 ): PostMiniDetail
@@ -66,6 +68,7 @@ fun NearbyPostsByZipcode.toVideoFeedViewSinglePostDetail(): VideoFeedViewSingleP
         return VideoFeedViewSinglePostDetail(
             postId = postId,
             userId = userId,
+            createdAt = DateUtils.getEpoch(createdAt),
             media = getMediaDetails(),
             title = title,
             tags = getHashTags()

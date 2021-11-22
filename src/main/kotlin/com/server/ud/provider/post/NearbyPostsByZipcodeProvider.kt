@@ -2,6 +2,7 @@ package com.server.ud.provider.post
 
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.NearbyPostsByZipcodeRepository
+import com.server.ud.dto.CommunityWallFeedRequest
 import com.server.ud.dto.NearbyFeedRequest
 import com.server.ud.entities.post.NearbyPostsByZipcode
 import com.server.ud.entities.post.Post
@@ -65,8 +66,33 @@ class NearbyPostsByZipcodeProvider {
     }
 
     fun getNearbyFeed(request: NearbyFeedRequest): CassandraPageV2<NearbyPostsByZipcode> {
-        val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
-        val posts = nearbyPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndForDate(request.zipcode, PostType.GENERIC_POST, DateUtils.getInstantFromLocalDateTime(DateUtils.parseStandardDate(request.forDate)), pageRequest as Pageable)
+        return getPaginatedFeed(
+            zipCode = request.zipcode,
+            forDate = request.forDate,
+            postType = PostType.GENERIC_POST,
+            limit = request.limit,
+            pagingState = request.pagingState,
+        )
+    }
+
+    fun getCommunityWallFeed(request: CommunityWallFeedRequest): CassandraPageV2<NearbyPostsByZipcode> {
+        return getPaginatedFeed(
+            zipCode = request.zipcode,
+            forDate = request.forDate,
+            postType = PostType.COMMUNITY_WALL_POST,
+            limit = request.limit,
+            pagingState = request.pagingState,
+        )
+    }
+
+    private fun getPaginatedFeed(zipCode: String, forDate: String, postType: PostType, limit: Int, pagingState: String?): CassandraPageV2<NearbyPostsByZipcode> {
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val posts = nearbyPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndForDate(
+            zipCode,
+            postType,
+            DateUtils.getInstantFromLocalDateTime(DateUtils.parseStandardDate(forDate)),
+            pageRequest as Pageable
+        )
         return CassandraPageV2(posts)
     }
 

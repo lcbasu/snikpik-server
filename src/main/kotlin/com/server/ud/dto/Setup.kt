@@ -1,7 +1,7 @@
 package com.server.ud.dto
 
-import com.server.dk.model.MediaDetailsV2
 import com.server.common.enums.ProfileType
+import com.server.dk.model.MediaDetailsV2
 
 // Break down each request and response DTO
 // Likes should be a different call and video should be different. And so on.
@@ -16,22 +16,22 @@ import com.server.common.enums.ProfileType
 
 // CommunityFeedView -> CFV
 
-data class CFVCommunityWall(
-    val wallId: String,
-    val userId: String,
-    val media: MediaDetailsV2,
-    val title: String?,
-    val postedAt: Long,
-)
-
-data class CFVUserDetail(
-    val userId: String,
-    val handle: String,
-    val name: String,
-    val dp: MediaDetailsV2,
-    val verified: Boolean,
-    val profileType: ProfileType,
-)
+//data class CFVCommunityWall(
+//    val wallId: String,
+//    val userId: String,
+//    val media: MediaDetailsV2,
+//    val title: String?,
+//    val postedAt: Long,
+//)
+//
+//data class CFVUserDetail(
+//    val userId: String,
+//    val handle: String,
+//    val name: String,
+//    val dp: MediaDetailsV2,
+//    val verified: Boolean,
+//    val profileType: ProfileType,
+//)
 
 //data class CFVFollowDetail(
 //    override val loggedInUserId: String,
@@ -183,6 +183,7 @@ data class WPVPostsList (
 data class WPVSavedSinglePostDetail(
     override val postId: String,
     override val userId: String,
+    override val createdAt: Long,
     override val media: MediaDetailsV2?,
     override val title: String?
 ): PostMiniDetail
