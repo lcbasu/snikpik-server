@@ -148,13 +148,7 @@ class PostProvider {
 
     fun updateMedia(post: Post, media: MediaDetailsV2) {
         try {
-            postRepository.updateMedia(
-                media = media.convertToString(),
-                postId = post.postId,
-                createdAt = post.createdAt,
-                userId = post.userId,
-                postType = post.postType,
-            )
+            postRepository.save(post.copy(media = media.convertToString()))
         } catch (e: Exception) {
             e.printStackTrace()
         }
