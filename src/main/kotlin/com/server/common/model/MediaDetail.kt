@@ -2,7 +2,6 @@ package com.server.dk.model
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.enums.ContentType
-import com.server.ud.enums.MediaPresenceType
 import com.server.common.enums.MediaQualityType
 import com.server.common.enums.MediaType
 
@@ -154,7 +153,7 @@ val sampleImageMedia = listOf(
     ))
 )
 
-val sampleMedia = sampleImageMedia + sampleVideoMedia
+val sampleMedia = (sampleImageMedia + sampleVideoMedia).shuffled()
 
 fun MediaDetailsV2.convertToString(): String {
     this.apply {
@@ -164,26 +163,4 @@ fun MediaDetailsV2.convertToString(): String {
             ""
         }
     }
-}
-
-fun getMediaPresenceType (media: MediaDetailsV2?): MediaPresenceType {
-    return media?.let {
-        MediaPresenceType.NO_MEDIA
-        when {
-            media.media.isEmpty() -> MediaPresenceType.NO_MEDIA
-            media.media.isNotEmpty() -> {
-                val groupedByType = media.media.groupBy { it.mediaType }
-                if (groupedByType.size == 1 && groupedByType.containsKey(MediaType.IMAGE)) {
-                    MediaPresenceType.ONLY_IMAGE
-                } else if (groupedByType.size == 1 && groupedByType.containsKey(MediaType.GIF)) {
-                    MediaPresenceType.ONLY_GIF
-                }  else if (groupedByType.size == 1 && groupedByType.containsKey(MediaType.VIDEO)) {
-                    MediaPresenceType.ONLY_VIDEO
-                } else {
-                    MediaPresenceType.MIXED
-                }
-            }
-            else -> MediaPresenceType.NO_MEDIA
-        }
-    } ?: MediaPresenceType.NO_MEDIA
 }

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
 import com.server.ud.enums.CategoryV2
-import com.server.ud.enums.MediaPresenceType
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagData
 import com.server.ud.model.HashTagsList
@@ -36,9 +35,6 @@ class PostsByCategory (
 
     @PrimaryKeyColumn(name = "user_id", ordinal = 5, type = PrimaryKeyType.CLUSTERED)
     var userId: String,
-
-    @PrimaryKeyColumn(name = "media_presence_type", ordinal = 6, type = PrimaryKeyType.CLUSTERED)
-    var mediaPresenceType: MediaPresenceType,
 
     @Column("location_id")
     var locationId: String? = null,

@@ -1,7 +1,6 @@
 package com.server.ud.provider.post
 
 import com.github.javafaker.Faker
-import com.server.ud.entities.MediaProcessingDetail
 import com.server.common.enums.ContentType
 import com.server.common.enums.MediaQualityType
 import com.server.common.enums.MediaType
@@ -11,11 +10,11 @@ import com.server.common.provider.RandomIdProvider
 import com.server.dk.model.MediaDetailsV2
 import com.server.dk.model.SingleMediaDetail
 import com.server.dk.model.convertToString
-import com.server.dk.model.getMediaPresenceType
 import com.server.ud.dao.post.PostRepository
 import com.server.ud.dto.PaginatedRequest
 import com.server.ud.dto.SavePostRequest
 import com.server.ud.dto.sampleLocationRequests
+import com.server.ud.entities.MediaProcessingDetail
 import com.server.ud.entities.location.Location
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.getMediaDetails
@@ -124,7 +123,6 @@ class PostProvider {
                 title = request.title,
                 description = request.description,
                 media = request.mediaDetails?.convertToString(),
-                mediaPresenceType = getMediaPresenceType(request.mediaDetails),
                 tags = request.tags.convertToString(),
                 categories = request.categories.joinToString(","),
                 locationId = location?.locationId,
@@ -156,7 +154,6 @@ class PostProvider {
                 createdAt = post.createdAt,
                 userId = post.userId,
                 postType = post.postType,
-                mediaPresenceType = getMediaPresenceType(media),
             )
         } catch (e: Exception) {
             e.printStackTrace()

@@ -2,10 +2,8 @@ package com.server.ud.provider.post
 
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostsByFollowingRepository
-import com.server.ud.dao.post.PostsByUserRepository
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.PostsByFollowing
-import com.server.ud.entities.post.PostsByUser
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,7 +25,6 @@ class PostsByFollowingProvider {
                 createdAt = DateUtils.getInstantNow(),
                 postId = post.postId,
                 postType = post.postType,
-                mediaPresenceType = post.mediaPresenceType,
                 title = post.title,
                 description = post.description,
                 media = post.media,

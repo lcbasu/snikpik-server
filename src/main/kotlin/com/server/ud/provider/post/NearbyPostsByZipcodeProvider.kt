@@ -1,7 +1,6 @@
 package com.server.ud.provider.post
 
 import com.server.common.utils.DateUtils
-import com.server.dk.model.getMediaPresenceType
 import com.server.ud.dao.post.NearbyPostsByZipcodeRepository
 import com.server.ud.dto.NearbyFeedRequest
 import com.server.ud.entities.post.NearbyPostsByZipcode
@@ -45,7 +44,6 @@ class NearbyPostsByZipcodeProvider {
                     postId = post.postId,
                     postType = post.postType,
                     userId = post.userId,
-                    mediaPresenceType = post.mediaPresenceType,
                     originalZipcode = post.zipcode!!,
                     locationId = post.locationId,
                     locationName = post.locationName,

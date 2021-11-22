@@ -29,7 +29,6 @@ class PostsByZipcodeProvider {
                 createdAt = post.createdAt,
                 postId = post.postId,
                 postType = post.postType,
-                mediaPresenceType = post.mediaPresenceType,
                 userId = post.userId,
                 locationId = post.locationId,
                 locationName = post.locationName,

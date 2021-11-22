@@ -1,7 +1,6 @@
 package com.server.ud.entities.post
 
 import com.server.common.utils.DateUtils
-import com.server.ud.enums.MediaPresenceType
 import com.server.ud.enums.PostType
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
@@ -30,9 +29,6 @@ class PostsByHashTag (
 
     @PrimaryKeyColumn(name = "user_id", ordinal = 5, type = PrimaryKeyType.CLUSTERED)
     var userId: String,
-
-    @PrimaryKeyColumn(name = "media_presence_type", ordinal = 6, type = PrimaryKeyType.CLUSTERED)
-    var mediaPresenceType: MediaPresenceType,
 
     @Column("hash_tag_display_name")
     var hashTagDisplayName: String,

@@ -24,7 +24,6 @@ class PostsByUserProvider {
                 createdAt = DateUtils.getInstantNow(),
                 postId = post.postId,
                 postType = post.postType,
-                mediaPresenceType = post.mediaPresenceType,
                 title = post.title,
                 description = post.description,
                 media = post.media,

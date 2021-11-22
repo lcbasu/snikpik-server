@@ -1,7 +1,6 @@
 package com.server.ud.entities.post
 
 import com.server.common.utils.DateUtils
-import com.server.ud.enums.MediaPresenceType
 import com.server.ud.enums.PostType
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
@@ -34,9 +33,6 @@ class PostsByZipcode (
 
     @PrimaryKeyColumn(name = "user_id", ordinal = 5, type = PrimaryKeyType.CLUSTERED)
     var userId: String,
-
-    @PrimaryKeyColumn(name = "media_presence_type", ordinal = 6, type = PrimaryKeyType.CLUSTERED)
-    var mediaPresenceType: MediaPresenceType,
 
     @Column("location_id")
     var locationId: String? = null,
