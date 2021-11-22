@@ -1,9 +1,9 @@
 package com.server.ud.provider.user
 
-import com.server.ud.dao.user.UsersByZipcodeAndProfileCategoryRepository
+import com.server.ud.dao.user.UsersByZipcodeAndProfileTypeRepository
 import com.server.ud.dto.MarketplaceUserFeedRequest
 import com.server.ud.entities.user.UserV2
-import com.server.ud.entities.user.UsersByZipcodeAndProfileCategory
+import com.server.ud.entities.user.UsersByZipcodeAndProfileType
 import com.server.ud.entities.user.getProfiles
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.utils.pagination.PaginationRequestUtil
@@ -14,38 +14,32 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 
 @Component
-class UsersByZipcodeAndProfileProvider {
+class UsersByZipcodeAndProfileTypeProvider {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     @Autowired
-    private lateinit var usersByZipcodeAndProfileCategoryRepository: UsersByZipcodeAndProfileCategoryRepository
-
-    @Autowired
-    private lateinit var pointerForUsersInMarketplaceProvider: PointerForUsersInMarketplaceProvider
+    private lateinit var usersByZipcodeAndProfileTypeRepository: UsersByZipcodeAndProfileTypeRepository
 
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
 
-    fun getFeedForMarketplaceUsers(request: MarketplaceUserFeedRequest): CassandraPageV2<UsersByZipcodeAndProfileCategory> {
+    fun getFeedForMarketplaceUsers(request: MarketplaceUserFeedRequest): CassandraPageV2<UsersByZipcodeAndProfileType> {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
-        val users = usersByZipcodeAndProfileCategoryRepository.findAllByZipcodeAndProfileCategory(request.zipcode, request.profileCategory, pageRequest as Pageable)
+        val users = usersByZipcodeAndProfileTypeRepository.findAllByZipcodeAndProfileType(request.zipcode, request.profileType, pageRequest as Pageable)
         return CassandraPageV2(users)
     }
 
-    fun save(userV2: UserV2): List<UsersByZipcodeAndProfileCategory> {
+    fun save(userV2: UserV2): List<UsersByZipcodeAndProfileType> {
         try {
             if (userV2.userLastLocationZipcode == null) {
-                logger.error("zipcode is required to save UsersByZipcodeAndProfileCategory for userId: ${userV2.userId}.")
+                logger.error("zipcode is required to save UsersByZipcodeAndProfileType for userId: ${userV2.userId}.")
                 return emptyList()
             }
-            val users = userV2.getProfiles().map {
-                val positionToUseNow = pointerForUsersInMarketplaceProvider.getPositionToUseNow(it, userV2.userLastLocationZipcode!!)
-                UsersByZipcodeAndProfileCategory(
+            val usersByZipcodeAndProfileType = userV2.getProfiles().map {
+                UsersByZipcodeAndProfileType(
                     zipcode = userV2.userLastLocationZipcode!!,
-                    profileCategory = it.category,
                     profileType = it,
-                    position = positionToUseNow,
                     userId = userV2.userId,
                     absoluteMobile = userV2.absoluteMobile,
                     countryCode = userV2.countryCode,
@@ -56,16 +50,12 @@ class UsersByZipcodeAndProfileProvider {
                     verified = userV2.verified,
                     profiles = userV2.profiles,
                     fullName = userV2.fullName,
+                    userLocationName = userV2.userLastLocationName,
                 )
             }
-            logger.info("Completed")
-            val result = usersByZipcodeAndProfileCategoryRepository.saveAll(users)
-            result.map {
-                pointerForUsersInMarketplaceProvider.update(it.profileType, it.zipcode)
-            }
-            return result
+            return usersByZipcodeAndProfileTypeRepository.saveAll(usersByZipcodeAndProfileType)
         } catch (e: Exception) {
-            logger.error("Saving UsersByZipcodeAndProfileCategory filed for userId: ${userV2.userId}.")
+            logger.error("Saving UsersByZipcodeAndProfileType filed for userId: ${userV2.userId}.")
             e.printStackTrace()
             return emptyList()
         }

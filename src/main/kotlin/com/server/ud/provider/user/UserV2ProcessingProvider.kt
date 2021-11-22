@@ -25,7 +25,10 @@ class UserV2ProcessingProvider {
     private lateinit var usersByProfileTypeProvider: UsersByProfileTypeProvider
 
     @Autowired
-    private lateinit var usersByZipcodeAndProfileProvider: UsersByZipcodeAndProfileProvider
+    private lateinit var usersByZipcodeAndProfileTypeProvider: UsersByZipcodeAndProfileTypeProvider
+
+    @Autowired
+    private lateinit var profileTypesByZipcodeAndProfileCategoryProvider: ProfileTypesByZipcodeAndProfileCategoryProvider
 
     @Autowired
     private lateinit var usersByZipcodeProvider: UsersByZipcodeProvider
@@ -49,7 +52,11 @@ class UserV2ProcessingProvider {
             }
 
             val usersByZipcodeAndProfileFuture = async {
-                usersByZipcodeAndProfileProvider.save(user)
+                usersByZipcodeAndProfileTypeProvider.save(user)
+            }
+
+            val profileTypesByZipcodeAndProfileCategoryProviderFuture = async {
+                profileTypesByZipcodeAndProfileCategoryProvider.save(user)
             }
 
             val usersByZipcodeFuture = async {
@@ -60,6 +67,7 @@ class UserV2ProcessingProvider {
             usersByProfileCategoryFuture.await()
             usersByProfileTypeFuture.await()
             usersByZipcodeAndProfileFuture.await()
+            profileTypesByZipcodeAndProfileCategoryProviderFuture.await()
             usersByZipcodeFuture.await()
             logger.info("Completed")
         }

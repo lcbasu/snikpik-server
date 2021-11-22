@@ -1,6 +1,9 @@
 package com.server.ud.controller
 
 import com.server.common.enums.ProfileCategory
+import com.server.common.enums.ProfileType
+import com.server.ud.dto.MarketplaceProfileTypesFeedRequest
+import com.server.ud.dto.MarketplaceProfileTypesFeedResponse
 import com.server.ud.dto.MarketplaceUserFeedRequest
 import com.server.ud.dto.MarketplaceUserFeedResponse
 import com.server.ud.service.marketplace.MarketplaceService
@@ -19,11 +22,26 @@ class MarketplaceController {
 
     @RequestMapping(value = ["/getFeedForMarketplaceUsers"], method = [RequestMethod.GET])
     fun getFeedForMarketplaceUsers(@RequestParam zipcode: String,
-                                   @RequestParam profileCategory: ProfileCategory,
+                                   @RequestParam profileType: ProfileType,
                                    @RequestParam limit: Int,
                                    @RequestParam pagingState: String?): MarketplaceUserFeedResponse {
         return marketplaceService.getFeedForMarketplaceUsers(
             MarketplaceUserFeedRequest(
+                zipcode,
+                profileType,
+                limit,
+                pagingState
+            )
+        )
+    }
+
+    @RequestMapping(value = ["/getFeedForMarketplaceProfileTypes"], method = [RequestMethod.GET])
+    fun getFeedForMarketplaceProfileTypes(@RequestParam zipcode: String,
+                                   @RequestParam profileCategory: ProfileCategory,
+                                   @RequestParam limit: Int,
+                                   @RequestParam pagingState: String?): MarketplaceProfileTypesFeedResponse {
+        return marketplaceService.getFeedForMarketplaceProfileTypes(
+            MarketplaceProfileTypesFeedRequest(
                 zipcode,
                 profileCategory,
                 limit,

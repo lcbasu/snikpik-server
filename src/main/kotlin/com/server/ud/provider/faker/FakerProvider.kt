@@ -43,8 +43,8 @@ class FakerProvider {
 
     private val minUsersToFake = 5
     private val maxUsersToFake = 25
-    private val minPostToFake = 20
-    private val maxPostToFake = 50
+    private val minPostToFake = 2
+    private val maxPostToFake = 10
     private val minCommentsToFake = 2
     private val maxCommentsToFake = 3
     private val minRepliesToFake = 2

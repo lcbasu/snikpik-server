@@ -1,9 +1,7 @@
 package com.server.ud.entities.user
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.server.common.enums.ProfileCategory
 import com.server.common.enums.ProfileType
-import com.server.common.enums.UserPositionInMarketplace
 import com.server.dk.model.MediaDetailsV2
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
@@ -15,22 +13,16 @@ import org.springframework.data.cassandra.core.mapping.Table
  * We will have different professionals and suppliers for different zipcode
  *
  * */
-@Table("users_by_zipcode_and_profile_category")
-class UsersByZipcodeAndProfileCategory (
+@Table("users_by_zipcode_and_profile_type")
+class UsersByZipcodeAndProfileType (
 
     @PrimaryKeyColumn(name = "zipcode", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var zipcode: String,
 
-    @PrimaryKeyColumn(name = "profile_category", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
-    var profileCategory: ProfileCategory,
-
-    @PrimaryKeyColumn(name = "profile_type", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
+    @PrimaryKeyColumn(name = "profile_type", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
     var profileType: ProfileType,
 
-    @PrimaryKeyColumn(name = "position", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
-    var position: UserPositionInMarketplace,
-
-    @Column("user_id")
+    @PrimaryKeyColumn(name = "user_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     var userId: String,
 
     @Column("absolute_mobile")
@@ -66,7 +58,7 @@ class UsersByZipcodeAndProfileCategory (
 )
 
 
-fun UsersByZipcodeAndProfileCategory.getMediaDetailsForDP(): MediaDetailsV2? {
+fun UsersByZipcodeAndProfileType.getMediaDetailsForDP(): MediaDetailsV2? {
     this.apply {
         return try {
             jacksonObjectMapper().readValue(dp, MediaDetailsV2::class.java)
@@ -76,7 +68,7 @@ fun UsersByZipcodeAndProfileCategory.getMediaDetailsForDP(): MediaDetailsV2? {
     }
 }
 
-fun UsersByZipcodeAndProfileCategory.getProfiles(): Set<ProfileType> {
+fun UsersByZipcodeAndProfileType.getProfiles(): Set<ProfileType> {
     this.apply {
         return try {
             val profileIds = profiles?.trim()?.split(",") ?: emptySet()
