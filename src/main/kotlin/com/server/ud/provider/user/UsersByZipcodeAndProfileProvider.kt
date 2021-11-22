@@ -1,6 +1,5 @@
 package com.server.ud.provider.user
 
-import com.server.common.enums.ProfileCategory
 import com.server.ud.dao.user.UsersByZipcodeAndProfileCategoryRepository
 import com.server.ud.dto.MarketplaceUserFeedRequest
 import com.server.ud.entities.user.UserV2
@@ -28,12 +27,9 @@ class UsersByZipcodeAndProfileProvider {
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
 
-    fun getFeedForMarketplaceUsers(userV2: UserV2, request: MarketplaceUserFeedRequest): CassandraPageV2<UsersByZipcodeAndProfileCategory> {
-        if (userV2.userLastLocationZipcode == null) {
-            error("User needs to set a location to get professionals near him.")
-        }
+    fun getFeedForMarketplaceUsers(request: MarketplaceUserFeedRequest): CassandraPageV2<UsersByZipcodeAndProfileCategory> {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
-        val users = usersByZipcodeAndProfileCategoryRepository.findAllByZipcodeAndProfileCategory(userV2.userLastLocationZipcode!!, request.profileCategory, pageRequest as Pageable)
+        val users = usersByZipcodeAndProfileCategoryRepository.findAllByZipcodeAndProfileCategory(request.zipcode, request.profileCategory, pageRequest as Pageable)
         return CassandraPageV2(users)
     }
 
@@ -63,7 +59,11 @@ class UsersByZipcodeAndProfileProvider {
                 )
             }
             logger.info("Completed")
-            return usersByZipcodeAndProfileCategoryRepository.saveAll(users)
+            val result = usersByZipcodeAndProfileCategoryRepository.saveAll(users)
+            result.map {
+                pointerForUsersInMarketplaceProvider.update(it.profileType, it.zipcode)
+            }
+            return result
         } catch (e: Exception) {
             logger.error("Saving UsersByZipcodeAndProfileCategory filed for userId: ${userV2.userId}.")
             e.printStackTrace()

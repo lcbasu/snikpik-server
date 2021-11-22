@@ -10,8 +10,9 @@ import com.server.ud.entities.user.getProfiles
 data class MarketplaceUserDetail(
     val userId: String,
     val name: String?,
+    val verified: Boolean,
     val dp: MediaDetailsV2?,
-    val profileType: ProfileType,
+    val profileTypeToShow: ProfileType,
     val locationName: String?,
 )
 
@@ -23,19 +24,22 @@ data class MarketplaceUserFeedResponse(
 ): PaginationResponse(count, pagingState, hasNext)
 
 data class MarketplaceUserFeedRequest (
+    val zipcode: String,
     val profileCategory: ProfileCategory,
     override val limit: Int = 10,
     override val pagingState: String? = null, // YYYY-MM-DD
 ): PaginationRequest(limit, pagingState)
 
-fun UsersByZipcodeAndProfileCategory.toMarketplaceUserDetail(userLastLocationName: String?): MarketplaceUserDetail {
+fun UsersByZipcodeAndProfileCategory.toMarketplaceUserDetail(): MarketplaceUserDetail {
     this.apply {
         return MarketplaceUserDetail(
             userId = userId,
             name = fullName,
             dp = getMediaDetailsForDP(),
-            profileType = getProfiles().first(),
-            locationName = userLastLocationName,
+            // Here profile will always be present
+            profileTypeToShow = profileType,
+            locationName = userLocationName,
+            verified = verified
         )
     }
 }

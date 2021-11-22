@@ -18,11 +18,13 @@ class MarketplaceController {
     private lateinit var marketplaceService: MarketplaceService
 
     @RequestMapping(value = ["/getFeedForMarketplaceUsers"], method = [RequestMethod.GET])
-    fun getFeedForMarketplaceUsers(@RequestParam profileCategory: ProfileCategory,
-                            @RequestParam limit: Int,
-                            @RequestParam pagingState: String?): MarketplaceUserFeedResponse {
+    fun getFeedForMarketplaceUsers(@RequestParam zipcode: String,
+                                   @RequestParam profileCategory: ProfileCategory,
+                                   @RequestParam limit: Int,
+                                   @RequestParam pagingState: String?): MarketplaceUserFeedResponse {
         return marketplaceService.getFeedForMarketplaceUsers(
             MarketplaceUserFeedRequest(
+                zipcode,
                 profileCategory,
                 limit,
                 pagingState

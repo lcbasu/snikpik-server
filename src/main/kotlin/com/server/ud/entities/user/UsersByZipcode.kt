@@ -48,5 +48,10 @@ class UsersByZipcode (
 
     @Column("full_name")
     var fullName: String? = "",
+
+    // The name where this zipcode was saved
+    @Column("user_location_name")
+    val userLocationName: String? = null,
+
 )
 
