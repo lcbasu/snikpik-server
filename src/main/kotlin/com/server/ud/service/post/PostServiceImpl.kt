@@ -3,8 +3,10 @@ package com.server.ud.service.post
 import com.server.common.provider.SecurityProvider
 import com.server.ud.dto.*
 import com.server.ud.entities.post.Post
+import com.server.ud.entities.user.PostsCountByUser
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.post.PostProvider
+import com.server.ud.provider.post.PostsCountByUserProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -16,6 +18,9 @@ class PostServiceImpl : PostService() {
 
     @Autowired
     private lateinit var postProvider: PostProvider
+
+    @Autowired
+    private lateinit var postsCountByUserProvider: PostsCountByUserProvider
 
     override fun savePost(savePostRequest: SavePostRequest): SavedPostResponse? {
         val requestContext = securityProvider.validateRequest()
@@ -44,5 +49,9 @@ class PostServiceImpl : PostService() {
 
     override fun getPost(postId: String): Post? {
         return postProvider.getPost(postId)
+    }
+
+    override fun getPostsCountByUser(userId: String): PostsCountByUser? {
+        return postsCountByUserProvider.getPostsCountByUser(userId)
     }
 }

@@ -20,9 +20,15 @@ class PostsCountByUserProvider {
         try {
             val userPosts = postsCountByUserRepository.findAllByUserId(userId)
             if (userPosts.size > 1) {
-                error("More than one posts has same userId: $userId")
+                error("More than one posts count has same userId: $userId")
+            } else if (userPosts.isEmpty()) {
+                val defaultPostCount = PostsCountByUser()
+                defaultPostCount.userId = userId
+                defaultPostCount.postsCount = 0
+                defaultPostCount
+            } else {
+                userPosts.firstOrNull()
             }
-            userPosts.firstOrNull()
         } catch (e: Exception) {
             logger.error("Getting PostsCountByUser for $userId failed.")
             e.printStackTrace()
