@@ -123,8 +123,12 @@ class UserV2Provider {
         return saveUserV2(newUserToBeSaved)
     }
 
-    fun saveUserV2(): UserV2? {
+    fun saveUserV2WhoJustLoggedIn(): UserV2? {
         val firebaseAuthUser = securityProvider.validateRequest()
+        val existing = getUser(firebaseAuthUser.getUserIdToUse())
+        if (existing != null) {
+            return existing
+        }
         return saveUserV2(UserV2 (
             userId = firebaseAuthUser.getUserIdToUse(),
             createdAt = DateUtils.getInstantNow(),

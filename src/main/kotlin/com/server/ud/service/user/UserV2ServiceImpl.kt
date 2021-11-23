@@ -48,7 +48,7 @@ class UserV2ServiceImpl : UserV2Service() {
     }
 
     override fun saveUserV2(): SavedUserV2Response? {
-        return userV2Provider.saveUserV2()?.toSavedUserV2Response()
+        return userV2Provider.saveUserV2WhoJustLoggedIn()?.toSavedUserV2Response()
     }
 
     override fun getAWSLambdaAuthDetails(): AWSLambdaAuthResponse? {
