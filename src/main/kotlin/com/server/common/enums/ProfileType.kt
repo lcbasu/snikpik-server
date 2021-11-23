@@ -21,9 +21,37 @@ enum class ProfileType(
             media = emptyList()
         )
     ),
+    MASON(
+        ProfileCategory.PROFESSIONAL,
+        "Mason",
+        MediaDetailsV2(
+            media = emptyList()
+        )
+    ),
+    CARPENTER(
+        ProfileCategory.PROFESSIONAL,
+        "Carpenter",
+        MediaDetailsV2(
+            media = emptyList()
+        )
+    ),
     HARDWARE_STORE_OWNER(
         ProfileCategory.SUPPLIER,
         "Hardware Store Owner",
+        MediaDetailsV2(
+            media = emptyList()
+        )
+    ),
+    PLUMBER_SUPPLIER(
+        ProfileCategory.SUPPLIER,
+        "Plumber Supplier",
+        MediaDetailsV2(
+            media = emptyList()
+        )
+    ),
+    PAINT_WHOLE_SELLER(
+        ProfileCategory.SUPPLIER,
+        "Paint Whole Seller",
         MediaDetailsV2(
             media = emptyList()
         )
