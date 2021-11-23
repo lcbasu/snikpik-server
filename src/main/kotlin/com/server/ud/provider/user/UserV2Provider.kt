@@ -138,7 +138,7 @@ class UserV2Provider {
                     mediaType = MediaType.IMAGE,
                 )
             )).convertToString() },
-            uid = "firebaseAuthUser.getUid()",
+            uid = firebaseAuthUser.getUid(),
             anonymous = firebaseAuthUser.getIsAnonymous() == true,
             verified = false,
             profiles = emptyList<ProfileType>().joinToString(","),

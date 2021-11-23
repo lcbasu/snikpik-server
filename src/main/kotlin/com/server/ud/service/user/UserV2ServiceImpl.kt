@@ -42,4 +42,8 @@ class UserV2ServiceImpl : UserV2Service() {
     override fun getAWSLambdaAuthDetails(): AWSLambdaAuthResponse? {
         return userV2Provider.getAWSLambdaAuthDetails()
     }
+
+    override fun getUserDetailsForProfilePage(userId: String): ProfilePageUserDetailsResponse? {
+        return userV2Provider.getUser(userId)?.toProfilePageUserDetailsResponse()
+    }
 }

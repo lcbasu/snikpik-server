@@ -1,6 +1,8 @@
 package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.server.common.dto.ProfileTypeResponse
+import com.server.common.dto.toProfileTypeResponse
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.enums.ProfileType
 import com.server.common.utils.DateUtils
@@ -51,6 +53,19 @@ data class AWSLambdaAuthResponse(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class ProfilePageUserDetailsResponse(
+    var userId: String,
+    val fullName: String?,
+    val uid: String?,
+    var createdAt: Long?,
+    var handle: String?,
+    var dp: MediaDetailsV2?, // MediaDetailsV2
+    var verified: Boolean?,
+    var profileToShow: ProfileTypeResponse?,
+    val userLastLocationName: String?,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class SavedUserV2Response(
     var userId: String,
     val fullName: String?,
@@ -95,6 +110,22 @@ fun UserV2.toSavedUserV2Response(): SavedUserV2Response {
             userLastLocationName = userLastLocationName,
             userLastLocationLat = userLastLocationLat,
             userLastLocationLng = userLastLocationLng,
+        )
+    }
+}
+
+fun UserV2.toProfilePageUserDetailsResponse(): ProfilePageUserDetailsResponse {
+    this.apply {
+        return ProfilePageUserDetailsResponse(
+            userId = userId,
+            fullName = fullName,
+            uid = uid,
+            createdAt = DateUtils.getEpoch(createdAt),
+            handle = handle,
+            dp = getMediaDetailsForDP(),
+            verified = verified,
+            profileToShow = getProfiles().firstOrNull()?.toProfileTypeResponse(),
+            userLastLocationName = userLastLocationName,
         )
     }
 }

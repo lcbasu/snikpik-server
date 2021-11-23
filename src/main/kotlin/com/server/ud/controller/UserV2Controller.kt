@@ -34,6 +34,12 @@ class UserV2Controller {
         return userV2Service.getUser(userId)
     }
 
+    @RequestMapping(value = ["/getUserDetailsForProfilePage"], method = [RequestMethod.GET])
+    fun getUserDetailsForProfilePage(@RequestParam userId: String): ProfilePageUserDetailsResponse? {
+        securityProvider.validateRequest()
+        return userV2Service.getUserDetailsForProfilePage(userId)
+    }
+
     @RequestMapping(value = ["/updateUserV2Handle"], method = [RequestMethod.POST])
     fun updateUserV2Handle(@RequestBody request: UpdateUserV2HandleRequest): SavedUserV2Response? {
         securityProvider.validateRequest()
