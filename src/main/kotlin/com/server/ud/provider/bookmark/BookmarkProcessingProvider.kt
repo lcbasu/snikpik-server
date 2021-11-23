@@ -1,5 +1,6 @@
 package com.server.ud.provider.bookmark
 
+import com.server.ud.provider.post.BookmarkedPostsByUserProvider
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
@@ -30,6 +31,9 @@ class BookmarkProcessingProvider {
     @Autowired
     private lateinit var bookmarksCountByUserProvider: BookmarksCountByUserProvider
 
+    @Autowired
+    private lateinit var bookmarkedPostsByUserProvider: BookmarkedPostsByUserProvider
+
     fun processBookmark(bookmarkId: String) {
         runBlocking {
             logger.info("Do bookmark processing for bookmarkId: $bookmarkId")
@@ -39,11 +43,13 @@ class BookmarkProcessingProvider {
             val bookmarksCountByResourceFuture = async { if (bookmark.bookmarked) bookmarksCountByResourceProvider.increaseBookmark(bookmark.resourceId) else bookmarksCountByResourceProvider.decreaseBookmark(bookmark.resourceId) }
             val bookmarksCountByResourceAndUserFuture = async { bookmarkForResourceByUserProvider.setBookmark(bookmark.resourceId, bookmark.userId, bookmark.bookmarked) }
             val bookmarksCountByUserFuture = async { if (bookmark.bookmarked) bookmarksCountByUserProvider.increaseBookmark(bookmark.userId) else bookmarksCountByUserProvider.decreaseBookmark(bookmark.userId) }
+            val bookmarkedPostsByUserProviderFuture = async { bookmarkedPostsByUserProvider.processBookmark(bookmark) }
             bookmarksByResourceFuture.await()
             bookmarksByUserFuture.await()
             bookmarksCountByResourceFuture.await()
             bookmarksCountByResourceAndUserFuture.await()
             bookmarksCountByUserFuture.await()
+            bookmarkedPostsByUserProviderFuture.await()
         }
     }
 

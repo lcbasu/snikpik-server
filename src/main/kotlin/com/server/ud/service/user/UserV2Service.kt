@@ -12,4 +12,7 @@ abstract class UserV2Service {
     abstract fun saveUserV2(): SavedUserV2Response?
     abstract fun getAWSLambdaAuthDetails(): AWSLambdaAuthResponse?
     abstract fun getUserDetailsForProfilePage(userId: String): ProfilePageUserDetailsResponse?
+    abstract fun getLikedPostsByUser(request: LikedPostsByUserRequest): LikedPostsByUserResponse
+    abstract fun getBookmarkedPostsByUser(request: BookmarkedPostsByUserRequest): BookmarkedPostsByUserResponse
+    abstract fun getPostsByUser(request: PostsByUserRequest): PostsByUserResponse
 }

@@ -34,6 +34,48 @@ class UserV2Controller {
         return userV2Service.getUser(userId)
     }
 
+    @RequestMapping(value = ["/getPostsByUser"], method = [RequestMethod.GET])
+    fun getPostsByUser(@RequestParam userId: String,
+                       @RequestParam limit: Int,
+                       @RequestParam pagingState: String?): PostsByUserResponse {
+        securityProvider.validateRequest()
+        return userV2Service.getPostsByUser(
+            PostsByUserRequest(
+                userId,
+                limit,
+                pagingState
+            )
+        )
+    }
+
+    @RequestMapping(value = ["/getLikedPostsByUser"], method = [RequestMethod.GET])
+    fun getLikedPostsByUser(@RequestParam userId: String,
+                            @RequestParam limit: Int,
+                            @RequestParam pagingState: String?): LikedPostsByUserResponse {
+        securityProvider.validateRequest()
+        return userV2Service.getLikedPostsByUser(
+            LikedPostsByUserRequest(
+                userId,
+                limit,
+                pagingState
+            )
+        )
+    }
+
+    @RequestMapping(value = ["/getBookmarkedPostsByUser"], method = [RequestMethod.GET])
+    fun getBookmarkedPostsByUser(@RequestParam userId: String,
+                                 @RequestParam limit: Int,
+                                 @RequestParam pagingState: String?): BookmarkedPostsByUserResponse {
+        securityProvider.validateRequest()
+        return userV2Service.getBookmarkedPostsByUser(
+            BookmarkedPostsByUserRequest(
+                userId,
+                limit,
+                pagingState
+            )
+        )
+    }
+
     @RequestMapping(value = ["/getUserDetailsForProfilePage"], method = [RequestMethod.GET])
     fun getUserDetailsForProfilePage(@RequestParam userId: String): ProfilePageUserDetailsResponse? {
         securityProvider.validateRequest()

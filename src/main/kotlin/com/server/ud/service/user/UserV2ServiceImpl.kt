@@ -1,6 +1,9 @@
 package com.server.ud.service.user
 
 import com.server.ud.dto.*
+import com.server.ud.provider.post.BookmarkedPostsByUserProvider
+import com.server.ud.provider.post.LikedPostsByUserProvider
+import com.server.ud.provider.post.PostsByUserProvider
 import com.server.ud.provider.user.UserV2Provider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -10,6 +13,15 @@ class UserV2ServiceImpl : UserV2Service() {
 
     @Autowired
     private lateinit var userV2Provider: UserV2Provider
+
+    @Autowired
+    private lateinit var postsByUserProvider: PostsByUserProvider
+
+    @Autowired
+    private lateinit var likedPostsByUserProvider: LikedPostsByUserProvider
+
+    @Autowired
+    private lateinit var bookmarkedPostsByUserProvider: BookmarkedPostsByUserProvider
 
     override fun getUser(userId: String): SavedUserV2Response? {
         return userV2Provider.getUser(userId)?.toSavedUserV2Response()
@@ -46,4 +58,36 @@ class UserV2ServiceImpl : UserV2Service() {
     override fun getUserDetailsForProfilePage(userId: String): ProfilePageUserDetailsResponse? {
         return userV2Provider.getUser(userId)?.toProfilePageUserDetailsResponse()
     }
+
+    override fun getLikedPostsByUser(request: LikedPostsByUserRequest): LikedPostsByUserResponse {
+        val result = likedPostsByUserProvider.getLikedPostsByUser(request)
+        return LikedPostsByUserResponse(
+            posts = result.content?.filterNotNull()?.map { it.toLikedPostsByUserPostDetail() } ?: emptyList(),
+            count = result.count,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
+    }
+
+    override fun getBookmarkedPostsByUser(request: BookmarkedPostsByUserRequest): BookmarkedPostsByUserResponse {
+        val result = bookmarkedPostsByUserProvider.getBookmarkedPostsByUser(request)
+        return BookmarkedPostsByUserResponse(
+            posts = result.content?.filterNotNull()?.map { it.toBookmarkedPostsByUserPostDetail() } ?: emptyList(),
+            count = result.count,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
+    }
+
+    override fun getPostsByUser(request: PostsByUserRequest): PostsByUserResponse {
+        val result = postsByUserProvider.getPostsByUser(request)
+        return PostsByUserResponse(
+            posts = result.content?.filterNotNull()?.map { it.toPostsByUserPostDetail() } ?: emptyList(),
+            count = result.count,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
+    }
+
+
 }

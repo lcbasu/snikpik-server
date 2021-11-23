@@ -7,9 +7,80 @@ import com.server.common.enums.NotificationTokenProvider
 import com.server.common.enums.ProfileType
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
+import com.server.ud.entities.post.BookmarkedPostsByUser
+import com.server.ud.entities.post.LikedPostsByUser
+import com.server.ud.entities.post.PostsByUser
+import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getMediaDetailsForDP
 import com.server.ud.entities.user.getProfiles
+
+data class LikedPostsByUserPostDetail(
+    val likedByUserId: String,
+    val likedAt: Long,
+    override val postId: String,
+    override val userId: String,
+    override val createdAt: Long,
+    override val media: MediaDetailsV2?,
+    override val title: String?
+): PostMiniDetail
+
+data class LikedPostsByUserResponse(
+    val posts: List<LikedPostsByUserPostDetail>,
+    override val count: Int? = null,
+    override val pagingState: String? = null,
+    override val hasNext: Boolean? = null,
+): PaginationResponse(count, pagingState, hasNext)
+
+data class LikedPostsByUserRequest (
+    val userId: String,
+    override val limit: Int = 10,
+    override val pagingState: String? = null,
+): PaginationRequest(limit, pagingState)
+
+data class BookmarkedPostsByUserPostDetail(
+    val bookmarkedByUserId: String,
+    val bookmarkedAt: Long,
+    override val postId: String,
+    override val userId: String,
+    override val createdAt: Long,
+    override val media: MediaDetailsV2?,
+    override val title: String?
+): PostMiniDetail
+
+data class BookmarkedPostsByUserResponse(
+    val posts: List<BookmarkedPostsByUserPostDetail>,
+    override val count: Int? = null,
+    override val pagingState: String? = null,
+    override val hasNext: Boolean? = null,
+): PaginationResponse(count, pagingState, hasNext)
+
+data class BookmarkedPostsByUserRequest (
+    val userId: String,
+    override val limit: Int = 10,
+    override val pagingState: String? = null,
+): PaginationRequest(limit, pagingState)
+
+data class PostsByUserPostDetail(
+    override val postId: String,
+    override val userId: String,
+    override val createdAt: Long,
+    override val media: MediaDetailsV2?,
+    override val title: String?
+): PostMiniDetail
+
+data class PostsByUserResponse(
+    val posts: List<PostsByUserPostDetail>,
+    override val count: Int? = null,
+    override val pagingState: String? = null,
+    override val hasNext: Boolean? = null,
+): PaginationResponse(count, pagingState, hasNext)
+
+data class PostsByUserRequest (
+    val userId: String,
+    override val limit: Int = 10,
+    override val pagingState: String? = null,
+): PaginationRequest(limit, pagingState)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateUserV2HandleRequest (
@@ -126,6 +197,47 @@ fun UserV2.toProfilePageUserDetailsResponse(): ProfilePageUserDetailsResponse {
             verified = verified,
             profileToShow = getProfiles().firstOrNull()?.toProfileTypeResponse(),
             userLastLocationName = userLastLocationName,
+        )
+    }
+}
+
+fun LikedPostsByUser.toLikedPostsByUserPostDetail(): LikedPostsByUserPostDetail {
+    this.apply {
+        return LikedPostsByUserPostDetail(
+            postId = postId,
+            userId = postedByUserId,
+            media = getMediaDetails(),
+            title = title,
+            createdAt = DateUtils.getEpoch(postCreatedAt),
+            likedAt = DateUtils.getEpoch(createdAt),
+            likedByUserId = userId,
+        )
+    }
+}
+
+fun BookmarkedPostsByUser.toBookmarkedPostsByUserPostDetail(): BookmarkedPostsByUserPostDetail {
+    this.apply {
+        return BookmarkedPostsByUserPostDetail(
+            postId = postId,
+            userId = postedByUserId,
+            media = getMediaDetails(),
+            title = title,
+            createdAt = DateUtils.getEpoch(postCreatedAt),
+            bookmarkedAt = DateUtils.getEpoch(createdAt),
+            bookmarkedByUserId = userId,
+        )
+    }
+}
+
+
+fun PostsByUser.toPostsByUserPostDetail(): PostsByUserPostDetail {
+    this.apply {
+        return PostsByUserPostDetail(
+            postId = postId,
+            userId = userId,
+            media = getMediaDetails(),
+            title = title,
+            createdAt = DateUtils.getEpoch(createdAt),
         )
     }
 }

@@ -1,5 +1,6 @@
 package com.server.ud.provider.like
 
+import com.server.ud.provider.post.LikedPostsByUserProvider
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
@@ -30,6 +31,9 @@ class LikeProcessingProvider {
     @Autowired
     private lateinit var likesCountByUserProvider: LikesCountByUserProvider
 
+    @Autowired
+    private lateinit var likedPostsByUserProvider: LikedPostsByUserProvider
+
     fun processLike(likeId: String) {
         runBlocking {
             logger.info("Do like processing for likeId: $likeId")
@@ -39,11 +43,13 @@ class LikeProcessingProvider {
             val likesCountByResourceFuture = async { if (like.liked) likesCountByResourceProvider.increaseLike(like.resourceId) else likesCountByResourceProvider.decreaseLike(like.resourceId) }
             val likesCountByResourceAndUserFuture = async { likeForResourceByUserProvider.setLike(like.resourceId, like.userId, like.liked) }
             val likesCountByUserFuture = async { if (like.liked) likesCountByUserProvider.increaseLike(like.userId) else likesCountByUserProvider.decreaseLike(like.userId) }
+            val likedPostsByUserProviderFuture = async { likedPostsByUserProvider.processLike(like) }
             likesByResourceFuture.await()
             likesByUserFuture.await()
             likesCountByResourceFuture.await()
             likesCountByResourceAndUserFuture.await()
             likesCountByUserFuture.await()
+            likedPostsByUserProviderFuture.await()
         }
     }
 

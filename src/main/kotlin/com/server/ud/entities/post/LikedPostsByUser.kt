@@ -6,27 +6,39 @@ import com.server.dk.model.MediaDetailsV2
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagsList
-import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
 
-@Table("posts_by_user")
-class PostsByUser (
+// For Profile Page integration
+@Table("liked_posts_by_user")
+class LikedPostsByUser (
 
+    // A single post could have millions of saves. Hence, partitioning that date wise
     @PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var userId: String,
 
     @PrimaryKeyColumn(name = "post_type", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
     var postType: PostType,
 
-    @PrimaryKeyColumn(name = "created_at", ordinal = 2, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
-    var createdAt: Instant = DateUtils.getInstantNow(),
+    // Only get the ones that are marked as true
+    // Doing this as it is hard to delete in cassandra if someone removes like from a post
+    @PrimaryKeyColumn(name = "liked", ordinal = 2, type = PrimaryKeyType.PARTITIONED)
+    var liked: Boolean,
 
     @PrimaryKeyColumn(name = "post_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
     var postId: String,
+
+    @Column("created_at")
+    var createdAt: Instant = DateUtils.getInstantNow(),
+
+    @Column("post_created_at")
+    var postCreatedAt: Instant,
+
+    @Column("posted_by_user_id")
+    var postedByUserId: String,
 
     @Column
     var title: String? = null,
@@ -42,24 +54,9 @@ class PostsByUser (
 
     @Column
     var categories: String? = null, //  List of CategoryV2
-
-    @Column("location_id")
-    var locationId: String? = null,
-
-    @Column("zipcode")
-    var zipcode: String? = null,
-
-    @Column("location_name")
-    val locationName: String? = null,
-
-    @Column("location_lat")
-    val locationLat: Double? = null,
-
-    @Column("location_lng")
-    val locationLng: Double? = null,
 )
 
-fun PostsByUser.getMediaDetails(): MediaDetailsV2? {
+fun LikedPostsByUser.getMediaDetails(): MediaDetailsV2? {
     this.apply {
         return try {
             jacksonObjectMapper().readValue(media, MediaDetailsV2::class.java)
@@ -69,7 +66,7 @@ fun PostsByUser.getMediaDetails(): MediaDetailsV2? {
     }
 }
 
-fun PostsByUser.getHashTags(): HashTagsList {
+fun LikedPostsByUser.getHashTags(): HashTagsList {
     this.apply {
         return try {
             return jacksonObjectMapper().readValue(tags, HashTagsList::class.java)
@@ -80,7 +77,7 @@ fun PostsByUser.getHashTags(): HashTagsList {
     }
 }
 
-fun PostsByUser.getCategories(): Set<CategoryV2> {
+fun LikedPostsByUser.getCategories(): Set<CategoryV2> {
     this.apply {
         return try {
             val categoryIds = categories?.trim()?.split(",") ?: emptySet()
