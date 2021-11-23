@@ -2,6 +2,8 @@ package com.server.ud.controller
 
 import com.server.common.provider.SecurityProvider
 import com.server.ud.dto.*
+import com.server.ud.entities.social.FollowersCountByUser
+import com.server.ud.entities.social.FollowingsCountByUser
 import com.server.ud.service.user.UserV2Service
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
@@ -32,6 +34,16 @@ class UserV2Controller {
     fun getUser(@RequestParam userId: String): SavedUserV2Response? {
         securityProvider.validateRequest()
         return userV2Service.getUser(userId)
+    }
+
+    @RequestMapping(value = ["/getFollowersCountByUser"], method = [RequestMethod.GET])
+    fun getFollowersCountByUser(@RequestParam userId: String): FollowersCountByUser? {
+        return userV2Service.getFollowersCountByUser(userId)
+    }
+
+    @RequestMapping(value = ["/getFollowingsCountByUser"], method = [RequestMethod.GET])
+    fun getFollowingsCountByUser(@RequestParam userId: String): FollowingsCountByUser? {
+        return userV2Service.getFollowingsCountByUser(userId)
     }
 
     @RequestMapping(value = ["/getPostsByUser"], method = [RequestMethod.GET])

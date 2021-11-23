@@ -1,9 +1,13 @@
 package com.server.ud.service.user
 
 import com.server.ud.dto.*
+import com.server.ud.entities.social.FollowersCountByUser
+import com.server.ud.entities.social.FollowingsCountByUser
 import com.server.ud.provider.post.BookmarkedPostsByUserProvider
 import com.server.ud.provider.post.LikedPostsByUserProvider
 import com.server.ud.provider.post.PostsByUserProvider
+import com.server.ud.provider.social.FollowersCountByUserProvider
+import com.server.ud.provider.social.FollowingsCountByUserProvider
 import com.server.ud.provider.user.UserV2Provider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -22,6 +26,12 @@ class UserV2ServiceImpl : UserV2Service() {
 
     @Autowired
     private lateinit var bookmarkedPostsByUserProvider: BookmarkedPostsByUserProvider
+
+    @Autowired
+    private lateinit var followersCountByUserProvider: FollowersCountByUserProvider
+
+    @Autowired
+    private lateinit var followingsCountByUserProvider: FollowingsCountByUserProvider
 
     override fun getUser(userId: String): SavedUserV2Response? {
         return userV2Provider.getUser(userId)?.toSavedUserV2Response()
@@ -87,6 +97,14 @@ class UserV2ServiceImpl : UserV2Service() {
             hasNext = result.hasNext,
             pagingState = result.pagingState
         )
+    }
+
+    override fun getFollowersCountByUser(userId: String): FollowersCountByUser? {
+        return followersCountByUserProvider.getFollowersCountByUser(userId)
+    }
+
+    override fun getFollowingsCountByUser(userId: String): FollowingsCountByUser? {
+        return followingsCountByUserProvider.getFollowingsCountByUser(userId)
     }
 
 

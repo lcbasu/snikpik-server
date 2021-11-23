@@ -1,6 +1,8 @@
 package com.server.ud.service.user
 
 import com.server.ud.dto.*
+import com.server.ud.entities.social.FollowersCountByUser
+import com.server.ud.entities.social.FollowingsCountByUser
 
 abstract class UserV2Service {
     abstract fun getUser(userId: String): SavedUserV2Response?
@@ -15,4 +17,6 @@ abstract class UserV2Service {
     abstract fun getLikedPostsByUser(request: LikedPostsByUserRequest): LikedPostsByUserResponse
     abstract fun getBookmarkedPostsByUser(request: BookmarkedPostsByUserRequest): BookmarkedPostsByUserResponse
     abstract fun getPostsByUser(request: PostsByUserRequest): PostsByUserResponse
+    abstract fun getFollowersCountByUser(userId: String): FollowersCountByUser?
+    abstract fun getFollowingsCountByUser(userId: String): FollowingsCountByUser?
 }
