@@ -1,6 +1,7 @@
 package com.server.ud.dto
 
 import com.server.common.dto.ProfileTypeResponse
+import com.server.common.dto.toProfileTypeResponse
 import com.server.common.enums.ProfileCategory
 import com.server.common.enums.ProfileType
 import com.server.dk.model.MediaDetailsV2
@@ -12,7 +13,7 @@ data class MarketplaceUserDetail(
     val name: String?,
     val verified: Boolean,
     val dp: MediaDetailsV2?,
-    val profileTypeToShow: ProfileType,
+    val profileTypeToShow: ProfileTypeResponse,
     val locationName: String?,
 )
 
@@ -51,7 +52,7 @@ fun UsersByZipcodeAndProfileType.toMarketplaceUserDetail(): MarketplaceUserDetai
             name = fullName,
             dp = getMediaDetailsForDP(),
             // Here profile will always be present
-            profileTypeToShow = profileType,
+            profileTypeToShow = profileType.toProfileTypeResponse(),
             locationName = userLocationName,
             verified = verified
         )
