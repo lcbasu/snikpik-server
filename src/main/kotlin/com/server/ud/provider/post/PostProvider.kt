@@ -161,7 +161,7 @@ class PostProvider {
             logger.info("Labels updated for postId: ${post.postId} with labels: $labelsStr")
         } catch (e: Exception) {
             e.printStackTrace()
-            logger.info("Error while updating the for postId: ${post.postId}")
+            logger.error("Error while updating the for postId: ${post.postId}")
         }
     }
 
