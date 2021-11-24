@@ -197,20 +197,27 @@ class MediaHandlerProvider {
     }
 
     fun getLabelsForMedia(media: MediaDetailsV2?): Set<String> {
-        val labels = mutableSetOf<String>()
-        media?.media?.map {
-            when (it.mediaType) {
-                MediaType.IMAGE -> {
-                    val bk = getBucketAndKey(it)
-                    labels.addAll(
-                        getLabelsForImage(bucket = bk.bucket, imageKeyPath = bk.key)
-                    )
+        return try {
+            logger.info("Get labels for media: ${media?.toString()}")
+            val labels = mutableSetOf<String>()
+            media?.media?.map {
+                when (it.mediaType) {
+                    MediaType.IMAGE -> {
+                        val bk = getBucketAndKey(it)
+                        labels.addAll(
+                            getLabelsForImage(bucket = bk.bucket, imageKeyPath = bk.key)
+                        )
+                    }
+                    MediaType.VIDEO -> labels.addAll(emptySet())
+                    MediaType.GIF -> labels.addAll(emptySet())
                 }
-                MediaType.VIDEO -> labels.addAll(emptySet())
-                MediaType.GIF -> labels.addAll(emptySet())
             }
+            labels
+        } catch (e: Exception) {
+            e.printStackTrace()
+            logger.error("Error while getting the labels for media: ${media?.toString()}")
+            emptySet()
         }
-        return labels
     }
 
     fun getLabelsForImage(bucket: String, imageKeyPath: String): Set<String> {
