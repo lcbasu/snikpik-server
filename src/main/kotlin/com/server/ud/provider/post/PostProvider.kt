@@ -135,7 +135,7 @@ class PostProvider {
                 userMobile = user.absoluteMobile,
                 userHandle = user.handle,
                 userCountryCode = user.countryCode,
-                userProfile = user.getProfiles().firstOrNull()
+                userProfiles = user.getProfiles().joinToString(",")
             )
             val savedPost = postRepository.save(post)
             handlePostSaved(savedPost)

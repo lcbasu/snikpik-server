@@ -6,6 +6,7 @@ import com.server.ud.entities.es.post.ESPost
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.getGeoPointData
 import com.server.ud.entities.post.getHashTags
+import com.server.ud.entities.post.getUserProfiles
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -41,7 +42,7 @@ class ESPostProvider {
                 userMobile = post.userMobile,
                 userName = post.userName,
                 userCountryCode = post.userCountryCode,
-                userProfile = post.userProfile
+                userProfile = post.getUserProfiles().firstOrNull()
             )
             val savedESPost = esPostRepository.save(esPost)
 

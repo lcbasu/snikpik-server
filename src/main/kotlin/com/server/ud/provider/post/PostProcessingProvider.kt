@@ -1,9 +1,8 @@
 package com.server.ud.provider.post
 
+import com.algolia.search.SearchClient
 import com.server.ud.dto.GetFollowersRequest
-import com.server.ud.entities.post.PostsByFollowing
-import com.server.ud.entities.post.getCategories
-import com.server.ud.entities.post.getHashTags
+import com.server.ud.entities.post.*
 import com.server.ud.enums.CategoryV2
 import com.server.ud.provider.job.JobProvider
 import com.server.ud.provider.location.ESLocationProvider
@@ -60,6 +59,9 @@ class PostProcessingProvider {
 
     @Autowired
     private lateinit var nearbyPostsByZipcodeProvider: NearbyPostsByZipcodeProvider
+
+    @Autowired
+    private lateinit var searchClient: SearchClient
 
     @Autowired
     private lateinit var jobProvider: JobProvider
@@ -135,6 +137,15 @@ class PostProcessingProvider {
 
             // Schedule Heavy job to be done in isolation
             jobProvider.scheduleProcessingForPostForFollowers(postId)
+
+
+            logger.info("Try pushing post to algolia")
+            logger.info("START")
+
+            val index = searchClient.initIndex("posts", AlgoliaPost::class.java)
+            index.saveObject(post.toAlgoliaPost())
+
+            logger.info("END")
         }
     }
 

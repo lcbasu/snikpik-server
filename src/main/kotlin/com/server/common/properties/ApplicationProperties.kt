@@ -2,7 +2,6 @@ package com.server.common.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
-import java.io.File
 
 @ConstructorBinding
 @ConfigurationProperties("aws")
@@ -82,3 +81,7 @@ data class DatastaxProperties(val astra: AstraProperties) {
 @ConstructorBinding
 @ConfigurationProperties("cloudinary")
 data class CloudinaryProperties(val cloudName: String, val apiKey: String, val apiSecret: String)
+
+@ConstructorBinding
+@ConfigurationProperties("algolia")
+data class AlgoliaProperties(val applicationId: String, val apiKey: String)

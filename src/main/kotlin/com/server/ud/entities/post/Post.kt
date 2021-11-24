@@ -1,9 +1,11 @@
 package com.server.ud.entities.post
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.server.common.dto.toProfileTypeResponse
 import com.server.common.enums.ProfileType
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
+import com.server.ud.dto.toCategoryV2Response
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagsList
@@ -48,8 +50,8 @@ data class Post (
     @Column("user_country_code")
     var userCountryCode: String? = null,
 
-    @Column("user_profile")
-    var userProfile: ProfileType? = null,
+    @Column("user_profiles")
+    var userProfiles: String? = null,
 
     @Column
     var description: String? = null,
@@ -81,6 +83,23 @@ data class Post (
     @Column("location_lng")
     val locationLng: Double? = null,
 )
+
+fun Post.getUserProfiles(): Set<ProfileType> {
+    this.apply {
+        return try {
+            if (userProfiles.isNullOrBlank()) {
+                return emptySet()
+            }
+            val profileIds = userProfiles?.trim()?.split(",") ?: emptySet()
+            return profileIds.map {
+                ProfileType.valueOf(it)
+            }.toSet()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptySet()
+        }
+    }
+}
 
 fun Post.getMediaDetails(): MediaDetailsV2? {
     this.apply {
@@ -126,3 +145,29 @@ fun Post.getCategories(): Set<CategoryV2> {
     }
 }
 
+
+fun Post.toAlgoliaPost(): AlgoliaPost {
+    this.apply {
+        return AlgoliaPost(
+            objectID = postId,
+            createdAt = DateUtils.getEpoch(createdAt),
+            userId = userId,
+            postType = postType,
+            title = title,
+            userHandle = userHandle,
+            userName = userName,
+            userMobile = userMobile,
+            userProfiles = getUserProfiles().map { it.toProfileTypeResponse() }.toSet(),
+            description = description,
+            media = getMediaDetails(),
+            tags = getHashTags(),
+            categories = getCategories().map { it.toCategoryV2Response() },
+            locationId = locationId,
+            googlePlaceId = googlePlaceId,
+            zipcode = zipcode,
+            locationName = locationName,
+            locationLat = locationLat,
+            locationLng = locationLng,
+        )
+    }
+}
