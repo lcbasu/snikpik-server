@@ -168,6 +168,10 @@ fun Post.toAlgoliaPost(): AlgoliaPost {
             locationName = locationName,
             locationLat = locationLat,
             locationLng = locationLng,
+            _geoloc = if (locationLat != null && locationLng != null) GeoLoc(
+                lat = locationLat,
+                lng = locationLng
+            ) else null
         )
     }
 }

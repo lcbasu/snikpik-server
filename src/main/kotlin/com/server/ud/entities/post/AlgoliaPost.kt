@@ -6,6 +6,11 @@ import com.server.ud.dto.CategoryV2Response
 import com.server.ud.enums.PostType
 import com.server.ud.model.HashTagsList
 
+data class GeoLoc (
+    val lat: Double,
+    val lng: Double
+)
+
 data class AlgoliaPost (
     var objectID: String,
     var createdAt: Long,
@@ -26,4 +31,5 @@ data class AlgoliaPost (
     val locationName: String? = null,
     val locationLat: Double? = null,
     val locationLng: Double? = null,
+    val _geoloc: GeoLoc? = null,
 )
