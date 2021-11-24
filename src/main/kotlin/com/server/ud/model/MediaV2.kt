@@ -20,3 +20,4 @@ data class MediaOutputDetail(
 )
 
 data class FileInfo (val userId: String, val fileUniqueId: String)
+data class BucketAndKey (val bucket: String, val key: String)

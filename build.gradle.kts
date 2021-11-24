@@ -74,6 +74,7 @@ dependencies {
 	implementation("org.hibernate.validator:hibernate-validator:6.1.5.Final")
 	implementation("joda-time:joda-time:2.10.9")
 	implementation("com.github.ben-manes.caffeine:caffeine:2.5.5")
+	implementation("software.amazon.awssdk:rekognition:2.17.87")
 	implementation("com.amazonaws:aws-java-sdk-s3:1.12.99")
 	implementation("com.amazonaws:aws-java-sdk-core:1.12.99")
 	implementation("com.github.javafaker:javafaker:0.15")

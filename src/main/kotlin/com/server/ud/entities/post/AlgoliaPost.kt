@@ -32,4 +32,5 @@ data class AlgoliaPost (
     val locationLat: Double? = null,
     val locationLng: Double? = null,
     val _geoloc: GeoLoc? = null,
+    val labels: Set<String> = emptySet(),
 )

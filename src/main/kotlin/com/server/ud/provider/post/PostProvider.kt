@@ -154,6 +154,16 @@ class PostProvider {
         }
     }
 
+    fun updateLabels(post: Post, labels: Set<String>) {
+        try {
+            val labelsStr = labels.joinToString(",")
+            postRepository.save(post.copy(labels = labelsStr))
+            logger.info("Labels updated for postId: ${post.postId} with labels: $labelsStr")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     private fun handlePostSaved(savedPost: Post) {
 
         val videoMedia = savedPost.getMediaDetails()?.media?.filter { it.mediaType == MediaType.VIDEO } ?: emptyList()

@@ -24,6 +24,8 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.rekognition.RekognitionClient
 import javax.net.ssl.SSLContext
 
 @Configuration
@@ -109,9 +111,15 @@ class AwsClients {
             .withLocalDatacenter("ap-south-1")
             .withSslContext(SSLContext.getDefault())
             .withKeyspace("dk_unboxd_db")
-
             //.withCloudSecureConnectBundle(objectData)
         }
+    }
+
+    @Bean
+    fun awsRekognitionClient(): RekognitionClient? {
+        return RekognitionClient.builder()
+            .region(Region.AP_SOUTH_1)
+            .build()
     }
 
 }

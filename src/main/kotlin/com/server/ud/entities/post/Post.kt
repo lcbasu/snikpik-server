@@ -35,6 +35,9 @@ data class Post (
     @CassandraType(type = CassandraType.Name.TIMESTAMP)
     var postType: PostType,
 
+    @Column("labels")
+    var labels: String? = null,
+
     @Column
     var title: String? = null,
 
@@ -83,6 +86,20 @@ data class Post (
     @Column("location_lng")
     val locationLng: Double? = null,
 )
+
+fun Post.getLabels(): Set<String> {
+    this.apply {
+        return try {
+            if (labels.isNullOrBlank()) {
+                return emptySet()
+            }
+            return labels?.trim()?.split(",")?.toSet() ?: emptySet()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptySet()
+        }
+    }
+}
 
 fun Post.getUserProfiles(): Set<ProfileType> {
     this.apply {
@@ -171,7 +188,8 @@ fun Post.toAlgoliaPost(): AlgoliaPost {
             _geoloc = if (locationLat != null && locationLng != null) GeoLoc(
                 lat = locationLat,
                 lng = locationLng
-            ) else null
+            ) else null,
+            labels = getLabels()
         )
     }
 }

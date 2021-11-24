@@ -1,9 +1,13 @@
 package com.server.common.provider
 
+import com.server.common.enums.MediaType
 import com.server.common.utils.CommonUtils
+import com.server.dk.model.MediaDetailsV2
+import com.server.dk.model.SingleMediaDetail
 import com.server.ud.dao.MediaProcessingDetailRepository
 import com.server.ud.entities.MediaProcessingDetail
 import com.server.ud.enums.ResourceType
+import com.server.ud.model.BucketAndKey
 import com.server.ud.model.FileInfo
 import com.server.ud.model.MediaInputDetail
 import com.server.ud.model.MediaOutputDetail
@@ -14,6 +18,12 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import software.amazon.awssdk.services.rekognition.RekognitionClient
+import software.amazon.awssdk.services.rekognition.model.DetectLabelsRequest
+import software.amazon.awssdk.services.rekognition.model.Image
+import software.amazon.awssdk.services.rekognition.model.RekognitionException
+import software.amazon.awssdk.services.rekognition.model.S3Object
+
 
 @Component
 class MediaHandlerProvider {
@@ -22,6 +32,9 @@ class MediaHandlerProvider {
 
     @Autowired
     private lateinit var mediaProcessingDetailRepository: MediaProcessingDetailRepository
+
+    @Autowired
+    private lateinit var awsRekognitionClient: RekognitionClient
 
     @Autowired
     private lateinit var postProvider: PostProvider
@@ -171,6 +184,79 @@ class MediaHandlerProvider {
             FileInfo(userId = userId, fileUniqueId = fileUniqueId)
         } else {
             error("Failed to get uniqueFileId for processed video with fileName: $fileName")
+        }
+    }
+
+    fun getBucketAndKey(singleMediaDetail: SingleMediaDetail): BucketAndKey {
+        val bareFile = singleMediaDetail.mediaUrl.replace("http://", "").replace("https://", "")
+        val key = bareFile.substring(bareFile.indexOf("/")+1)
+        return BucketAndKey(
+            bucket = "unboxed-video-ingestion-to-deliver-source71e471f1-1uyj9h1m9ewum",
+            key = key
+        )
+    }
+
+    fun getLabelsForMedia(media: MediaDetailsV2?): Set<String> {
+        val labels = mutableSetOf<String>()
+        media?.media?.map {
+            when (it.mediaType) {
+                MediaType.IMAGE -> {
+                    val bk = getBucketAndKey(it)
+                    labels.addAll(
+                        getLabelsForImage(bucket = bk.bucket, imageKeyPath = bk.key)
+                    )
+                }
+                MediaType.VIDEO -> labels.addAll(emptySet())
+                MediaType.GIF -> labels.addAll(emptySet())
+            }
+        }
+        return labels
+    }
+
+    fun getLabelsForImage(bucket: String, imageKeyPath: String): Set<String> {
+        try {
+            val s3Object: S3Object = S3Object.builder()
+                .bucket(bucket)
+                .name(imageKeyPath)
+                .build()
+
+            val myImage: Image = Image.builder()
+                .s3Object(s3Object)
+                .build()
+
+            val detectLabelsRequest: DetectLabelsRequest = DetectLabelsRequest.builder()
+                .image(myImage)
+                .maxLabels(10)
+                .build()
+
+            val labelsResponse = awsRekognitionClient.detectLabels(detectLabelsRequest)
+            val labels = labelsResponse.labels()
+
+            // Keep everything that has > 50% confidence
+            return labels.filter { it.confidence() > 0.5f }.map {
+                it.name()
+            }.toSet()
+        } catch (e: RekognitionException) {
+            e.printStackTrace()
+            return emptySet()
+        }
+    }
+
+    /**
+     *
+     * TODO: Implement when we have money to support this.
+     * https://github.com/awsdocs/aws-doc-sdk-examples/blob/main/javav2/example_code/rekognition/src/main/java/com/example/rekognition/VideoDetect.java#L98
+     *
+     */
+    fun getLabelsForVideo(bucket: String, videoKeyPath: String): Set<String> {
+        try {
+            return emptySet()
+        } catch (e: RekognitionException) {
+            e.printStackTrace()
+            return emptySet()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+            return emptySet()
         }
     }
 

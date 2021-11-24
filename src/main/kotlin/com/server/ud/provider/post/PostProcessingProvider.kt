@@ -1,6 +1,7 @@
 package com.server.ud.provider.post
 
 import com.algolia.search.SearchClient
+import com.server.common.provider.MediaHandlerProvider
 import com.server.ud.dto.GetFollowersRequest
 import com.server.ud.entities.post.*
 import com.server.ud.enums.CategoryV2
@@ -64,6 +65,9 @@ class PostProcessingProvider {
     private lateinit var searchClient: SearchClient
 
     @Autowired
+    private lateinit var mediaHandlerProvider: MediaHandlerProvider
+
+    @Autowired
     private lateinit var jobProvider: JobProvider
 
     fun postProcessPost(postId: String) {
@@ -76,51 +80,64 @@ class PostProcessingProvider {
         runBlocking {
             logger.info("Do post processing for postId: $postId")
             val post = postProvider.getPost(postId) ?: error("No post found for $postId while doing post processing.")
-            val esLocation = post.locationId?.let { esLocationProvider.getLocation(it) }
+            val labels = mediaHandlerProvider.getLabelsForMedia(post.getMediaDetails())
+
+            val updatedPost = if (labels.isNotEmpty()) {
+                postProvider.updateLabels(post, labels)
+                postProvider.getPost(postId) ?: error("No post found for $postId while doing post processing.")
+            } else {
+                post
+            }
+            val esLocation = updatedPost.locationId?.let { esLocationProvider.getLocation(it) }
             if (esLocation == null) {
                 // Location not processed.
                 // Process the location
-                locationProcessingProvider.processLocation(post.locationId!!)
+                locationProcessingProvider.processLocation(updatedPost.locationId!!)
             }
 
             val postsByUserFuture = async {
-                postsByUserProvider.save(post)
+                postsByUserProvider.save(updatedPost)
             }
 
             val postsCountByUserFuture = async {
-                postsCountByUserProvider.increasePostCount(post.userId)
+                postsCountByUserProvider.increasePostCount(updatedPost.userId)
             }
 
             val postsByZipcodeFuture = async {
-                postsByZipcodeProvider.save(post)
+                postsByZipcodeProvider.save(updatedPost)
             }
 
             val savePostIntoNearbyZipcode = async {
-                nearbyPostsByZipcodeProvider.save(post)
+                nearbyPostsByZipcodeProvider.save(updatedPost)
             }
 
             val categoriesFeedFuture = async {
-                post.getCategories()
+                updatedPost.getCategories()
                     .map { async { postsByCategoryProvider.save(post, it) } }
                     .map { it.await() }
             }
 
             val allCategoryFeedFuture = async {
-                postsByCategoryProvider.save(post, CategoryV2.ALL)
+                postsByCategoryProvider.save(updatedPost, CategoryV2.ALL)
             }
 
             val hashTagsFeedFuture = async {
-                post.getHashTags().tags
+                updatedPost.getHashTags().tags
                     .map { async { postsByHashTagProvider.save(post, it) } }
                     .map { it.await() }
             }
 
             val savePostToESFuture = async {
-                esPostProvider.save(post)
+                esPostProvider.save(updatedPost)
             }
 
             val savePostAutoSuggestToESFuture = async {
-                esPostAutoSuggestProvider.save(post)
+                esPostAutoSuggestProvider.save(updatedPost)
+            }
+
+            val algoliaIndexingFuture = async {
+                val index = searchClient.initIndex("posts", AlgoliaPost::class.java)
+                index.saveObject(updatedPost.toAlgoliaPost())
             }
 
             postsByUserFuture.await()
@@ -132,18 +149,12 @@ class PostProcessingProvider {
             hashTagsFeedFuture.await()
             savePostToESFuture.await()
             savePostAutoSuggestToESFuture.await()
+            algoliaIndexingFuture.await()
 
             logger.info("Post processing completed for postId: $postId")
 
             // Schedule Heavy job to be done in isolation
             jobProvider.scheduleProcessingForPostForFollowers(postId)
-
-
-            logger.info("Try pushing post to algolia")
-            logger.info("START")
-
-            val index = searchClient.initIndex("posts", AlgoliaPost::class.java)
-            index.saveObject(post.toAlgoliaPost())
 
             logger.info("END")
         }
