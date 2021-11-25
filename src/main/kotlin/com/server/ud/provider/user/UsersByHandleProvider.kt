@@ -44,7 +44,6 @@ class UsersByHandleProvider {
                 userId = userV2.userId
             ))
             logger.info("Saved UsersByHandle into cassandra for userId: ${savedUsersByHandle.userId}")
-            logger.info("Completed")
             return savedUsersByHandle
         } catch (e: Exception) {
             logger.error("Saving UsersByHandle into cassandra failed for userId: ${userV2.userId}")

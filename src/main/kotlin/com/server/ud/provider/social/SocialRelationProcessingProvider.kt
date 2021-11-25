@@ -2,8 +2,9 @@ package com.server.ud.provider.social
 
 import com.server.common.utils.CommonUtils
 import com.server.ud.provider.user.UserV2Provider
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -39,8 +40,8 @@ class SocialRelationProcessingProvider {
     }
 
     fun processSocialRelation(fromUserId: String, toUserId: String) {
-        runBlocking {
-            logger.info("Do social relationship processing for fromUserId: $fromUserId & toUserId: $toUserId")
+        GlobalScope.launch {
+            logger.info("Start: social relationship processing for fromUserId: $fromUserId & toUserId: $toUserId")
 
             val socialRelation = socialRelationProvider.getSocialRelation(
                 fromUserId = fromUserId,
@@ -97,6 +98,7 @@ class SocialRelationProcessingProvider {
                 // Since we can not actually delete in cassandra, mark a flag in the table
                 // to indicate that this data is deleted
             }
+            logger.info("Done: social relationship processing for fromUserId: $fromUserId & toUserId: $toUserId")
         }
     }
 

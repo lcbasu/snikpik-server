@@ -26,6 +26,6 @@ class Producer {
             .withMessageDeduplicationId(messageDedupID) // deduplication Id
             .withDelaySeconds(5)
         messagingTemplate.convertAndSend(QUEUE_NAME, sendMessageRequest)
-        logger.info("message sent")
+        logger.info("Message sent with messagePayload: $messagePayload, messageGroupID: $messageGroupID, and messageDedupID: $messageDedupID")
     }
 }

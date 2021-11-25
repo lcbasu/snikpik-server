@@ -1,7 +1,8 @@
 package com.server.ud.provider.user
 
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -34,8 +35,8 @@ class UserV2ProcessingProvider {
     private lateinit var usersByZipcodeProvider: UsersByZipcodeProvider
 
     fun processUserV2(userId: String) {
-        runBlocking {
-            logger.info("Do UserV2 processing for userId: $userId")
+        GlobalScope.launch {
+            logger.info("Start: UserV2 processing for userId: $userId")
 
             val user = userV2Provider.getUser(userId) ?: error("No user found for $userId while doing user processing.")
 
@@ -69,7 +70,8 @@ class UserV2ProcessingProvider {
             usersByZipcodeAndProfileFuture.await()
             profileTypesByZipcodeAndProfileCategoryProviderFuture.await()
             usersByZipcodeFuture.await()
-            logger.info("Completed")
+
+            logger.info("Done: UserV2 processing for userId: $userId")
         }
     }
 

@@ -38,7 +38,7 @@ class UsersByZipcodeProvider {
                 profiles = userV2.profiles,
                 fullName = userV2.fullName,
             )
-            logger.info("Completed")
+            logger.info("UsersByZipcode saved for userId: ${userV2.userId}")
             return usersByZipcodeRepository.save(usersByZipcode)
         } catch (e: Exception) {
             logger.error("Saving UsersByZipcode filed for userId: ${userV2.userId}.")

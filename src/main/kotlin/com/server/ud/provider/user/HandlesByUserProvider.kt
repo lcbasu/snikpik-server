@@ -26,10 +26,10 @@ class HandlesByUserProvider {
                 userId = userV2.userId,
                 handle = userV2.handle!!,
             )
-            logger.info("Completed")
+            logger.info("HandlesByUser saved for userId: ${userV2.userId}")
             return handlesByUserRepository.save(handlesByUser)
         } catch (e: Exception) {
-            logger.error("Saving HandlesByUser filed for userId: ${userV2.userId}.")
+            logger.error("Saving HandlesByUser failed for userId: ${userV2.userId}.")
             e.printStackTrace()
             return null
         }

@@ -188,7 +188,7 @@ class FakerProvider {
 
         for (i in 1..request.countOfPost) {
             val postType = PostType.values().toList().shuffled().first()
-            val categories = CategoryV2.values().toList().shuffled().take(Random.nextInt(1, CategoryV2.values().size))
+            val categories = CategoryV2.values().filter { it != CategoryV2.ALL }.toList().shuffled().take(Random.nextInt(1, CategoryV2.values().size))
             val req = SavePostRequest(
                 postType = postType,
                 title = faker.book().title(),

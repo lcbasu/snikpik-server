@@ -37,7 +37,7 @@ class UsersByProfileTypeProvider {
                     fullName = userV2.fullName,
                 )
             }
-            logger.info("Completed")
+            logger.info("UsersByProfileType saved for userId: ${userV2.userId}")
             return usersByProfileTypeRepository.saveAll(usersByProfiles)
         } catch (e: Exception) {
             logger.error("Saving UsersByProfileType filed for userId: ${userV2.userId}.")

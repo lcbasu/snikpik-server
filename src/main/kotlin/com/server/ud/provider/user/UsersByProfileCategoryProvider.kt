@@ -37,7 +37,7 @@ class UsersByProfileCategoryProvider {
                     fullName = userV2.fullName,
                 )
             }
-            logger.info("Completed")
+            logger.info("UsersByProfileCategory saved for userId: ${userV2.userId}")
             return usersByProfileCategoryRepository.saveAll(usersByProfiles)
         } catch (e: Exception) {
             logger.error("Saving UsersByProfileCategory filed for userId: ${userV2.userId}.")

@@ -55,6 +55,9 @@ enum class CategoryV2(
             media = emptyList()
         )
     ),
+
+    // Only used for filtering
+    // But user should not be saving any post with category ALL
     ALL(
         CategoryGroupV2.HOME,
         0,

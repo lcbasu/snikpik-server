@@ -1,8 +1,9 @@
 package com.server.ud.provider.bookmark
 
 import com.server.ud.provider.post.BookmarkedPostsByUserProvider
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -35,8 +36,8 @@ class BookmarkProcessingProvider {
     private lateinit var bookmarkedPostsByUserProvider: BookmarkedPostsByUserProvider
 
     fun processBookmark(bookmarkId: String) {
-        runBlocking {
-            logger.info("Do bookmark processing for bookmarkId: $bookmarkId")
+        GlobalScope.launch {
+            logger.info("Start: bookmark processing for bookmarkId: $bookmarkId")
             val bookmark = bookmarksProvider.getBookmark(bookmarkId) ?: error("Failed to get bookmark data for bookmarkId: $bookmarkId")
             val bookmarksByResourceFuture = async { bookmarksByResourceProvider.save(bookmark) }
             val bookmarksByUserFuture = async { bookmarksByUserProvider.save(bookmark) }
@@ -50,6 +51,7 @@ class BookmarkProcessingProvider {
             bookmarksCountByResourceAndUserFuture.await()
             bookmarksCountByUserFuture.await()
             bookmarkedPostsByUserProviderFuture.await()
+            logger.info("Done: bookmark processing for bookmarkId: $bookmarkId")
         }
     }
 

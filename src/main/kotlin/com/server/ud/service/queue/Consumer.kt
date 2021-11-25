@@ -15,6 +15,7 @@ import com.server.ud.provider.social.SocialRelationProcessingProvider
 import com.server.ud.provider.user.UserV2ProcessingProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.aws.messaging.listener.SqsMessageDeletionPolicy
@@ -58,7 +59,7 @@ class Consumer {
     fun receiveStringMessage(message: String?) {
         logger.info("Message received $message")
 
-        GlobalScope.async {
+        GlobalScope.launch {
             val messageMap = try {
                 jacksonObjectMapper().readValue(message, MutableMap::class.java)
             } catch (e: Exception) {

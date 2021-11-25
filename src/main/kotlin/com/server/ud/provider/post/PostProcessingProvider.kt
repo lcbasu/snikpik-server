@@ -10,8 +10,9 @@ import com.server.ud.provider.location.ESLocationProvider
 import com.server.ud.provider.location.LocationProcessingProvider
 import com.server.ud.provider.social.FollowersByUserProvider
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -77,8 +78,8 @@ class PostProcessingProvider {
         // Follower Feed
         // Category Feed
         // Tags Feed
-        runBlocking {
-            logger.info("Do post processing for postId: $postId")
+        GlobalScope.launch {
+            logger.info("Start: post processing for postId: $postId")
             val post = postProvider.getPost(postId) ?: error("No post found for $postId while doing post processing.")
             val labels = mediaHandlerProvider.getLabelsForMedia(post.getMediaDetails())
 
@@ -151,12 +152,10 @@ class PostProcessingProvider {
             savePostAutoSuggestToESFuture.await()
             algoliaIndexingFuture.await()
 
-            logger.info("Post processing completed for postId: $postId")
-
             // Schedule Heavy job to be done in isolation
             deferredProcessingProvider.deferProcessingForPostForFollowers(postId)
 
-            logger.info("END")
+            logger.info("Done: post processing for postId: $postId")
         }
     }
 
@@ -167,7 +166,7 @@ class PostProcessingProvider {
         // Follower Feed
         // Category Feed
         // Tags Feed
-        runBlocking {
+        GlobalScope.launch {
             logger.info("Do post processing for postId: $postId for followers of the original poster.")
             val post = postProvider.getPost(postId) ?: error("No post found for $postId while doing post processing.")
             val userId = post.userId

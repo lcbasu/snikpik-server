@@ -1,7 +1,8 @@
 package com.server.ud.provider.comment
 
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,8 +29,8 @@ class CommentProcessingProvider {
     private lateinit var commentForPostByUserProvider: CommentForPostByUserProvider
 
     fun processComment(commentId: String) {
-        runBlocking {
-            logger.info("Do comment processing for commentId: $commentId")
+        GlobalScope.launch {
+            logger.info("Start: comment processing for commentId: $commentId")
             val postComment = commentProvider.getComment(commentId) ?: error("Failed to get comments data for commentId: $commentId")
             val commentsByPostFuture = async { commentsByPostProvider.save(postComment) }
             val commentsByUserFuture = async { commentsByUserProvider.save(postComment) }
@@ -39,6 +40,7 @@ class CommentProcessingProvider {
             commentsByUserFuture.await()
             commentsCountByPostFuture.await()
             commentForPostByUserFuture.await()
+            logger.info("Done: comment processing for commentId: $commentId")
         }
     }
 }

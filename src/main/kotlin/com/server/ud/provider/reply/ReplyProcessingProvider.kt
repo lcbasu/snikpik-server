@@ -1,7 +1,8 @@
 package com.server.ud.provider.reply
 
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,8 +26,8 @@ class ReplyProcessingProvider {
     private lateinit var replyForCommentByUserProvider: ReplyForCommentByUserProvider
 
     fun processReply(replyId: String) {
-        runBlocking {
-            logger.info("Do reply processing for replyId: $replyId")
+        GlobalScope.launch {
+            logger.info("Start: reply processing for replyId: $replyId")
             val reply = replyProvider.getCommentReply(replyId) ?: error("Failed to get reply for replyId: $replyId")
             val repliesByCommentFuture = async { repliesByCommentProvider.save(reply) }
             val repliesCountByCommentFuture = async { repliesCountByCommentProvider.increaseRepliesCount(reply.commentId) }
@@ -34,6 +35,7 @@ class ReplyProcessingProvider {
             repliesByCommentFuture.await()
             repliesCountByCommentFuture.await()
             replyForCommentByUserFuture.await()
+            logger.info("Done: reply processing for replyId: $replyId")
         }
     }
 }

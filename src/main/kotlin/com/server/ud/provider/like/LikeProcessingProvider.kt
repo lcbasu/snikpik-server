@@ -1,8 +1,9 @@
 package com.server.ud.provider.like
 
 import com.server.ud.provider.post.LikedPostsByUserProvider
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -35,8 +36,8 @@ class LikeProcessingProvider {
     private lateinit var likedPostsByUserProvider: LikedPostsByUserProvider
 
     fun processLike(likeId: String) {
-        runBlocking {
-            logger.info("Do like processing for likeId: $likeId")
+        GlobalScope.launch {
+            logger.info("Start: like processing for likeId: $likeId")
             val like = likesProvider.getLike(likeId) ?: error("Failed to get like data for likeId: $likeId")
             val likesByResourceFuture = async { likesByResourceProvider.save(like) }
             val likesByUserFuture = async { likesByUserProvider.save(like) }
@@ -50,6 +51,7 @@ class LikeProcessingProvider {
             likesCountByResourceAndUserFuture.await()
             likesCountByUserFuture.await()
             likedPostsByUserProviderFuture.await()
+            logger.info("Done: like processing for likeId: $likeId")
         }
     }
 
