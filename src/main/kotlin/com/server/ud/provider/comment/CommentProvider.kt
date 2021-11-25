@@ -7,7 +7,7 @@ import com.server.dk.model.convertToString
 import com.server.ud.dao.comment.CommentRepository
 import com.server.ud.dto.SaveCommentRequest
 import com.server.ud.entities.comment.Comment
-import com.server.ud.provider.job.JobProvider
+import com.server.ud.provider.deferred.DeferredProcessingProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,7 +23,7 @@ class CommentProvider {
     private lateinit var commentRepository: CommentRepository
 
     @Autowired
-    private lateinit var jobProvider: JobProvider
+    private lateinit var deferredProcessingProvider: DeferredProcessingProvider
 
     @Autowired
     private lateinit var randomIdProvider: RandomIdProvider
@@ -53,7 +53,7 @@ class CommentProvider {
                 media = request.mediaDetails?.convertToString(),
             )
             val savedComment = commentRepository.save(comment)
-            jobProvider.scheduleProcessingForComment(savedComment.commentId)
+            deferredProcessingProvider.deferProcessingForComment(savedComment.commentId)
             return savedComment
         } catch (e: Exception) {
             e.printStackTrace()

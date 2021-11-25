@@ -1,5 +1,6 @@
 package com.server.ud.provider.social
 
+import com.server.common.utils.CommonUtils
 import com.server.ud.provider.user.UserV2Provider
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -30,6 +31,12 @@ class SocialRelationProcessingProvider {
 
     @Autowired
     private lateinit var userV2Provider: UserV2Provider
+
+    fun processSocialRelation(socialRelationId: String) {
+        val fromUserId = socialRelationId.split(CommonUtils.STRING_SEPARATOR)[0]
+        val toUserId = socialRelationId.split(CommonUtils.STRING_SEPARATOR)[1]
+        processSocialRelation(fromUserId = fromUserId, toUserId = toUserId)
+    }
 
     fun processSocialRelation(fromUserId: String, toUserId: String) {
         runBlocking {

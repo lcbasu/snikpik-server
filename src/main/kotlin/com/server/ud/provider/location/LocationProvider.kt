@@ -6,7 +6,7 @@ import com.server.ud.dao.location.LocationRepository
 import com.server.ud.dto.SaveLocationRequest
 import com.server.ud.entities.location.Location
 import com.server.ud.enums.LocationFor
-import com.server.ud.provider.job.JobProvider
+import com.server.ud.provider.deferred.DeferredProcessingProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,7 +29,7 @@ class LocationProvider {
     private lateinit var randomIdProvider: RandomIdProvider
 
     @Autowired
-    private lateinit var jobProvider: JobProvider
+    private lateinit var deferredProcessingProvider: DeferredProcessingProvider
 
     fun getLocation(locationId: String): Location? =
         try {
@@ -59,7 +59,7 @@ class LocationProvider {
             )
             val savedLocation = locationRepository.save(location)
             logger.info("Saved location into cassandra with locationId: ${savedLocation.locationId}")
-            jobProvider.scheduleProcessingForLocation(savedLocation.locationId)
+            deferredProcessingProvider.deferProcessingForLocation(savedLocation.locationId)
             return savedLocation
         } catch (e: Exception) {
             logger.error("Saved location into cassandra failed for request: $request for userId: ${userId}")
@@ -90,7 +90,7 @@ class LocationProvider {
             )
             val savedLocation = locationRepository.save(location)
             logger.info("Saved location into cassandra with locationId: ${savedLocation.locationId}")
-            jobProvider.scheduleProcessingForLocation(savedLocation.locationId)
+            deferredProcessingProvider.deferProcessingForLocation(savedLocation.locationId)
             return savedLocation
         } catch (e: Exception) {
             logger.error("Saved location into cassandra failed locationFor: $locationFor for userId: $userId")

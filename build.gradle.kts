@@ -35,6 +35,7 @@ dependencies {
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools:2.3.8.RELEASE")
 
+	implementation("org.springframework.cloud:spring-cloud-starter-aws-messaging:2.2.6.RELEASE")
 	implementation("com.algolia:algoliasearch-core:3.10.0")
 	implementation("com.algolia:algoliasearch-apache:3.10.0")
 	implementation("com.cloudinary:cloudinary-http44:1.29.0")

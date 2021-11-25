@@ -5,7 +5,7 @@ import com.server.ud.dao.social.SocialRelationRepository
 import com.server.ud.dto.FollowersResponse
 import com.server.ud.dto.GetFollowersRequest
 import com.server.ud.entities.social.SocialRelation
-import com.server.ud.provider.job.JobProvider
+import com.server.ud.provider.deferred.DeferredProcessingProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,7 +20,7 @@ class SocialRelationProvider {
     private lateinit var socialRelationRepository: SocialRelationRepository
 
     @Autowired
-    private lateinit var jobProvider: JobProvider
+    private lateinit var deferredProcessingProvider: DeferredProcessingProvider
 
     @Autowired
     private lateinit var followersByUserProvider: FollowersByUserProvider
@@ -47,7 +47,7 @@ class SocialRelationProvider {
             )
             val savedRelation = socialRelationRepository.save(relation)
             if (scheduleJob) {
-                jobProvider.scheduleProcessingForSocialRelation(getId(savedRelation))
+                deferredProcessingProvider.deferProcessingForSocialRelation(getId(savedRelation))
             }
             return savedRelation
         } catch (e: Exception) {

@@ -5,7 +5,7 @@ import com.server.common.provider.MediaHandlerProvider
 import com.server.ud.dto.GetFollowersRequest
 import com.server.ud.entities.post.*
 import com.server.ud.enums.CategoryV2
-import com.server.ud.provider.job.JobProvider
+import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.location.ESLocationProvider
 import com.server.ud.provider.location.LocationProcessingProvider
 import com.server.ud.provider.social.FollowersByUserProvider
@@ -68,7 +68,7 @@ class PostProcessingProvider {
     private lateinit var mediaHandlerProvider: MediaHandlerProvider
 
     @Autowired
-    private lateinit var jobProvider: JobProvider
+    private lateinit var deferredProcessingProvider: DeferredProcessingProvider
 
     fun postProcessPost(postId: String) {
         // Update
@@ -154,7 +154,7 @@ class PostProcessingProvider {
             logger.info("Post processing completed for postId: $postId")
 
             // Schedule Heavy job to be done in isolation
-            jobProvider.scheduleProcessingForPostForFollowers(postId)
+            deferredProcessingProvider.deferProcessingForPostForFollowers(postId)
 
             logger.info("END")
         }

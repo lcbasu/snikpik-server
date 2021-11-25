@@ -7,6 +7,8 @@ import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
+import com.amazonaws.services.sqs.AmazonSQSAsync
+import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder
 import com.datastax.oss.driver.api.core.CqlSessionBuilder
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader
 import com.server.common.properties.AwsProperties
@@ -22,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.cassandra.CqlSessionBuilderCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate
 import software.amazon.awssdk.regions.Region
@@ -35,6 +38,7 @@ class AwsClients {
     private lateinit var awsProperties: AwsProperties
 
     @Bean
+    @Primary
     fun getAWSS3Client(): AmazonS3? {
         return AmazonS3ClientBuilder
             .standard()
@@ -62,6 +66,15 @@ class AwsClients {
         signer.serviceName = "es"
         signer.regionName = Regions.AP_SOUTH_1.name
         return signer
+    }
+
+    @Bean
+    @Primary
+    fun amazonSQSAsync(): AmazonSQSAsync? {
+        return AmazonSQSAsyncClientBuilder.standard()
+            .withCredentials(awsCredentialsProvider())
+            .withRegion(Regions.AP_SOUTH_1)
+            .build()
     }
 
 

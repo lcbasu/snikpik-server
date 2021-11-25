@@ -6,7 +6,7 @@ import com.server.ud.dao.like.LikeRepository
 import com.server.ud.dto.SaveLikeRequest
 import com.server.ud.entities.like.Like
 import com.server.ud.enums.LikeUpdateAction
-import com.server.ud.provider.job.JobProvider
+import com.server.ud.provider.deferred.DeferredProcessingProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,7 +24,7 @@ class LikeProvider {
     private lateinit var randomIdProvider: RandomIdProvider
 
     @Autowired
-    private lateinit var jobProvider: JobProvider
+    private lateinit var deferredProcessingProvider: DeferredProcessingProvider
 
     fun getLike(likeId: String): Like? =
         try {
@@ -53,7 +53,7 @@ class LikeProvider {
                 liked = request.action == LikeUpdateAction.ADD
             )
             val savedLike = likeRepository.save(like)
-            jobProvider.scheduleProcessingForLike(savedLike.likeId)
+            deferredProcessingProvider.deferProcessingForLike(savedLike.likeId)
             return savedLike
         } catch (e: Exception) {
             e.printStackTrace()

@@ -28,7 +28,7 @@ import com.server.ud.model.MediaInputDetail
 import com.server.ud.model.convertToString
 import com.server.ud.model.sampleHashTags
 import com.server.ud.pagination.CassandraPageV2
-import com.server.ud.provider.job.JobProvider
+import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.location.LocationProvider
 import com.server.ud.provider.user.UserV2Provider
 import com.server.ud.utils.pagination.PaginationRequestUtil
@@ -56,7 +56,7 @@ class PostProvider {
     private lateinit var locationProvider: LocationProvider
 
     @Autowired
-    private lateinit var jobProvider: JobProvider
+    private lateinit var deferredProcessingProvider: DeferredProcessingProvider
 
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
@@ -193,10 +193,10 @@ class PostProvider {
             } catch (e: Exception) {
                 e.printStackTrace()
                 // Fallback to normal processing
-                jobProvider.scheduleProcessingForPost(savedPost.postId)
+                deferredProcessingProvider.deferProcessingForPost(savedPost.postId)
             }
         } else {
-            jobProvider.scheduleProcessingForPost(savedPost.postId)
+            deferredProcessingProvider.deferProcessingForPost(savedPost.postId)
         }
     }
 
@@ -219,7 +219,7 @@ class PostProvider {
         }
         updateMedia(post, MediaDetailsV2(newMedia))
         // Now do the post-processing with new media URL
-        jobProvider.scheduleProcessingForPost(post.postId)
+        deferredProcessingProvider.deferProcessingForPost(post.postId)
     }
 
     fun fakeSave(userId: String, countOfPost: Int): List<Post> {

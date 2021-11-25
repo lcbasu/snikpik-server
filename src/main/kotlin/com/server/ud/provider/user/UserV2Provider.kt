@@ -13,7 +13,7 @@ import com.server.ud.dao.user.UserV2Repository
 import com.server.ud.dto.*
 import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.LocationFor
-import com.server.ud.provider.job.JobProvider
+import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.location.LocationProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -29,7 +29,7 @@ class UserV2Provider {
     private lateinit var userV2Repository: UserV2Repository
 
     @Autowired
-    private lateinit var jobProvider: JobProvider
+    private lateinit var deferredProcessingProvider: DeferredProcessingProvider
 
     @Autowired
     private lateinit var usersByHandleProvider: UsersByHandleProvider
@@ -59,7 +59,7 @@ class UserV2Provider {
             val savedUser = userV2Repository.save(userV2)
             logger.info("UserV2 saved with userId: ${savedUser.userId}.")
             if (scheduleJob) {
-                jobProvider.scheduleProcessingForUserV2(savedUser.userId)
+                deferredProcessingProvider.deferProcessingForUserV2(savedUser.userId)
             }
             return savedUser
         } catch (e: Exception) {
