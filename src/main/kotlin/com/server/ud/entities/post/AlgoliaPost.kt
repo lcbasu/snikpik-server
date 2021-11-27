@@ -13,6 +13,7 @@ data class GeoLoc (
 
 data class AlgoliaPost (
     var objectID: String,
+    var postId: String,
     var createdAt: Long,
     var userId: String,
     var postType: PostType,

@@ -167,6 +167,7 @@ fun Post.toAlgoliaPost(): AlgoliaPost {
     this.apply {
         return AlgoliaPost(
             objectID = postId,
+            postId = postId,
             createdAt = DateUtils.getEpoch(createdAt),
             userId = userId,
             postType = postType,
