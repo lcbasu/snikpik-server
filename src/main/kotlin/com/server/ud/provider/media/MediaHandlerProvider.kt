@@ -240,11 +240,14 @@ class MediaHandlerProvider {
             val labels = labelsResponse.labels()
 
             // Keep everything that has > 50% confidence
-            return labels.filter { it.confidence() > 0.5f }.map {
+            val labelsForImage = labels.filter { it.confidence() > 0.5f }.map {
                 it.name()
             }.toSet()
+            logger.info("Labels for image stored on S3: ${labelsForImage.toString()}. bucket: $bucket and imageKeyPath: $imageKeyPath")
+            return labelsForImage
         } catch (e: RekognitionException) {
             e.printStackTrace()
+            logger.error("Error while getting labels for image stored on S3. bucket: $bucket and imageKeyPath: $imageKeyPath")
             return emptySet()
         }
     }
