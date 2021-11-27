@@ -2,6 +2,8 @@ package com.server.dk.enums
 
 enum class MessageGroupIdType {
 
+    ResourceView_GroupId,
+
     ProcessPost_GroupId,
 
     ProcessPostForFollowers_GroupId,

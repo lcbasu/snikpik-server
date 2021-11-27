@@ -5,7 +5,7 @@ import com.server.ud.enums.NotificationType
 import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
 
-@Table("notifications")
+//@Table("notifications")
 class Notifications (
     val userId: String,
     val createdAt: Instant,

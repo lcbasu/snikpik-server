@@ -17,6 +17,15 @@ class DeferredProcessingProvider {
     @Autowired
     private lateinit var producer: Producer
 
+    fun deferProcessingForView(viewId: String) {
+        logger.info("deferProcessingForView: $viewId")
+        producer.sendToFifoQueue(
+            messagePayload = viewId,
+            messageGroupID = MessageGroupIdType.ResourceView_GroupId.name,
+            messageDedupID = MessageDedupIdType.ResourceView_DedupId.name,
+        )
+    }
+
     fun deferProcessingForPost(postId: String) {
         logger.info("deferProcessingForPost: $postId")
         producer.sendToFifoQueue(

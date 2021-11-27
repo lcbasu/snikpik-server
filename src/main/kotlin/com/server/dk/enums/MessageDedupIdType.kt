@@ -2,6 +2,8 @@ package com.server.dk.enums
 
 enum class MessageDedupIdType {
 
+    ResourceView_DedupId,
+
     ProcessPost_DedupId,
 
     ProcessPostForFollowers_DedupId,

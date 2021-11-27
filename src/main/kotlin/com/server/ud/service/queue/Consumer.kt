@@ -13,8 +13,8 @@ import com.server.ud.provider.post.PostProcessingProvider
 import com.server.ud.provider.reply.ReplyProcessingProvider
 import com.server.ud.provider.social.SocialRelationProcessingProvider
 import com.server.ud.provider.user.UserV2ProcessingProvider
+import com.server.ud.provider.view.ProcessResourceViewsProvider
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -54,6 +54,9 @@ class Consumer {
 
     @Autowired
     private lateinit var fakerProvider: FakerProvider
+
+    @Autowired
+    private lateinit var processResourceViewsProvider: ProcessResourceViewsProvider
 
     @SqsListener(value = ["ud-deffered-task-processing_standard"], deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS )
     fun receiveStringMessage(message: String?) {
@@ -141,6 +144,11 @@ class Consumer {
                 messageDeduplicationId == MessageDedupIdType.FakeDataGeneration_DedupId) {
                 logger.info("Start Job for createFakeDataRandomly")
                 fakerProvider.createFakeDataRandomly()
+            } else if (messageBody.startsWith(ReadableIdPrefix.USR.name) &&
+                messageGroupId == MessageGroupIdType.ResourceView_GroupId &&
+                messageDeduplicationId == MessageDedupIdType.ResourceView_DedupId) {
+                logger.info("Start Job for processResourceView")
+                processResourceViewsProvider.processResourceView(messageBody)
             } else {
                 logger.error("Unknown message received $message")
             }

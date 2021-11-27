@@ -1,6 +1,9 @@
 package com.server.ud.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.server.common.utils.CommonUtils
 import com.server.dk.model.MediaDetailsV2
+import com.server.ud.enums.ResourceType
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 
@@ -86,6 +89,46 @@ data class BookmarkReportDetail(
     val bookmarks: Long,
     val userLevelInfo: BookmarkReportDetailForUser
 )
+
+data class ResourceViewsReportDetailForUser(
+    val userId: String,
+    val viewed: Boolean
+)
+
+data class ResourceViewsReportDetail(
+    val resourceId: String,
+    val views: Long,
+
+    // This can be null for cases when the user is not logged in (Guest/Anonymous Users)
+    val userLevelInfo: ResourceViewsReportDetailForUser?
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SaveResourceViewRequest(
+    val resourceId: String,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ResourceViewRequest(
+    val userId: String,
+    val resourceId: String,
+)
+
+fun String.toResourceViewRequest(): ResourceViewRequest {
+    this.apply {
+        val split = this.split(CommonUtils.STRING_SEPARATOR)
+        return ResourceViewRequest(
+            userId = split[0],
+            resourceId = split[1],
+        )
+    }
+}
+
+fun ResourceViewRequest.toResourceViewId(): String {
+    this.apply {
+        return "${userId}${CommonUtils.STRING_SEPARATOR}${resourceId}"
+    }
+}
 
 // Never request for more than page size of 100
 // Even though ES limits pagination to 10K results.
