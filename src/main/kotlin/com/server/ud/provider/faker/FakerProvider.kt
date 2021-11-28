@@ -1,6 +1,9 @@
 package com.server.ud.provider.faker
 
 import com.github.javafaker.Faker
+import com.server.common.dto.AllProfileTypeResponse
+import com.server.common.dto.convertToString
+import com.server.common.dto.toProfileTypeResponse
 import com.server.common.enums.MediaType
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.enums.ProfileType
@@ -20,8 +23,8 @@ import com.server.ud.entities.reply.Reply
 import com.server.ud.entities.social.SocialRelation
 import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.*
-import com.server.ud.model.HashTagsList
-import com.server.ud.model.sampleHashTags
+import com.server.ud.model.AllHashTags
+import com.server.ud.model.sampleHashTagsIds
 import com.server.ud.provider.bookmark.BookmarkProvider
 import com.server.ud.provider.comment.CommentProvider
 import com.server.ud.provider.like.LikeProvider
@@ -114,7 +117,9 @@ class FakerProvider {
                 uid = id,
                 anonymous = false,
                 verified = Random.nextInt(1, 100) % 5 == 0,
-                profiles = profiles.joinToString(","),
+                profiles = AllProfileTypeResponse(
+                    profiles.map { it.toProfileTypeResponse() }
+                ).convertToString(),
                 fullName = faker.name().fullName(),
                 notificationToken = null,
                 notificationTokenProvider = NotificationTokenProvider.FIREBASE
@@ -193,10 +198,12 @@ class FakerProvider {
                 postType = postType,
                 title = faker.book().title(),
                 description = faker.lorem().sentence(300),
-                tags = HashTagsList(sampleHashTags.shuffled().take(Random.nextInt(1, sampleHashTags.size))),
+                tags = AllHashTags(
+                    sampleHashTagsIds.shuffled().take(Random.nextInt(1, sampleHashTagsIds.size)).toSet()
+                ),
                 categories = categories.toSet(),
-                locationRequest = sampleLocationRequests[Random.nextInt(sampleLocationRequests.size)],
-                mediaDetails = sampleMedia[Random.nextInt(sampleMedia.size)]
+                locationRequest = sampleLocationRequests.shuffled()[Random.nextInt(sampleLocationRequests.size)],
+                mediaDetails = sampleMedia.shuffled()[Random.nextInt(sampleMedia.size)]
             )
             posts.add(postProvider.save(userId, req))
         }

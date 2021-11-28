@@ -3,9 +3,9 @@ package com.server.ud.entities.post
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
-import com.server.ud.enums.CategoryV2
+import com.server.ud.dto.AllCategoryV2Response
 import com.server.ud.enums.PostType
-import com.server.ud.model.HashTagsList
+import com.server.ud.model.AllHashTags
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
@@ -50,10 +50,10 @@ class BookmarkedPostsByUser (
     var media: String? = null, // MediaDetailsV2
 
     @Column
-    var tags: String? = null, // List of HashTagList
+    var tags: String? = null, // List of AllHashTags
 
     @Column
-    var categories: String? = null, //  List of CategoryV2
+    var categories: String? = null, //  List of AllCategoryV2Response
 )
 
 fun BookmarkedPostsByUser.getMediaDetails(): MediaDetailsV2? {
@@ -61,32 +61,29 @@ fun BookmarkedPostsByUser.getMediaDetails(): MediaDetailsV2? {
         return try {
             jacksonObjectMapper().readValue(media, MediaDetailsV2::class.java)
         } catch (e: Exception) {
-            null
+            MediaDetailsV2(emptyList())
         }
     }
 }
 
-fun BookmarkedPostsByUser.getHashTags(): HashTagsList {
+fun BookmarkedPostsByUser.getHashTags(): AllHashTags {
     this.apply {
         return try {
-            return jacksonObjectMapper().readValue(tags, HashTagsList::class.java)
+            jacksonObjectMapper().readValue(tags, AllHashTags::class.java)
         } catch (e: Exception) {
             e.printStackTrace()
-            HashTagsList(emptyList())
+            AllHashTags(emptySet())
         }
     }
 }
 
-fun BookmarkedPostsByUser.getCategories(): Set<CategoryV2> {
+fun BookmarkedPostsByUser.getCategories(): AllCategoryV2Response {
     this.apply {
         return try {
-            val categoryIds = categories?.trim()?.split(",") ?: emptySet()
-            return categoryIds.map {
-                CategoryV2.valueOf(it)
-            }.toSet()
+            jacksonObjectMapper().readValue(categories, AllCategoryV2Response::class.java)
         } catch (e: Exception) {
             e.printStackTrace()
-            emptySet()
+            AllCategoryV2Response(emptyList())
         }
     }
 }

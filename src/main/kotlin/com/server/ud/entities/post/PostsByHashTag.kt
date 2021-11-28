@@ -30,8 +30,8 @@ class PostsByHashTag (
     @PrimaryKeyColumn(name = "user_id", ordinal = 5, type = PrimaryKeyType.CLUSTERED)
     var userId: String,
 
-    @Column("hash_tag_display_name")
-    var hashTagDisplayName: String,
+//    @Column("hash_tag_display_name")
+//    var hashTagDisplayName: String,
 
     @Column("location_id")
     var locationId: String? = null,
@@ -58,10 +58,10 @@ class PostsByHashTag (
     var media: String? = null, // MediaDetailsV2
 
     @Column
-    var tags: String? = null, // List of HashTagList
+    var tags: String? = null, // List of AllHashTags
 
     @Column
-    var categories: String? = null, //  List of CategoryV2
+    var categories: String? = null, //  List of AllCategoryV2Response
 
 )
 

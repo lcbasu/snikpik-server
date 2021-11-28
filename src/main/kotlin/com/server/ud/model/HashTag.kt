@@ -2,36 +2,18 @@ package com.server.ud.model
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
-data class HashTagData (
-    val tagId: String,
-    val displayName: String
+data class AllHashTags (
+    val tags: Set<String>
 )
 
-data class HashTagsList (
-    val tags: List<HashTagData>
-)
-
-fun HashTagsList.convertToString(): String {
+fun AllHashTags.convertToString(): String? {
     this.apply {
-        return jacksonObjectMapper().writeValueAsString(this)
+        return try {
+            jacksonObjectMapper().writeValueAsString(this)
+        } catch (e: Exception) {
+            null
+        }
     }
 }
 
-val sampleHashTags = listOf(
-    HashTagData(
-        tagId = "newhouse",
-        displayName = "newhouse",
-    ),
-    HashTagData(
-        tagId = "lakesideview",
-        displayName = "lakesideview",
-    ),
-    HashTagData(
-        tagId = "bigkitchen",
-        displayName = "bigkitchen",
-    ),
-    HashTagData(
-        tagId = "tenniscourt",
-        displayName = "tenniscourt",
-    )
-).shuffled()
+val sampleHashTagsIds = setOf("newhouse", "lakesideview", "bigkitchen", "tenniscourt").shuffled()

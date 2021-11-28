@@ -1,8 +1,8 @@
 package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.dto.ProfileTypeResponse
-import com.server.common.dto.toProfileTypeResponse
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.enums.ProfileType
 import com.server.common.utils.DateUtils
@@ -150,7 +150,7 @@ data class SavedUserV2Response(
     var handle: String?,
     var dp: MediaDetailsV2?, // MediaDetailsV2
     var verified: Boolean?,
-    var profiles: Set<ProfileType>,
+    var profiles: AllProfileTypeResponse?,
     var userLastLocationZipcode: String?,
     var userLastGooglePlaceId: String?,
     var userLastLocationId: String?,
@@ -195,7 +195,7 @@ fun UserV2.toProfilePageUserDetailsResponse(): ProfilePageUserDetailsResponse {
             handle = handle,
             dp = getMediaDetailsForDP(),
             verified = verified,
-            profileToShow = getProfiles().firstOrNull()?.toProfileTypeResponse(),
+            profileToShow = getProfiles().profileTypes.firstOrNull(),
             userLastLocationName = userLastLocationName,
         )
     }

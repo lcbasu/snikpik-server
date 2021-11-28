@@ -24,7 +24,7 @@ class MarketplaceController {
     fun getFeedForMarketplaceUsers(@RequestParam zipcode: String,
                                    @RequestParam profileType: ProfileType,
                                    @RequestParam limit: Int,
-                                   @RequestParam pagingState: String?): MarketplaceUserFeedResponse {
+                                   @RequestParam pagingState: String?): MarketplaceUserFeedResponse? {
         return marketplaceService.getFeedForMarketplaceUsers(
             MarketplaceUserFeedRequest(
                 zipcode,

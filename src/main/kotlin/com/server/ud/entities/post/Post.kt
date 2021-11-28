@@ -1,14 +1,13 @@
 package com.server.ud.entities.post
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.server.common.dto.toProfileTypeResponse
-import com.server.common.enums.ProfileType
+import com.server.common.dto.AllLabelsResponse
+import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
-import com.server.ud.dto.toCategoryV2Response
-import com.server.ud.enums.CategoryV2
+import com.server.ud.dto.AllCategoryV2Response
 import com.server.ud.enums.PostType
-import com.server.ud.model.HashTagsList
+import com.server.ud.model.AllHashTags
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.CassandraType
 import org.springframework.data.cassandra.core.mapping.Column
@@ -63,10 +62,10 @@ data class Post (
     var media: String? = null, // MediaDetailsV2
 
     @Column
-    var tags: String? = null, // List of HashTagsList
+    var tags: String? = null, // List of AllHashTags
 
     @Column
-    var categories: String? = null, //  List of CategoryV2
+    var categories: String? = null, //  List of AllCategoryV2Response
 
     @Column("location_id")
     var locationId: String? = null,
@@ -87,43 +86,42 @@ data class Post (
     val locationLng: Double? = null,
 )
 
-fun Post.getLabels(): Set<String> {
+fun Post.getLabels(): AllLabelsResponse? {
     this.apply {
         return try {
-            if (labels.isNullOrBlank()) {
-                return emptySet()
-            }
-            return labels?.trim()?.split(",")?.toSet() ?: emptySet()
+            jacksonObjectMapper().readValue(labels, AllLabelsResponse::class.java)
         } catch (e: Exception) {
-            e.printStackTrace()
-            emptySet()
+            AllLabelsResponse(emptySet())
         }
     }
 }
 
-fun Post.getUserProfiles(): Set<ProfileType> {
+fun Post.getCategories(): AllCategoryV2Response {
     this.apply {
         return try {
-            if (userProfiles.isNullOrBlank()) {
-                return emptySet()
-            }
-            val profileIds = userProfiles?.trim()?.split(",") ?: emptySet()
-            return profileIds.map {
-                ProfileType.valueOf(it)
-            }.toSet()
+            jacksonObjectMapper().readValue(categories, AllCategoryV2Response::class.java)
         } catch (e: Exception) {
-            e.printStackTrace()
-            emptySet()
+            AllCategoryV2Response(emptyList())
         }
     }
 }
 
-fun Post.getMediaDetails(): MediaDetailsV2? {
+fun Post.getUserProfiles(): AllProfileTypeResponse {
+    this.apply {
+        return try {
+            jacksonObjectMapper().readValue(userProfiles, AllProfileTypeResponse::class.java)
+        } catch (e: Exception) {
+            AllProfileTypeResponse(emptyList())
+        }
+    }
+}
+
+fun Post.getMediaDetails(): MediaDetailsV2 {
     this.apply {
         return try {
             jacksonObjectMapper().readValue(media, MediaDetailsV2::class.java)
         } catch (e: Exception) {
-            null
+            MediaDetailsV2(emptyList())
         }
     }
 }
@@ -137,31 +135,16 @@ fun Post.getGeoPointData(): GeoPoint? {
     }
 }
 
-fun Post.getHashTags(): HashTagsList {
+fun Post.getHashTags(): AllHashTags {
     this.apply {
         return try {
-            return jacksonObjectMapper().readValue(tags, HashTagsList::class.java)
+            return jacksonObjectMapper().readValue(tags, AllHashTags::class.java)
         } catch (e: Exception) {
             e.printStackTrace()
-            HashTagsList(emptyList())
+            AllHashTags(emptySet())
         }
     }
 }
-
-fun Post.getCategories(): Set<CategoryV2> {
-    this.apply {
-        return try {
-            val categoryIds = categories?.trim()?.split(",") ?: emptySet()
-            return categoryIds.map {
-                CategoryV2.valueOf(it)
-            }.toSet()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emptySet()
-        }
-    }
-}
-
 
 fun Post.toAlgoliaPost(): AlgoliaPost {
     this.apply {
@@ -175,11 +158,11 @@ fun Post.toAlgoliaPost(): AlgoliaPost {
             userHandle = userHandle,
             userName = userName,
             userMobile = userMobile,
-            userProfiles = getUserProfiles().map { it.toProfileTypeResponse() }.toSet(),
+            userProfiles = getUserProfiles(),
             description = description,
             media = getMediaDetails(),
             tags = getHashTags(),
-            categories = getCategories().map { it.toCategoryV2Response() },
+            categories = getCategories(),
             locationId = locationId,
             googlePlaceId = googlePlaceId,
             zipcode = zipcode,

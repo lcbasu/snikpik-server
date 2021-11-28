@@ -3,9 +3,8 @@ package com.server.ud.entities.post
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
-import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
-import com.server.ud.model.HashTagsList
+import com.server.ud.model.AllHashTags
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
@@ -69,28 +68,13 @@ fun PostsByUser.getMediaDetails(): MediaDetailsV2? {
     }
 }
 
-fun PostsByUser.getHashTags(): HashTagsList {
+fun PostsByUser.getHashTags(): AllHashTags {
     this.apply {
         return try {
-            return jacksonObjectMapper().readValue(tags, HashTagsList::class.java)
+            jacksonObjectMapper().readValue(tags, AllHashTags::class.java)
         } catch (e: Exception) {
             e.printStackTrace()
-            HashTagsList(emptyList())
+            AllHashTags(emptySet())
         }
     }
 }
-
-fun PostsByUser.getCategories(): Set<CategoryV2> {
-    this.apply {
-        return try {
-            val categoryIds = categories?.trim()?.split(",") ?: emptySet()
-            return categoryIds.map {
-                CategoryV2.valueOf(it)
-            }.toSet()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emptySet()
-        }
-    }
-}
-

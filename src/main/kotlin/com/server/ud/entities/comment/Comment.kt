@@ -42,7 +42,7 @@ fun Comment.getMediaDetails(): MediaDetailsV2? {
         return try {
             jacksonObjectMapper().readValue(media, MediaDetailsV2::class.java)
         } catch (e: Exception) {
-            null
+            MediaDetailsV2(emptyList())
         }
     }
 }

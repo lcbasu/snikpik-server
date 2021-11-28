@@ -28,21 +28,6 @@ class PostServiceImpl : PostService() {
         return post?.toSavedUserPostResponse()
     }
 
-    override fun fakeSavePosts(request: FakePostRequest): List<SavedPostResponse>? {
-        val requestContext = securityProvider.validateRequest()
-//        val user = requestContext.userV2
-//
-//        if (user.absoluteMobile != "+919742097429") error("Only Admin is allowed to do this.")
-
-        if (request.countOfPost > 25) error("Only 25 posts are allowed to be created at one time")
-        if (request.countOfPost < 1) error("Minimum 1 post needs to be created")
-
-        val posts = postProvider.fakeSave(requestContext.getUserIdToUse(), request.countOfPost)
-        return posts.map {
-            it.toSavedUserPostResponse()
-        }
-    }
-
     override fun getPosts(request: PaginatedRequest): CassandraPageV2<Post?>? {
         return postProvider.getPosts(request)
     }

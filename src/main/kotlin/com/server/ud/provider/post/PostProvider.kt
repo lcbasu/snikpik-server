@@ -1,6 +1,7 @@
 package com.server.ud.provider.post
 
-import com.github.javafaker.Faker
+import com.server.common.dto.AllLabelsResponse
+import com.server.common.dto.convertToString
 import com.server.common.enums.ContentType
 import com.server.common.enums.MediaQualityType
 import com.server.common.enums.MediaType
@@ -11,22 +12,18 @@ import com.server.dk.model.MediaDetailsV2
 import com.server.dk.model.SingleMediaDetail
 import com.server.dk.model.convertToString
 import com.server.ud.dao.post.PostRepository
-import com.server.ud.dto.PaginatedRequest
-import com.server.ud.dto.SavePostRequest
-import com.server.ud.dto.sampleLocationRequests
+import com.server.ud.dto.*
 import com.server.ud.entities.MediaProcessingDetail
 import com.server.ud.entities.location.Location
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.entities.user.getProfiles
-import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.LocationFor
 import com.server.ud.enums.PostType
 import com.server.ud.enums.ResourceType
-import com.server.ud.model.HashTagsList
+import com.server.ud.model.AllHashTags
 import com.server.ud.model.MediaInputDetail
 import com.server.ud.model.convertToString
-import com.server.ud.model.sampleHashTags
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.location.LocationProvider
@@ -39,7 +36,6 @@ import org.springframework.data.cassandra.core.query.CassandraPageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 import java.time.Instant
-import kotlin.random.Random
 
 @Component
 class PostProvider {
@@ -124,7 +120,9 @@ class PostProvider {
                 description = request.description,
                 media = request.mediaDetails?.convertToString(),
                 tags = request.tags.convertToString(),
-                categories = request.categories.joinToString(","),
+                categories = AllCategoryV2Response(
+                    request.categories.map { it.toCategoryV2Response() }
+                ).convertToString(),
                 locationId = location?.locationId,
                 zipcode = location?.zipcode,
                 locationLat = location?.lat,
@@ -135,7 +133,7 @@ class PostProvider {
                 userMobile = user.absoluteMobile,
                 userHandle = user.handle,
                 userCountryCode = user.countryCode,
-                userProfiles = user.getProfiles().joinToString(",")
+                userProfiles = user.getProfiles().convertToString(),
             )
             val savedPost = postRepository.save(post)
             handlePostSaved(savedPost)
@@ -156,7 +154,7 @@ class PostProvider {
 
     fun updateLabels(post: Post, labels: Set<String>) {
         try {
-            val labelsStr = labels.joinToString(",")
+            val labelsStr = AllLabelsResponse(labels).convertToString()
             postRepository.save(post.copy(labels = labelsStr))
             logger.info("Labels updated for postId: ${post.postId} with labels: $labelsStr")
         } catch (e: Exception) {
@@ -220,23 +218,6 @@ class PostProvider {
         updateMedia(post, MediaDetailsV2(newMedia))
         // Now do the post-processing with new media URL
         deferredProcessingProvider.deferProcessingForPost(post.postId)
-    }
-
-    fun fakeSave(userId: String, countOfPost: Int): List<Post> {
-        val posts = mutableListOf<Post?>()
-        for (i in 1..countOfPost) {
-            val faker = Faker()
-            val req = SavePostRequest(
-                postType = PostType.GENERIC_POST,
-                title = faker.book().title(),
-                description = faker.book().publisher(),
-                tags = HashTagsList(sampleHashTags.shuffled().take(Random.nextInt(1, sampleHashTags.size))),
-                categories = setOf(CategoryV2.KITCHEN, CategoryV2.EXTERIOR),
-                locationRequest = sampleLocationRequests[Random.nextInt(sampleLocationRequests.size)]
-            )
-            posts.add(save(userId, req))
-        }
-        return posts.filterNotNull()
     }
 
     fun getPosts(request: PaginatedRequest): CassandraPageV2<Post?>? {

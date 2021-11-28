@@ -1,8 +1,10 @@
 package com.server.ud.provider.user
 
+import com.server.common.dto.AllProfileTypeResponse
+import com.server.common.dto.convertToString
+import com.server.common.dto.toProfileTypeResponse
 import com.server.common.enums.MediaType
 import com.server.common.enums.NotificationTokenProvider
-import com.server.common.enums.ProfileType
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.SecurityProvider
 import com.server.common.utils.DateUtils
@@ -89,7 +91,7 @@ class UserV2Provider {
 
     fun updateUserV2Profiles(request: UpdateUserV2ProfilesRequest): UserV2? {
         val user = getUser(request.userId) ?: error("No user found for userId: ${request.userId}")
-        val newUserToBeSaved = user.copy(profiles = request.profiles.joinToString(","))
+        val newUserToBeSaved = user.copy(profiles = AllProfileTypeResponse(request.profiles.map { it.toProfileTypeResponse() }).convertToString())
         return saveUserV2(newUserToBeSaved)
     }
 
@@ -145,7 +147,6 @@ class UserV2Provider {
             uid = firebaseAuthUser.getUid(),
             anonymous = firebaseAuthUser.getIsAnonymous() == true,
             verified = false,
-            profiles = emptyList<ProfileType>().joinToString(","),
             fullName = firebaseAuthUser.getName(),
             notificationToken = null,
             notificationTokenProvider = NotificationTokenProvider.FIREBASE

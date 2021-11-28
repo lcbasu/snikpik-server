@@ -4,7 +4,6 @@ import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostsByHashTagRepository
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.PostsByHashTag
-import com.server.ud.model.HashTagData
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,16 +17,15 @@ class PostsByHashTagProvider {
     @Autowired
     private lateinit var postsByHashTagRepository: PostsByHashTagRepository
 
-    fun save(post: Post, hashTagData: HashTagData): PostsByHashTag? {
+    fun save(post: Post, hashTagId: String): PostsByHashTag? {
         try {
             val postsByHashTag = PostsByHashTag(
-                hashTagId = hashTagData.tagId,
+                hashTagId = hashTagId,
                 forDate = DateUtils.getInstantDate(post.createdAt),
                 createdAt = post.createdAt,
                 postId = post.postId,
                 postType = post.postType,
                 userId = post.userId,
-                hashTagDisplayName = hashTagData.displayName,
                 locationId = post.locationId,
                 zipcode = post.zipcode,
                 locationName = post.locationName,

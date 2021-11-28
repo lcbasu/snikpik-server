@@ -36,21 +36,11 @@ class UsersByZipcodeAndProfileTypeProvider {
                 logger.error("zipcode is required to save UsersByZipcodeAndProfileType for userId: ${userV2.userId}.")
                 return emptyList()
             }
-            val usersByZipcodeAndProfileType = userV2.getProfiles().map {
+            val usersByZipcodeAndProfileType = userV2.getProfiles().profileTypes.map {
                 UsersByZipcodeAndProfileType(
                     zipcode = userV2.userLastLocationZipcode!!,
-                    profileType = it,
+                    profileType = it.id,
                     userId = userV2.userId,
-                    absoluteMobile = userV2.absoluteMobile,
-                    countryCode = userV2.countryCode,
-                    handle = userV2.handle,
-                    dp = userV2.dp,
-                    uid = userV2.uid,
-                    anonymous = userV2.anonymous,
-                    verified = userV2.verified,
-                    profiles = userV2.profiles,
-                    fullName = userV2.fullName,
-                    userLocationName = userV2.userLastLocationName,
                 )
             }
             return usersByZipcodeAndProfileTypeRepository.saveAll(usersByZipcodeAndProfileType)

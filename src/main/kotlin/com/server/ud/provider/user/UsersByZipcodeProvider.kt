@@ -24,19 +24,10 @@ class UsersByZipcodeProvider {
                 return null
             }
             val usersByZipcode = UsersByZipcode(
-                zipcode = userV2.userLastLocationZipcode!!,
+                zipcode = userV2.userLastLocationZipcode,
                 forDate = DateUtils.getInstantDate(userV2.createdAt),
                 createdAt = userV2.createdAt,
                 userId = userV2.userId,
-                absoluteMobile = userV2.absoluteMobile,
-                countryCode = userV2.countryCode,
-                handle = userV2.handle,
-                dp = userV2.dp,
-                uid = userV2.uid,
-                anonymous = userV2.anonymous,
-                verified = userV2.verified,
-                profiles = userV2.profiles,
-                fullName = userV2.fullName,
             )
             logger.info("UsersByZipcode saved for userId: ${userV2.userId}")
             return usersByZipcodeRepository.save(usersByZipcode)

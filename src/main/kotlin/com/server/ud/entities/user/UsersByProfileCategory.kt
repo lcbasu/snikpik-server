@@ -23,31 +23,7 @@ class UsersByProfileCategory (
     @PrimaryKeyColumn(name = "user_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
     var userId: String,
 
-    @Column("absolute_mobile")
-    var absoluteMobile: String? = null,
-
-    @Column("country_code")
-    var countryCode: String? = null,
-
-    @Column("handle")
-    var handle: String? = null,
-
-    @Column
-    var dp: String? = null, // MediaDetailsV2
-
-    @Column
-    var uid: String? = "",
-
-    @Column
-    var anonymous: Boolean = false,
-
-    @Column
-    var verified: Boolean = false,
-
-    @Column
-    var profiles: String? = null, // Set of ProfileType as String
-
-    @Column("full_name")
-    var fullName: String? = "",
+    // Not storing any other data columns as they can be changed any time
+    // but the above data points remains constant
 )
 

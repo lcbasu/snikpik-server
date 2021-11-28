@@ -1,21 +1,20 @@
 package com.server.ud.dto
 
 import com.server.common.dto.ProfileTypeResponse
-import com.server.common.dto.toProfileTypeResponse
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
-import com.server.ud.entities.post.NearbyPostsByZipcode
+import com.server.ud.entities.post.NearbyVideoPostsByZipcode
 import com.server.ud.entities.post.getHashTags
 import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getMediaDetailsForDP
 import com.server.ud.entities.user.getProfiles
-import com.server.ud.model.HashTagsList
+import com.server.ud.model.AllHashTags
 
 // VideoFeedView -> VFV
 
 data class VideoFeedViewSinglePostDetail(
-    val tags: HashTagsList,
+    val tags: AllHashTags,
     override val postId: String,
     override val userId: String,
     override val createdAt: Long,
@@ -63,7 +62,7 @@ data class VideoFeedViewResultList(
     override val hasNext: Boolean? = null,
 ): PaginationResponse(count, pagingState, hasNext)
 
-fun NearbyPostsByZipcode.toVideoFeedViewSinglePostDetail(): VideoFeedViewSinglePostDetail {
+fun NearbyVideoPostsByZipcode.toVideoFeedViewSinglePostDetail(): VideoFeedViewSinglePostDetail {
     this.apply {
         return VideoFeedViewSinglePostDetail(
             postId = postId,
@@ -83,7 +82,7 @@ fun UserV2.toVideoFeedViewSingleUserDetail(): VideoFeedViewSingleUserDetail {
             handle = handle,
             verified = verified,
             dp = getMediaDetailsForDP(),
-            profileTypeToShow = getProfiles().firstOrNull()?.toProfileTypeResponse(),
+            profileTypeToShow = getProfiles().profileTypes.firstOrNull(),
             location = userLastLocationId?.let {
                 LocationResponse(
                     id = userLastLocationId,

@@ -56,10 +56,10 @@ class PostsByZipcode (
     var media: String? = null, // MediaDetailsV2
 
     @Column
-    var tags: String? = null, // List of HashTagList
+    var tags: String? = null, // List of AllHashTags
 
     @Column
-    var categories: String? = null, //  List of CategoryV2
+    var categories: String? = null, //  List of AllCategoryV2Response
 
 )
 

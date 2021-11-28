@@ -1,13 +1,11 @@
 package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.server.dk.model.MediaDetails
 import com.server.dk.model.MediaDetailsV2
 import com.server.ud.entities.post.Post
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
-import com.server.ud.model.HashTagData
-import com.server.ud.model.HashTagsList
+import com.server.ud.model.AllHashTags
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class FakePostRequest(
@@ -19,7 +17,7 @@ data class SavePostRequest(
     var postType: PostType,
     var title: String? = null,
     var description: String? = null,
-    val tags: HashTagsList = HashTagsList(emptyList()),
+    val tags: AllHashTags = AllHashTags(emptySet()),
     val categories: Set<CategoryV2> = emptySet(),
     val locationRequest: SaveLocationRequest? = null,
     var mediaDetails: MediaDetailsV2? = null,

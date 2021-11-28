@@ -1,12 +1,13 @@
 package com.server.ud.provider.post
 
+import com.server.common.enums.MediaType
 import com.server.common.utils.DateUtils
-import com.server.ud.dao.post.NearbyPostsByZipcodeRepository
-import com.server.ud.dto.CommunityWallFeedRequest
+import com.server.ud.dao.post.NearbyVideoPostsByZipcodeRepository
 import com.server.ud.dto.NearbyFeedRequest
 import com.server.ud.entities.location.NearbyZipcodesByZipcode
-import com.server.ud.entities.post.NearbyPostsByZipcode
+import com.server.ud.entities.post.NearbyVideoPostsByZipcode
 import com.server.ud.entities.post.Post
+import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.enums.PostType
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
@@ -18,24 +19,34 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 
 @Component
-class NearbyPostsByZipcodeProvider {
+class NearbyVideoPostsByZipcodeProvider {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     @Autowired
-    private lateinit var nearbyPostsByZipcodeRepository: NearbyPostsByZipcodeRepository
+    private lateinit var nearbyVideoPostsByZipcodeRepository: NearbyVideoPostsByZipcodeRepository
+
+    @Autowired
+    private lateinit var nearbyZipcodesByZipcodeProvider: NearbyZipcodesByZipcodeProvider
 
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
 
-    fun save(post: Post, nearbyZipcodes: List<NearbyZipcodesByZipcode>): List<NearbyPostsByZipcode> {
+    fun save(post: Post, nearbyZipcodes: List<NearbyZipcodesByZipcode>): List<NearbyVideoPostsByZipcode> {
         try {
             if (post.zipcode == null) {
-                logger.error("Post does not have location zipcode. Hence unable to save into NearbyPostsByZipcode for postId: ${post.postId}.")
+                logger.warn("Post does not have location zipcode. Hence unable to save into NearbyVideoPostsByZipcode for postId: ${post.postId}.")
+                return emptyList()
+            }
+
+            val hasVideo = post.getMediaDetails().media.filter { it.mediaType == MediaType.VIDEO }.isNotEmpty()
+
+            if (hasVideo.not()) {
+                logger.warn("Post does not have Video. Hence unable to save into NearbyVideoPostsByZipcode for postId: ${post.postId}.")
                 return emptyList()
             }
             val posts = nearbyZipcodes.map {
-                NearbyPostsByZipcode(
+                NearbyVideoPostsByZipcode(
                     zipcode = it.nearbyZipcode,
                     forDate = DateUtils.getInstantDate(post.createdAt),
                     createdAt = post.createdAt,
@@ -54,7 +65,7 @@ class NearbyPostsByZipcodeProvider {
                     categories = post.categories,
                 )
             }
-            return nearbyPostsByZipcodeRepository.saveAll(posts)
+            return nearbyVideoPostsByZipcodeRepository.saveAll(posts)
         } catch (e: Exception) {
             logger.error("Saving PostsByNearbyZipcode filed for ${post.postId}.")
             e.printStackTrace()
@@ -62,7 +73,7 @@ class NearbyPostsByZipcodeProvider {
         }
     }
 
-    fun getNearbyFeed(request: NearbyFeedRequest): CassandraPageV2<NearbyPostsByZipcode> {
+    fun getNearbyVideoFeed(request: NearbyFeedRequest): CassandraPageV2<NearbyVideoPostsByZipcode> {
         return getPaginatedFeed(
             zipCode = request.zipcode,
             forDate = request.forDate,
@@ -72,19 +83,9 @@ class NearbyPostsByZipcodeProvider {
         )
     }
 
-    fun getCommunityWallFeed(request: CommunityWallFeedRequest): CassandraPageV2<NearbyPostsByZipcode> {
-        return getPaginatedFeed(
-            zipCode = request.zipcode,
-            forDate = request.forDate,
-            postType = PostType.COMMUNITY_WALL_POST,
-            limit = request.limit,
-            pagingState = request.pagingState,
-        )
-    }
-
-    private fun getPaginatedFeed(zipCode: String, forDate: String, postType: PostType, limit: Int, pagingState: String?): CassandraPageV2<NearbyPostsByZipcode> {
+    private fun getPaginatedFeed(zipCode: String, forDate: String, postType: PostType, limit: Int, pagingState: String?): CassandraPageV2<NearbyVideoPostsByZipcode> {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
-        val posts = nearbyPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndForDate(
+        val posts = nearbyVideoPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndForDate(
             zipCode,
             postType,
             DateUtils.getInstantFromLocalDateTime(DateUtils.parseStandardDate(forDate)),

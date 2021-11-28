@@ -20,21 +20,12 @@ class UsersByProfileTypeProvider {
 
     fun save(userV2: UserV2): List<UsersByProfileType> {
         try {
-            val usersByProfiles = userV2.getProfiles().map {
+            val usersByProfiles = userV2.getProfiles().profileTypes.map {
                 UsersByProfileType(
-                    profileType = it,
+                    profileType = it.id,
                     forDate = DateUtils.getInstantDate(userV2.createdAt),
                     createdAt = userV2.createdAt,
                     userId = userV2.userId,
-                    absoluteMobile = userV2.absoluteMobile,
-                    countryCode = userV2.countryCode,
-                    handle = userV2.handle,
-                    dp = userV2.dp,
-                    uid = userV2.uid,
-                    anonymous = userV2.anonymous,
-                    verified = userV2.verified,
-                    profiles = userV2.profiles,
-                    fullName = userV2.fullName,
                 )
             }
             logger.info("UsersByProfileType saved for userId: ${userV2.userId}")

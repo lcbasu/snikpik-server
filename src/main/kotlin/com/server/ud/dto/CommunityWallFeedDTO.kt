@@ -65,7 +65,7 @@ fun UserV2.toCommunityWallViewUserDetail(): CommunityWallViewUserDetail {
             name = fullName,
             verified = verified,
             dp = getMediaDetailsForDP(),
-            profileTypeToShow = getProfiles().firstOrNull()?.toProfileTypeResponse(),
+            profileTypeToShow = getProfiles().profileTypes.firstOrNull(),
         )
     }
 }

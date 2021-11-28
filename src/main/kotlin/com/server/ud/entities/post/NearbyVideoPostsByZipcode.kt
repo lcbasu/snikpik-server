@@ -29,8 +29,8 @@ import java.time.Instant
  *
  * */
 
-@Table("nearby_posts_by_zipcode")
-class NearbyPostsByZipcode (
+@Table("nearby_video_posts_by_zipcode")
+class NearbyVideoPostsByZipcode (
 
     // Keeping a composite key to create a partition for
     // a location on daily basis
@@ -86,7 +86,7 @@ class NearbyPostsByZipcode (
 
 )
 
-fun NearbyPostsByZipcode.getMediaDetails(): MediaDetailsV2? {
+fun NearbyVideoPostsByZipcode.getMediaDetails(): MediaDetailsV2? {
     this.apply {
         return try {
             jacksonObjectMapper().readValue(media, MediaDetailsV2::class.java)
@@ -96,7 +96,7 @@ fun NearbyPostsByZipcode.getMediaDetails(): MediaDetailsV2? {
     }
 }
 
-fun NearbyPostsByZipcode.getHashTags(): AllHashTags {
+fun NearbyVideoPostsByZipcode.getHashTags(): AllHashTags {
     this.apply {
         return try {
             jacksonObjectMapper().readValue(tags, AllHashTags::class.java)

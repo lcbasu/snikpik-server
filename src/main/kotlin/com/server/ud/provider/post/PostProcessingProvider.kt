@@ -8,6 +8,7 @@ import com.server.ud.enums.CategoryV2
 import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.location.ESLocationProvider
 import com.server.ud.provider.location.LocationProcessingProvider
+import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
 import com.server.ud.provider.social.FollowersByUserProvider
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.GlobalScope
@@ -47,11 +48,11 @@ class PostProcessingProvider {
     @Autowired
     private lateinit var postsByHashTagProvider: PostsByHashTagProvider
 
-    @Autowired
-    private lateinit var esPostProvider: ESPostProvider
+//    @Autowired
+//    private lateinit var esPostProvider: ESPostProvider
 
-    @Autowired
-    private lateinit var esPostAutoSuggestProvider: ESPostAutoSuggestProvider
+//    @Autowired
+//    private lateinit var esPostAutoSuggestProvider: ESPostAutoSuggestProvider
 
     @Autowired
     private lateinit var esLocationProvider: ESLocationProvider
@@ -60,7 +61,13 @@ class PostProcessingProvider {
     private lateinit var locationProcessingProvider: LocationProcessingProvider
 
     @Autowired
+    private lateinit var nearbyZipcodesByZipcodeProvider: NearbyZipcodesByZipcodeProvider
+
+    @Autowired
     private lateinit var nearbyPostsByZipcodeProvider: NearbyPostsByZipcodeProvider
+
+    @Autowired
+    private lateinit var nearbyVideoPostsByZipcodeProvider: NearbyVideoPostsByZipcodeProvider
 
     @Autowired
     private lateinit var searchClient: SearchClient
@@ -108,13 +115,17 @@ class PostProcessingProvider {
                 postsByZipcodeProvider.save(updatedPost)
             }
 
-            val savePostIntoNearbyZipcode = async {
-                nearbyPostsByZipcodeProvider.save(updatedPost)
+            val saveForNearbyPosts = async {
+                post.zipcode?.let {
+                    val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(it)
+                    nearbyPostsByZipcodeProvider.save(updatedPost, nearbyZipcodes)
+                    nearbyVideoPostsByZipcodeProvider.save(updatedPost, nearbyZipcodes)
+                }
             }
 
             val categoriesFeedFuture = async {
-                updatedPost.getCategories()
-                    .map { async { postsByCategoryProvider.save(post, it) } }
+                updatedPost.getCategories().categories
+                    .map { async { postsByCategoryProvider.save(post, it.id) } }
                     .map { it.await() }
             }
 
@@ -128,13 +139,13 @@ class PostProcessingProvider {
                     .map { it.await() }
             }
 
-            val savePostToESFuture = async {
-                esPostProvider.save(updatedPost)
-            }
+//            val savePostToESFuture = async {
+//                esPostProvider.save(updatedPost)
+//            }
 
-            val savePostAutoSuggestToESFuture = async {
-                esPostAutoSuggestProvider.save(updatedPost)
-            }
+//            val savePostAutoSuggestToESFuture = async {
+//                esPostAutoSuggestProvider.save(updatedPost)
+//            }
 
             val algoliaIndexingFuture = async {
                 val index = searchClient.initIndex("posts", AlgoliaPost::class.java)
@@ -144,12 +155,12 @@ class PostProcessingProvider {
             postsByUserFuture.await()
             postsCountByUserFuture.await()
             postsByZipcodeFuture.await()
-            savePostIntoNearbyZipcode.await()
+            saveForNearbyPosts.await()
             categoriesFeedFuture.await()
             allCategoryFeedFuture.await()
             hashTagsFeedFuture.await()
-            savePostToESFuture.await()
-            savePostAutoSuggestToESFuture.await()
+//            savePostToESFuture.await()
+//            savePostAutoSuggestToESFuture.await()
             algoliaIndexingFuture.await()
 
             // Schedule Heavy job to be done in isolation

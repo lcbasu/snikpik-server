@@ -14,7 +14,6 @@ import java.time.Instant
 @Table("hash_tags")
 class HashTag (
 
-    // hashTagId and displayName should be same for all HashTag
     @PrimaryKeyColumn(name = "hash_tag_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var hashTagId: String,
 
@@ -25,9 +24,6 @@ class HashTag (
     // User who created this hashtag
     @Column("user_id")
     var userId: String,
-
-    @Column
-    var displayName: String,
 
     @Column
     var firstPostId: String? = null,

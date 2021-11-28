@@ -1,8 +1,8 @@
 package com.server.ud.entities.user
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.enums.NotificationTokenProvider
-import com.server.common.enums.ProfileType
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
@@ -48,7 +48,7 @@ data class UserV2 (
     val verified: Boolean = false,
 
     @Column
-    val profiles: String? = null, // Set of ProfileType as String
+    val profiles: String? = null, // Set of AllProfileTypeResponse as String
 
     @Column("full_name")
     val fullName: String? = "",
@@ -79,29 +79,23 @@ data class UserV2 (
     val userLastLocationLng: Double? = null,
 )
 
-fun UserV2.getMediaDetailsForDP(): MediaDetailsV2? {
+fun UserV2.getMediaDetailsForDP(): MediaDetailsV2 {
     this.apply {
         return try {
             jacksonObjectMapper().readValue(dp, MediaDetailsV2::class.java)
         } catch (e: Exception) {
-            null
+            MediaDetailsV2(emptyList())
         }
     }
 }
 
-fun UserV2.getProfiles(): Set<ProfileType> {
+fun UserV2.getProfiles(): AllProfileTypeResponse {
     this.apply {
         return try {
-            if (profiles.isNullOrBlank()) {
-                return emptySet()
-            }
-            val profileIds = profiles?.trim()?.split(",") ?: emptySet()
-            return profileIds.map {
-                ProfileType.valueOf(it)
-            }.toSet()
+            jacksonObjectMapper().readValue(profiles, AllProfileTypeResponse::class.java)
         } catch (e: Exception) {
             e.printStackTrace()
-            emptySet()
+            AllProfileTypeResponse(emptyList())
         }
     }
 }

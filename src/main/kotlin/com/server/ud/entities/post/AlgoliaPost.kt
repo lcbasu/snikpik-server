@@ -1,10 +1,11 @@
 package com.server.ud.entities.post
 
-import com.server.common.dto.ProfileTypeResponse
+import com.server.common.dto.AllLabelsResponse
+import com.server.common.dto.AllProfileTypeResponse
 import com.server.dk.model.MediaDetailsV2
-import com.server.ud.dto.CategoryV2Response
+import com.server.ud.dto.AllCategoryV2Response
 import com.server.ud.enums.PostType
-import com.server.ud.model.HashTagsList
+import com.server.ud.model.AllHashTags
 
 data class GeoLoc (
     val lat: Double,
@@ -12,26 +13,26 @@ data class GeoLoc (
 )
 
 data class AlgoliaPost (
-    var objectID: String,
-    var postId: String,
-    var createdAt: Long,
-    var userId: String,
-    var postType: PostType,
-    var title: String? = null,
-    var userHandle: String? = null,
-    var userName: String? = null,
-    var userMobile: String? = null,
-    var userProfiles: Set<ProfileTypeResponse> = emptySet(),
-    var description: String? = null,
-    var media: MediaDetailsV2? = null,
-    var tags: HashTagsList? = null,
-    var categories: List<CategoryV2Response>? = null,
-    var locationId: String? = null,
-    var googlePlaceId: String? = null,
-    var zipcode: String? = null,
+    val objectID: String,
+    val postId: String,
+    val createdAt: Long,
+    val userId: String,
+    val postType: PostType,
+    val title: String? = null,
+    val userHandle: String? = null,
+    val userName: String? = null,
+    val userMobile: String? = null,
+    val userProfiles: AllProfileTypeResponse? = null,
+    val description: String? = null,
+    val media: MediaDetailsV2? = null,
+    val tags: AllHashTags? = null,
+    val categories: AllCategoryV2Response? = null,
+    val locationId: String? = null,
+    val googlePlaceId: String? = null,
+    val zipcode: String? = null,
     val locationName: String? = null,
     val locationLat: Double? = null,
     val locationLng: Double? = null,
     val _geoloc: GeoLoc? = null,
-    val labels: Set<String> = emptySet(),
+    val labels: AllLabelsResponse? = null,
 )
