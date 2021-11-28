@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConstructorBinding
 @ConfigurationProperties("aws")
-data class AwsProperties(var awsKey: String? = null, var awsSecret: String? = null, var amplify: AmplifyProperties, var es: ESProperties, var keyspace: KeyspaceProperties) {
+data class AwsProperties(val accountId: String, val awsKey: String, val awsSecret: String, val amplify: AmplifyProperties, val es: ESProperties, val keyspace: KeyspaceProperties, val sqs: SqsProperties) {
 
 //    data class DynamoDbProperties(var endpoint: String)
 
@@ -17,9 +17,10 @@ data class AwsProperties(var awsKey: String? = null, var awsSecret: String? = nu
      * wellKnownUrlEndpoint: https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_lIoW4O3di/.well-known/jwks.json
      *
      * */
-    data class AmplifyProperties(var wellKnownIssuer: String, var wellKnownUrlEndpoint: String)
-    data class ESProperties(var host: String, var port: Int, var protocol: String, var username: String, var password: String)
-    data class KeyspaceProperties(var username: String, var password: String)
+    data class AmplifyProperties(val wellKnownIssuer: String, val wellKnownUrlEndpoint: String)
+    data class ESProperties(val host: String, val port: Int, val protocol: String, val username: String, val password: String)
+    data class KeyspaceProperties(val username: String, val password: String)
+    data class SqsProperties(val region: String, val queueName: String, val queueUrl: String)
 }
 
 @ConstructorBinding

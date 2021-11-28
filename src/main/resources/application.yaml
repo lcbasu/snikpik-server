@@ -122,6 +122,7 @@ notification:
 #    reply-to: ${REPLY_TO_EMAIL}
 
 aws:
+  account-id: ${AWS_ACCOUNT_ID}
   aws-key: ${AWS_KEY}
   aws-secret: ${AWS_SECRET}
   amplify:
@@ -136,6 +137,10 @@ aws:
   keyspace:
     username: ${AWS_KEYSPACE_USERNAME}
     password: ${AWS_KEYSPACE_PASSWORD}
+  sqs:
+    region: ${AWS_SQS_REGION}
+    queue-name: ${AWS_SQS_QUEUE_NAME}
+    queue-url: "https://sqs.${AWS_SQS_REGION}.amazonaws.com/${AWS_ACCOUNT_ID}/${AWS_SQS_QUEUE_NAME}"
 
 cloud:
   aws:

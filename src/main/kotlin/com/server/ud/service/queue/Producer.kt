@@ -1,6 +1,7 @@
 package com.server.ud.service.queue
 
 import com.amazonaws.services.sqs.model.SendMessageRequest
+import com.server.common.properties.AwsProperties
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cloud.aws.messaging.core.QueueMessagingTemplate
@@ -12,7 +13,8 @@ class Producer {
 
     private val logger = LoggerFactory.getLogger(Producer::class.java)
 
-    private val QUEUE_NAME = "https://sqs.ap-south-1.amazonaws.com/413074202297/ud-deffered-task-processing_standard"
+    @Autowired
+    private lateinit var awsProperties: AwsProperties
 
     @Autowired
     private lateinit var messagingTemplate: QueueMessagingTemplate
@@ -20,12 +22,12 @@ class Producer {
     // TODO: Fix this as the fifo queue is not working
     fun sendToFifoQueue(messagePayload: String, messageGroupID: String, messageDedupID: String) {
         val sendMessageRequest = SendMessageRequest()
-            .withQueueUrl(QUEUE_NAME)
+            .withQueueUrl(awsProperties.sqs.queueUrl)
             .withMessageBody(messagePayload)
             .withMessageGroupId(messageGroupID) // message group Id
             .withMessageDeduplicationId(messageDedupID) // deduplication Id
             .withDelaySeconds(5)
-        messagingTemplate.convertAndSend(QUEUE_NAME, sendMessageRequest)
+        messagingTemplate.convertAndSend(awsProperties.sqs.queueUrl, sendMessageRequest)
         logger.info("Message sent with messagePayload: $messagePayload, messageGroupID: $messageGroupID, and messageDedupID: $messageDedupID")
     }
 }
