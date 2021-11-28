@@ -4,10 +4,12 @@ import com.server.ud.dto.ReplyReportDetail
 import com.server.ud.dto.SaveCommentReplyRequest
 import com.server.ud.dto.SavedCommentReplyResponse
 import com.server.ud.service.reply.ReplyService
+import io.micrometer.core.annotation.Timed
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 
 @RestController
+@Timed
 @RequestMapping("ud/reply")
 class ReplyController {
 

@@ -3,6 +3,7 @@ package com.server.ud.controller
 import com.server.ud.dto.AllCategoryV2Response
 import com.server.ud.enums.CategoryGroupV2
 import com.server.ud.service.category.CategoryV2Service
+import io.micrometer.core.annotation.Timed
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@Timed
 @RequestMapping("ud/category")
 class CategoryV2Controller {
 

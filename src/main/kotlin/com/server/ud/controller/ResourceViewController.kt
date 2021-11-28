@@ -6,10 +6,12 @@ import com.server.ud.dto.ResourceViewsReportDetail
 import com.server.ud.dto.SaveResourceViewRequest
 import com.server.ud.enums.ResourceType
 import com.server.ud.service.view.ResourceViewService
+import io.micrometer.core.annotation.Timed
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 
 @RestController
+@Timed
 @RequestMapping("ud/resourceView")
 class ResourceViewController {
 

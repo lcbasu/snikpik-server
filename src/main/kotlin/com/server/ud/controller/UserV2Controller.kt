@@ -5,10 +5,12 @@ import com.server.ud.dto.*
 import com.server.ud.entities.social.FollowersCountByUser
 import com.server.ud.entities.social.FollowingsCountByUser
 import com.server.ud.service.user.UserV2Service
+import io.micrometer.core.annotation.Timed
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 
 @RestController
+@Timed
 @RequestMapping("ud/userV2")
 class UserV2Controller {
 

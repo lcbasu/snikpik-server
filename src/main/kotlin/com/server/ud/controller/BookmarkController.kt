@@ -4,10 +4,12 @@ import com.server.ud.dto.BookmarkReportDetail
 import com.server.ud.dto.SaveBookmarkRequest
 import com.server.ud.dto.SavedBookmarkResponse
 import com.server.ud.service.bookmark.BookmarkService
+import io.micrometer.core.annotation.Timed
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 
 @RestController
+@Timed
 @RequestMapping("ud/bookmark")
 class BookmarkController {
 

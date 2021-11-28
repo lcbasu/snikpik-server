@@ -5,6 +5,7 @@ import com.server.ud.dto.ExploreTabViewResponse
 import com.server.ud.dto.ExploreTabViewUserDetail
 import com.server.ud.enums.CategoryV2
 import com.server.ud.service.post.ExploreFeedService
+import io.micrometer.core.annotation.Timed
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@Timed
 @RequestMapping("ud/feed/explore")
 class ExploreFeedController {
 

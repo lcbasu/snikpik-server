@@ -5,10 +5,12 @@ import com.server.ud.entities.post.Post
 import com.server.ud.entities.user.PostsCountByUser
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.service.post.PostService
+import io.micrometer.core.annotation.Timed
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 
 @RestController
+@Timed
 @RequestMapping("ud/post")
 class PostController {
 

@@ -7,6 +7,7 @@ import com.server.ud.dto.MarketplaceProfileTypesFeedResponse
 import com.server.ud.dto.MarketplaceUserFeedRequest
 import com.server.ud.dto.MarketplaceUserFeedResponse
 import com.server.ud.service.marketplace.MarketplaceService
+import io.micrometer.core.annotation.Timed
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@Timed
 @RequestMapping("ud/feed/marketplace")
 class MarketplaceController {
 

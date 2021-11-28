@@ -4,6 +4,7 @@ import com.server.ud.dto.NearbyFeedRequest
 import com.server.ud.dto.VideoFeedViewResultList
 import com.server.ud.dto.VideoFeedViewSingleUserDetail
 import com.server.ud.service.post.NearbyFeedService
+import io.micrometer.core.annotation.Timed
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@Timed
 @RequestMapping("ud/feed/nearby")
 class NearbyFeedController {
 

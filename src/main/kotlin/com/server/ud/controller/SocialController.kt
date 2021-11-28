@@ -5,10 +5,12 @@ import com.server.ud.dto.GetFollowersRequest
 import com.server.ud.dto.SocialRelationRequest
 import com.server.ud.dto.SocialRelationResponse
 import com.server.ud.service.social.SocialService
+import io.micrometer.core.annotation.Timed
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 
 @RestController
+@Timed
 @RequestMapping("ud/social")
 class SocialController {
 
