@@ -54,8 +54,8 @@ spring:
 
 security:
   firebase-props:
-    database-url: https://dukaankhatacom.firebaseio.com
-    storage-bucket: dukaankhatacom.appspot.com
+    database-url: https://letsunboxapp.firebaseio.com
+    storage-bucket: letsunboxapp.appspot.com
     enable-strict-server-session: false
     enable-check-session-revoked: false
     enable-logout-everywhere: false
