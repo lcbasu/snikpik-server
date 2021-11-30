@@ -201,16 +201,13 @@ class PostProvider {
     // Right now only for video
     fun handleProcessedMedia(updatedMediaDetail: MediaProcessingDetail) {
         val post = getPost(updatedMediaDetail.resourceId ?: error("Missing resource Id for file: ${updatedMediaDetail.fileUniqueId}")) ?: error("No post found for ${updatedMediaDetail.resourceId} while doing post processing.")
-        val exisingMediaList = post.getMediaDetails()?.media ?: emptyList()
+        val exisingMediaList = post.getMediaDetails().media
         val newMedia = try {
-            val otherMediaUrlList = exisingMediaList.filterNot { it.mediaUrl == updatedMediaDetail.inputFilePath }
-            otherMediaUrlList + listOf(SingleMediaDetail(
-                mediaUrl = updatedMediaDetail.outputFilePath ?: error(" Missing output file path for file: ${updatedMediaDetail.fileUniqueId}"),
-                mimeType = "video",
-                mediaType = MediaType.VIDEO,
-                contentType = ContentType.ACTUAL,
-                mediaQualityType = MediaQualityType.HIGH
-            ))
+            val toBeReplaceMediaDetail = exisingMediaList.firstOrNull { it.mediaUrl == updatedMediaDetail.inputFilePath }
+            toBeReplaceMediaDetail?.let {
+                val otherMediaUrlList = exisingMediaList.filterNot { it.mediaUrl == updatedMediaDetail.inputFilePath }
+                otherMediaUrlList + listOf(it.copy(mediaUrl = updatedMediaDetail.outputFilePath ?: error(" Missing output file path for file: ${updatedMediaDetail.fileUniqueId}")))
+            } ?: exisingMediaList
         } catch (e: Exception) {
             e.printStackTrace()
             exisingMediaList

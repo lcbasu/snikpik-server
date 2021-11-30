@@ -45,17 +45,6 @@ class MediaHandlerProvider {
     @Autowired
     private lateinit var replyProvider: ReplyProvider
 
-    private fun checkAndScheduleResourceProcessing(updatedMediaDetail: MediaProcessingDetail) {
-        if (updatedMediaDetail.inputFilePresent == true && updatedMediaDetail.outputFilePresent == true) {
-            logger.info("Schedule job to do processing of the resource.")
-            when (updatedMediaDetail.resourceType ?: error("Resource Type missing for media detail: ${updatedMediaDetail.fileUniqueId}")) {
-                ResourceType.POST, ResourceType.WALL -> postProvider.handleProcessedMedia(updatedMediaDetail)
-                ResourceType.POST_COMMENT, ResourceType.WALL_COMMENT -> commentProvider.handleProcessedMedia(updatedMediaDetail)
-                ResourceType.POST_COMMENT_REPLY, ResourceType.WALL_COMMENT_REPLY -> replyProvider.handleProcessedMedia(updatedMediaDetail)
-            }
-        }
-    }
-
     fun getMediaProcessingDetail(fileUniqueId: String): MediaProcessingDetail? =
         try {
             val media = mediaProcessingDetailRepository.findAllByFileUniqueId(fileUniqueId)
@@ -267,6 +256,17 @@ class MediaHandlerProvider {
         } catch (e: InterruptedException) {
             e.printStackTrace()
             return emptySet()
+        }
+    }
+
+    private fun checkAndScheduleResourceProcessing(updatedMediaDetail: MediaProcessingDetail) {
+        if (updatedMediaDetail.inputFilePresent == true && updatedMediaDetail.outputFilePresent == true) {
+            logger.info("Schedule job to do processing of the resource.")
+            when (updatedMediaDetail.resourceType ?: error("Resource Type missing for media detail: ${updatedMediaDetail.fileUniqueId}")) {
+                ResourceType.POST, ResourceType.WALL -> postProvider.handleProcessedMedia(updatedMediaDetail)
+                ResourceType.POST_COMMENT, ResourceType.WALL_COMMENT -> commentProvider.handleProcessedMedia(updatedMediaDetail)
+                ResourceType.POST_COMMENT_REPLY, ResourceType.WALL_COMMENT_REPLY -> replyProvider.handleProcessedMedia(updatedMediaDetail)
+            }
         }
     }
 

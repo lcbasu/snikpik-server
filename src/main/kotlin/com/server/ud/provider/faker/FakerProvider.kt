@@ -4,10 +4,7 @@ import com.github.javafaker.Faker
 import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.dto.convertToString
 import com.server.common.dto.toProfileTypeResponse
-import com.server.common.enums.MediaType
-import com.server.common.enums.NotificationTokenProvider
-import com.server.common.enums.ProfileType
-import com.server.common.enums.ReadableIdPrefix
+import com.server.common.enums.*
 import com.server.common.provider.RandomIdProvider
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
@@ -113,6 +110,10 @@ class FakerProvider {
                 dp = MediaDetailsV2(listOf(SingleMediaDetail(
                     mediaUrl = "https://i.pravatar.cc/150?u=${id}",
                     mediaType = MediaType.IMAGE,
+                    width = 150,
+                    height = 150,
+                    mediaQualityType = MediaQualityType.HIGH,
+                    mimeType = "jpg"
                 ))).convertToString(),
                 uid = id,
                 anonymous = false,
