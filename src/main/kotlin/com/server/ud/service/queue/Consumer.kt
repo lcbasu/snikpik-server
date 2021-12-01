@@ -2,6 +2,7 @@ package com.server.ud.service.queue
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.enums.ReadableIdPrefix
+import com.server.common.properties.AwsProperties
 import com.server.dk.enums.MessageDedupIdType
 import com.server.dk.enums.MessageGroupIdType
 import com.server.ud.provider.bookmark.BookmarkProcessingProvider
@@ -18,8 +19,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.cloud.aws.messaging.listener.SqsMessageDeletionPolicy
-import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener
+import org.springframework.cloud.aws.messaging.core.QueueMessagingTemplate
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 
 // https://reflectoring.io/spring-cloud-aws-sqs/
@@ -58,10 +59,29 @@ class Consumer {
     @Autowired
     private lateinit var processResourceViewsProvider: ProcessResourceViewsProvider
 
-    @SqsListener(value = ["ud-deffered-task-processing_standard"], deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS )
-    fun receiveStringMessage(message: String?) {
-        logger.info("Message received $message")
+    @Autowired
+    private lateinit var messagingTemplate: QueueMessagingTemplate
 
+    @Autowired
+    private lateinit var awsProperties: AwsProperties
+
+    /**
+     *
+     * Using fixed delay as we want to start next process only after the last one was over
+     * */
+    @Scheduled(fixedDelay = 1000, initialDelay = 1000)
+    fun processSQSMessage() {
+        val message: String?  = messagingTemplate.receiveAndConvert(awsProperties.sqs.queueName, String::class.java)
+        message?.let {
+            processMessage(it)
+        }
+    }
+
+    // Not using this as there is no way to assign queue name dynamically
+    // and when running locally, we would start consuming prod messages
+    // @SqsListener(value = ["ud-deffered-task-processing_standard"], deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS )
+    fun processMessage(message: String) {
+        logger.info("Message received for processing: $message")
         GlobalScope.launch {
             val messageMap = try {
                 jacksonObjectMapper().readValue(message, MutableMap::class.java)
@@ -93,6 +113,8 @@ class Consumer {
                 e.printStackTrace()
                 MessageDedupIdType.UNKNOWN
             }
+
+            logger.info("SQS:Message received for processing: messagePayload: $messageBody, messageGroupID: $messageGroupId, and messageDedupID: $messageDeduplicationId")
 
             if (messageBody.startsWith(ReadableIdPrefix.PST.name) &&
                 messageGroupId == MessageGroupIdType.ProcessPost_GroupId &&

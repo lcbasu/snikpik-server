@@ -28,6 +28,6 @@ class Producer {
             .withMessageDeduplicationId(messageDedupID) // deduplication Id
             .withDelaySeconds(5)
         messagingTemplate.convertAndSend(awsProperties.sqs.queueUrl, sendMessageRequest)
-        logger.info("Message sent with messagePayload: $messagePayload, messageGroupID: $messageGroupID, and messageDedupID: $messageDedupID")
+        logger.info("SQS:Message sent for processing: messagePayload: $messagePayload, messageGroupID: $messageGroupID, and messageDedupID: $messageDedupID")
     }
 }
