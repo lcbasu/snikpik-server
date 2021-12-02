@@ -31,6 +31,8 @@ class ConsumeApiController {
     @ResponseBody
     fun awsVideoProcessingCompleted(request: HttpServletRequest, response: HttpServletResponse){
         try {
+            logger.info("awsVideoProcessingCompleted: request")
+            logger.info(request.toString())
             // Scan request into a string
             val scanner = Scanner(request.inputStream)
             val builder = StringBuilder()
@@ -51,6 +53,7 @@ class ConsumeApiController {
             logger.info("Call mediaHandlerService for InputFile: ${processedVideoMessage?.InputFile}")
             mediaHandlerService.startProcessingAfterVideoProcessing(processedVideoMessage?.Outputs?.processedVideoUrls?.filterNotNull()?.toSet() ?: emptySet())
         } catch (e: java.lang.Exception) {
+            logger.error("Error in awsVideoProcessingCompleted")
             e.printStackTrace()
         }
     }
