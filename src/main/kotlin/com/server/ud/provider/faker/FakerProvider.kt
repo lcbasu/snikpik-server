@@ -199,9 +199,7 @@ class FakerProvider {
                 postType = postType,
                 title = faker.book().title(),
                 description = faker.lorem().sentence(300),
-                tags = AllHashTags(
-                    sampleHashTagsIds.shuffled().take(Random.nextInt(1, sampleHashTagsIds.size)).toSet()
-                ),
+                tags = sampleHashTagsIds.shuffled().take(Random.nextInt(1, sampleHashTagsIds.size)).toSet(),
                 categories = categories.toSet(),
                 locationRequest = sampleLocationRequests.shuffled()[Random.nextInt(sampleLocationRequests.size)],
                 mediaDetails = sampleMedia.shuffled()[Random.nextInt(sampleMedia.size)]

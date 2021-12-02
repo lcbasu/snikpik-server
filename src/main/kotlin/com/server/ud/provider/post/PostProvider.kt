@@ -119,7 +119,7 @@ class PostProvider {
                 title = request.title,
                 description = request.description,
                 media = request.mediaDetails?.convertToString(),
-                tags = request.tags.convertToString(),
+                tags = AllHashTags(request.tags).convertToString(),
                 categories = AllCategoryV2Response(
                     request.categories.map { it.toCategoryV2Response() }
                 ).convertToString(),
