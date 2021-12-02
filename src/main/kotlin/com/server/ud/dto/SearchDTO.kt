@@ -16,7 +16,8 @@ data class SRPPostResponse(
     override val userId: String,
     override val createdAt: Long,
     override val media: MediaDetailsV2?,
-    override val title: String?
+    override val title: String?,
+    override val description: String?
 ): PostMiniDetail
 
 @JsonIgnoreProperties(ignoreUnknown = true)

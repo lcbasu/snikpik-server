@@ -18,7 +18,8 @@ data class ExploreTabViewPostDetail(
     override val userId: String,
     override val createdAt: Long,
     override val media: MediaDetailsV2?,
-    override val title: String?
+    override val title: String?,
+    override val description: String?
 ): PostMiniDetail
 
 data class ExploreTabViewUserDetail(
@@ -49,7 +50,8 @@ fun PostsByCategory.toExploreTabViewPostDetail(): ExploreTabViewPostDetail {
             userId = userId,
             media = getMediaDetails(),
             title = title,
-            createdAt = DateUtils.getEpoch(createdAt)
+            createdAt = DateUtils.getEpoch(createdAt),
+            description = description
         )
     }
 }

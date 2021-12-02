@@ -19,7 +19,8 @@ data class VideoFeedViewSinglePostDetail(
     override val userId: String,
     override val createdAt: Long,
     override val media: MediaDetailsV2?,
-    override val title: String?
+    override val title: String?,
+    override val description: String?
 ): PostMiniDetail
 
 data class VideoFeedViewSingleUserDetail(
@@ -70,7 +71,8 @@ fun NearbyVideoPostsByZipcode.toVideoFeedViewSinglePostDetail(): VideoFeedViewSi
             createdAt = DateUtils.getEpoch(createdAt),
             media = getMediaDetails(),
             title = title,
-            tags = getHashTags()
+            tags = getHashTags(),
+            description = description
         )
     }
 }

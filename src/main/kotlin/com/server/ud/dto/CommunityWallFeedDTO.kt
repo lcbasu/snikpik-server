@@ -11,12 +11,12 @@ import com.server.ud.entities.user.getMediaDetailsForDP
 import com.server.ud.entities.user.getProfiles
 
 data class CommunityWallViewPostDetail(
-    val description: String?,
     override val postId: String,
     override val userId: String,
     override val createdAt: Long,
     override val media: MediaDetailsV2?,
-    override val title: String?
+    override val title: String?,
+    override val description: String?
 ): PostMiniDetail
 
 data class CommunityWallViewUserDetail(

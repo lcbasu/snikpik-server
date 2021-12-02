@@ -22,7 +22,8 @@ data class LikedPostsByUserPostDetail(
     override val userId: String,
     override val createdAt: Long,
     override val media: MediaDetailsV2?,
-    override val title: String?
+    override val title: String?,
+    override val description: String?
 ): PostMiniDetail
 
 data class LikedPostsByUserResponse(
@@ -45,7 +46,8 @@ data class BookmarkedPostsByUserPostDetail(
     override val userId: String,
     override val createdAt: Long,
     override val media: MediaDetailsV2?,
-    override val title: String?
+    override val title: String?,
+    override val description: String?
 ): PostMiniDetail
 
 data class BookmarkedPostsByUserResponse(
@@ -66,7 +68,8 @@ data class PostsByUserPostDetail(
     override val userId: String,
     override val createdAt: Long,
     override val media: MediaDetailsV2?,
-    override val title: String?
+    override val title: String?,
+    override val description: String?
 ): PostMiniDetail
 
 data class PostsByUserResponse(
@@ -211,6 +214,7 @@ fun LikedPostsByUser.toLikedPostsByUserPostDetail(): LikedPostsByUserPostDetail 
             createdAt = DateUtils.getEpoch(postCreatedAt),
             likedAt = DateUtils.getEpoch(createdAt),
             likedByUserId = userId,
+            description = description,
         )
     }
 }
@@ -225,6 +229,7 @@ fun BookmarkedPostsByUser.toBookmarkedPostsByUserPostDetail(): BookmarkedPostsBy
             createdAt = DateUtils.getEpoch(postCreatedAt),
             bookmarkedAt = DateUtils.getEpoch(createdAt),
             bookmarkedByUserId = userId,
+            description = description,
         )
     }
 }
@@ -238,6 +243,7 @@ fun PostsByUser.toPostsByUserPostDetail(): PostsByUserPostDetail {
             media = getMediaDetails(),
             title = title,
             createdAt = DateUtils.getEpoch(createdAt),
+            description = description,
         )
     }
 }

@@ -53,6 +53,7 @@ interface PostMiniDetail{
     val createdAt: Long
     val media: MediaDetailsV2?
     val title: String?
+    val description: String?
 }
 
 open class PaginationRequest (

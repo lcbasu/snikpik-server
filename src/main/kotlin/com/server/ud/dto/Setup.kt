@@ -185,7 +185,8 @@ data class WPVSavedSinglePostDetail(
     override val userId: String,
     override val createdAt: Long,
     override val media: MediaDetailsV2?,
-    override val title: String?
+    override val title: String?,
+    override val description: String?
 ): PostMiniDetail
 
 data class WPVSavedPostUserDetail(
