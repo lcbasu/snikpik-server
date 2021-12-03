@@ -27,10 +27,10 @@ spring:
       schema-action: CREATE_IF_NOT_EXISTS
       # Increase timeouts when connecting to Astra from a dev workstation
       request:
-        timeout: 10s
+        timeout: 20s
       connection:
-        connect-timeout: 10s
-        init-query-timeout: 10s
+        connect-timeout: 20s
+        init-query-timeout: 20s
   quartz:
     jdbc:
       initialize-schema: NEVER
@@ -186,4 +186,4 @@ management:
       datadog:
         api-key: ${DATADOG_API_KEY}
         app-key: ${DATADOG_APP_KEY}
-        step: 10s
+        step: 20s
