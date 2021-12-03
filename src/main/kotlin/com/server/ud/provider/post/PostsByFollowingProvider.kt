@@ -22,7 +22,7 @@ class PostsByFollowingProvider {
             val postsByFollowing = PostsByFollowing(
                 userId = followerId,
                 followingUserId = post.userId,
-                createdAt = DateUtils.getInstantNow(),
+                createdAt = post.createdAt,
                 postId = post.postId,
                 postType = post.postType,
                 title = post.title,

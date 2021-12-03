@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
+import java.time.Instant
 
 @Component
 class PostsByUserProvider {
@@ -29,7 +30,7 @@ class PostsByUserProvider {
         try {
             val postsByUser = PostsByUser(
                 userId = post.userId,
-                createdAt = DateUtils.getInstantNow(),
+                createdAt = post.createdAt,
                 postId = post.postId,
                 postType = post.postType,
                 title = post.title,

@@ -49,7 +49,7 @@ class LikedPostsByUserProvider {
             val likedPostByUser = LikedPostsByUser(
                 userId = like.userId,
                 liked = like.liked,
-                createdAt = DateUtils.getInstantNow(),
+                createdAt = like.createdAt,
                 postCreatedAt = post.createdAt,
                 postedByUserId = post.userId,
                 postId = post.postId,

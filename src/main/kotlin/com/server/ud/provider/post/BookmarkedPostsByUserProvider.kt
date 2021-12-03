@@ -49,7 +49,7 @@ class BookmarkedPostsByUserProvider {
             val bookmarkedPostByUser = BookmarkedPostsByUser(
                 userId = bookmark.userId,
                 bookmarked = bookmark.bookmarked,
-                createdAt = DateUtils.getInstantNow(),
+                createdAt = bookmark.createdAt,
                 postCreatedAt = post.createdAt,
                 postedByUserId = post.userId,
                 postId = post.postId,

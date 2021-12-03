@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface PostsByUserRepository : CassandraRepository<PostsByUser?, String?> {
     fun findAllByUserIdAndPostType(userId: String, postType: PostType, pageable: Pageable): Slice<PostsByUser>
+    fun findAllByPostId(postId: String): List<PostsByUser>
 }

@@ -1,5 +1,6 @@
 package com.server.ud.provider.location
 
+import com.server.common.utils.DateUtils
 import com.server.ud.dao.es.location.ESLocationRepository
 import com.server.ud.entities.es.location.ESLocation
 import com.server.ud.entities.location.Location
@@ -30,7 +31,7 @@ class ESLocationProvider {
             val esLocation = ESLocation(
                 locationId = location.locationId,
                 userId = location.userId,
-                createdAt = location.createdAt.toEpochMilli(),
+                createdAt = DateUtils.getEpoch(location.createdAt),
                 locationFor = location.locationFor,
                 name = location.name,
                 lat = location.lat,

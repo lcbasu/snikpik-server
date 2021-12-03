@@ -2,14 +2,12 @@ package com.server.ud.provider.post
 
 import com.server.common.dto.AllLabelsResponse
 import com.server.common.dto.convertToString
-import com.server.common.enums.ContentType
-import com.server.common.enums.MediaQualityType
 import com.server.common.enums.MediaType
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.MediaHandlerProvider
 import com.server.common.provider.RandomIdProvider
+import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
-import com.server.dk.model.SingleMediaDetail
 import com.server.dk.model.convertToString
 import com.server.ud.dao.post.PostRepository
 import com.server.ud.dto.*
@@ -35,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.cassandra.core.query.CassandraPageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
-import java.time.Instant
 
 @Component
 class PostProvider {
@@ -62,6 +59,9 @@ class PostProvider {
 
     @Autowired
     private lateinit var userV2Provider: UserV2Provider
+
+    @Autowired
+    private lateinit var postsByUserProvider: PostsByUserProvider
 
     fun getPost(postId: String): Post? =
         try {
@@ -114,7 +114,7 @@ class PostProvider {
             val post = Post(
                 postId = postId,
                 userId = user.userId,
-                createdAt = Instant.now(),
+                createdAt = DateUtils.getInstantNow(),
                 postType = request.postType,
                 title = request.title,
                 description = request.description,
@@ -136,6 +136,9 @@ class PostProvider {
                 userProfiles = user.getProfiles().convertToString(),
             )
             val savedPost = postRepository.save(post)
+            // Saving this temporarily with whatever media url is in the source
+            // so that user can see all his posts immediately
+            postsByUserProvider.save(savedPost)
             handlePostSaved(savedPost)
             return savedPost
         } catch (e: Exception) {

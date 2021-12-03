@@ -1,18 +1,18 @@
 package com.server.ud.provider.comment
 
-import com.server.ud.entities.MediaProcessingDetail
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.RandomIdProvider
+import com.server.common.utils.DateUtils
 import com.server.dk.model.convertToString
 import com.server.ud.dao.comment.CommentRepository
 import com.server.ud.dto.SaveCommentRequest
+import com.server.ud.entities.MediaProcessingDetail
 import com.server.ud.entities.comment.Comment
 import com.server.ud.provider.deferred.DeferredProcessingProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import java.time.Instant
 
 @Component
 class CommentProvider {
@@ -46,7 +46,7 @@ class CommentProvider {
             val comment = Comment(
                 commentId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.CMT),
                 userId = userId,
-                createdAt = Instant.now(),
+                createdAt = DateUtils.getInstantNow(),
                 postType = request.postType,
                 postId = request.postId,
                 text = request.text,
