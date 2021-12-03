@@ -30,19 +30,20 @@ data class SingleCommentUserDetail (
 data class GetPostCommentsRequest (
     val postId: String,
     override val limit: Int = 10,
-    override val pagingState: String? = null, // YYYY-MM-DD
+    override val pagingState: String? = null,
 ): PaginationRequest(limit, pagingState)
 
-data class SingleCommentDetail (
-    val postId: String,
-    val commentId: String,
-    val userId: String,
-    val text: String,
-    val commentedAt: Long,
-)
+//data class SingleCommentDetail (
+//    val postId: String,
+//    val commentId: String,
+//    val userId: String,
+//    val text: String,
+//    val commentedAt: Long,
+//    val mediaDetails: MediaDetailsV2? = null,
+//)
 
 data class PostCommentsResponse(
-    val comments: List<SingleCommentDetail>,
+    val comments: List<SavedCommentResponse>,
     override val count: Int? = null,
     override val pagingState: String? = null,
     override val hasNext: Boolean? = null,
@@ -92,14 +93,15 @@ fun Comment.toSavedCommentResponse(): SavedCommentResponse {
     }
 }
 
-fun CommentsByPost.toSingleCommentDetail(): SingleCommentDetail {
+fun CommentsByPost.toSavedCommentResponse(): SavedCommentResponse {
     this.apply {
-        return SingleCommentDetail(
+        return SavedCommentResponse(
             postId = postId,
             userId = userId,
             commentId = commentId,
             text = text,
-            commentedAt = DateUtils.getEpoch(createdAt),
+            createdAt = DateUtils.getEpoch(createdAt),
+            mediaDetails = getMediaDetails(),
         )
     }
 }

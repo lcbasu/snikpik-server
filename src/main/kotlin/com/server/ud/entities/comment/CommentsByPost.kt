@@ -1,5 +1,7 @@
 package com.server.ud.entities.comment
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.server.dk.model.MediaDetailsV2
 import com.server.ud.enums.PostType
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
@@ -33,3 +35,12 @@ class CommentsByPost (
     var media: String? = null // MediaDetailsV2
 )
 
+fun CommentsByPost.getMediaDetails(): MediaDetailsV2? {
+    this.apply {
+        return try {
+            jacksonObjectMapper().readValue(media, MediaDetailsV2::class.java)
+        } catch (e: Exception) {
+            MediaDetailsV2(emptyList())
+        }
+    }
+}

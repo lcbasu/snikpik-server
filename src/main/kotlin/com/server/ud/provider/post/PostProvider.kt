@@ -167,38 +167,38 @@ class PostProvider {
     }
 
     private fun handlePostSaved(savedPost: Post) {
-
-        val videoMedia = savedPost.getMediaDetails()?.media?.filter { it.mediaType == MediaType.VIDEO } ?: emptyList()
-        // Only one video has to be present for processing
-        // Otherwise the flow breaks for now
-        // Figure out a better way in future
-        if (videoMedia.size == 1) {
-            try {
-                // Do media processing
-                // CRITICAL:
-                // Assumption 1: Right now we are assuming only one VIDEO asset being uploaded
-                // Assumption 2: Media files are always with USERID/USERID_-_RANDOMID.EXTENSION -> File Unique ID: USERID/RANDOMID
-
-                // Ideally there should be only one video
-                val mediaAsset = videoMedia.first()
-                val fileInfo = mediaHandlerProvider.getFileInfoFromFilePath(mediaAsset.mediaUrl, true)
-                mediaHandlerProvider.saveOrUpdateMediaDetailsAfterSavingResource(
-                    MediaInputDetail(
-                        fileUniqueId = fileInfo.fileUniqueId,
-                        forUser = fileInfo.userId,
-                        inputFilePath = mediaAsset.mediaUrl,
-                        resourceType = ResourceType.POST,
-                        resourceId = savedPost.postId,
-                    )
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
-                // Fallback to normal processing
-                deferredProcessingProvider.deferProcessingForPost(savedPost.postId)
-            }
-        } else {
-            deferredProcessingProvider.deferProcessingForPost(savedPost.postId)
-        }
+        deferredProcessingProvider.deferProcessingForPost(savedPost.postId)
+//        val videoMedia = savedPost.getMediaDetails()?.media?.filter { it.mediaType == MediaType.VIDEO } ?: emptyList()
+//        // Only one video has to be present for processing
+//        // Otherwise the flow breaks for now
+//        // Figure out a better way in future
+//        if (videoMedia.size == 1) {
+//            try {
+//                // Do media processing
+//                // CRITICAL:
+//                // Assumption 1: Right now we are assuming only one VIDEO asset being uploaded
+//                // Assumption 2: Media files are always with USERID/USERID_-_RANDOMID.EXTENSION -> File Unique ID: USERID/RANDOMID
+//
+//                // Ideally there should be only one video
+//                val mediaAsset = videoMedia.first()
+//                val fileInfo = mediaHandlerProvider.getFileInfoFromFilePath(mediaAsset.mediaUrl, true)
+//                mediaHandlerProvider.saveOrUpdateMediaDetailsAfterSavingResource(
+//                    MediaInputDetail(
+//                        fileUniqueId = fileInfo.fileUniqueId,
+//                        forUser = fileInfo.userId,
+//                        inputFilePath = mediaAsset.mediaUrl,
+//                        resourceType = ResourceType.POST,
+//                        resourceId = savedPost.postId,
+//                    )
+//                )
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//                // Fallback to normal processing
+//                deferredProcessingProvider.deferProcessingForPost(savedPost.postId)
+//            }
+//        } else {
+//            deferredProcessingProvider.deferProcessingForPost(savedPost.postId)
+//        }
     }
 
     // Right now only for video

@@ -1,8 +1,6 @@
 package com.server.ud.controller
 
-import com.server.ud.dto.ReplyReportDetail
-import com.server.ud.dto.SaveCommentReplyRequest
-import com.server.ud.dto.SavedCommentReplyResponse
+import com.server.ud.dto.*
 import com.server.ud.service.reply.ReplyService
 import io.micrometer.core.annotation.Timed
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,5 +22,23 @@ class ReplyController {
     @RequestMapping(value = ["/getReplyReportDetail"], method = [RequestMethod.GET])
     fun getReplyReportDetail(@RequestParam commentId: String): ReplyReportDetail {
         return replyService.getReplyReportDetail(commentId)
+    }
+
+    @RequestMapping(value = ["/getCommentReplies"], method = [RequestMethod.GET])
+    fun getCommentReplies(@RequestParam commentId: String,
+                          @RequestParam limit: Int,
+                          @RequestParam pagingState: String? = null): CommentRepliesResponse {
+        return replyService.getCommentReplies(
+            GetCommentRepliesRequest(
+                commentId,
+                limit,
+                pagingState
+            )
+        )
+    }
+
+    @RequestMapping(value = ["/getSingleReplyUserDetail"], method = [RequestMethod.GET])
+    fun getSingleReplyUserDetail(@RequestParam userId: String): SingleReplyUserDetail {
+        return replyService.getSingleReplyUserDetail(userId)
     }
 }

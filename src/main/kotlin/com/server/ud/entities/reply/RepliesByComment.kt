@@ -1,10 +1,10 @@
 package com.server.ud.entities.reply
 
-import com.server.common.utils.DateUtils
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.server.dk.model.MediaDetailsV2
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
-import org.springframework.data.cassandra.core.mapping.Indexed
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
@@ -24,6 +24,9 @@ class RepliesByComment (
     @PrimaryKeyColumn(name = "user_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
     var userId: String,
 
+    @Column("post_id")
+    var postId: String,
+
     @Column("reply_text")
     var replyText: String,
 
@@ -31,3 +34,12 @@ class RepliesByComment (
     var media: String? = null, // MediaDetailsV2
 )
 
+fun RepliesByComment.getMediaDetails(): MediaDetailsV2? {
+    this.apply {
+        return try {
+            jacksonObjectMapper().readValue(media, MediaDetailsV2::class.java)
+        } catch (e: Exception) {
+            MediaDetailsV2(emptyList())
+        }
+    }
+}

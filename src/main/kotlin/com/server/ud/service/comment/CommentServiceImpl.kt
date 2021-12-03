@@ -57,10 +57,10 @@ class CommentServiceImpl : CommentService() {
     override fun getPostComments(request: GetPostCommentsRequest): PostCommentsResponse {
         val result = commentsByPostProvider.getPostComments(request)
         return PostCommentsResponse(
-            comments = result.content?.filterNotNull()?.map { it.toSingleCommentDetail() } ?: emptyList(),
+            comments = result.content?.filterNotNull()?.map { it.toSavedCommentResponse() } ?: emptyList(),
             count = result.count,
             hasNext = result.hasNext,
-            pagingState = result.pagingState
+            pagingState = result.pagingState,
         )
     }
 
