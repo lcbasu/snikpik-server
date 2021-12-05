@@ -143,7 +143,7 @@ class MediaHandlerProvider {
         // /userUploads/USR03D5DB98C4644E3F815F9BFD67/USR03D5DB98C4644E3F815F9BFD67_-_1340df61-b9e8-493d-a2d4-3cb61a2772a4.mp4"
 
         processedVideoUrls.map {
-            val fileInfo = getFileInfoFromFilePath(it, false)
+            val fileInfo = getFileInfoFromFilePath(it)
 
             val existing = getMediaProcessingDetail(fileInfo.fileUniqueId)
 
@@ -162,8 +162,8 @@ class MediaHandlerProvider {
         }
     }
 
-    fun getFileInfoFromFilePath(fileName: String, isInput: Boolean): FileInfo {
-        val userStartIndex = if (isInput) fileName.lastIndexOf("USR") else fileName.indexOf("USR")
+    fun getFileInfoFromFilePath(fileName: String): FileInfo {
+        val userStartIndex = fileName.lastIndexOf("USR")
         val extensionStartIndex = fileName.lastIndexOf(".")
         val fileUniqueId = fileName.substring(userStartIndex, extensionStartIndex)
         val (userId, fileId) = fileUniqueId.split(CommonUtils.STRING_SEPARATOR)

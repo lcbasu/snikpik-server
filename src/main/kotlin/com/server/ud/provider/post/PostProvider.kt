@@ -180,7 +180,7 @@ class PostProvider {
 
                 // Ideally there should be only one video
                 val mediaAsset = videoMedia.first()
-                val fileInfo = mediaHandlerProvider.getFileInfoFromFilePath(mediaAsset.mediaUrl, true)
+                val fileInfo = mediaHandlerProvider.getFileInfoFromFilePath(mediaAsset.mediaUrl)
                 mediaHandlerProvider.saveOrUpdateMediaDetailsAfterSavingResource(
                     MediaInputDetail(
                         fileUniqueId = fileInfo.fileUniqueId,
