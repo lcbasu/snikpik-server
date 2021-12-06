@@ -19,7 +19,7 @@ data class AwsProperties(val accountId: String, val awsKey: String, val awsSecre
      * */
     data class AmplifyProperties(val wellKnownIssuer: String, val wellKnownUrlEndpoint: String)
     data class ESProperties(val host: String, val port: Int, val protocol: String, val username: String, val password: String)
-    data class KeyspaceProperties(val username: String, val password: String)
+    data class KeyspaceProperties(val name: String, val username: String, val password: String)
     data class SqsProperties(val region: String, val queueName: String, val queueUrl: String)
 }
 

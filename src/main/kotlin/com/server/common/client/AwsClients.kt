@@ -123,7 +123,7 @@ class AwsClients {
             .withAuthCredentials(awsProperties.keyspace.username, awsProperties.keyspace.password)
             .withLocalDatacenter("ap-south-1")
             .withSslContext(SSLContext.getDefault())
-            .withKeyspace("dk_unboxd_db")
+            .withKeyspace(awsProperties.keyspace.name)
             //.withCloudSecureConnectBundle(objectData)
         }
     }
