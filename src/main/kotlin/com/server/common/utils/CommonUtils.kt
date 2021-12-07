@@ -7,8 +7,12 @@ import io.sentry.Sentry
 object CommonUtils {
     var STRING_SEPARATOR = "_-_"
 
-    fun getStringWithOnlyCharOrDigit(str: String): String {
-        return str.filter { it.isLetterOrDigit() }
+    private fun convertToAlphaNumeric(str: String): String {
+        return str.replace("[^A-Za-z0-9]".toRegex(), "");
+    }
+
+    fun getLowercaseStringWithOnlyCharOrDigit(str: String): String {
+        return (convertToAlphaNumeric(str)).toLowerCase().filter { it.isLetterOrDigit() }
     }
 
     fun getSanitizePhoneNumber(absoluteMobile: String?): String? {
@@ -42,5 +46,9 @@ object CommonUtils {
             )
         }
     }
+
+//    fun getStopWords(): Set<String> {
+//
+//    }
 }
 

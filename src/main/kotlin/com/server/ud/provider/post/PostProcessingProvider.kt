@@ -1,6 +1,5 @@
 package com.server.ud.provider.post
 
-import com.algolia.search.SearchClient
 import com.server.common.provider.MediaHandlerProvider
 import com.server.ud.dto.GetFollowersRequest
 import com.server.ud.entities.post.*
@@ -9,6 +8,7 @@ import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.location.ESLocationProvider
 import com.server.ud.provider.location.LocationProcessingProvider
 import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
+import com.server.ud.provider.search.SearchProvider
 import com.server.ud.provider.social.FollowersByUserProvider
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.GlobalScope
@@ -70,7 +70,7 @@ class PostProcessingProvider {
     private lateinit var nearbyVideoPostsByZipcodeProvider: NearbyVideoPostsByZipcodeProvider
 
     @Autowired
-    private lateinit var searchClient: SearchClient
+    private lateinit var searchProvider: SearchProvider
 
     @Autowired
     private lateinit var mediaHandlerProvider: MediaHandlerProvider
@@ -148,8 +148,7 @@ class PostProcessingProvider {
 //            }
 
             val algoliaIndexingFuture = async {
-                val index = searchClient.initIndex("posts", AlgoliaPost::class.java)
-                index.saveObject(updatedPost.toAlgoliaPost())
+                searchProvider.doSearchProcessingForPost(updatedPost)
             }
 
             postsByUserFuture.await()

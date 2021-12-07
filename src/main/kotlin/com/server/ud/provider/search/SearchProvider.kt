@@ -1,13 +1,17 @@
 package com.server.ud.provider.search
 
+import com.algolia.search.SearchClient
 import com.server.ud.dto.PostsSearchResponse
 import com.server.ud.dto.UDSearchRequest
+import com.server.ud.entities.post.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import org.elasticsearch.client.RestHighLevelClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-
 
 @Component
 class SearchProvider {
@@ -16,6 +20,9 @@ class SearchProvider {
 
     @Autowired
     private lateinit var restHighLevelClient: RestHighLevelClient
+
+    @Autowired
+    private lateinit var searchClient: SearchClient
 
     fun getPostsForSearchText(request: UDSearchRequest): PostsSearchResponse? {
         return null
@@ -57,6 +64,31 @@ class SearchProvider {
 //            e.printStackTrace()
 //            null
 //        }
+    }
+
+    fun doSearchProcessingForPost(post: Post) {
+        GlobalScope.launch {
+            val postSave = async { savePostToAlgolia(post) }
+            val postAutoSuggestSave = async { saveAutoSuggestForPostToAlgolia(post) }
+            postSave.await()
+            postAutoSuggestSave.await()
+        }
+    }
+
+    private fun savePostToAlgolia(post: Post) {
+        GlobalScope.launch {
+            val index = searchClient.initIndex("posts", AlgoliaPost::class.java)
+            index.saveObject(post.toAlgoliaPost())
+        }
+    }
+
+    fun saveAutoSuggestForPostToAlgolia(post: Post) {
+        GlobalScope.launch {
+            val index = searchClient.initIndex("posts_query_suggestions", AlgoliaPostAutoSuggest::class.java)
+            post.toAlgoliaPostAutoSuggest().map {
+                async { index.saveObject(it) }
+            }.map { it.await() }
+        }
     }
 
 }

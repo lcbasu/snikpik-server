@@ -1,13 +1,10 @@
 package com.server.ud.service.faker
 
 import com.server.common.provider.SecurityProvider
-import com.server.dk.enums.MessageDedupIdType
-import com.server.dk.enums.MessageGroupIdType
 import com.server.ud.dto.FakerRequest
 import com.server.ud.dto.FakerResponse
-import com.server.ud.provider.faker.FakerProvider
 import com.server.ud.provider.deferred.DeferredProcessingProvider
-import com.server.ud.service.queue.Producer
+import com.server.ud.provider.faker.FakerProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -41,15 +38,7 @@ class FakerServiceImpl : FakerService() {
         return "Job scheduled to generate fake data"
     }
 
-    @Autowired
-    private lateinit var producer: Producer
-
     override fun doSomething(): Any {
-        producer.sendToFifoQueue(
-            messagePayload = "some_post_id",
-            messageGroupID = MessageGroupIdType.ProcessPost_GroupId.name,
-            messageDedupID = MessageDedupIdType.ProcessPost_DedupId.name,
-        )
-        return "Something was done..."
+        return fakerProvider.doSomething()
     }
 }

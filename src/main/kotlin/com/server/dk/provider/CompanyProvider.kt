@@ -90,7 +90,7 @@ class CompanyProvider {
     private fun getUsernamePrefixFromCompanyName(company: Company): String {
         // Keep maximum length to be some constant
         val maxLengthOfAutomatedPrefix = 10
-        return CommonUtils.getStringWithOnlyCharOrDigit(company.name).take(maxLengthOfAutomatedPrefix)
+        return CommonUtils.getLowercaseStringWithOnlyCharOrDigit(company.name).take(maxLengthOfAutomatedPrefix)
     }
 
     private fun getUsernameFromCompanyName(company: Company): String {

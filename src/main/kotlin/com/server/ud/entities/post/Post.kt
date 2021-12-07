@@ -3,6 +3,7 @@ package com.server.ud.entities.post
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.dto.AllLabelsResponse
 import com.server.common.dto.AllProfileTypeResponse
+import com.server.common.utils.CommonUtils.getLowercaseStringWithOnlyCharOrDigit
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
 import com.server.ud.dto.AllCategoryV2Response
@@ -86,7 +87,7 @@ data class Post (
     val locationLng: Double? = null,
 )
 
-fun Post.getLabels(): AllLabelsResponse? {
+fun Post.getLabels(): AllLabelsResponse {
     this.apply {
         return try {
             jacksonObjectMapper().readValue(labels, AllLabelsResponse::class.java)
@@ -175,5 +176,51 @@ fun Post.toAlgoliaPost(): AlgoliaPost {
             ) else null,
             labels = getLabels()
         )
+    }
+}
+
+fun Post.toAlgoliaPostAutoSuggest(): List<AlgoliaPostAutoSuggest> {
+    this.apply {
+        val result = mutableListOf<AlgoliaPostAutoSuggest>()
+
+        // Only take first 50 characters of title
+        title?.take(50)?.toAlgoliaPostAutoSuggest()?.let {
+            result.add(it)
+        }
+
+        // Only take first 50 characters of description
+        description?.take(50)?.toAlgoliaPostAutoSuggest()?.let {
+            result.add(it)
+        }
+
+        userName?.toAlgoliaPostAutoSuggest()?.let {
+            result.add(it)
+        }
+
+        getUserProfiles().profileTypes.map {
+            result.add(it.displayName.toAlgoliaPostAutoSuggest())
+        }
+
+        getHashTags().tags.map {
+            result.add(it.toAlgoliaPostAutoSuggest())
+        }
+
+        getCategories().categories.map {
+            result.add(it.displayName.toAlgoliaPostAutoSuggest())
+        }
+
+        locationName?.let {
+            result.add(it.toAlgoliaPostAutoSuggest())
+        }
+
+        zipcode?.let {
+            result.add(it.toAlgoliaPostAutoSuggest())
+        }
+
+        getLabels().labels.map {
+            result.add(it.toAlgoliaPostAutoSuggest())
+        }
+
+        return result
     }
 }

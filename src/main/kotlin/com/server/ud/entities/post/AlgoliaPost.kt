@@ -2,6 +2,7 @@ package com.server.ud.entities.post
 
 import com.server.common.dto.AllLabelsResponse
 import com.server.common.dto.AllProfileTypeResponse
+import com.server.common.utils.CommonUtils
 import com.server.dk.model.MediaDetailsV2
 import com.server.ud.dto.AllCategoryV2Response
 import com.server.ud.enums.PostType
@@ -36,3 +37,21 @@ data class AlgoliaPost (
     val _geoloc: GeoLoc? = null,
     val labels: AllLabelsResponse? = null,
 )
+
+data class AlgoliaPostAutoSuggest (
+    val objectID: String,
+    val nb_words: Int,
+    val popularity: Int,
+    val query: String,
+)
+
+fun String.toAlgoliaPostAutoSuggest(): AlgoliaPostAutoSuggest {
+    this.apply {
+        return AlgoliaPostAutoSuggest(
+            objectID = CommonUtils.getLowercaseStringWithOnlyCharOrDigit(this),
+            nb_words = 1,
+            popularity = 1,
+            query = this,
+        )
+    }
+}

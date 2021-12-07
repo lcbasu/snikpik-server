@@ -1,5 +1,6 @@
 package com.server.ud.provider.faker
 
+import com.algolia.search.SearchClient
 import com.github.javafaker.Faker
 import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.dto.convertToString
@@ -15,12 +16,12 @@ import com.server.ud.dto.*
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.entities.comment.Comment
 import com.server.ud.entities.like.Like
+import com.server.ud.entities.post.AlgoliaPostAutoSuggest
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.reply.Reply
 import com.server.ud.entities.social.SocialRelation
 import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.*
-import com.server.ud.model.AllHashTags
 import com.server.ud.model.sampleHashTagsIds
 import com.server.ud.provider.bookmark.BookmarkProvider
 import com.server.ud.provider.comment.CommentProvider
@@ -76,6 +77,9 @@ class FakerProvider {
 
     @Autowired
     private lateinit var socialRelationProcessingProvider: SocialRelationProcessingProvider
+
+    @Autowired
+    private lateinit var searchClient: SearchClient
 
     fun createFakeDataRandomly(): List<Any> {
 
@@ -281,6 +285,25 @@ class FakerProvider {
 
         return result.filterNotNull()
 
+    }
+
+    fun doSomething(): Any {
+        val index = searchClient.initIndex("posts_query_suggestions", AlgoliaPostAutoSuggest::class.java)
+        val data1 = AlgoliaPostAutoSuggest(
+            objectID = "some_random_3",
+            nb_words = 1,
+            popularity = 1,
+            query = "I can type something",
+        )
+        val data2 = AlgoliaPostAutoSuggest(
+            objectID = "some_random_4",
+            nb_words = 1,
+            popularity = 1,
+            query = "You can read something",
+        )
+        index.saveObject(data1)
+        index.saveObject(data2)
+        return "Something was done..."
     }
 
 }
