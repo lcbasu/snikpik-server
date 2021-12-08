@@ -20,13 +20,8 @@ class BookmarkedPostsByUser (
     @PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var userId: String,
 
-    @PrimaryKeyColumn(name = "post_type", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
+    @PrimaryKeyColumn(name = "post_type", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     var postType: PostType,
-
-    // Only get the ones that are marked as true
-    // Doing this as it is hard to delete in cassandra if someone un-saves
-    @PrimaryKeyColumn(name = "bookmarked", ordinal = 2, type = PrimaryKeyType.PARTITIONED)
-    var bookmarked: Boolean,
 
     @PrimaryKeyColumn(name = "post_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
     var postId: String,

@@ -1,12 +1,10 @@
 package com.server.ud.provider.post
 
-import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.BookmarkedPostsByUserRepository
 import com.server.ud.dto.BookmarkedPostsByUserRequest
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.entities.post.BookmarkedPostsByUser
 import com.server.ud.entities.post.Post
-import com.server.ud.enums.PostType
 import com.server.ud.enums.ResourceType
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.utils.pagination.PaginationRequestUtil
@@ -48,7 +46,6 @@ class BookmarkedPostsByUserProvider {
         try {
             val bookmarkedPostByUser = BookmarkedPostsByUser(
                 userId = bookmark.userId,
-                bookmarked = bookmark.bookmarked,
                 createdAt = bookmark.createdAt,
                 postCreatedAt = post.createdAt,
                 postedByUserId = post.userId,
@@ -70,7 +67,7 @@ class BookmarkedPostsByUserProvider {
 
     fun getBookmarkedPostsByUser(request: BookmarkedPostsByUserRequest): CassandraPageV2<BookmarkedPostsByUser> {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
-         val posts = bookmarkedPostsByUserRepository.findAllByUserIdAndPostTypeAndBookmarked(request.userId, PostType.GENERIC_POST, true, pageRequest as Pageable)
+         val posts = bookmarkedPostsByUserRepository.findAllByUserId(request.userId, pageRequest as Pageable)
         return CassandraPageV2(posts)
     }
 

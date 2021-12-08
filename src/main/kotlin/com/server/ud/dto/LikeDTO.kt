@@ -1,14 +1,22 @@
 package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.utils.DateUtils
-import com.server.dk.model.MediaDetailsV2
 import com.server.ud.entities.like.Like
-import com.server.ud.entities.post.Post
 import com.server.ud.enums.LikeUpdateAction
 import com.server.ud.enums.ResourceType
-import java.time.Instant
+import com.server.ud.provider.like.LikesCountByResourceProvider
+
+data class ResourceLikesReportDetailForUser(
+    val userId: String,
+    val liked: Boolean
+)
+
+data class ResourceLikesReportDetail(
+    val resourceId: String,
+    val likes: Long,
+    val userLevelInfo: ResourceLikesReportDetailForUser
+)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveLikeRequest(
@@ -25,10 +33,10 @@ data class SavedLikeResponse(
     var resourceType: ResourceType,
     var userId: String,
     var liked: Boolean,
+    val totalLikes: Long,
 )
 
-
-fun Like.toSavedLikeResponse(): SavedLikeResponse {
+fun Like.toSavedLikeResponse(provider: LikesCountByResourceProvider): SavedLikeResponse {
     this.apply {
         return SavedLikeResponse(
             likeId = likeId,
@@ -37,7 +45,7 @@ fun Like.toSavedLikeResponse(): SavedLikeResponse {
             resourceType = resourceType,
             userId = userId,
             liked = liked,
+            totalLikes = provider.getLikesCountByResource(resourceId)?.likesCount ?: 0
         )
     }
 }
-

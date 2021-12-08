@@ -3,7 +3,6 @@ package com.server.ud.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.server.common.utils.CommonUtils
 import com.server.dk.model.MediaDetailsV2
-import com.server.ud.enums.ResourceType
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 
@@ -67,17 +66,6 @@ open class PaginationResponse (
     open val count: Int? = null,
     open val pagingState: String? = null,
     open val hasNext: Boolean? = null
-)
-
-data class ResourceLikesReportDetailForUser(
-    val userId: String,
-    val liked: Boolean
-)
-
-data class ResourceLikesReportDetail(
-    val resourceId: String,
-    val likes: Long,
-    val userLevelInfo: ResourceLikesReportDetailForUser
 )
 
 data class BookmarkReportDetailForUser(

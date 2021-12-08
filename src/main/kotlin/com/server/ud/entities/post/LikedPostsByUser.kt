@@ -19,15 +19,10 @@ class LikedPostsByUser (
     @PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var userId: String,
 
-    @PrimaryKeyColumn(name = "post_type", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
+    @PrimaryKeyColumn(name = "post_type", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
     var postType: PostType,
 
-    // Only get the ones that are marked as true
-    // Doing this as it is hard to delete in cassandra if someone removes like from a post
-    @PrimaryKeyColumn(name = "liked", ordinal = 2, type = PrimaryKeyType.PARTITIONED)
-    var liked: Boolean,
-
-    @PrimaryKeyColumn(name = "post_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
+    @PrimaryKeyColumn(name = "post_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     var postId: String,
 
     @Column("created_at")

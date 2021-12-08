@@ -1,12 +1,10 @@
 package com.server.ud.provider.post
 
-import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.LikedPostsByUserRepository
 import com.server.ud.dto.LikedPostsByUserRequest
 import com.server.ud.entities.like.Like
 import com.server.ud.entities.post.LikedPostsByUser
 import com.server.ud.entities.post.Post
-import com.server.ud.enums.PostType
 import com.server.ud.enums.ResourceType
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.utils.pagination.PaginationRequestUtil
@@ -31,16 +29,26 @@ class LikedPostsByUserProvider {
     private lateinit var paginationRequestUtil: PaginationRequestUtil
 
     fun processLike(like: Like): LikedPostsByUser? {
-        try {
-            if (like.resourceType != ResourceType.POST) {
-                return null
+        return try {
+            if (like.resourceType == ResourceType.POST || like.resourceType == ResourceType.WALL) {
+                val post = postProvider.getPost(like.resourceId) ?: error("Error while getting post with postId: ${like.resourceId}")
+                if (like.liked) {
+                    save(like, post)
+                } else {
+                    likedPostsByUserRepository.deleteByUserIdAndPostTypeAndPostId(
+                        userId = like.userId,
+                        postType = post.postType,
+                        postId = like.resourceId,
+                    )
+                    null
+                }
+            } else {
+                null
             }
-            val post = postProvider.getPost(like.resourceId) ?: error("Error while getting post with postId: ${like.resourceId}")
-            return save(like, post)
         } catch (e: Exception) {
             logger.error("Saving LikedPostsByUser failed for likeId: ${like.liked}.")
             e.printStackTrace()
-            return null
+            null
         }
     }
 
@@ -48,7 +56,6 @@ class LikedPostsByUserProvider {
         try {
             val likedPostByUser = LikedPostsByUser(
                 userId = like.userId,
-                liked = like.liked,
                 createdAt = like.createdAt,
                 postCreatedAt = post.createdAt,
                 postedByUserId = post.userId,
@@ -70,7 +77,7 @@ class LikedPostsByUserProvider {
 
     fun getLikedPostsByUser(request: LikedPostsByUserRequest): CassandraPageV2<LikedPostsByUser> {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
-         val posts = likedPostsByUserRepository.findAllByUserIdAndPostTypeAndLiked(request.userId, PostType.GENERIC_POST, true, pageRequest as Pageable)
+         val posts = likedPostsByUserRepository.findAllByUserId(request.userId, pageRequest as Pageable)
         return CassandraPageV2(posts)
     }
 

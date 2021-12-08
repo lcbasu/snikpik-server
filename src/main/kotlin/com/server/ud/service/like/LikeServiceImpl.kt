@@ -20,28 +20,13 @@ class LikeServiceImpl : LikeService() {
     @Autowired
     private lateinit var likesCountByResourceProvider: LikesCountByResourceProvider
 
-    @Autowired
-    private lateinit var likeForResourceByUserProvider: LikeForResourceByUserProvider
-
     override fun saveLike(request: SaveLikeRequest): SavedLikeResponse? {
         val userDetailsFromToken = securityProvider.validateRequest()
-        return likeProvider.save(userDetailsFromToken.getUserIdToUse(), request)?.toSavedLikeResponse()
+        return likeProvider.save(userDetailsFromToken.getUserIdToUse(), request)?.toSavedLikeResponse(likesCountByResourceProvider)
     }
 
     override fun getResourceLikesDetail(resourceId: String): ResourceLikesReportDetail {
         val userDetailsFromToken = securityProvider.validateRequest()
-        val likesCountByResource = likesCountByResourceProvider.getLikesCountByResource(resourceId)?.likesCount ?: 0
-        val liked = likeForResourceByUserProvider.getLikeForResourceByUser(
-            resourceId = resourceId,
-            userId = userDetailsFromToken.getUserIdToUse()
-        )?.liked ?: false
-        return ResourceLikesReportDetail(
-            resourceId = resourceId,
-            likes = likesCountByResource,
-            userLevelInfo = ResourceLikesReportDetailForUser(
-                userId = userDetailsFromToken.getUserIdToUse(),
-                liked = liked
-            )
-        )
+        return likeProvider.getResourceLikesDetail(resourceId, userDetailsFromToken.getUserIdToUse())
     }
 }

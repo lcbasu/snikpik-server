@@ -3,6 +3,8 @@ package com.server.ud.provider.like
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.RandomIdProvider
 import com.server.ud.dao.like.LikeRepository
+import com.server.ud.dto.ResourceLikesReportDetail
+import com.server.ud.dto.ResourceLikesReportDetailForUser
 import com.server.ud.dto.SaveLikeRequest
 import com.server.ud.entities.like.Like
 import com.server.ud.enums.LikeUpdateAction
@@ -25,6 +27,16 @@ class LikeProvider {
 
     @Autowired
     private lateinit var deferredProcessingProvider: DeferredProcessingProvider
+
+    @Autowired
+    private lateinit var likesCountByResourceProvider: LikesCountByResourceProvider
+
+    @Autowired
+    private lateinit var likeForResourceByUserProvider: LikeForResourceByUserProvider
+
+    @Autowired
+    private lateinit var likeProcessingProvider: LikeProcessingProvider
+
 
     fun getLike(likeId: String): Like? =
         try {
@@ -53,12 +65,29 @@ class LikeProvider {
                 liked = request.action == LikeUpdateAction.ADD
             )
             val savedLike = likeRepository.save(like)
+            likeProcessingProvider.thingsToDoForLikeProcessingNow(savedLike)
             deferredProcessingProvider.deferProcessingForLike(savedLike.likeId)
             return savedLike
         } catch (e: Exception) {
             e.printStackTrace()
             return null
         }
+    }
+
+    fun getResourceLikesDetail(resourceId: String, userId: String): ResourceLikesReportDetail {
+        val likesCountByResource = likesCountByResourceProvider.getLikesCountByResource(resourceId)?.likesCount ?: 0
+        val liked = likeForResourceByUserProvider.getLikeForResourceByUser(
+            resourceId = resourceId,
+            userId = userId
+        )?.liked ?: false
+        return ResourceLikesReportDetail(
+            resourceId = resourceId,
+            likes = likesCountByResource,
+            userLevelInfo = ResourceLikesReportDetailForUser(
+                userId = userId,
+                liked = liked
+            )
+        )
     }
 
 }
