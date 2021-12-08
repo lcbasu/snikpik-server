@@ -39,15 +39,15 @@ class LikeProcessingProvider {
 
     fun processLike(likeId: String) {
         GlobalScope.launch {
+            logger.info("Later:Start: like processing for likeId: $likeId")
             val like = likesProvider.getLike(likeId) ?: error("Failed to get like data for likeId: $likeId")
-            logger.info("Later:Start: like processing for likeId: ${like.likeId}")
             val likedPostsByUserProviderFuture = async { likedPostsByUserProvider.processLike(like) }
             val likesByResourceFuture = async { likesByResourceProvider.save(like) }
             val likesByUserFuture = async { likesByUserProvider.save(like) }
             likedPostsByUserProviderFuture.await()
             likesByResourceFuture.await()
             likesByUserFuture.await()
-            logger.info("Later:Done: like processing for likeId: ${like.likeId}")
+            logger.info("Later:Done: like processing for likeId: $likeId")
         }
     }
 
@@ -63,23 +63,9 @@ class LikeProcessingProvider {
 
             // If the previous and current state are not same, then update the likes count
             if (liked != like.liked) {
-
-                val likeForResourceByUserFuture = async {
-                    likeForResourceByUserProvider.setLike(like.resourceId, like.userId, like.liked)
-                }
-
-                val likesCountByResourceFuture = async {
-                    if (like.liked) likesCountByResourceProvider.increaseLike(like.resourceId) else likesCountByResourceProvider.decreaseLike(
-                        like.resourceId
-                    )
-                }
-
-                val likesCountByUserFuture = async {
-                    if (like.liked) likesCountByUserProvider.increaseLike(like.userId) else likesCountByUserProvider.decreaseLike(
-                        like.userId
-                    )
-                }
-
+                val likeForResourceByUserFuture = async { likeForResourceByUserProvider.setLike(like.resourceId, like.userId, like.liked) }
+                val likesCountByResourceFuture = async { if (like.liked) likesCountByResourceProvider.increaseLike(like.resourceId) else likesCountByResourceProvider.decreaseLike(like.resourceId) }
+                val likesCountByUserFuture = async { if (like.liked) likesCountByUserProvider.increaseLike(like.userId) else likesCountByUserProvider.decreaseLike(like.userId) }
                 likeForResourceByUserFuture.await()
                 likesCountByResourceFuture.await()
                 likesCountByUserFuture.await()

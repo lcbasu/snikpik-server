@@ -68,17 +68,6 @@ open class PaginationResponse (
     open val hasNext: Boolean? = null
 )
 
-data class BookmarkReportDetailForUser(
-    val userId: String,
-    val bookmarked: Boolean
-)
-
-data class BookmarkReportDetail(
-    val resourceId: String,
-    val bookmarks: Long,
-    val userLevelInfo: BookmarkReportDetailForUser
-)
-
 data class ResourceViewsReportDetailForUser(
     val userId: String,
     val viewed: Boolean

@@ -29,16 +29,26 @@ class BookmarkedPostsByUserProvider {
     private lateinit var paginationRequestUtil: PaginationRequestUtil
 
     fun processBookmark(bookmark: Bookmark): BookmarkedPostsByUser? {
-        try {
-            if (bookmark.resourceType != ResourceType.POST) {
-                return null
+        return try {
+            if (bookmark.resourceType == ResourceType.POST || bookmark.resourceType == ResourceType.WALL) {
+                val post = postProvider.getPost(bookmark.resourceId) ?: error("Error while getting post with postId: ${bookmark.resourceId}")
+                if (bookmark.bookmarked) {
+                    save(bookmark, post)
+                } else {
+                    bookmarkedPostsByUserRepository.deleteByUserIdAndPostTypeAndPostId(
+                        userId = bookmark.userId,
+                        postType = post.postType,
+                        postId = bookmark.resourceId,
+                    )
+                    null
+                }
+            } else {
+                null
             }
-            val post = postProvider.getPost(bookmark.resourceId) ?: error("Error while getting post with postId: ${bookmark.resourceId}")
-            return save(bookmark, post)
         } catch (e: Exception) {
             logger.error("Saving BookmarkedPostsByUser failed for bookmarkId: ${bookmark.bookmarkId}.")
             e.printStackTrace()
-            return null
+            null
         }
     }
 

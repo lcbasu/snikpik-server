@@ -26,6 +26,7 @@ class LikesByUserProvider {
                 resourceId = like.resourceId,
                 resourceType = like.resourceType,
                 liked = like.liked,
+                likeId = like.likeId,
             )
             val savedLikesByUser = likesByUserRepository.save(likesByUser)
             logger.info("Saved LikesByUser into cassandra for likeId: ${like.likeId}")

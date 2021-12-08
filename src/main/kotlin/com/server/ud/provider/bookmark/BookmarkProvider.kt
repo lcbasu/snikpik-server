@@ -26,6 +26,9 @@ class BookmarkProvider {
     @Autowired
     private lateinit var deferredProcessingProvider: DeferredProcessingProvider
 
+    @Autowired
+    private lateinit var bookmarkProcessingProvider: BookmarkProcessingProvider
+
     fun getBookmark(bookmarkId: String): Bookmark? =
         try {
             val bookmarks = bookmarkRepository.findAllByBookmarkId(bookmarkId)
@@ -49,6 +52,7 @@ class BookmarkProvider {
                 bookmarked = request.action == BookmarkUpdateAction.ADD
             )
             val savedBookmark = bookmarkRepository.save(bookmark)
+            bookmarkProcessingProvider.thingsToDoForBookmarkProcessingNow(savedBookmark)
             deferredProcessingProvider.deferProcessingForBookmark(savedBookmark.bookmarkId)
             return savedBookmark
         } catch (e: Exception) {

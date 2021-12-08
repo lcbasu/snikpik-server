@@ -27,6 +27,9 @@ class LikesByUser (
     @PrimaryKeyColumn(name = "resource_type", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
     var resourceType: ResourceType,
 
+    @Column("like_id")
+    var likeId: String,
+
     // True or false based on like or unlike(remove like after liking)
     var liked: Boolean = false,
 )

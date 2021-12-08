@@ -3,13 +3,20 @@ package com.server.ud.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.server.common.utils.DateUtils
 import com.server.ud.entities.bookmark.Bookmark
-import com.server.ud.entities.like.Like
 import com.server.ud.enums.BookmarkUpdateAction
 import com.server.ud.enums.ResourceType
-import org.springframework.data.cassandra.core.cql.Ordering
-import org.springframework.data.cassandra.core.cql.PrimaryKeyType
-import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
-import java.time.Instant
+import com.server.ud.provider.bookmark.BookmarksCountByResourceProvider
+
+data class BookmarkReportDetailForUser(
+    val userId: String,
+    val bookmarked: Boolean
+)
+
+data class BookmarkReportDetail(
+    val resourceId: String,
+    val bookmarks: Long,
+    val userLevelInfo: BookmarkReportDetailForUser
+)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveBookmarkRequest(
@@ -26,9 +33,10 @@ data class SavedBookmarkResponse(
     val resourceType: ResourceType,
     val userId: String,
     val bookmarked: Boolean,
+    val totalBookmarks: Long,
 )
 
-fun Bookmark.toSavedBookmarkResponse(): SavedBookmarkResponse {
+fun Bookmark.toSavedBookmarkResponse(provider: BookmarksCountByResourceProvider): SavedBookmarkResponse {
     this.apply {
         return SavedBookmarkResponse(
             bookmarkId = bookmarkId,
@@ -37,7 +45,7 @@ fun Bookmark.toSavedBookmarkResponse(): SavedBookmarkResponse {
             resourceType = resourceType,
             userId = userId,
             bookmarked = bookmarked,
+            totalBookmarks = provider.getBookmarksCountByResource(resourceId)?.bookmarksCount ?: 0,
         )
     }
 }
-
