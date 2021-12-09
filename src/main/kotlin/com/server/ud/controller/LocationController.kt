@@ -16,7 +16,7 @@ class LocationController {
     @Autowired
     private lateinit var locationService: LocationService
 
-    @RequestMapping(value = ["/getCitiesLocationData"], method = [RequestMethod.POST])
+    @RequestMapping(value = ["/getCitiesLocationData"], method = [RequestMethod.GET])
     fun getCitiesLocationData(): CitiesLocationResponse {
         return locationService.getCitiesLocationData()
     }
