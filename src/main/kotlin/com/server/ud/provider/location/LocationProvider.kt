@@ -1,10 +1,13 @@
 package com.server.ud.provider.location
 
 import com.server.common.enums.ReadableIdPrefix
+import com.server.common.provider.CSVDataProvider
 import com.server.common.provider.RandomIdProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.location.LocationRepository
+import com.server.ud.dto.CitiesLocationResponse
 import com.server.ud.dto.SaveLocationRequest
+import com.server.ud.dto.toCityLocationDataResponse
 import com.server.ud.entities.location.Location
 import com.server.ud.enums.LocationFor
 import com.server.ud.provider.deferred.DeferredProcessingProvider
@@ -98,6 +101,14 @@ class LocationProvider {
             e.printStackTrace()
             return null
         }
+    }
+
+    fun getCitiesLocationData(): CitiesLocationResponse {
+        return CitiesLocationResponse(
+            cities = CSVDataProvider.citiesLocationData.values.map {
+                it.toCityLocationDataResponse()
+            }
+        )
     }
 
 }

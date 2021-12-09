@@ -1,8 +1,25 @@
 package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.server.common.provider.CityLocationData
 import com.server.ud.entities.location.Location
 import com.server.ud.enums.LocationFor
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class CityLocationDataResponse(
+    val city: String,
+    val state: String,
+    val country: String,
+    val countryCode: String,
+    val zipcode: String,
+    val latitude: Double,
+    val longitude: Double,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class CitiesLocationResponse(
+    var cities: List<CityLocationDataResponse>,
+)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class FakeLocationRequest(
@@ -98,3 +115,17 @@ val sampleLocationRequests = listOf(
         lng = 76.655175,
     )
 )
+
+fun CityLocationData.toCityLocationDataResponse(): CityLocationDataResponse {
+    this.apply {
+        return CityLocationDataResponse(
+            city = city,
+            state = state,
+            country = country,
+            countryCode = countryCode,
+            zipcode = zipcode,
+            latitude = latitude,
+            longitude = longitude,
+        )
+    }
+}

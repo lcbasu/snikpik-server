@@ -35,6 +35,8 @@ dependencies {
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools:2.3.8.RELEASE")
 
+	// Be careful of the version number for fasterxml
+	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.11.4")
 	implementation("io.micrometer:micrometer-registry-datadog:1.8.0")
 	implementation("org.springframework.cloud:spring-cloud-starter-aws-messaging:2.2.6.RELEASE")
 	implementation("com.algolia:algoliasearch-core:3.10.0")
