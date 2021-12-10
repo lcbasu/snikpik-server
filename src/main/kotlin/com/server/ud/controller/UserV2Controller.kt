@@ -26,7 +26,7 @@ class UserV2Controller {
         return userV2Service.saveLoggedInUserV2()
     }
 
-    @RequestMapping(value = ["/get"], method = [RequestMethod.POST])
+    @RequestMapping(value = ["/get"], method = [RequestMethod.GET])
     fun getLoggedInUserV2(): SavedUserV2Response? {
         securityProvider.validateRequest()
         return userV2Service.getLoggedInUserV2()
