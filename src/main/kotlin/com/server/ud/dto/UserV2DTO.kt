@@ -87,31 +87,36 @@ data class PostsByUserRequest (
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateUserV2HandleRequest (
-    val userId: String,
+    // Take it from request for any update related action
+//    val userId: String,
     val newHandle: String,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateUserV2DPRequest (
-    val userId: String,
+    // Take it from request for any update related action
+//    val userId: String,
     val dp: MediaDetailsV2,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateUserV2ProfilesRequest (
-    val userId: String,
+    // Take it from request for any update related action
+//    val userId: String,
     val profiles: Set<ProfileType>,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateUserV2NameRequest (
-    val userId: String,
+    // Take it from request for any update related action
+//    val userId: String,
     val newName: String,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateUserV2LocationRequest (
-    val userId: String,
+    // Take it from request for any update related action
+//    val userId: String,
     val lat: Double,
     val lng: Double,
     var zipcode: String,

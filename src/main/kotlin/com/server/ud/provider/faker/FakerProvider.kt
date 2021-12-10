@@ -131,13 +131,12 @@ class FakerProvider {
             ), false) ?: error("Error saving userV2 for userId: ${id}")
             // This save will also take care of creating the job to process location data
             userV2Provider.updateUserV2Location(UpdateUserV2LocationRequest (
-                userId = userV2.userId,
                 lat = location.lat!!,
                 lng = location.lng!!,
                 zipcode = location.zipcode!!,
                 name = location.name,
                 googlePlaceId = location.googlePlaceId,
-            ))
+            ), userV2.userId)
             usersV2.add(userV2)
         }
 

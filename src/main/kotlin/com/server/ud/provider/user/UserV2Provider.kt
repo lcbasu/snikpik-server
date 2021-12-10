@@ -72,7 +72,8 @@ class UserV2Provider {
     }
 
     fun updateUserV2Handle(request: UpdateUserV2HandleRequest): UserV2? {
-        val user = getUser(request.userId) ?: error("No user found for userId: ${request.userId}")
+        val firebaseAuthUser = securityProvider.validateRequest()
+        val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
         if (usersByHandleProvider.isHandleAvailable(request.newHandle)) {
             val newUserToBeSaved = user.copy(handle = request.newHandle)
             val savedUser = saveUserV2(newUserToBeSaved)
@@ -84,26 +85,30 @@ class UserV2Provider {
     }
 
     fun updateUserV2DP(request: UpdateUserV2DPRequest): UserV2? {
-        val user = getUser(request.userId) ?: error("No user found for userId: ${request.userId}")
+        val firebaseAuthUser = securityProvider.validateRequest()
+        val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
         val newUserToBeSaved = user.copy(dp = request.dp.convertToString())
         return saveUserV2(newUserToBeSaved)
     }
 
     fun updateUserV2Profiles(request: UpdateUserV2ProfilesRequest): UserV2? {
-        val user = getUser(request.userId) ?: error("No user found for userId: ${request.userId}")
+        val firebaseAuthUser = securityProvider.validateRequest()
+        val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
         val newUserToBeSaved = user.copy(profiles = AllProfileTypeResponse(request.profiles.map { it.toProfileTypeResponse() }).convertToString())
         return saveUserV2(newUserToBeSaved)
     }
 
     fun updateUserV2Name(request: UpdateUserV2NameRequest): UserV2? {
-        val user = getUser(request.userId) ?: error("No user found for userId: ${request.userId}")
+        val firebaseAuthUser = securityProvider.validateRequest()
+        val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
         val newUserToBeSaved = user.copy(fullName = request.newName)
         return saveUserV2(newUserToBeSaved)
     }
 
-    fun updateUserV2Location(request: UpdateUserV2LocationRequest): UserV2? {
-        val user = getUser(request.userId) ?: error("No user found for userId: ${request.userId}")
-
+    // Adding user id filed to handle Faker
+    // Figure out a better solve without exposing the user id
+    fun updateUserV2Location(request: UpdateUserV2LocationRequest, userId: String): UserV2? {
+        val user = getUser(userId) ?: error("No user found for userId: $userId")
         val locationRequest = SaveLocationRequest(
             locationFor = LocationFor.USER,
             zipcode = request.zipcode,
@@ -113,7 +118,7 @@ class UserV2Provider {
             lng = request.lng,
         )
 
-        val location = locationProvider.save(user.userId, locationRequest) ?: error("Error saving location for userId: ${request.userId}")
+        val location = locationProvider.save(user.userId, locationRequest) ?: error("Error saving location for userId: $userId")
 
         val newUserToBeSaved = user.copy(
             userLastLocationId = location.locationId,
@@ -123,6 +128,11 @@ class UserV2Provider {
             userLastLocationName = location.name,
             userLastGooglePlaceId = location.googlePlaceId)
         return saveUserV2(newUserToBeSaved)
+    }
+
+    fun getLoggedInUserV2(): UserV2? {
+        val firebaseAuthUser = securityProvider.validateRequest()
+        return getUser(firebaseAuthUser.getUserIdToUse())
     }
 
     fun saveUserV2WhoJustLoggedIn(): UserV2? {

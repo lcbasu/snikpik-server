@@ -1,5 +1,6 @@
 package com.server.ud.service.user
 
+import com.server.common.provider.SecurityProvider
 import com.server.ud.dto.*
 import com.server.ud.entities.social.FollowersCountByUser
 import com.server.ud.entities.social.FollowingsCountByUser
@@ -33,6 +34,9 @@ class UserV2ServiceImpl : UserV2Service() {
     @Autowired
     private lateinit var followingsCountByUserProvider: FollowingsCountByUserProvider
 
+    @Autowired
+    private lateinit var securityProvider: SecurityProvider
+
     override fun getUser(userId: String): SavedUserV2Response? {
         return userV2Provider.getUser(userId)?.toSavedUserV2Response()
     }
@@ -54,11 +58,16 @@ class UserV2ServiceImpl : UserV2Service() {
     }
 
     override fun updateUserV2Location(request: UpdateUserV2LocationRequest): SavedUserV2Response? {
-        return userV2Provider.updateUserV2Location(request)?.toSavedUserV2Response()
+        val firebaseAuthUser = securityProvider.validateRequest()
+        return userV2Provider.updateUserV2Location(request, firebaseAuthUser.getUserIdToUse())?.toSavedUserV2Response()
     }
 
-    override fun saveUserV2(): SavedUserV2Response? {
+    override fun saveLoggedInUserV2(): SavedUserV2Response? {
         return userV2Provider.saveUserV2WhoJustLoggedIn()?.toSavedUserV2Response()
+    }
+
+    override fun getLoggedInUserV2(): SavedUserV2Response? {
+        return userV2Provider.getLoggedInUserV2()?.toSavedUserV2Response()
     }
 
     override fun getAWSLambdaAuthDetails(): AWSLambdaAuthResponse? {

@@ -21,9 +21,15 @@ class UserV2Controller {
     private lateinit var userV2Service: UserV2Service
 
     @RequestMapping(value = ["/save"], method = [RequestMethod.POST])
-    fun saveUserV2(): SavedUserV2Response? {
+    fun saveLoggedInUserV2(): SavedUserV2Response? {
         securityProvider.validateRequest()
-        return userV2Service.saveUserV2()
+        return userV2Service.saveLoggedInUserV2()
+    }
+
+    @RequestMapping(value = ["/get"], method = [RequestMethod.POST])
+    fun getLoggedInUserV2(): SavedUserV2Response? {
+        securityProvider.validateRequest()
+        return userV2Service.getLoggedInUserV2()
     }
 
     @RequestMapping(value = ["/getAWSLambdaAuthDetails"], method = [RequestMethod.GET])

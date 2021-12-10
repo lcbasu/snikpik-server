@@ -11,7 +11,8 @@ abstract class UserV2Service {
     abstract fun updateUserV2Profiles(request: UpdateUserV2ProfilesRequest): SavedUserV2Response?
     abstract fun updateUserV2Name(request: UpdateUserV2NameRequest): SavedUserV2Response?
     abstract fun updateUserV2Location(request: UpdateUserV2LocationRequest): SavedUserV2Response?
-    abstract fun saveUserV2(): SavedUserV2Response?
+    abstract fun saveLoggedInUserV2(): SavedUserV2Response?
+    abstract fun getLoggedInUserV2(): SavedUserV2Response?
     abstract fun getAWSLambdaAuthDetails(): AWSLambdaAuthResponse?
     abstract fun getUserDetailsForProfilePage(userId: String): ProfilePageUserDetailsResponse?
     abstract fun getLikedPostsByUser(request: LikedPostsByUserRequest): LikedPostsByUserResponse
