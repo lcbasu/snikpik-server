@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import com.fasterxml.jackson.dataformat.csv.CsvSchema
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import org.springframework.stereotype.Component
 import java.io.File
 
 data class CityLocationData(
@@ -16,14 +17,15 @@ data class CityLocationData(
     val longitude: Double,
 )
 
-object CSVDataProvider {
+@Component
+class CSVDataProvider {
     val schema = CsvSchema.emptySchema().withHeader()
     val mapper = CsvMapper().apply {
         registerKotlinModule()
         propertyNamingStrategy = PropertyNamingStrategy.SNAKE_CASE
     }
 
-    val citiesLocationData: Map<String, CityLocationData>
+    final val citiesLocationData: Map<String, CityLocationData>
 
     init {
         citiesLocationData = loadCitiesLocationData()

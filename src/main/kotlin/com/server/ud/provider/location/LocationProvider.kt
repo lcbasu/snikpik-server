@@ -35,6 +35,9 @@ class LocationProvider {
     @Autowired
     private lateinit var deferredProcessingProvider: DeferredProcessingProvider
 
+    @Autowired
+    private lateinit var csvDataProvider: CSVDataProvider
+
     fun getLocation(locationId: String): Location? =
         try {
             val locations = locationRepository.findAllByLocationId(locationId)
@@ -105,7 +108,7 @@ class LocationProvider {
 
     fun getCitiesLocationData(): CitiesLocationResponse {
         return CitiesLocationResponse(
-            cities = CSVDataProvider.citiesLocationData.values.map {
+            cities = csvDataProvider.citiesLocationData.values.map {
                 it.toCityLocationDataResponse()
             }
         )
