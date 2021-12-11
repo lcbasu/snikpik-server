@@ -1,6 +1,5 @@
 package com.server.ud.provider.es
 
-import com.server.ud.entities.location.Location
 import com.server.ud.model.AutoSuggestEntry
 import com.server.ud.model.AutoSuggestResult
 import org.elasticsearch.action.search.SearchRequest
@@ -30,7 +29,7 @@ class ESProvider {
     @Autowired
     private lateinit var restHighLevelClient: RestHighLevelClient
 
-    fun getNearbyZipcodes(location: Location): Set<String> {
+    fun getNearbyZipcodes(lat: Double?, lng: Double?): Set<String> {
         return try {
             val request = SearchTemplateRequest(SearchRequest("locations"))
             request.scriptType = ScriptType.INLINE
@@ -40,8 +39,8 @@ class ESProvider {
 
             // TODO: Make this dynamic by taking this input from user
             scriptParams["distance_in_km"] = "300km"
-            scriptParams["latitude"] = location.lat.toString()
-            scriptParams["longitude"] = location.lng.toString()
+            scriptParams["latitude"] = lat.toString()
+            scriptParams["longitude"] = lng.toString()
             request.scriptParams = scriptParams
             val response: SearchTemplateResponse = restHighLevelClient.searchTemplate(request, RequestOptions.DEFAULT)
             ((response.response.aggregations.asList()[0] as ParsedFilter).aggregations.asList()[0] as Terms).buckets.map {

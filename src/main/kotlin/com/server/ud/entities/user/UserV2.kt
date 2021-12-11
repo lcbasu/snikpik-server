@@ -94,7 +94,7 @@ fun UserV2.getProfiles(): AllProfileTypeResponse {
         return try {
             jacksonObjectMapper().readValue(profiles, AllProfileTypeResponse::class.java)
         } catch (e: Exception) {
-            e.printStackTrace()
+//            e.printStackTrace()
             AllProfileTypeResponse(emptyList())
         }
     }

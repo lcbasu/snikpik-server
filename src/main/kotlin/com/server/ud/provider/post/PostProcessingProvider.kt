@@ -1,9 +1,12 @@
 package com.server.ud.provider.post
 
 import com.server.common.provider.MediaHandlerProvider
+import com.server.common.utils.DateUtils
 import com.server.ud.dto.GetFollowersRequest
+import com.server.ud.entities.location.Location
 import com.server.ud.entities.post.*
 import com.server.ud.enums.CategoryV2
+import com.server.ud.enums.PostType
 import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.location.ESLocationProvider
 import com.server.ud.provider.location.LocationProcessingProvider
@@ -166,6 +169,45 @@ class PostProcessingProvider {
             deferredProcessingProvider.deferProcessingForPostForFollowers(postId)
 
             logger.info("Done: post processing for postId: $postId")
+        }
+    }
+
+    fun processPostForNearbyLocation(originalLocation: Location, nearbyZipcodes: Set<String>) {
+        GlobalScope.launch {
+            logger.info("Start: processPostForNearbyLocation for locationId: ${originalLocation.locationId}")
+            if (originalLocation.zipcode == null) {
+                logger.error("Location ${originalLocation.name} does not have zipcode. Hence skipping processPostForNearbyLocation")
+                return@launch
+            }
+
+            val daysToGoInPast = 30L
+            val postsPerDayToUse = 50
+            val maxSaveListSize = 10
+
+            val dateNow = DateUtils.dateTimeNow()
+            val dateInPast = DateUtils.getDateInPast(daysToGoInPast)
+            val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(dateInPast, dateNow).map { DateUtils.toStringForDate(it) }
+            val nearbyPosts = mutableListOf<NearbyPostsByZipcode>()
+            nearbyZipcodes.map { zipcode ->
+                PostType.values().map { postType ->
+                    datesList.map { forDate ->
+                        // 50 Posts from each date
+                        nearbyPosts.addAll(
+                            nearbyPostsByZipcodeProvider.getPaginatedFeed(
+                                zipCode = zipcode,
+                                forDate = forDate,
+                                postType = postType,
+                                limit = postsPerDayToUse,
+                            ).content?.filterNotNull() ?: emptyList()
+                        )
+                    }
+                }
+            }
+            logger.info("Total ${nearbyPosts.size} nearby post found for the current location ${originalLocation.name}. Save in batches of ")
+            nearbyPosts.chunked(maxSaveListSize).map {
+                nearbyPostsByZipcodeProvider.save(it, originalLocation.zipcode!!)
+            }
+            logger.info("Done: processPostForNearbyLocation for locationId: ${originalLocation.locationId}")
         }
     }
 

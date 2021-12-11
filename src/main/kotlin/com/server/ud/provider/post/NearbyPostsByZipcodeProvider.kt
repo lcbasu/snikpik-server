@@ -28,6 +28,19 @@ class NearbyPostsByZipcodeProvider {
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
 
+    fun save(nearbyPosts: List<NearbyPostsByZipcode>, forNearbyZipcode: String): List<NearbyPostsByZipcode> {
+        try {
+            val posts = nearbyPosts.map { post ->
+                post.copy(zipcode = forNearbyZipcode)
+            }
+            return nearbyPostsByZipcodeRepository.saveAll(posts)
+        } catch (e: Exception) {
+            logger.error("Saving NearbyPostsByZipcode failed forNearbyZipcode $forNearbyZipcode.")
+            e.printStackTrace()
+            return emptyList()
+        }
+    }
+
     fun save(post: Post, nearbyZipcodes: List<NearbyZipcodesByZipcode>): List<NearbyPostsByZipcode> {
         try {
             if (post.zipcode == null) {
@@ -82,7 +95,7 @@ class NearbyPostsByZipcodeProvider {
         )
     }
 
-    private fun getPaginatedFeed(zipCode: String, forDate: String, postType: PostType, limit: Int, pagingState: String?): CassandraPageV2<NearbyPostsByZipcode> {
+    fun getPaginatedFeed(zipCode: String, forDate: String, postType: PostType, limit: Int, pagingState: String? = null): CassandraPageV2<NearbyPostsByZipcode> {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
         val posts = nearbyPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndForDate(
             zipCode,

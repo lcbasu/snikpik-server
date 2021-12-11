@@ -2,6 +2,7 @@ package com.server.ud.provider.location
 
 import com.server.ud.entities.location.Location
 import com.server.ud.provider.es.ESProvider
+import com.server.ud.provider.post.PostProcessingProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -33,6 +34,9 @@ class LocationProcessingProvider {
     @Autowired
     private lateinit var esProvider: ESProvider
 
+    @Autowired
+    private lateinit var postProcessingProvider: PostProcessingProvider
+
     fun processLocation(locationId: String) {
         // 1. Save location into ES
         // 2. Search Locations ES index and find all the possible nearby locations ZIPCODE
@@ -46,25 +50,33 @@ class LocationProcessingProvider {
                 return@launch
             }
             val location = locationProvider.getLocation(locationId) ?: error("No location found for $locationId while processing.")
-            val nearbyLocationsFuture = async { saveNearbyLocations(location) }
+            val nearbyLocationLevelProcessingFuture = async { nearbyLocationLevelProcessing(location) }
             val locationsByUserFuture = async { locationsByUserProvider.save(location) }
             val locationsByZipcodeFuture = async { locationsByZipcodeProvider.save(location) }
             locationsByUserFuture.await()
             locationsByZipcodeFuture.await()
-            nearbyLocationsFuture.await()
+            nearbyLocationLevelProcessingFuture.await()
             logger.info("End: location processing for locationId: $locationId")
         }
     }
 
-    fun saveNearbyLocations(location: Location) {
+    fun nearbyLocationLevelProcessing(location: Location) {
         GlobalScope.launch {
             logger.info("Start: Save nearby locations processing for locationId: ${location.locationId}")
             // 1. Save location into ES
             esLocationProvider.save(location)
             // 2. Get Nearby Zipcodes
-            val nearbyZipcodes = esProvider.getNearbyZipcodes(location)
+            val nearbyZipcodes = esProvider.getNearbyZipcodes(location.lat, location.lng)
             logger.info("All nearby zipcodes: ${nearbyZipcodes.joinToString(",")} for source zipcode: ${location.zipcode}")
             location.zipcode?.let { nearbyZipcodesByZipcodeProvider.save(it, nearbyZipcodes) }
+
+            // Get all the posts that are near to this location
+            // and save them for this zipcode
+            postProcessingProvider.processPostForNearbyLocation(
+                originalLocation = location,
+                nearbyZipcodes = nearbyZipcodes
+            )
+
             logger.info("End: Save nearby locations processing for locationId: ${location.locationId}")
         }
     }
