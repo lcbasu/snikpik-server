@@ -108,10 +108,10 @@ class LocationProvider {
 
     fun getCitiesLocationData(): CitiesLocationResponse {
         return CitiesLocationResponse(
-            cities = emptyList()
-//            cities = csvDataProvider.citiesLocationData.values.map {
-//                it.toCityLocationDataResponse()
-//            }
+//            cities = emptyList()
+            cities = csvDataProvider.loadCitiesLocationData().values.map {
+                it.toCityLocationDataResponse()
+            }
         )
     }
 

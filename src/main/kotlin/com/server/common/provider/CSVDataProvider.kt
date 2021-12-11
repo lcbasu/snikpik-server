@@ -31,7 +31,7 @@ class CSVDataProvider {
 //        citiesLocationData = loadCitiesLocationData()
 //    }
 
-    private fun loadCitiesLocationData(): Map<String, CityLocationData> {
+    fun loadCitiesLocationData(): Map<String, CityLocationData> {
         val result = mutableMapOf<String, CityLocationData>()
         val reader = mapper.readerFor(CityLocationData::class.java)
         reader
