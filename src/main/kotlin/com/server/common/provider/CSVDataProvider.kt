@@ -1,11 +1,14 @@
 package com.server.common.provider
 
+import com.amazonaws.services.s3.AmazonS3
+import com.amazonaws.services.s3.model.GetObjectRequest
 import com.server.ud.dto.CityLocationData
 import io.sentry.Sentry
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVRecord
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.io.File
 
@@ -21,16 +24,29 @@ class CSVDataProvider {
 //        citiesLocationData = loadCitiesLocationData()
 //    }
 
+    @Autowired
+    private lateinit var s3Client: AmazonS3
+
     fun getRowsFromCSVFile(fileName: String): List<CSVRecord> {
         return try {
-            val file = File(this.javaClass.classLoader.getResource(fileName).file)
-            val reader = file.reader()
-            CSVFormat
+
+            val localFile = File("localFilename.csv")
+
+            s3Client.getObject(GetObjectRequest("unbox-server-data-prod", "cities_location.csv"), localFile)
+
+//            localFile.reader()
+
+//            val file = File(this.javaClass.classLoader.getResource(fileName).file)
+            val reader = localFile.reader()//file.reader()
+            val rows = CSVFormat
                 .Builder
                 .create()
                 .setSkipHeaderRecord(true)
                 .build()
                 .parse(reader).records
+
+            localFile.delete()
+            rows
         } catch (e: Exception) {
             logger.error("Error while reading CSV data for file: $fileName.")
             e.printStackTrace()
