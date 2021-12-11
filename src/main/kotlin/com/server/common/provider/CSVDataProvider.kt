@@ -24,7 +24,12 @@ class CSVDataProvider {
     fun getRowsFromCSVFile(fileName: String): List<CSVRecord> {
         return try {
             val reader = File::class.java.getResourceAsStream("/$fileName").bufferedReader()
-            CSVFormat.DEFAULT.parse(reader).records
+            CSVFormat
+                .Builder
+                .create()
+                .setSkipHeaderRecord(true)
+                .build()
+                .parse(reader).records
         } catch (e: Exception) {
             logger.error("Error while reading CSV data for file: $fileName.")
             e.printStackTrace()
