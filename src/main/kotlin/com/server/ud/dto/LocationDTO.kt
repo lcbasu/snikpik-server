@@ -1,9 +1,18 @@
 package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.server.common.provider.CityLocationData
 import com.server.ud.entities.location.Location
 import com.server.ud.enums.LocationFor
+
+data class CityLocationData(
+    val city: String,
+    val state: String,
+    val country: String,
+    val countryCode: String,
+    val zipcode: String,
+    val latitude: Double,
+    val longitude: Double,
+)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class IPLocationData (
