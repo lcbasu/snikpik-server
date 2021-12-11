@@ -26,6 +26,12 @@ class UserV2Controller {
         return userV2Service.saveLoggedInUserV2()
     }
 
+    @RequestMapping(value = ["/saveWithIPLocation"], method = [RequestMethod.POST])
+    fun saveLoggedInUserV2WithIPLocation(@RequestBody request: IPLocationData?): SavedUserV2Response? {
+        securityProvider.validateRequest()
+        return userV2Service.saveLoggedInUserV2WithIPLocation(request)
+    }
+
     @RequestMapping(value = ["/get"], method = [RequestMethod.GET])
     fun getLoggedInUserV2(): SavedUserV2Response? {
         securityProvider.validateRequest()

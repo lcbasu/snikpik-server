@@ -6,6 +6,17 @@ import com.server.ud.entities.location.Location
 import com.server.ud.enums.LocationFor
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class IPLocationData (
+    val city: String?,
+    val state: String?,
+    val country: String?,
+    val countryCode: String?,
+    val zipcode: String?,
+    val latitude: Double?,
+    val longitude: Double?,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class CityLocationDataResponse(
     val city: String,
     val state: String,

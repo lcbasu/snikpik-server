@@ -25,11 +25,11 @@ class CSVDataProvider {
         propertyNamingStrategy = PropertyNamingStrategy.SNAKE_CASE
     }
 
-    final val citiesLocationData: Map<String, CityLocationData>
+//    final val citiesLocationData: Map<String, CityLocationData>
 
-    init {
-        citiesLocationData = loadCitiesLocationData()
-    }
+//    init {
+//        citiesLocationData = loadCitiesLocationData()
+//    }
 
     private fun loadCitiesLocationData(): Map<String, CityLocationData> {
         val result = mutableMapOf<String, CityLocationData>()

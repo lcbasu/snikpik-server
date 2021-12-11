@@ -116,5 +116,9 @@ class UserV2ServiceImpl : UserV2Service() {
         return followingsCountByUserProvider.getFollowingsCountByUser(userId)
     }
 
+    override fun saveLoggedInUserV2WithIPLocation(request: IPLocationData?): SavedUserV2Response? {
+        return userV2Provider.saveLoggedInUserV2WithIPLocation(request)?.toSavedUserV2Response()
+    }
+
 
 }

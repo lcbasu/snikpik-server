@@ -6,6 +6,7 @@ import com.server.common.dto.toProfileTypeResponse
 import com.server.common.enums.MediaType
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.enums.ReadableIdPrefix
+import com.server.common.model.UserDetailsFromToken
 import com.server.common.provider.SecurityProvider
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
@@ -141,26 +142,7 @@ class UserV2Provider {
         if (existing != null) {
             return existing
         }
-        return saveUserV2(UserV2 (
-            userId = firebaseAuthUser.getUserIdToUse(),
-            createdAt = DateUtils.getInstantNow(),
-            absoluteMobile = firebaseAuthUser.getAbsoluteMobileNumber(),
-            countryCode = "",
-            handle = firebaseAuthUser.getHandle(),
-            email = firebaseAuthUser.getEmail(),
-            dp = firebaseAuthUser.getPicture()?.let { MediaDetailsV2(listOf(
-                SingleMediaDetail(
-                    mediaUrl = it,
-                    mediaType = MediaType.IMAGE,
-                )
-            )).convertToString() },
-            uid = firebaseAuthUser.getUid(),
-            anonymous = firebaseAuthUser.getIsAnonymous() == true,
-            verified = false,
-            fullName = firebaseAuthUser.getName(),
-            notificationToken = null,
-            notificationTokenProvider = NotificationTokenProvider.FIREBASE
-        ))
+        return saveUserV2(getUserV2ObjectFromFirebaseObject(firebaseAuthUser))
     }
 
     fun getAWSLambdaAuthDetails(): AWSLambdaAuthResponse? {
@@ -172,5 +154,76 @@ class UserV2Provider {
             anonymous = userV2.anonymous
         )
     }
+
+    fun saveLoggedInUserV2WithIPLocation(request: IPLocationData?): UserV2? {
+        val hasLocationInfo = request?.zipcode != null &&
+                request.zipcode.isNotBlank() &&
+                request.latitude != null &&
+                request.longitude != null
+
+        return if (hasLocationInfo) {
+            val firebaseAuthUser = securityProvider.validateRequest()
+            val userId = firebaseAuthUser.getUserIdToUse()
+            val existing = getUser(userId)
+
+            // If existing user already has a location set, don't overwrite it
+            // As IP Address locations are predictive, we don't want to overwrite the user's location
+            // Once set by the user themselves, they can always change it manually
+            if (existing?.userLastLocationZipcode != null) {
+                return existing
+            }
+
+            // Save location
+            val ipAddressLocation = request!!
+            val locationRequest = SaveLocationRequest(
+                locationFor = LocationFor.USER,
+                zipcode = ipAddressLocation.zipcode,
+                googlePlaceId = null,
+                name = "${ipAddressLocation.city}, ${ipAddressLocation.state}",
+                lat = ipAddressLocation.latitude,
+                lng = ipAddressLocation.longitude,
+            )
+            val location = locationProvider.save(userId, locationRequest) ?: error("Error saving location for userId: $userId")
+
+            // Save User
+            val userToBeSavedDraft = existing ?: getUserV2ObjectFromFirebaseObject(firebaseAuthUser)
+            val userToBeSaved = userToBeSavedDraft.copy(
+                userLastLocationId = location.locationId,
+                userLastLocationLat = location.lat,
+                userLastLocationLng = location.lng,
+                userLastLocationZipcode = location.zipcode,
+                userLastLocationName = location.name,
+                userLastGooglePlaceId = location.googlePlaceId)
+            return saveUserV2(userToBeSaved) ?: error("Error while saving user with ip address for userId: $userId")
+        } else {
+            saveUserV2WhoJustLoggedIn()
+        }
+    }
+
+    private fun getUserV2ObjectFromFirebaseObject(firebaseAuthUser: UserDetailsFromToken) =
+        UserV2(
+            userId = firebaseAuthUser.getUserIdToUse(),
+            createdAt = DateUtils.getInstantNow(),
+            absoluteMobile = firebaseAuthUser.getAbsoluteMobileNumber(),
+            countryCode = "",
+            handle = firebaseAuthUser.getHandle(),
+            email = firebaseAuthUser.getEmail(),
+            dp = firebaseAuthUser.getPicture()?.let {
+                MediaDetailsV2(
+                    listOf(
+                        SingleMediaDetail(
+                            mediaUrl = it,
+                            mediaType = MediaType.IMAGE,
+                        )
+                    )
+                ).convertToString()
+            },
+            uid = firebaseAuthUser.getUid(),
+            anonymous = firebaseAuthUser.getIsAnonymous() == true,
+            verified = false,
+            fullName = firebaseAuthUser.getName(),
+            notificationToken = null,
+            notificationTokenProvider = NotificationTokenProvider.FIREBASE
+        )
 
 }

@@ -20,4 +20,5 @@ abstract class UserV2Service {
     abstract fun getPostsByUser(request: PostsByUserRequest): PostsByUserResponse
     abstract fun getFollowersCountByUser(userId: String): FollowersCountByUser?
     abstract fun getFollowingsCountByUser(userId: String): FollowingsCountByUser?
+    abstract fun saveLoggedInUserV2WithIPLocation(request: IPLocationData?): SavedUserV2Response?
 }
