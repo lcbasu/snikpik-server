@@ -118,4 +118,20 @@ class LocationProvider {
         }
     }
 
+    fun saveCitiesDataIntoDb(userId: String) {
+        runBlocking {
+            udCacheProvider.getCitiesData().await()?.values?.map {
+                val locationRequest = SaveLocationRequest(
+                    locationFor = LocationFor.USER,
+                    zipcode = it.zipcode,
+                    googlePlaceId = null,
+                    name = "${it.city}, ${it.state}",
+                    lat = it.latitude,
+                    lng = it.longitude,
+                )
+                save(userId, locationRequest)
+            }
+        }
+    }
+
 }

@@ -63,7 +63,7 @@ class LocationProcessingProvider {
             esLocationProvider.save(location)
             // 2. Get Nearby Zipcodes
             val nearbyZipcodes = esProvider.getNearbyZipcodes(location)
-            logger.info("All nearby zipcodes: ${nearbyZipcodes.joinToString(",")}")
+            logger.info("All nearby zipcodes: ${nearbyZipcodes.joinToString(",")} for source zipcode: ${location.zipcode}")
             location.zipcode?.let { nearbyZipcodesByZipcodeProvider.save(it, nearbyZipcodes) }
             logger.info("End: Save nearby locations processing for locationId: ${location.locationId}")
         }

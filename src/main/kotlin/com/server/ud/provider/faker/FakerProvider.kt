@@ -7,6 +7,7 @@ import com.server.common.dto.convertToString
 import com.server.common.dto.toProfileTypeResponse
 import com.server.common.enums.*
 import com.server.common.provider.RandomIdProvider
+import com.server.common.provider.SecurityProvider
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
 import com.server.dk.model.SingleMediaDetail
@@ -16,7 +17,6 @@ import com.server.ud.dto.*
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.entities.comment.Comment
 import com.server.ud.entities.like.Like
-import com.server.ud.entities.post.AlgoliaPostAutoSuggest
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.reply.Reply
 import com.server.ud.entities.social.SocialRelation
@@ -24,8 +24,10 @@ import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.*
 import com.server.ud.model.sampleHashTagsIds
 import com.server.ud.provider.bookmark.BookmarkProvider
+import com.server.ud.provider.cache.UDCacheProvider
 import com.server.ud.provider.comment.CommentProvider
 import com.server.ud.provider.like.LikeProvider
+import com.server.ud.provider.location.LocationProvider
 import com.server.ud.provider.post.PostProvider
 import com.server.ud.provider.reply.ReplyProvider
 import com.server.ud.provider.social.SocialRelationProcessingProvider
@@ -80,6 +82,15 @@ class FakerProvider {
 
     @Autowired
     private lateinit var searchClient: SearchClient
+
+    @Autowired
+    private lateinit var udCacheProvider: UDCacheProvider
+
+    @Autowired
+    private lateinit var locationProvider: LocationProvider
+
+    @Autowired
+    private lateinit var securityProvider: SecurityProvider
 
     fun createFakeDataRandomly(): List<Any> {
 
@@ -176,7 +187,6 @@ class FakerProvider {
 
         return result.filterNotNull()
     }
-
 
     fun createFakeData(userId: String, request: FakerRequest): List<Any> {
         if (request.countOfPost > maxPostToFake) {
@@ -287,21 +297,8 @@ class FakerProvider {
     }
 
     fun doSomething(): Any {
-        val index = searchClient.initIndex("posts_query_suggestions", AlgoliaPostAutoSuggest::class.java)
-        val data1 = AlgoliaPostAutoSuggest(
-            objectID = "some_random_3",
-            nb_words = 1,
-            popularity = 1,
-            query = "I can type something",
-        )
-        val data2 = AlgoliaPostAutoSuggest(
-            objectID = "some_random_4",
-            nb_words = 1,
-            popularity = 1,
-            query = "You can read something",
-        )
-        index.saveObject(data1)
-        index.saveObject(data2)
+        val userDetails = securityProvider.validateRequest()
+        locationProvider.saveCitiesDataIntoDb(userDetails.getUserIdToUse())
         return "Something was done..."
     }
 
