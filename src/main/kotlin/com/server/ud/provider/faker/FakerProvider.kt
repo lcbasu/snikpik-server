@@ -111,10 +111,11 @@ class FakerProvider {
         // This will help in testing the flow as well
 
         val usersToCreate = Random.nextInt(minUsersToFake, maxUsersToFake)
+        val userLocations = locationProvider.getSampleLocationRequestsFromCities(LocationFor.USER)
         val usersV2 = mutableListOf<UserV2>()
         for (i in 1..usersToCreate) {
             val profiles = ProfileType.values().toList().shuffled().take(Random.nextInt(1, ProfileType.values().size))
-            val location = sampleLocationRequests.shuffled().first()
+            val location = userLocations.shuffled().first()
             val id = randomIdProvider.getRandomIdFor(ReadableIdPrefix.FKE)
             val userV2 = userV2Provider.saveUserV2(UserV2 (
                 userId = "${ReadableIdPrefix.USR}$id",
@@ -202,19 +203,22 @@ class FakerProvider {
         val replies = mutableListOf<Reply?>()
         val likes = mutableListOf<Like?>()
         val bookmarks = mutableListOf<Bookmark?>()
-
+        val postLocations = locationProvider.getSampleLocationRequestsFromCities(LocationFor.USER)
         val faker = Faker()
 
         for (i in 1..request.countOfPost) {
             val postType = PostType.values().toList().shuffled().first()
             val categories = CategoryV2.values().filter { it != CategoryV2.ALL }.toList().shuffled().take(Random.nextInt(1, CategoryV2.values().size))
+            val location = postLocations.shuffled().first().copy(
+                locationFor = if (postType == PostType.GENERIC_POST) LocationFor.GENERIC_POST else LocationFor.COMMUNITY_WALL_POST,
+            )
             val req = SavePostRequest(
                 postType = postType,
                 title = faker.book().title(),
                 description = faker.lorem().sentence(300),
                 tags = sampleHashTagsIds.shuffled().take(Random.nextInt(1, sampleHashTagsIds.size)).toSet(),
                 categories = categories.toSet(),
-                locationRequest = sampleLocationRequests.shuffled()[Random.nextInt(sampleLocationRequests.size)],
+                locationRequest = location,
                 mediaDetails = sampleMedia.shuffled()[Random.nextInt(sampleMedia.size)]
             )
             posts.add(postProvider.save(userId, req))

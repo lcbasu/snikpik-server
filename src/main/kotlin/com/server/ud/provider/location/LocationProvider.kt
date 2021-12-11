@@ -7,6 +7,7 @@ import com.server.ud.dao.location.LocationRepository
 import com.server.ud.dto.CitiesLocationResponse
 import com.server.ud.dto.SaveLocationRequest
 import com.server.ud.dto.toCityLocationDataResponse
+import com.server.ud.dto.toSaveLocationRequest
 import com.server.ud.entities.location.Location
 import com.server.ud.enums.LocationFor
 import com.server.ud.provider.cache.UDCacheProvider
@@ -121,15 +122,16 @@ class LocationProvider {
     fun saveCitiesDataIntoDb(userId: String) {
         runBlocking {
             udCacheProvider.getCitiesData().await()?.values?.map {
-                val locationRequest = SaveLocationRequest(
-                    locationFor = LocationFor.USER,
-                    zipcode = it.zipcode,
-                    googlePlaceId = null,
-                    name = "${it.city}, ${it.state}",
-                    lat = it.latitude,
-                    lng = it.longitude,
-                )
-                save(userId, locationRequest)
+                save(userId, it.toSaveLocationRequest(LocationFor.USER))
+            }
+        }
+    }
+
+    fun getSampleLocationRequestsFromCities(locationFor: LocationFor): List<SaveLocationRequest> {
+        return runBlocking {
+            val cities = udCacheProvider.getCitiesData().await()?.values?.filterNotNull() ?: emptyList()
+            cities.shuffled().map {
+                it.toSaveLocationRequest(locationFor)
             }
         }
     }
