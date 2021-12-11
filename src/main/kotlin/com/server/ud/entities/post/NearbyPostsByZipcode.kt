@@ -1,6 +1,7 @@
 package com.server.ud.entities.post
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.server.common.enums.MediaType
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
 import com.server.ud.enums.PostType
@@ -86,7 +87,35 @@ data class NearbyPostsByZipcode (
 
 )
 
-fun NearbyPostsByZipcode.getMediaDetails(): MediaDetailsV2? {
+fun NearbyPostsByZipcode.toNearbyVideoPostsByZipcode(): NearbyVideoPostsByZipcode? {
+    this.apply {
+        val hasVideo = getMediaDetails().media.any { it.mediaType == MediaType.VIDEO }
+        return if (hasVideo) {
+            NearbyVideoPostsByZipcode(
+                zipcode = zipcode,
+                postType = postType,
+                forDate = forDate,
+                createdAt = createdAt,
+                postId = postId,
+                userId = userId,
+                originalZipcode = originalZipcode,
+                locationId = locationId,
+                locationName = locationName,
+                locationLat = locationLat,
+                locationLng = locationLng,
+                title = title,
+                description = description,
+                media = media,
+                tags = tags,
+                categories = categories,
+            )
+        } else {
+            null
+        }
+    }
+}
+
+fun NearbyPostsByZipcode.getMediaDetails(): MediaDetailsV2 {
     this.apply {
         return try {
             jacksonObjectMapper().readValue(media, MediaDetailsV2::class.java)

@@ -32,6 +32,19 @@ class NearbyVideoPostsByZipcodeProvider {
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
 
+    fun saveWhileProcessing(nearbyPosts: List<NearbyVideoPostsByZipcode>, forNearbyZipcode: String): List<NearbyVideoPostsByZipcode> {
+        try {
+            val posts = nearbyPosts.map { post ->
+                post.copy(zipcode = forNearbyZipcode)
+            }
+            return nearbyVideoPostsByZipcodeRepository.saveAll(posts)
+        } catch (e: Exception) {
+            logger.error("Saving NearbyPostsByZipcode failed forNearbyZipcode $forNearbyZipcode.")
+            e.printStackTrace()
+            return emptyList()
+        }
+    }
+
     fun save(post: Post, nearbyZipcodes: List<NearbyZipcodesByZipcode>): List<NearbyVideoPostsByZipcode> {
         try {
             if (post.zipcode == null) {

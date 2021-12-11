@@ -1,5 +1,10 @@
 package com.server.ud.provider.user
 
+import com.server.common.enums.ProfileType
+import com.server.ud.dto.MarketplaceUserFeedRequest
+import com.server.ud.entities.location.Location
+import com.server.ud.entities.user.UsersByNearbyZipcodeAndProfileType
+import com.server.ud.provider.es.ESProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -29,10 +34,16 @@ class UserV2ProcessingProvider {
     private lateinit var usersByZipcodeAndProfileTypeProvider: UsersByZipcodeAndProfileTypeProvider
 
     @Autowired
+    private lateinit var usersByNearbyZipcodeAndProfileTypeProvider: UsersByNearbyZipcodeAndProfileTypeProvider
+
+    @Autowired
     private lateinit var profileTypesByZipcodeAndProfileCategoryProvider: ProfileTypesByZipcodeAndProfileCategoryProvider
 
     @Autowired
     private lateinit var usersByZipcodeProvider: UsersByZipcodeProvider
+
+    @Autowired
+    private lateinit var esProvider: ESProvider
 
     fun processUserV2(userId: String) {
         GlobalScope.launch {
@@ -56,6 +67,18 @@ class UserV2ProcessingProvider {
                 usersByZipcodeAndProfileTypeProvider.save(user)
             }
 
+            val usersByNearbyZipcodeAndProfileTypeFuture = async {
+                if (user.userLastLocationLat != null &&
+                    user.userLastLocationLng != null &&
+                    user.userLastLocationZipcode != null) {
+                    val nearbyZipcodes = esProvider.getNearbyZipcodes(
+                        lat = user.userLastLocationLat,
+                        lng = user.userLastLocationLng,
+                    )
+                    usersByNearbyZipcodeAndProfileTypeProvider.save(user, nearbyZipcodes)
+                }
+            }
+
             val profileTypesByZipcodeAndProfileCategoryProviderFuture = async {
                 profileTypesByZipcodeAndProfileCategoryProvider.save(user)
             }
@@ -70,8 +93,43 @@ class UserV2ProcessingProvider {
             usersByZipcodeAndProfileFuture.await()
             profileTypesByZipcodeAndProfileCategoryProviderFuture.await()
             usersByZipcodeFuture.await()
+            usersByNearbyZipcodeAndProfileTypeFuture.await()
 
             logger.info("Done: UserV2 processing for userId: $userId")
+        }
+    }
+
+    fun processUserForNearbyLocation(originalLocation: Location, nearbyZipcodes: Set<String>) {
+        GlobalScope.launch {
+            logger.info("Start: processUserForNearbyLocation for locationId: ${originalLocation.locationId}")
+            if (originalLocation.zipcode == null) {
+                logger.error("Location ${originalLocation.name} does not have zipcode. Hence skipping processUserForNearbyLocation")
+                return@launch
+            }
+
+            val usersPerProfileTypeToUse = 50
+            val maxSaveListSize = 10
+
+            val nearbyUsers = mutableListOf<UsersByNearbyZipcodeAndProfileType>()
+            nearbyZipcodes.map { zipcode ->
+                ProfileType.values().map { profileType ->
+                    // 50 Users from each date
+                    nearbyUsers.addAll(
+                        usersByNearbyZipcodeAndProfileTypeProvider.getFeedForMarketplaceUsers(
+                            MarketplaceUserFeedRequest(
+                                zipcode = zipcode,
+                                profileType = profileType,
+                                limit = usersPerProfileTypeToUse,
+                            )
+                        ).content?.filterNotNull() ?: emptyList()
+                    )
+                }
+            }
+            logger.info("Total ${nearbyUsers.size} nearby users found for the current location ${originalLocation.name}. Save in batches of $maxSaveListSize")
+            nearbyUsers.chunked(maxSaveListSize).map {
+                usersByNearbyZipcodeAndProfileTypeProvider.save(it, originalLocation.zipcode!!)
+            }
+            logger.info("Done: processUserForNearbyLocation for locationId: ${originalLocation.locationId}")
         }
     }
 

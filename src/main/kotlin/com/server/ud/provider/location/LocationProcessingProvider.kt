@@ -3,6 +3,7 @@ package com.server.ud.provider.location
 import com.server.ud.entities.location.Location
 import com.server.ud.provider.es.ESProvider
 import com.server.ud.provider.post.PostProcessingProvider
+import com.server.ud.provider.user.UserV2ProcessingProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -37,6 +38,9 @@ class LocationProcessingProvider {
     @Autowired
     private lateinit var postProcessingProvider: PostProcessingProvider
 
+    @Autowired
+    private lateinit var userV2ProcessingProvider: UserV2ProcessingProvider
+
     fun processLocation(locationId: String) {
         // 1. Save location into ES
         // 2. Search Locations ES index and find all the possible nearby locations ZIPCODE
@@ -70,15 +74,39 @@ class LocationProcessingProvider {
             logger.info("All nearby zipcodes: ${nearbyZipcodes.joinToString(",")} for source zipcode: ${location.zipcode}")
             location.zipcode?.let { nearbyZipcodesByZipcodeProvider.save(it, nearbyZipcodes) }
 
-            // Get all the posts that are near to this location
-            // and save them for this zipcode
-            postProcessingProvider.processPostForNearbyLocation(
-                originalLocation = location,
-                nearbyZipcodes = nearbyZipcodes
-            )
+
+            // Very-Very Important
+            /**
+             *
+             * We can not save a post to all possible locations. That is impossible.
+             *
+             * So instead, what we do is, we save a post to all the nearby locations of
+             * any new location that is saved on our platform.
+             *
+             *
+             * */
+            doNearbyFeedRelatedProcessing(location, nearbyZipcodes)
 
             logger.info("End: Save nearby locations processing for locationId: ${location.locationId}")
         }
+    }
+
+    private fun doNearbyFeedRelatedProcessing(
+        location: Location,
+        nearbyZipcodes: Set<String>
+    ) {
+        // Get all the posts that are near to this location
+        // and save them for this zipcode
+        postProcessingProvider.processPostForNearbyLocation(
+            originalLocation = location,
+            nearbyZipcodes = nearbyZipcodes
+        )
+
+        // Do same thing for MarketplaceUser
+        userV2ProcessingProvider.processUserForNearbyLocation(
+            originalLocation = location,
+            nearbyZipcodes = nearbyZipcodes
+        )
     }
 
 }

@@ -203,9 +203,11 @@ class PostProcessingProvider {
                     }
                 }
             }
-            logger.info("Total ${nearbyPosts.size} nearby post found for the current location ${originalLocation.name}. Save in batches of ")
+            logger.info("Total ${nearbyPosts.size} nearby post found for the current location ${originalLocation.name}. Save in batches of $maxSaveListSize")
             nearbyPosts.chunked(maxSaveListSize).map {
                 nearbyPostsByZipcodeProvider.save(it, originalLocation.zipcode!!)
+                val videoPosts = it.mapNotNull { it.toNearbyVideoPostsByZipcode() }
+                nearbyVideoPostsByZipcodeProvider.saveWhileProcessing(videoPosts, originalLocation.zipcode!!)
             }
             logger.info("Done: processPostForNearbyLocation for locationId: ${originalLocation.locationId}")
         }

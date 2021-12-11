@@ -30,7 +30,7 @@ import java.time.Instant
  * */
 
 @Table("nearby_video_posts_by_zipcode")
-class NearbyVideoPostsByZipcode (
+data class NearbyVideoPostsByZipcode (
 
     // Keeping a composite key to create a partition for
     // a location on daily basis

@@ -5,6 +5,7 @@ import com.server.common.dto.toProfileTypeResponse
 import com.server.common.enums.ProfileCategory
 import com.server.common.enums.ProfileType
 import com.server.dk.model.MediaDetailsV2
+import com.server.ud.entities.user.UsersByNearbyZipcodeAndProfileType
 import com.server.ud.entities.user.UsersByZipcodeAndProfileType
 import com.server.ud.entities.user.getMediaDetailsForDP
 import com.server.ud.provider.user.UserV2Provider
@@ -46,7 +47,7 @@ data class MarketplaceProfileTypesFeedRequest (
     override val pagingState: String? = null, // YYYY-MM-DD
 ): PaginationRequest(limit, pagingState)
 
-fun UsersByZipcodeAndProfileType.toMarketplaceUserDetail(userV2Provider: UserV2Provider): MarketplaceUserDetail? {
+fun UsersByNearbyZipcodeAndProfileType.toMarketplaceUserDetail(userV2Provider: UserV2Provider): MarketplaceUserDetail? {
     this.apply {
         try {
             val user = userV2Provider.getUser(userId) ?: error("User not found for userId: $userId")
