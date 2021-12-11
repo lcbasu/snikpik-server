@@ -23,7 +23,8 @@ class CSVDataProvider {
 
     fun getRowsFromCSVFile(fileName: String): List<CSVRecord> {
         return try {
-            val reader = File::class.java.getResourceAsStream("/$fileName").bufferedReader()
+            val file = File(javaClass.getResource("/$fileName").file)
+            val reader = file.reader()
             CSVFormat
                 .Builder
                 .create()
