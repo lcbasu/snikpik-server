@@ -1,7 +1,6 @@
 package com.server.ud.provider.location
 
 import com.server.common.enums.ReadableIdPrefix
-import com.server.common.provider.CSVDataProvider
 import com.server.common.provider.RandomIdProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.location.LocationRepository
@@ -10,7 +9,10 @@ import com.server.ud.dto.SaveLocationRequest
 import com.server.ud.dto.toCityLocationDataResponse
 import com.server.ud.entities.location.Location
 import com.server.ud.enums.LocationFor
+import com.server.ud.provider.cache.UDCacheProvider
 import com.server.ud.provider.deferred.DeferredProcessingProvider
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,7 +38,7 @@ class LocationProvider {
     private lateinit var deferredProcessingProvider: DeferredProcessingProvider
 
     @Autowired
-    private lateinit var csvDataProvider: CSVDataProvider
+    private lateinit var udCacheProvider: UDCacheProvider
 
     fun getLocation(locationId: String): Location? =
         try {
@@ -107,12 +109,13 @@ class LocationProvider {
     }
 
     fun getCitiesLocationData(): CitiesLocationResponse {
-        return CitiesLocationResponse(
-//            cities = emptyList()
-            cities = csvDataProvider.loadCitiesLocationData().values.map {
-                it.toCityLocationDataResponse()
-            }
-        )
+        return runBlocking {
+            CitiesLocationResponse(
+                cities = udCacheProvider.getCitiesData().await()?.values?.map {
+                    it.toCityLocationDataResponse()
+                } ?: emptyList()
+            )
+        }
     }
 
 }
