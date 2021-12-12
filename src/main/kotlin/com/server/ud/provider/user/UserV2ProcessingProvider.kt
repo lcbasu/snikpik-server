@@ -1,10 +1,13 @@
 package com.server.ud.provider.user
 
+import com.server.common.enums.ProfileCategory
 import com.server.common.enums.ProfileType
+import com.server.ud.dto.MarketplaceProfileTypesFeedRequest
 import com.server.ud.dto.MarketplaceUserFeedRequest
 import com.server.ud.entities.location.Location
+import com.server.ud.entities.user.ProfileTypesByNearbyZipcode
 import com.server.ud.entities.user.UsersByNearbyZipcodeAndProfileType
-import com.server.ud.provider.es.ESProvider
+import com.server.ud.provider.location.LocationProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -37,13 +40,16 @@ class UserV2ProcessingProvider {
     private lateinit var usersByNearbyZipcodeAndProfileTypeProvider: UsersByNearbyZipcodeAndProfileTypeProvider
 
     @Autowired
+    private lateinit var profileTypesByNearbyZipcodeProvider: ProfileTypesByNearbyZipcodeProvider
+
+    @Autowired
     private lateinit var profileTypesByZipcodeAndProfileCategoryProvider: ProfileTypesByZipcodeAndProfileCategoryProvider
 
     @Autowired
     private lateinit var usersByZipcodeProvider: UsersByZipcodeProvider
 
     @Autowired
-    private lateinit var esProvider: ESProvider
+    private lateinit var locationProvider: LocationProvider
 
     fun processUserV2(userId: String) {
         GlobalScope.launch {
@@ -67,14 +73,15 @@ class UserV2ProcessingProvider {
                 usersByZipcodeAndProfileTypeProvider.save(user)
             }
 
-            val usersByNearbyZipcodeAndProfileTypeFuture = async {
-                if (user.userLastLocationLat != null &&
-                    user.userLastLocationLng != null &&
-                    user.userLastLocationZipcode != null) {
-                    val nearbyZipcodes = esProvider.getNearbyZipcodes(
-                        lat = user.userLastLocationLat,
-                        lng = user.userLastLocationLng,
+            val usersNearbyTasksFuture = async {
+                if (user.permanentLocationLat != null &&
+                    user.permanentLocationLng != null &&
+                    user.permanentLocationZipcode != null) {
+                    val nearbyZipcodes = locationProvider.getNearbyZipcodes(
+                        lat = user.permanentLocationLat,
+                        lng = user.permanentLocationLng,
                     )
+                    profileTypesByNearbyZipcodeProvider.save(user, nearbyZipcodes)
                     usersByNearbyZipcodeAndProfileTypeProvider.save(user, nearbyZipcodes)
                 }
             }
@@ -93,13 +100,20 @@ class UserV2ProcessingProvider {
             usersByZipcodeAndProfileFuture.await()
             profileTypesByZipcodeAndProfileCategoryProviderFuture.await()
             usersByZipcodeFuture.await()
-            usersByNearbyZipcodeAndProfileTypeFuture.await()
+            usersNearbyTasksFuture.await()
 
             logger.info("Done: UserV2 processing for userId: $userId")
         }
     }
 
-    fun processUserForNearbyLocation(originalLocation: Location, nearbyZipcodes: Set<String>) {
+    fun processUserDataForNearbyLocation(originalLocation: Location, nearbyZipcodes: Set<String>) {
+        GlobalScope.launch {
+            processUserForNearbyLocation(originalLocation, nearbyZipcodes)
+            processProfileTypesForNearbyLocation(originalLocation, nearbyZipcodes)
+        }
+    }
+
+    private fun processUserForNearbyLocation(originalLocation: Location, nearbyZipcodes: Set<String>) {
         GlobalScope.launch {
             logger.info("Start: processUserForNearbyLocation for locationId: ${originalLocation.locationId}")
             if (originalLocation.zipcode == null) {
@@ -113,7 +127,7 @@ class UserV2ProcessingProvider {
             val nearbyUsers = mutableListOf<UsersByNearbyZipcodeAndProfileType>()
             nearbyZipcodes.map { zipcode ->
                 ProfileType.values().map { profileType ->
-                    // 50 Users from each date
+                    // 50 Users from each profile from each zipcode
                     nearbyUsers.addAll(
                         usersByNearbyZipcodeAndProfileTypeProvider.getFeedForMarketplaceUsers(
                             MarketplaceUserFeedRequest(
@@ -130,6 +144,39 @@ class UserV2ProcessingProvider {
                 usersByNearbyZipcodeAndProfileTypeProvider.save(it, originalLocation.zipcode!!)
             }
             logger.info("Done: processUserForNearbyLocation for locationId: ${originalLocation.locationId}")
+        }
+    }
+
+    private fun processProfileTypesForNearbyLocation(originalLocation: Location, nearbyZipcodes: Set<String>) {
+        GlobalScope.launch {
+            logger.info("Start: processProfileTypesForNearbyLocation for locationId: ${originalLocation.locationId}")
+            if (originalLocation.zipcode == null) {
+                logger.error("Location ${originalLocation.name} does not have zipcode. Hence skipping processProfileTypesForNearbyLocation")
+                return@launch
+            }
+
+            val profileTypePerCategoryToUse = 100
+            val maxSaveListSize = 10
+
+            val nearbyProfileTypes = mutableListOf<ProfileTypesByNearbyZipcode>()
+            nearbyZipcodes.map { zipcode ->
+                ProfileCategory.values().map { profileCategory ->
+                    nearbyProfileTypes.addAll(
+                        profileTypesByNearbyZipcodeProvider.getFeedForMarketplaceProfileTypes(
+                            MarketplaceProfileTypesFeedRequest(
+                                zipcode = zipcode,
+                                profileCategory = profileCategory,
+                                limit = profileTypePerCategoryToUse,
+                            )
+                        ).content?.filterNotNull() ?: emptyList()
+                    )
+                }
+            }
+            logger.info("Total ${nearbyProfileTypes.size} nearby profile types found for the current location ${originalLocation.name}. Save in batches of $maxSaveListSize")
+            nearbyProfileTypes.chunked(maxSaveListSize).map {
+                profileTypesByNearbyZipcodeProvider.save(it, originalLocation.zipcode!!)
+            }
+            logger.info("Done: processProfileTypesForNearbyLocation for locationId: ${originalLocation.locationId}")
         }
     }
 

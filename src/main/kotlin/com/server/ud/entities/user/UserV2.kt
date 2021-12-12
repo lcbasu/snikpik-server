@@ -5,6 +5,8 @@ import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.utils.DateUtils
 import com.server.dk.model.MediaDetailsV2
+import com.server.ud.dto.SaveLocationRequest
+import com.server.ud.enums.LocationFor
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.CassandraType
 import org.springframework.data.cassandra.core.mapping.Column
@@ -60,23 +62,58 @@ data class UserV2 (
     @Enumerated(EnumType.STRING)
     val notificationTokenProvider: NotificationTokenProvider? = NotificationTokenProvider.FIREBASE,
 
-    @Column("user_last_zipcode")
-    val userLastLocationZipcode: String? = null,
+    /**
+     *
+     *  This location keeps changing whenever thes things change
+     *
+     *  1. IP Address
+     *  2. Location where the user is doing search
+     *
+     * */
+    @Column("current_zipcode")
+    val currentLocationZipcode: String? = null,
 
-    @Column("user_last_google_place_id")
-    val userLastGooglePlaceId: String? = null,
+    @Column("current_google_place_id")
+    val currentGooglePlaceId: String? = null,
 
-    @Column("user_last_location_id")
-    val userLastLocationId: String? = null,
+    @Column("current_location_id")
+    val currentLocationId: String? = null,
 
-    @Column("user_last_location_name")
-    val userLastLocationName: String? = null,
+    @Column("current_location_name")
+    val currentLocationName: String? = null,
 
-    @Column("user_last_location_lat")
-    val userLastLocationLat: Double? = null,
+    @Column("current_location_lat")
+    val currentLocationLat: Double? = null,
 
-    @Column("user_last_location_lng")
-    val userLastLocationLng: Double? = null,
+    @Column("current_location_lng")
+    val currentLocationLng: Double? = null,
+
+    /**
+     * Permanent location.
+     *
+     * This location is never automatically set.
+     * But it is set when user specifies the location of the work or location of their home
+     *
+     * */
+
+    @Column("permanent_zipcode")
+    val permanentLocationZipcode: String? = null,
+
+    @Column("permanent_google_place_id")
+    val permanentGooglePlaceId: String? = null,
+
+    @Column("permanent_location_id")
+    val permanentLocationId: String? = null,
+
+    @Column("permanent_location_name")
+    val permanentLocationName: String? = null,
+
+    @Column("permanent_location_lat")
+    val permanentLocationLat: Double? = null,
+
+    @Column("permanent_location_lng")
+    val permanentLocationLng: Double? = null,
+
 )
 
 fun UserV2.getMediaDetailsForDP(): MediaDetailsV2 {
@@ -96,6 +133,40 @@ fun UserV2.getProfiles(): AllProfileTypeResponse {
         } catch (e: Exception) {
 //            e.printStackTrace()
             AllProfileTypeResponse(emptyList())
+        }
+    }
+}
+
+fun UserV2.getSaveLocationRequestFromCurrentLocation(): SaveLocationRequest? {
+    this.apply {
+        return if (currentLocationId != null) {
+            SaveLocationRequest(
+                locationFor = LocationFor.USER,
+                zipcode = currentLocationZipcode,
+                googlePlaceId = currentGooglePlaceId,
+                name = currentLocationName,
+                lat = currentLocationLat,
+                lng = currentLocationLng,
+            )
+        } else {
+            null
+        }
+    }
+}
+
+fun UserV2.getSaveLocationRequestFromPermanentLocation(): SaveLocationRequest? {
+    this.apply {
+        return if (permanentLocationId != null) {
+            SaveLocationRequest(
+                locationFor = LocationFor.USER,
+                zipcode = permanentLocationZipcode,
+                googlePlaceId = permanentGooglePlaceId,
+                name = permanentLocationName,
+                lat = permanentLocationLat,
+                lng = permanentLocationLng,
+            )
+        } else {
+            null
         }
     }
 }

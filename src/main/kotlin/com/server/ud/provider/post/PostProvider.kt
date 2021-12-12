@@ -16,6 +16,8 @@ import com.server.ud.entities.location.Location
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.entities.user.getProfiles
+import com.server.ud.entities.user.getSaveLocationRequestFromCurrentLocation
+import com.server.ud.entities.user.getSaveLocationRequestFromPermanentLocation
 import com.server.ud.enums.LocationFor
 import com.server.ud.enums.PostType
 import com.server.ud.enums.ResourceType
@@ -78,25 +80,21 @@ class PostProvider {
 
     fun save(userId: String, request: SavePostRequest) : Post? {
         try {
-            var location = request.locationRequest?.let {
-                locationProvider.save(userId, it)
-            }
 
             val user = userV2Provider.getUser(userId) ?: error("Missing user for userId: $userId")
 
-            if (location == null && user.userLastLocationId != null && user.userLastLocationZipcode != null) {
-                // User location of user for the post
-                location = Location(
-                    locationId = user.userLastLocationId,
-                    createdAt = user.createdAt,
-                    userId = user.userId,
-                    locationFor = if (request.postType == PostType.GENERIC_POST) LocationFor.GENERIC_POST else LocationFor.COMMUNITY_WALL_POST,
-                    zipcode = user.userLastLocationZipcode,
-                    googlePlaceId = user.userLastGooglePlaceId,
-                    name = user.userLastLocationName,
-                    lat = user.userLastLocationLat,
-                    lng = user.userLastLocationLng,
-                )
+            var locationRequest = request.locationRequest
+
+            if (locationRequest == null) {
+               locationRequest = user.getSaveLocationRequestFromCurrentLocation()
+            }
+
+            if (locationRequest == null) {
+                locationRequest = user.getSaveLocationRequestFromPermanentLocation()
+            }
+
+            var location = locationRequest?.let {
+                locationProvider.save(userId, it)
             }
 
             // Assign a random location if location is not present in request and user also has no location

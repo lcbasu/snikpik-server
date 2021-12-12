@@ -6,7 +6,6 @@ import com.server.common.enums.ProfileCategory
 import com.server.common.enums.ProfileType
 import com.server.dk.model.MediaDetailsV2
 import com.server.ud.entities.user.UsersByNearbyZipcodeAndProfileType
-import com.server.ud.entities.user.UsersByZipcodeAndProfileType
 import com.server.ud.entities.user.getMediaDetailsForDP
 import com.server.ud.provider.user.UserV2Provider
 
@@ -57,7 +56,9 @@ fun UsersByNearbyZipcodeAndProfileType.toMarketplaceUserDetail(userV2Provider: U
                 dp = user.getMediaDetailsForDP(),
                 // Here profile will always be present
                 profileTypeToShow = profileType.toProfileTypeResponse(),
-                locationName = user.userLastLocationName,
+
+                // Location of the work
+                locationName = user.permanentLocationName,
                 verified = user.verified
             )
         } catch (e: Exception) {

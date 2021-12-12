@@ -12,22 +12,28 @@ import com.server.ud.entities.location.Location
 import com.server.ud.enums.LocationFor
 import com.server.ud.provider.cache.UDCacheProvider
 import com.server.ud.provider.deferred.DeferredProcessingProvider
+import com.server.ud.provider.es.ESProvider
+import com.server.ud.utils.pagination.UDCommonUtils
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
+import org.elasticsearch.action.search.SearchRequest
+import org.elasticsearch.client.RequestOptions
+import org.elasticsearch.script.ScriptType
+import org.elasticsearch.script.mustache.SearchTemplateRequest
+import org.elasticsearch.script.mustache.SearchTemplateResponse
+import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilter
+import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.time.Instant
+import kotlin.random.Random
 
 @Component
 class LocationProvider {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
-
-    private val randomLocationId = "LOC_RANDOM"
-    private val randomLocationZipcode = "ZZZZZZ"
-    private val randomLocationName = "Global"
 
     @Autowired
     private lateinit var locationRepository: LocationRepository
@@ -40,6 +46,9 @@ class LocationProvider {
 
     @Autowired
     private lateinit var udCacheProvider: UDCacheProvider
+
+    @Autowired
+    private lateinit var esProvider: ESProvider
 
     fun getLocation(locationId: String): Location? =
         try {
@@ -82,7 +91,7 @@ class LocationProvider {
     fun getOrSaveRandomLocation(userId: String, locationFor: LocationFor) : Location? {
         try {
             // Get
-            getLocation(randomLocationId)?.let {
+            getLocation(UDCommonUtils.randomLocationId)?.let {
                 return it
             }
 
@@ -91,12 +100,12 @@ class LocationProvider {
             // this save happens and the future calls
             // do not happen
             val location = Location(
-                locationId = randomLocationId,
+                locationId = UDCommonUtils.randomLocationId,
                 locationFor = locationFor,
                 userId = userId,
                 createdAt = Instant.now(),
-                zipcode = randomLocationZipcode,
-                name = randomLocationName,
+                zipcode = UDCommonUtils.randomLocationZipcode,
+                name = UDCommonUtils.randomLocationName,
             )
             val savedLocation = locationRepository.save(location)
             logger.info("Saved location into cassandra with locationId: ${savedLocation.locationId}")
@@ -133,6 +142,42 @@ class LocationProvider {
             cities.shuffled().map {
                 it.toSaveLocationRequest(locationFor)
             }
+        }
+    }
+
+    fun getNearbyZipcodes(lat: Double?, lng: Double?): Set<String> {
+        return try {
+            val request = SearchTemplateRequest(SearchRequest("locations"))
+            request.scriptType = ScriptType.INLINE
+            request.script =
+                "{\"aggs\":{\"locations_filter\":{\"filter\":{\"geo_distance\":{\"distance\":\"{{distance_in_km}}\",\"geoPoint\":{\"lat\":{{latitude}},\"lon\":{{longitude}}}}},\"aggs\":{\"zipcodes\":{\"terms\":{\"field\":\"zipcode\"}}}}},\"size\":0}"
+            val scriptParams: MutableMap<String, Any> = HashMap()
+
+            // TODO: Make this dynamic by taking this input from user
+            scriptParams["distance_in_km"] = "300km"
+            scriptParams["latitude"] = lat.toString()
+            scriptParams["longitude"] = lng.toString()
+            request.scriptParams = scriptParams
+            val response: SearchTemplateResponse? = esProvider.executeRequest(request)
+            val nearbyZipcodes = response?.let {
+                // Send the random location zip code for nearby zipcode
+                // randomly so that we keep creating a fallback zipcode
+                // For all types of feed
+                val shouldAddRandomZipcode = Random.nextInt(1, 25) % 5 == 0
+                ((response.response.aggregations.asList()[0] as ParsedFilter).aggregations.asList()[0] as Terms).buckets.map {
+                    it.keyAsString
+                }.toSet() + (if (shouldAddRandomZipcode) {
+                    setOf(UDCommonUtils.randomLocationZipcode)
+                } else {
+                    emptySet()
+                })
+            } ?: emptySet()
+            nearbyZipcodes.ifEmpty {
+                // In case of no nearby zipcodes, add the random zipcode
+                return setOf(UDCommonUtils.randomLocationZipcode)
+            }
+        } catch (e: Exception) {
+            emptySet()
         }
     }
 

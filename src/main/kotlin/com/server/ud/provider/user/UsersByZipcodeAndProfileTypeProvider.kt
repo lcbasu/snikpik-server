@@ -32,13 +32,13 @@ class UsersByZipcodeAndProfileTypeProvider {
 
     fun save(userV2: UserV2): List<UsersByZipcodeAndProfileType> {
         try {
-            if (userV2.userLastLocationZipcode == null) {
+            if (userV2.permanentLocationZipcode == null) {
                 logger.error("zipcode is required to save UsersByZipcodeAndProfileType for userId: ${userV2.userId}.")
                 return emptyList()
             }
             val usersByZipcodeAndProfileType = userV2.getProfiles().profileTypes.map {
                 UsersByZipcodeAndProfileType(
-                    zipcode = userV2.userLastLocationZipcode!!,
+                    zipcode = userV2.permanentLocationZipcode!!,
                     profileType = it.id,
                     userId = userV2.userId,
                 )

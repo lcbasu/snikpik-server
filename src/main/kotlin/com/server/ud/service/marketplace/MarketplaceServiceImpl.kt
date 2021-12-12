@@ -2,7 +2,7 @@ package com.server.ud.service.marketplace
 
 import com.server.common.dto.toProfileTypeResponse
 import com.server.ud.dto.*
-import com.server.ud.provider.user.ProfileTypesByZipcodeAndProfileCategoryProvider
+import com.server.ud.provider.user.ProfileTypesByNearbyZipcodeProvider
 import com.server.ud.provider.user.UserV2Provider
 import com.server.ud.provider.user.UsersByNearbyZipcodeAndProfileTypeProvider
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,7 +15,7 @@ class MarketplaceServiceImpl : MarketplaceService() {
     private lateinit var usersByNearbyZipcodeAndProfileTypeProvider: UsersByNearbyZipcodeAndProfileTypeProvider
 
     @Autowired
-    private lateinit var profileTypesByZipcodeAndProfileCategoryProvider: ProfileTypesByZipcodeAndProfileCategoryProvider
+    private lateinit var profileTypesByNearbyZipcodeProvider: ProfileTypesByNearbyZipcodeProvider
 
     @Autowired
     private lateinit var userV2Provider: UserV2Provider
@@ -31,7 +31,7 @@ class MarketplaceServiceImpl : MarketplaceService() {
     }
 
     override fun getFeedForMarketplaceProfileTypes(request: MarketplaceProfileTypesFeedRequest): MarketplaceProfileTypesFeedResponse {
-        val result = profileTypesByZipcodeAndProfileCategoryProvider.getFeedForMarketplaceProfileTypes(request)
+        val result = profileTypesByNearbyZipcodeProvider.getFeedForMarketplaceProfileTypes(request)
         return MarketplaceProfileTypesFeedResponse(
             profileTypes = result.content?.filterNotNull()?.map { it.profileType.toProfileTypeResponse() } ?: emptyList(),
             count = result.count,

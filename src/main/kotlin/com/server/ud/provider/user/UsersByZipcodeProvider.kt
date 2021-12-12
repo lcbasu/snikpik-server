@@ -19,12 +19,12 @@ class UsersByZipcodeProvider {
 
     fun save(userV2: UserV2): UsersByZipcode? {
         try {
-            if (userV2.userLastLocationZipcode == null) {
+            if (userV2.permanentLocationZipcode == null) {
                 logger.error("zipcode is required to save UsersByZipcode for userId: ${userV2.userId}.")
                 return null
             }
             val usersByZipcode = UsersByZipcode(
-                zipcode = userV2.userLastLocationZipcode,
+                zipcode = userV2.permanentLocationZipcode,
                 forDate = DateUtils.getInstantDate(userV2.createdAt),
                 createdAt = userV2.createdAt,
                 userId = userV2.userId,

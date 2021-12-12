@@ -1,7 +1,6 @@
 package com.server.ud.provider.location
 
 import com.server.ud.entities.location.Location
-import com.server.ud.provider.es.ESProvider
 import com.server.ud.provider.post.PostProcessingProvider
 import com.server.ud.provider.user.UserV2ProcessingProvider
 import kotlinx.coroutines.GlobalScope
@@ -31,9 +30,6 @@ class LocationProcessingProvider {
 
     @Autowired
     private lateinit var nearbyZipcodesByZipcodeProvider: NearbyZipcodesByZipcodeProvider
-
-    @Autowired
-    private lateinit var esProvider: ESProvider
 
     @Autowired
     private lateinit var postProcessingProvider: PostProcessingProvider
@@ -70,7 +66,7 @@ class LocationProcessingProvider {
             // 1. Save location into ES
             esLocationProvider.save(location)
             // 2. Get Nearby Zipcodes
-            val nearbyZipcodes = esProvider.getNearbyZipcodes(location.lat, location.lng)
+            val nearbyZipcodes = locationProvider.getNearbyZipcodes(location.lat, location.lng)
             logger.info("All nearby zipcodes: ${nearbyZipcodes.joinToString(",")} for source zipcode: ${location.zipcode}")
             location.zipcode?.let { nearbyZipcodesByZipcodeProvider.save(it, nearbyZipcodes) }
 
@@ -103,7 +99,7 @@ class LocationProcessingProvider {
         )
 
         // Do same thing for MarketplaceUser
-        userV2ProcessingProvider.processUserForNearbyLocation(
+        userV2ProcessingProvider.processUserDataForNearbyLocation(
             originalLocation = location,
             nearbyZipcodes = nearbyZipcodes
         )

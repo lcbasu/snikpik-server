@@ -14,6 +14,7 @@ import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getMediaDetailsForDP
 import com.server.ud.entities.user.getProfiles
+import com.server.ud.enums.UserLocationUpdateType
 
 data class LikedPostsByUserPostDetail(
     val likedByUserId: String,
@@ -117,6 +118,7 @@ data class UpdateUserV2NameRequest (
 data class UpdateUserV2LocationRequest (
     // Take it from request for any update related action
 //    val userId: String,
+    val updateTypes: Set<UserLocationUpdateType>,
     val lat: Double,
     val lng: Double,
     var zipcode: String,
@@ -141,7 +143,8 @@ data class ProfilePageUserDetailsResponse(
     var dp: MediaDetailsV2?, // MediaDetailsV2
     var verified: Boolean?,
     var profileToShow: ProfileTypeResponse?,
-    val userLastLocationName: String?,
+    val userCurrentLocationName: String?,
+    val userPermanentLocationName: String?,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -159,12 +162,20 @@ data class SavedUserV2Response(
     var dp: MediaDetailsV2?, // MediaDetailsV2
     var verified: Boolean?,
     var profiles: AllProfileTypeResponse?,
-    var userLastLocationZipcode: String?,
-    var userLastGooglePlaceId: String?,
-    var userLastLocationId: String?,
-    val userLastLocationName: String?,
-    val userLastLocationLat: Double?,
-    val userLastLocationLng: Double?,
+
+    var currentLocationZipcode: String?,
+    var currentGooglePlaceId: String?,
+    var currentLocationId: String?,
+    val currentLocationName: String?,
+    val currentLocationLat: Double?,
+    val currentLocationLng: Double?,
+
+    var permanentLocationZipcode: String?,
+    var permanentGooglePlaceId: String?,
+    var permanentLocationId: String?,
+    val permanentLocationName: String?,
+    val permanentLocationLat: Double?,
+    val permanentLocationLng: Double?,
 )
 
 fun UserV2.toSavedUserV2Response(): SavedUserV2Response {
@@ -183,12 +194,20 @@ fun UserV2.toSavedUserV2Response(): SavedUserV2Response {
             dp = getMediaDetailsForDP(),
             verified = verified,
             profiles = getProfiles(),
-            userLastLocationZipcode = userLastLocationZipcode,
-            userLastGooglePlaceId = userLastGooglePlaceId,
-            userLastLocationId = userLastLocationId,
-            userLastLocationName = userLastLocationName,
-            userLastLocationLat = userLastLocationLat,
-            userLastLocationLng = userLastLocationLng,
+
+            currentLocationId = currentLocationId,
+            currentLocationLat = currentLocationLat,
+            currentLocationLng = currentLocationLng,
+            currentLocationZipcode = currentLocationZipcode,
+            currentLocationName = currentLocationName,
+            currentGooglePlaceId = currentGooglePlaceId,
+
+            permanentLocationId = permanentLocationId,
+            permanentLocationLat = permanentLocationLat,
+            permanentLocationLng = permanentLocationLng,
+            permanentLocationZipcode = permanentLocationZipcode,
+            permanentLocationName = permanentLocationName,
+            permanentGooglePlaceId = permanentGooglePlaceId,
         )
     }
 }
@@ -204,7 +223,8 @@ fun UserV2.toProfilePageUserDetailsResponse(): ProfilePageUserDetailsResponse {
             dp = getMediaDetailsForDP(),
             verified = verified,
             profileToShow = getProfiles().profileTypes.firstOrNull(),
-            userLastLocationName = userLastLocationName,
+            userCurrentLocationName = currentLocationName,
+            userPermanentLocationName = permanentLocationName,
         )
     }
 }

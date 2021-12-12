@@ -85,14 +85,14 @@ fun UserV2.toVideoFeedViewSingleUserDetail(): VideoFeedViewSingleUserDetail {
             verified = verified,
             dp = getMediaDetailsForDP(),
             profileTypeToShow = getProfiles().profileTypes.firstOrNull(),
-            location = userLastLocationId?.let {
+            location = permanentLocationId?.let {
                 LocationResponse(
-                    id = userLastLocationId,
-                    name = userLastLocationName,
-                    lat = userLastLocationLat,
-                    lng = userLastLocationLng,
-                    zipcode = userLastLocationZipcode,
-                    googlePlaceId = userLastGooglePlaceId,
+                    id = permanentLocationId,
+                    name = permanentLocationName,
+                    lat = permanentLocationLat,
+                    lng = permanentLocationLng,
+                    zipcode = permanentLocationZipcode,
+                    googlePlaceId = permanentGooglePlaceId,
                 )
             },
         )
