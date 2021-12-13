@@ -5,6 +5,7 @@ import com.server.common.dto.convertToString
 import com.server.common.dto.toProfileTypeResponse
 import com.server.common.enums.MediaType
 import com.server.common.enums.NotificationTokenProvider
+import com.server.common.enums.ProfileType
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.UserDetailsFromToken
 import com.server.common.provider.SecurityProvider
@@ -251,7 +252,10 @@ class UserV2Provider {
             verified = false,
             fullName = firebaseAuthUser.getName(),
             notificationToken = null,
-            notificationTokenProvider = NotificationTokenProvider.FIREBASE
+            notificationTokenProvider = NotificationTokenProvider.FIREBASE,
+            profiles = AllProfileTypeResponse(
+                listOf(ProfileType.HOME_OWNER.toProfileTypeResponse())
+            ).convertToString(),
         )
 
 }
