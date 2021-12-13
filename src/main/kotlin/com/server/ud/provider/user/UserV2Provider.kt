@@ -229,8 +229,12 @@ class UserV2Provider {
         }
     }
 
-    private fun getUserV2ObjectFromFirebaseObject(firebaseAuthUser: UserDetailsFromToken) =
-        UserV2(
+    private fun getUserV2ObjectFromFirebaseObject(firebaseAuthUser: UserDetailsFromToken): UserV2 {
+        var userName = firebaseAuthUser.getName()
+        if (userName == null || userName.isNullOrBlank()) {
+            userName = "Guest User"
+        }
+        return UserV2(
             userId = firebaseAuthUser.getUserIdToUse(),
             createdAt = DateUtils.getInstantNow(),
             absoluteMobile = firebaseAuthUser.getAbsoluteMobileNumber(),
@@ -250,12 +254,13 @@ class UserV2Provider {
             uid = firebaseAuthUser.getUid(),
             anonymous = firebaseAuthUser.getIsAnonymous() == true,
             verified = false,
-            fullName = firebaseAuthUser.getName(),
+            fullName = userName,
             notificationToken = null,
             notificationTokenProvider = NotificationTokenProvider.FIREBASE,
             profiles = AllProfileTypeResponse(
                 listOf(ProfileType.HOME_OWNER.toProfileTypeResponse())
             ).convertToString(),
         )
+    }
 
 }
