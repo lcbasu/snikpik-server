@@ -74,16 +74,33 @@ class UserV2Provider {
         }
     }
 
+    fun updateUserV2NameAndHandle(request: UpdateUserV2NameAndHandleRequest): UserV2? {
+        val firebaseAuthUser = securityProvider.validateRequest()
+        val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
+        // First just update the name
+        // because there is no need for uniqueness enforcement for name
+        val newUserToBeSaved = user.copy(fullName = request.newName)
+        val nameUpdatedUser = saveUserV2(newUserToBeSaved, false) ?: error("Error while updating name for userId: ${firebaseAuthUser.getUserIdToUse()}")
+
+        // Now update the username as it requires uniqueness enforcement
+        // and once, updated, do user level processing by job scheduling
+        return updateUserV2Handle(nameUpdatedUser, request.newHandle)
+    }
+
     fun updateUserV2Handle(request: UpdateUserV2HandleRequest): UserV2? {
         val firebaseAuthUser = securityProvider.validateRequest()
         val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
-        if (usersByHandleProvider.isHandleAvailable(request.newHandle)) {
-            val newUserToBeSaved = user.copy(handle = request.newHandle)
+        return updateUserV2Handle(user, request.newHandle)
+    }
+
+    fun updateUserV2Handle(user: UserV2, newHandle: String): UserV2? {
+        if (usersByHandleProvider.isHandleAvailable(newHandle)) {
+            val newUserToBeSaved = user.copy(handle = newHandle)
             val savedUser = saveUserV2(newUserToBeSaved)
             usersByHandleProvider.save(savedUser!!)
             return savedUser
         } else {
-            error("${request.newHandle} not available")
+            error("$newHandle not available for userId: ${user.userId}")
         }
     }
 

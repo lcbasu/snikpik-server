@@ -115,6 +115,14 @@ data class UpdateUserV2NameRequest (
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class UpdateUserV2NameAndHandleRequest (
+    // Take it from request for any update related action
+//    val userId: String,
+    val newName: String,
+    val newHandle: String,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateUserV2LocationRequest (
     // Take it from request for any update related action
 //    val userId: String,
