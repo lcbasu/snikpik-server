@@ -263,4 +263,8 @@ class UserV2Provider {
         )
     }
 
+    fun isUserHandleAvailable(handle: String): Boolean {
+        return usersByHandleProvider.isHandleAvailable(handle)
+    }
+
 }

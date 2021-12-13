@@ -178,6 +178,10 @@ data class SavedUserV2Response(
     val permanentLocationLng: Double?,
 )
 
+data class UserHandleAvailabilityResponse(
+    var available: Boolean,
+)
+
 fun UserV2.toSavedUserV2Response(): SavedUserV2Response {
     this.apply {
         return SavedUserV2Response(

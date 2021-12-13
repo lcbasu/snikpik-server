@@ -120,5 +120,10 @@ class UserV2ServiceImpl : UserV2Service() {
         return userV2Provider.saveLoggedInUserV2WithIPLocation(request)?.toSavedUserV2Response()
     }
 
+    override fun isUserHandleAvailable(handle: String): UserHandleAvailabilityResponse {
+        return UserHandleAvailabilityResponse(
+            available = userV2Provider.isUserHandleAvailable(handle)
+        )
+    }
 
 }
