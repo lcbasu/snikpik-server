@@ -80,7 +80,8 @@ class UserV2ProcessingProvider {
                     val nearbyZipcodes = locationProvider.getNearbyZipcodes(
                         lat = user.permanentLocationLat,
                         lng = user.permanentLocationLng,
-                    ) + setOf(user.permanentLocationZipcode) // // As the user is always near to his/her own location
+                        originalZipcode = user.permanentLocationZipcode
+                    )
                     profileTypesByNearbyZipcodeProvider.save(user, nearbyZipcodes)
                     usersByNearbyZipcodeAndProfileTypeProvider.save(user, nearbyZipcodes)
                 }

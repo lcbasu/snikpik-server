@@ -145,8 +145,8 @@ class LocationProvider {
         }
     }
 
-    fun getNearbyZipcodes(lat: Double?, lng: Double?): Set<String> {
-        return try {
+    fun getNearbyZipcodes(lat: Double?, lng: Double?, originalZipcode: String? = null): Set<String> {
+        return (try {
             val request = SearchTemplateRequest(SearchRequest("locations"))
             request.scriptType = ScriptType.INLINE
             request.script =
@@ -172,13 +172,16 @@ class LocationProvider {
                     emptySet()
                 })
             } ?: emptySet()
-            nearbyZipcodes.ifEmpty {
+            val computedZipcode = if (nearbyZipcodes.isEmpty()) {
                 // In case of no nearby zipcodes, add the random zipcode
-                return setOf(UDCommonUtils.randomLocationZipcode)
+                setOf(UDCommonUtils.randomLocationZipcode)
+            } else {
+                nearbyZipcodes
             }
+            computedZipcode.plus(originalZipcode)
         } catch (e: Exception) {
-            emptySet()
-        }
+            setOf(originalZipcode)
+        }).filterNotNull().toSet()
     }
 
 }
