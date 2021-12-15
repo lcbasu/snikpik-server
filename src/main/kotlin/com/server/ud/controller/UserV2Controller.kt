@@ -120,6 +120,12 @@ class UserV2Controller {
         return userV2Service.isUserHandleAvailable(handle)
     }
 
+    @RequestMapping(value = ["/updateUserV2BusinessDuringSignup"], method = [RequestMethod.POST])
+    fun updateUserV2BusinessDuringSignup(@RequestBody request: UpdateUserV2BusinessSignupRequest): SavedUserV2Response? {
+        securityProvider.validateRequest()
+        return userV2Service.updateUserV2BusinessDuringSignup(request)
+    }
+
     @RequestMapping(value = ["/updateUserV2DP"], method = [RequestMethod.POST])
     fun updateUserV2DP(@RequestBody request: UpdateUserV2DPRequest): SavedUserV2Response? {
         securityProvider.validateRequest()

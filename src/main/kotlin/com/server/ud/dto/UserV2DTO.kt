@@ -101,6 +101,12 @@ data class UpdateUserV2DPRequest (
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class UpdateUserV2BusinessSignupRequest (
+    val email: String,
+    val location: UpdateUserV2LocationRequest?,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateUserV2ProfilesRequest (
     // Take it from request for any update related action
 //    val userId: String,

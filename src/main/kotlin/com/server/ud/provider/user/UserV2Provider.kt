@@ -127,8 +127,6 @@ class UserV2Provider {
 
         val location = locationProvider.save(user.userId, locationRequest) ?: error("Error saving location for userId: $userId")
 
-
-
         var newUserToBeSaved = if (request.updateTypes.contains(UserLocationUpdateType.CURRENT)) {
             user.copy(
                 currentLocationId = location.locationId,
@@ -288,6 +286,14 @@ class UserV2Provider {
         // Now update the username as it requires uniqueness enforcement
         // and once, updated, do user level processing by job scheduling
         return updateUserV2Handle(nameUpdatedUser, request.newHandle)
+    }
+
+    fun updateUserV2BusinessDuringSignup(request: UpdateUserV2BusinessSignupRequest): UserV2? {
+        val firebaseAuthUser = securityProvider.validateRequest()
+        val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
+        val newUserToBeSaved = user.copy(email = request.email,)
+        val emailSavedUser = saveUserV2(newUserToBeSaved, false) ?: error("Error while updating email for userId: ${firebaseAuthUser.getUserIdToUse()}")
+        return request.location?.let { updateUserV2Location(request.location, emailSavedUser.userId) } ?: emailSavedUser
     }
 
 }

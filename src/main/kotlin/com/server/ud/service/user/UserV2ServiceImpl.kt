@@ -130,4 +130,8 @@ class UserV2ServiceImpl : UserV2Service() {
         return userV2Provider.updateUserV2DuringSignup(request)?.toSavedUserV2Response()
     }
 
+    override fun updateUserV2BusinessDuringSignup(request: UpdateUserV2BusinessSignupRequest): SavedUserV2Response? {
+        return userV2Provider.updateUserV2BusinessDuringSignup(request)?.toSavedUserV2Response()
+    }
+
 }

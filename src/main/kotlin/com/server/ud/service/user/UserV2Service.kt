@@ -23,4 +23,5 @@ abstract class UserV2Service {
     abstract fun saveLoggedInUserV2WithIPLocation(request: IPLocationData?): SavedUserV2Response?
     abstract fun isUserHandleAvailable(handle: String): UserHandleAvailabilityResponse
     abstract fun updateUserV2DuringSignup(request: UpdateUserV2DuringSignupRequest): SavedUserV2Response?
+    abstract fun updateUserV2BusinessDuringSignup(request: UpdateUserV2BusinessSignupRequest): SavedUserV2Response?
 }
