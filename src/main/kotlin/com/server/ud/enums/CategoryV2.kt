@@ -28,6 +28,16 @@ enum class CategoryV2(
     val displayName: String,
     val mediaDetails: MediaDetailsV2
 ) {
+
+    // Only used for filtering
+    // But user should not be saving any post with category ALL
+    ALL(
+        CategoryGroupV2.HOME,
+        0,
+        "All",
+        MediaDetailsV2(emptyList())
+    ),
+
     EXTERIOR(
         CategoryGroupV2.HOME,
         1,
@@ -45,7 +55,7 @@ enum class CategoryV2(
     ),
     INTERIOR(
         CategoryGroupV2.HOME,
-        1,
+        2,
         "Interior",
         MediaDetailsV2(listOf(
             SingleMediaDetail(
@@ -60,7 +70,7 @@ enum class CategoryV2(
     ),
     KITCHEN(
         CategoryGroupV2.HOME,
-        2,
+        3,
         "Kitchen",
         MediaDetailsV2(listOf(
             SingleMediaDetail(
@@ -75,7 +85,7 @@ enum class CategoryV2(
     ),
     BEDROOM(
         CategoryGroupV2.HOME,
-        3,
+        4,
         "Bedroom",
         MediaDetailsV2(listOf(
             SingleMediaDetail(
@@ -90,7 +100,7 @@ enum class CategoryV2(
     ),
     LIVING(
         CategoryGroupV2.HOME,
-        4,
+        5,
         "Living",
         MediaDetailsV2(listOf(
             SingleMediaDetail(
@@ -105,7 +115,7 @@ enum class CategoryV2(
     ),
     FLOORING(
         CategoryGroupV2.HOME,
-        5,
+        6,
         "Flooring",
         MediaDetailsV2(listOf(
             SingleMediaDetail(
@@ -120,7 +130,7 @@ enum class CategoryV2(
     ),
     FURNITURE(
         CategoryGroupV2.HOME,
-        5,
+        7,
         "Furniture",
         MediaDetailsV2(listOf(
             SingleMediaDetail(
@@ -135,7 +145,7 @@ enum class CategoryV2(
     ),
     PAINT(
         CategoryGroupV2.HOME,
-        5,
+        8,
         "Paint",
         MediaDetailsV2(listOf(
             SingleMediaDetail(
@@ -150,7 +160,7 @@ enum class CategoryV2(
     ),
     DOORS(
         CategoryGroupV2.HOME,
-        5,
+        9,
         "Doors",
         MediaDetailsV2(listOf(
             SingleMediaDetail(
@@ -165,7 +175,7 @@ enum class CategoryV2(
     ),
     WINDOWS(
         CategoryGroupV2.HOME,
-        5,
+        10,
         "Windows",
         MediaDetailsV2(listOf(
             SingleMediaDetail(
@@ -180,7 +190,7 @@ enum class CategoryV2(
     ),
     LIGHTING(
         CategoryGroupV2.HOME,
-        5,
+        11,
         "Lighting",
         MediaDetailsV2(listOf(
             SingleMediaDetail(
@@ -195,7 +205,7 @@ enum class CategoryV2(
     ),
     GARDEN(
         CategoryGroupV2.HOME,
-        5,
+        12,
         "Garden",
         MediaDetailsV2(listOf(
             SingleMediaDetail(
@@ -210,7 +220,7 @@ enum class CategoryV2(
     ),
     KIDS_ROOM(
         CategoryGroupV2.HOME,
-        5,
+        13,
         "Kids Room",
         MediaDetailsV2(listOf(
             SingleMediaDetail(
@@ -225,7 +235,7 @@ enum class CategoryV2(
     ),
     ROOFING(
         CategoryGroupV2.HOME,
-        5,
+        14,
         "Roofing",
         MediaDetailsV2(listOf(
             SingleMediaDetail(
@@ -240,7 +250,7 @@ enum class CategoryV2(
     ),
     OFFICE(
         CategoryGroupV2.HOME,
-        5,
+        15,
         "Office",
         MediaDetailsV2(listOf(
             SingleMediaDetail(
@@ -255,7 +265,7 @@ enum class CategoryV2(
     ),
     BEFORE_AND_AFTER(
         CategoryGroupV2.HOME,
-        5,
+        16,
         "Before & After",
         MediaDetailsV2(listOf(
             SingleMediaDetail(
@@ -270,7 +280,7 @@ enum class CategoryV2(
     ),
     HOUSE_ARCHITECTURE_PLAN(
         CategoryGroupV2.HOME,
-        5,
+        17,
         "Plan",
         MediaDetailsV2(listOf(
             SingleMediaDetail(
@@ -282,14 +292,5 @@ enum class CategoryV2(
                 mediaQualityType = MediaQualityType.HIGH,
             )
         ))
-    ),
-
-    // Only used for filtering
-    // But user should not be saving any post with category ALL
-    ALL(
-        CategoryGroupV2.HOME,
-        0,
-        "All",
-        MediaDetailsV2(emptyList())
     ),
 }
