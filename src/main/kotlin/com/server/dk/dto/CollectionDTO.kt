@@ -4,7 +4,7 @@ import AllCollectionsWithProductsRaw
 import CollectionWithProductsRaw
 import com.server.dk.entities.Collection
 import com.server.dk.entities.getMediaDetails
-import com.server.dk.model.MediaDetails
+import com.server.common.model.MediaDetails
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)

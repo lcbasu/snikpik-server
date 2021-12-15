@@ -3,7 +3,7 @@ package com.server.ud.dto
 import com.server.common.dto.ProfileTypeResponse
 import com.server.common.dto.toProfileTypeResponse
 import com.server.common.utils.DateUtils
-import com.server.dk.model.MediaDetailsV2
+import com.server.common.model.MediaDetailsV2
 import com.server.ud.entities.post.NearbyPostsByZipcode
 import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.entities.user.UserV2

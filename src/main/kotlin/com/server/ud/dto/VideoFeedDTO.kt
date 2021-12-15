@@ -2,7 +2,7 @@ package com.server.ud.dto
 
 import com.server.common.dto.ProfileTypeResponse
 import com.server.common.utils.DateUtils
-import com.server.dk.model.MediaDetailsV2
+import com.server.common.model.MediaDetailsV2
 import com.server.ud.entities.post.NearbyVideoPostsByZipcode
 import com.server.ud.entities.post.getHashTags
 import com.server.ud.entities.post.getMediaDetails

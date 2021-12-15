@@ -1,4 +1,4 @@
-package com.server.dk.model
+package com.server.common.model
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.enums.ContentType

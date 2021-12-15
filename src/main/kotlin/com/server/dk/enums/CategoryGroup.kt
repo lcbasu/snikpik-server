@@ -1,6 +1,6 @@
 package com.server.dk.enums
 
-import com.server.dk.model.MediaDetails
+import com.server.common.model.MediaDetails
 
 enum class CategoryGroup(
     val id: CategoryGroupId, // DO NOT CHANGE THE ID. EVER.

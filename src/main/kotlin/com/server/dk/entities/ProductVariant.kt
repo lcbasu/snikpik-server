@@ -1,7 +1,7 @@
 package com.server.dk.entities
 
 import VariantInfos
-import com.server.dk.model.MediaDetails
+import com.server.common.model.MediaDetails
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.entities.Auditable
 import com.server.common.entities.User

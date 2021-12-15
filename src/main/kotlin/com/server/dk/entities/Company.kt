@@ -3,7 +3,7 @@ package com.server.dk.entities
 import com.server.dk.enums.CategoryGroup
 import com.server.dk.enums.DKShopStatus
 import com.server.dk.enums.SalaryPaymentSchedule
-import com.server.dk.model.MediaDetails
+import com.server.common.model.MediaDetails
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.entities.Auditable
 import com.server.common.entities.User

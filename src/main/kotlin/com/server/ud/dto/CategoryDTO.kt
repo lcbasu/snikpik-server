@@ -1,7 +1,7 @@
 package com.server.ud.dto
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.server.dk.model.MediaDetails
+import com.server.common.model.MediaDetailsV2
 import com.server.ud.enums.CategoryGroupV2
 import com.server.ud.enums.CategoryV2
 
@@ -12,7 +12,7 @@ data class AllCategoryGroupV2Response(
 data class CategoryGroupV2Response (
     val id: CategoryGroupV2,
     val displayName: String,
-    val mediaDetails: MediaDetails
+    val mediaDetails: MediaDetailsV2
 )
 
 data class AllCategoryV2Response(
@@ -24,7 +24,7 @@ data class CategoryV2Response(
     val placementOrder: Int,
     val categoryGroup: CategoryGroupV2,
     val displayName: String,
-    val mediaDetails: MediaDetails
+    val mediaDetails: MediaDetailsV2
 )
 
 fun AllCategoryV2Response.convertToString(): String? {

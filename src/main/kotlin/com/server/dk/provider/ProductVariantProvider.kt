@@ -5,6 +5,7 @@ import com.server.dk.dao.ProductVariantRepository
 import com.server.dk.dto.SaveProductVariantRequest
 import com.server.dk.entities.*
 import com.server.common.enums.ReadableIdPrefix
+import com.server.common.model.convertToString
 import com.server.dk.dto.UpdateProductVariantRequest
 import com.server.dk.model.convertToString
 import convertToString

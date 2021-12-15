@@ -1,17 +1,17 @@
 package com.server.dk.provider
 
 import com.server.common.entities.User
+import com.server.common.enums.ReadableIdPrefix
+import com.server.common.enums.TrackingType
+import com.server.common.model.convertToString
 import com.server.common.provider.UniqueIdProvider
+import com.server.common.utils.CommonUtils
 import com.server.dk.dao.CompanyRepository
 import com.server.dk.dao.CompanyUsernameRepository
 import com.server.dk.dto.*
 import com.server.dk.entities.*
 import com.server.dk.enums.CategoryGroup
 import com.server.dk.enums.DKShopStatus
-import com.server.common.enums.ReadableIdPrefix
-import com.server.common.enums.TrackingType
-import com.server.dk.model.convertToString
-import com.server.common.utils.CommonUtils
 import com.server.dk.enums.EntityType
 import com.server.dk.enums.ProductOrderStatus
 import org.springframework.beans.factory.annotation.Autowired

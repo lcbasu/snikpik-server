@@ -7,7 +7,7 @@ import com.server.dk.entities.getMediaDetails
 import com.server.dk.entities.getVariantInfos
 import com.server.dk.enums.ProductUnit
 import com.server.dk.enums.toProductUnitResponse
-import com.server.dk.model.MediaDetails
+import com.server.common.model.MediaDetails
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.server.dk.enums.ProductStatus
 

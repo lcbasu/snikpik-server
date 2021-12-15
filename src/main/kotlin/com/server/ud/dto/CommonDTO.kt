@@ -2,7 +2,7 @@ package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.server.common.utils.CommonUtils
-import com.server.dk.model.MediaDetailsV2
+import com.server.common.model.MediaDetailsV2
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 

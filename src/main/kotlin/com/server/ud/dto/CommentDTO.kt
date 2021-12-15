@@ -2,7 +2,7 @@ package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.server.common.utils.DateUtils
-import com.server.dk.model.MediaDetailsV2
+import com.server.common.model.MediaDetailsV2
 import com.server.ud.entities.comment.Comment
 import com.server.ud.entities.comment.CommentsByPost
 import com.server.ud.entities.comment.getMediaDetails

@@ -2,8 +2,8 @@ package com.server.common.provider
 
 import com.server.common.enums.MediaType
 import com.server.common.utils.CommonUtils
-import com.server.dk.model.MediaDetailsV2
-import com.server.dk.model.SingleMediaDetail
+import com.server.common.model.MediaDetailsV2
+import com.server.common.model.SingleMediaDetail
 import com.server.ud.dao.MediaProcessingDetailRepository
 import com.server.ud.entities.MediaProcessingDetail
 import com.server.ud.enums.ResourceType

@@ -3,7 +3,7 @@ package com.server.ud.entities.post
 import com.server.common.dto.AllLabelsResponse
 import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.utils.CommonUtils
-import com.server.dk.model.MediaDetailsV2
+import com.server.common.model.MediaDetailsV2
 import com.server.ud.dto.AllCategoryV2Response
 import com.server.ud.enums.PostType
 import com.server.ud.model.AllHashTags

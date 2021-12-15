@@ -2,7 +2,7 @@
 //
 //import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 //import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-//import com.server.dk.model.MediaDetailsV2
+//import com.server.common.model.MediaDetailsV2
 //import org.springframework.data.elasticsearch.annotations.Document
 //
 //@JsonIgnoreProperties(ignoreUnknown = true) // Used while parsing Search result to ES Post

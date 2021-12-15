@@ -1,6 +1,6 @@
 package com.server.common.enums
 
-import com.server.dk.model.MediaDetailsV2
+import com.server.common.model.MediaDetailsV2
 
 enum class ProfileType(
     val category: ProfileCategory,

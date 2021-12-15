@@ -1,6 +1,6 @@
 package com.server.ud.dto
 
-import com.server.dk.model.MediaDetailsV2
+import com.server.common.model.MediaDetailsV2
 import com.server.common.enums.ProfileType
 
 // ProfessionalMarketplaceFeed -> PMF

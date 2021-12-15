@@ -3,7 +3,7 @@ package com.server.dk.dto
 import com.server.dk.entities.Company
 import com.server.dk.entities.getLogoDetails
 import com.server.dk.enums.*
-import com.server.dk.model.MediaDetails
+import com.server.common.model.MediaDetails
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)

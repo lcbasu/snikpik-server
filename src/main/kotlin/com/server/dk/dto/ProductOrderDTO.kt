@@ -8,6 +8,7 @@ import com.server.dk.enums.*
 import com.server.dk.model.*
 import com.server.common.utils.DateUtils
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.server.common.model.MediaDetails
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 open class ProductOrderStatusUpdateRequest(

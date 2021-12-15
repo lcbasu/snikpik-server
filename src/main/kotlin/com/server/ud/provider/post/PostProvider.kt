@@ -4,15 +4,14 @@ import com.server.common.dto.AllLabelsResponse
 import com.server.common.dto.convertToString
 import com.server.common.enums.MediaType
 import com.server.common.enums.ReadableIdPrefix
+import com.server.common.model.MediaDetailsV2
+import com.server.common.model.convertToString
 import com.server.common.provider.MediaHandlerProvider
 import com.server.common.provider.RandomIdProvider
 import com.server.common.utils.DateUtils
-import com.server.dk.model.MediaDetailsV2
-import com.server.dk.model.convertToString
 import com.server.ud.dao.post.PostRepository
 import com.server.ud.dto.*
 import com.server.ud.entities.MediaProcessingDetail
-import com.server.ud.entities.location.Location
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.entities.user.getProfiles

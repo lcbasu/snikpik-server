@@ -7,12 +7,12 @@ import com.server.common.enums.MediaType
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.enums.ProfileType
 import com.server.common.enums.ReadableIdPrefix
+import com.server.common.model.MediaDetailsV2
+import com.server.common.model.SingleMediaDetail
 import com.server.common.model.UserDetailsFromToken
+import com.server.common.model.convertToString
 import com.server.common.provider.SecurityProvider
 import com.server.common.utils.DateUtils
-import com.server.dk.model.MediaDetailsV2
-import com.server.dk.model.SingleMediaDetail
-import com.server.dk.model.convertToString
 import com.server.ud.dao.user.UserV2Repository
 import com.server.ud.dto.*
 import com.server.ud.entities.user.UserV2

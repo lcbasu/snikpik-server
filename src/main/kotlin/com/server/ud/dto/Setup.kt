@@ -1,7 +1,7 @@
 package com.server.ud.dto
 
 import com.server.common.enums.ProfileType
-import com.server.dk.model.MediaDetailsV2
+import com.server.common.model.MediaDetailsV2
 
 // Break down each request and response DTO
 // Likes should be a different call and video should be different. And so on.

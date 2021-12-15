@@ -1,7 +1,7 @@
 package com.server.ud.entities.reply
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.server.dk.model.MediaDetailsV2
+import com.server.common.model.MediaDetailsV2
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column

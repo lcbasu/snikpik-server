@@ -7,6 +7,7 @@ import com.server.dk.dto.*
 import com.server.dk.entities.*
 import com.server.dk.enums.ProductStatus
 import com.server.common.enums.ReadableIdPrefix
+import com.server.common.model.convertToString
 import com.server.dk.model.convertToString
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking

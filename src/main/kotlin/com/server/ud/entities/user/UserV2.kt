@@ -4,7 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.utils.DateUtils
-import com.server.dk.model.MediaDetailsV2
+import com.server.common.model.MediaDetailsV2
 import com.server.ud.dto.SaveLocationRequest
 import com.server.ud.enums.LocationFor
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
