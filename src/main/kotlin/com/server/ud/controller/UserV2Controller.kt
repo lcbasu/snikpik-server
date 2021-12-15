@@ -138,6 +138,12 @@ class UserV2Controller {
         return userV2Service.updateUserV2Profiles(request)
     }
 
+    @RequestMapping(value = ["/updateUserV2PreferredCategories"], method = [RequestMethod.POST])
+    fun updateUserV2PreferredCategories(@RequestBody request: UpdateUserV2PreferredCategoriesRequest): SavedUserV2Response? {
+        securityProvider.validateRequest()
+        return userV2Service.updateUserV2PreferredCategories(request)
+    }
+
     @RequestMapping(value = ["/updateUserV2Name"], method = [RequestMethod.POST])
     fun updateUserV2Name(@RequestBody request: UpdateUserV2NameRequest): SavedUserV2Response? {
         securityProvider.validateRequest()

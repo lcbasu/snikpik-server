@@ -296,4 +296,13 @@ class UserV2Provider {
         return request.location?.let { updateUserV2Location(request.location, emailSavedUser.userId) } ?: emailSavedUser
     }
 
+    fun updateUserV2PreferredCategories(request: UpdateUserV2PreferredCategoriesRequest): UserV2? {
+        val firebaseAuthUser = securityProvider.validateRequest()
+        val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
+        val newUserToBeSaved = user.copy(preferredCategories = AllCategoryV2Response(
+            request.categories.map { it.toCategoryV2Response() }
+        ).convertToString(),)
+        return saveUserV2(newUserToBeSaved) ?: error("Error while updating categories for userId: ${firebaseAuthUser.getUserIdToUse()}")
+    }
+
 }

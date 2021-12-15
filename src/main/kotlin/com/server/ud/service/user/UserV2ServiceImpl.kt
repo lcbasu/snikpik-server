@@ -134,4 +134,8 @@ class UserV2ServiceImpl : UserV2Service() {
         return userV2Provider.updateUserV2BusinessDuringSignup(request)?.toSavedUserV2Response()
     }
 
+    override fun updateUserV2PreferredCategories(request: UpdateUserV2PreferredCategoriesRequest): SavedUserV2Response? {
+        return userV2Provider.updateUserV2PreferredCategories(request)?.toSavedUserV2Response()
+    }
+
 }

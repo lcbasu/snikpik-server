@@ -5,6 +5,7 @@ import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.utils.DateUtils
 import com.server.common.model.MediaDetailsV2
+import com.server.ud.dto.AllCategoryV2Response
 import com.server.ud.dto.SaveLocationRequest
 import com.server.ud.enums.LocationFor
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
@@ -114,7 +115,20 @@ data class UserV2 (
     @Column("permanent_location_lng")
     val permanentLocationLng: Double? = null,
 
+    @Column("preferred_categories")
+    val preferredCategories: String? = null,  //  List of AllCategoryV2Response
+
 )
+
+fun UserV2.getPreferredCategories(): AllCategoryV2Response {
+    this.apply {
+        return try {
+            jacksonObjectMapper().readValue(preferredCategories, AllCategoryV2Response::class.java)
+        } catch (e: Exception) {
+            AllCategoryV2Response(emptyList())
+        }
+    }
+}
 
 fun UserV2.getMediaDetailsForDP(): MediaDetailsV2 {
     this.apply {

@@ -5,15 +5,17 @@ import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.dto.ProfileTypeResponse
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.enums.ProfileType
-import com.server.common.utils.DateUtils
 import com.server.common.model.MediaDetailsV2
+import com.server.common.utils.DateUtils
 import com.server.ud.entities.post.BookmarkedPostsByUser
 import com.server.ud.entities.post.LikedPostsByUser
 import com.server.ud.entities.post.PostsByUser
 import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getMediaDetailsForDP
+import com.server.ud.entities.user.getPreferredCategories
 import com.server.ud.entities.user.getProfiles
+import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.UserLocationUpdateType
 
 data class LikedPostsByUserPostDetail(
@@ -108,9 +110,12 @@ data class UpdateUserV2BusinessSignupRequest (
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateUserV2ProfilesRequest (
-    // Take it from request for any update related action
-//    val userId: String,
     val profiles: Set<ProfileType>,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class UpdateUserV2PreferredCategoriesRequest (
+    val categories: Set<CategoryV2>,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -185,6 +190,7 @@ data class SavedUserV2Response(
     var dp: MediaDetailsV2?, // MediaDetailsV2
     var verified: Boolean?,
     var profiles: AllProfileTypeResponse?,
+    val preferredCategories: AllCategoryV2Response = AllCategoryV2Response(emptyList()),
 
     var currentLocationZipcode: String?,
     var currentGooglePlaceId: String?,
@@ -221,6 +227,7 @@ fun UserV2.toSavedUserV2Response(): SavedUserV2Response {
             dp = getMediaDetailsForDP(),
             verified = verified,
             profiles = getProfiles(),
+            preferredCategories = getPreferredCategories(),
 
             currentLocationId = currentLocationId,
             currentLocationLat = currentLocationLat,
