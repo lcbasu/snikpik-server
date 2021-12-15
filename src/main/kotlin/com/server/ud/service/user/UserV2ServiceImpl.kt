@@ -126,8 +126,8 @@ class UserV2ServiceImpl : UserV2Service() {
         )
     }
 
-    override fun updateUserV2NameAndHandle(request: UpdateUserV2NameAndHandleRequest): SavedUserV2Response? {
-        return userV2Provider.updateUserV2NameAndHandle(request)?.toSavedUserV2Response()
+    override fun updateUserV2DuringSignup(request: UpdateUserV2DuringSignupRequest): SavedUserV2Response? {
+        return userV2Provider.updateUserV2DuringSignup(request)?.toSavedUserV2Response()
     }
 
 }

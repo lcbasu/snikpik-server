@@ -138,10 +138,10 @@ class UserV2Controller {
         return userV2Service.updateUserV2Name(request)
     }
 
-    @RequestMapping(value = ["/updateUserV2NameAndHandle"], method = [RequestMethod.POST])
-    fun updateUserV2NameAndHandle(@RequestBody request: UpdateUserV2NameAndHandleRequest): SavedUserV2Response? {
+    @RequestMapping(value = ["/updateUserV2DuringSignup"], method = [RequestMethod.POST])
+    fun updateUserV2DuringSignup(@RequestBody request: UpdateUserV2DuringSignupRequest): SavedUserV2Response? {
         securityProvider.validateRequest()
-        return userV2Service.updateUserV2NameAndHandle(request)
+        return userV2Service.updateUserV2DuringSignup(request)
     }
 
     @RequestMapping(value = ["/updateUserV2Location"], method = [RequestMethod.POST])

@@ -74,19 +74,6 @@ class UserV2Provider {
         }
     }
 
-    fun updateUserV2NameAndHandle(request: UpdateUserV2NameAndHandleRequest): UserV2? {
-        val firebaseAuthUser = securityProvider.validateRequest()
-        val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
-        // First just update the name
-        // because there is no need for uniqueness enforcement for name
-        val newUserToBeSaved = user.copy(fullName = request.newName)
-        val nameUpdatedUser = saveUserV2(newUserToBeSaved, false) ?: error("Error while updating name for userId: ${firebaseAuthUser.getUserIdToUse()}")
-
-        // Now update the username as it requires uniqueness enforcement
-        // and once, updated, do user level processing by job scheduling
-        return updateUserV2Handle(nameUpdatedUser, request.newHandle)
-    }
-
     fun updateUserV2Handle(request: UpdateUserV2HandleRequest): UserV2? {
         val firebaseAuthUser = securityProvider.validateRequest()
         val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
@@ -285,6 +272,22 @@ class UserV2Provider {
 
     fun isUserHandleAvailable(handle: String): Boolean {
         return usersByHandleProvider.isHandleAvailable(handle)
+    }
+
+    fun updateUserV2DuringSignup(request: UpdateUserV2DuringSignupRequest): UserV2? {
+        val firebaseAuthUser = securityProvider.validateRequest()
+        val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
+        // First just update the name and Profile Image
+        // because there is no need for uniqueness enforcement for name and dp
+        val newUserToBeSaved = user.copy(
+            fullName = request.newName,
+            dp = request.dp?.convertToString())
+
+        val nameUpdatedUser = saveUserV2(newUserToBeSaved, false) ?: error("Error while updating name and dp for userId: ${firebaseAuthUser.getUserIdToUse()}")
+
+        // Now update the username as it requires uniqueness enforcement
+        // and once, updated, do user level processing by job scheduling
+        return updateUserV2Handle(nameUpdatedUser, request.newHandle)
     }
 
 }
