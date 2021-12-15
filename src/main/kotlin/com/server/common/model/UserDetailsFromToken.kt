@@ -7,7 +7,7 @@ data class UserDetailsFromToken(
         private val uid: String,
         private val name: String? = null,
         private val absoluteMobile: String? = null,
-        private val handle: String? = null,
+//        private val handle: String? = null,
         private val email: String? = null,
         private val issuer: String? = null,
         private val picture: String? = null,
@@ -19,9 +19,9 @@ data class UserDetailsFromToken(
         return absoluteMobile
     }
 
-    fun getHandle(): String? {
-        return handle
-    }
+//    fun getHandle(): String? {
+//        return handle
+//    }
 
     fun getEmail(): String? {
         return email

@@ -238,7 +238,10 @@ class UserV2Provider {
                 permanentLocationLng = if (hasPermanentLocation) userToBeSavedDraft.permanentLocationLng else location.lng,
                 permanentLocationZipcode = if (hasPermanentLocation) userToBeSavedDraft.permanentLocationZipcode else location.zipcode,
                 permanentLocationName = if (hasPermanentLocation) userToBeSavedDraft.permanentLocationName else location.name,
-                permanentGooglePlaceId = if (hasPermanentLocation) userToBeSavedDraft.permanentGooglePlaceId else location.googlePlaceId
+                permanentGooglePlaceId = if (hasPermanentLocation) userToBeSavedDraft.permanentGooglePlaceId else location.googlePlaceId,
+
+                anonymous = firebaseAuthUser.getIsAnonymous() == true,
+                absoluteMobile = firebaseAuthUser.getAbsoluteMobileNumber()
             )
             return saveUserV2(userToBeSaved) ?: error("Error while saving user with ip address for userId: $userId")
         } else {
@@ -256,7 +259,7 @@ class UserV2Provider {
             createdAt = DateUtils.getInstantNow(),
             absoluteMobile = firebaseAuthUser.getAbsoluteMobileNumber(),
             countryCode = "",
-            handle = firebaseAuthUser.getHandle(),
+            handle = "",
             email = firebaseAuthUser.getEmail(),
             dp = firebaseAuthUser.getPicture()?.let {
                 MediaDetailsV2(

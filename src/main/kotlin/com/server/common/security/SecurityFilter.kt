@@ -125,7 +125,7 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
                     issuer = it.issuer,
                     anonymous = phone == null && email == null,
                     email = email,
-                    handle = email?.let { it.substringBefore("@") }
+//                    handle = email?.let { it.substringBefore("@") }
                 )
             } else if (type == CredentialType.ID_TOKEN_COGNITO && it is JWTClaimsSet) {
                 UserDetailsFromToken(
