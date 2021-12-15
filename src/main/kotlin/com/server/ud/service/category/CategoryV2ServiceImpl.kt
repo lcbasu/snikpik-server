@@ -14,7 +14,7 @@ class CategoryV2ServiceImpl : CategoryV2Service() {
             it.categoryGroup == categoryGroup
         }
         return AllCategoryV2Response(
-            categories = categories.filter { it != CategoryV2.ALL }.map { it.toCategoryV2Response() }
+            categories = categories.map { it.toCategoryV2Response() }
         )
     }
 
