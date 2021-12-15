@@ -1,5 +1,6 @@
 package com.server.ud.provider.user
 
+import com.server.common.utils.CommonUtils
 import com.server.ud.dao.user.UsersByHandleRepository
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.UsersByHandle
@@ -31,6 +32,12 @@ class UsersByHandleProvider {
         }
 
     fun isHandleAvailable(handle: String): Boolean {
+        val onlyCharAndNumberHandle = CommonUtils.getLowercaseStringWithOnlyCharOrDigit(handle)
+        logger.info("onlyCharAndNumberHandle: $onlyCharAndNumberHandle")
+        if ((handle == onlyCharAndNumberHandle).not()) {
+            logger.error("Only alphabets and numbers in lowercase is allowed for the username. handle: $handle")
+            return false
+        }
         if (handle.length < MIN_HANDLE_LENGTH) {
             return false
         }
