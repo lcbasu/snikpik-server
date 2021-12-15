@@ -1,5 +1,7 @@
 package com.server.ud.service.user
 
+import com.server.common.dto.AllProfileTypeResponse
+import com.server.common.enums.ProfileCategory
 import com.server.ud.dto.*
 import com.server.ud.entities.social.FollowersCountByUser
 import com.server.ud.entities.social.FollowingsCountByUser
@@ -25,4 +27,6 @@ abstract class UserV2Service {
     abstract fun updateUserV2DuringSignup(request: UpdateUserV2DuringSignupRequest): SavedUserV2Response?
     abstract fun updateUserV2BusinessDuringSignup(request: UpdateUserV2BusinessSignupRequest): SavedUserV2Response?
     abstract fun updateUserV2PreferredCategories(request: UpdateUserV2PreferredCategoriesRequest): SavedUserV2Response?
+    abstract fun getProfileTypesByProfileCategory(profileCategory: ProfileCategory): AllProfileTypeResponse?
+    abstract fun getAllProfileTypes(): AllProfileTypeResponse?
 }

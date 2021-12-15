@@ -3,10 +3,7 @@ package com.server.ud.provider.user
 import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.dto.convertToString
 import com.server.common.dto.toProfileTypeResponse
-import com.server.common.enums.MediaType
-import com.server.common.enums.NotificationTokenProvider
-import com.server.common.enums.ProfileType
-import com.server.common.enums.ReadableIdPrefix
+import com.server.common.enums.*
 import com.server.common.model.MediaDetailsV2
 import com.server.common.model.SingleMediaDetail
 import com.server.common.model.UserDetailsFromToken
@@ -116,42 +113,48 @@ class UserV2Provider {
     // Figure out a better solve without exposing the user id
     fun updateUserV2Location(request: UpdateUserV2LocationRequest, userId: String): UserV2? {
         val user = getUser(userId) ?: error("No user found for userId: $userId")
-        val locationRequest = SaveLocationRequest(
-            locationFor = LocationFor.USER,
-            zipcode = request.zipcode,
-            googlePlaceId = request.googlePlaceId,
-            name = request.name,
-            lat = request.lat,
-            lng = request.lng,
-        )
-
-        val location = locationProvider.save(user.userId, locationRequest) ?: error("Error saving location for userId: $userId")
-
-        var newUserToBeSaved = if (request.updateTypes.contains(UserLocationUpdateType.CURRENT)) {
-            user.copy(
-                currentLocationId = location.locationId,
-                currentLocationLat = location.lat,
-                currentLocationLng = location.lng,
-                currentLocationZipcode = location.zipcode,
-                currentLocationName = location.name,
-                currentGooglePlaceId = location.googlePlaceId,
+        return try {
+            val locationRequest = SaveLocationRequest(
+                locationFor = LocationFor.USER,
+                zipcode = request.zipcode,
+                googlePlaceId = request.googlePlaceId,
+                name = request.name,
+                lat = request.lat,
+                lng = request.lng,
             )
-        } else {
+
+            val location = locationProvider.save(user.userId, locationRequest) ?: error("Error saving location for userId: $userId")
+
+            var newUserToBeSaved = if (request.updateTypes.contains(UserLocationUpdateType.CURRENT)) {
+                user.copy(
+                    currentLocationId = location.locationId,
+                    currentLocationLat = location.lat,
+                    currentLocationLng = location.lng,
+                    currentLocationZipcode = location.zipcode,
+                    currentLocationName = location.name,
+                    currentGooglePlaceId = location.googlePlaceId,
+                )
+            } else {
+                user
+            }
+            newUserToBeSaved = if (request.updateTypes.contains(UserLocationUpdateType.PERMANENT)) {
+                newUserToBeSaved.copy(
+                    permanentLocationId = location.locationId,
+                    permanentLocationLat = location.lat,
+                    permanentLocationLng = location.lng,
+                    permanentLocationZipcode = location.zipcode,
+                    permanentLocationName = location.name,
+                    permanentGooglePlaceId = location.googlePlaceId,
+                )
+            } else {
+                newUserToBeSaved
+            }
+            saveUserV2(newUserToBeSaved)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            logger.error("Error while updating user location for userId: $userId")
             user
         }
-        newUserToBeSaved = if (request.updateTypes.contains(UserLocationUpdateType.PERMANENT)) {
-            newUserToBeSaved.copy(
-                permanentLocationId = location.locationId,
-                permanentLocationLat = location.lat,
-                permanentLocationLng = location.lng,
-                permanentLocationZipcode = location.zipcode,
-                permanentLocationName = location.name,
-                permanentGooglePlaceId = location.googlePlaceId,
-            )
-        } else {
-            newUserToBeSaved
-        }
-        return saveUserV2(newUserToBeSaved)
     }
 
     fun getLoggedInUserV2(): UserV2? {
@@ -303,6 +306,22 @@ class UserV2Provider {
             request.categories.map { it.toCategoryV2Response() }
         ).convertToString(),)
         return saveUserV2(newUserToBeSaved) ?: error("Error while updating categories for userId: ${firebaseAuthUser.getUserIdToUse()}")
+    }
+
+    fun getProfileTypesByProfileCategory(profileCategory: ProfileCategory): AllProfileTypeResponse? {
+        return AllProfileTypeResponse(
+            ProfileType.values().filter { it.category == profileCategory }.map {
+                it.toProfileTypeResponse()
+            }
+        )
+    }
+
+    fun getAllProfileTypes(): AllProfileTypeResponse? {
+        return AllProfileTypeResponse(
+            ProfileType.values().map {
+                it.toProfileTypeResponse()
+            }
+        )
     }
 
 }

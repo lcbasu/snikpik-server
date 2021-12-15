@@ -1,5 +1,7 @@
 package com.server.ud.controller
 
+import com.server.common.dto.AllProfileTypeResponse
+import com.server.common.enums.ProfileCategory
 import com.server.common.provider.SecurityProvider
 import com.server.ud.dto.*
 import com.server.ud.entities.social.FollowersCountByUser
@@ -162,4 +164,15 @@ class UserV2Controller {
         return userV2Service.updateUserV2Location(request)
     }
 
+    @RequestMapping(value = ["/getProfileTypesByProfileCategory"], method = [RequestMethod.GET])
+    fun getProfileTypesByProfileCategory(@RequestParam profileCategory: ProfileCategory): AllProfileTypeResponse? {
+        securityProvider.validateRequest()
+        return userV2Service.getProfileTypesByProfileCategory(profileCategory)
+    }
+
+    @RequestMapping(value = ["/getAllProfileTypes"], method = [RequestMethod.GET])
+    fun getAllProfileTypes(): AllProfileTypeResponse? {
+        securityProvider.validateRequest()
+        return userV2Service.getAllProfileTypes()
+    }
 }

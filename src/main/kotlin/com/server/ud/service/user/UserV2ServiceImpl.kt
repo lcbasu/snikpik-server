@@ -1,5 +1,7 @@
 package com.server.ud.service.user
 
+import com.server.common.dto.AllProfileTypeResponse
+import com.server.common.enums.ProfileCategory
 import com.server.common.provider.SecurityProvider
 import com.server.ud.dto.*
 import com.server.ud.entities.social.FollowersCountByUser
@@ -136,6 +138,14 @@ class UserV2ServiceImpl : UserV2Service() {
 
     override fun updateUserV2PreferredCategories(request: UpdateUserV2PreferredCategoriesRequest): SavedUserV2Response? {
         return userV2Provider.updateUserV2PreferredCategories(request)?.toSavedUserV2Response()
+    }
+
+    override fun getProfileTypesByProfileCategory(profileCategory: ProfileCategory): AllProfileTypeResponse? {
+        return userV2Provider.getProfileTypesByProfileCategory(profileCategory)
+    }
+
+    override fun getAllProfileTypes(): AllProfileTypeResponse? {
+        return userV2Provider.getAllProfileTypes()
     }
 
 }
