@@ -1,5 +1,7 @@
 package com.server.ud.provider.reply
 
+import com.server.ud.dao.reply.CommentReplyRepository
+import com.server.ud.dao.reply.RepliesByCommentRepository
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -25,6 +27,12 @@ class ReplyProcessingProvider {
     @Autowired
     private lateinit var replyForCommentByUserProvider: ReplyForCommentByUserProvider
 
+    @Autowired
+    private lateinit var repliesByCommentRepository: RepliesByCommentRepository
+
+    @Autowired
+    private lateinit var commentReplyRepository: CommentReplyRepository
+
     fun processReply(replyId: String) {
         GlobalScope.launch {
             logger.info("Start: reply processing for replyId: $replyId")
@@ -36,6 +44,13 @@ class ReplyProcessingProvider {
             repliesCountByCommentFuture.await()
             replyForCommentByUserFuture.await()
             logger.info("Done: reply processing for replyId: $replyId")
+        }
+    }
+
+    fun deletePost(postId: String) {
+        GlobalScope.launch {
+            commentReplyRepository.deleteAll(commentReplyRepository.findAllByPostId(postId))
+            repliesByCommentRepository.deleteAll(repliesByCommentRepository.findAllByPostId(postId))
         }
     }
 }

@@ -4,6 +4,8 @@ import com.server.common.utils.DateUtils
 import com.server.ud.dao.bookmark.BookmarksByResourceRepository
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.entities.bookmark.BookmarksByResource
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

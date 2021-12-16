@@ -41,4 +41,5 @@ class BookmarksCountByUserProvider {
             logger.warn("The bookmarks count is already zero. So skipping decreasing it further for userId: $userId")
         }
     }
+
 }

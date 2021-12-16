@@ -2,6 +2,8 @@ package com.server.ud.provider.bookmark
 
 import com.server.ud.dao.bookmark.BookmarkForResourceByUserRepository
 import com.server.ud.entities.bookmark.BookmarkForResourceByUser
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,7 +19,7 @@ class BookmarkForResourceByUserProvider {
 
     fun getBookmarkForResourceByUser(resourceId: String, userId: String): BookmarkForResourceByUser? =
     try {
-        val resourceBookmarks = bookmarksForResourceByUserRepository.findAllByResourceAndUserId(resourceId, userId)
+        val resourceBookmarks = bookmarksForResourceByUserRepository.findAllByResourceIdAndUserId(resourceId, userId)
         if (resourceBookmarks.size > 1) {
             error("More than one bookmarks has same resourceId: $resourceId by the userId: $userId")
         }

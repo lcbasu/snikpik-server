@@ -46,4 +46,8 @@ class RepliesByCommentProvider {
         val comments = repliesByCommentRepository.findAllByCommentId(request.commentId, pageRequest as Pageable)
         return CassandraPageV2(comments)
     }
+
+    fun deletePost(postId: String) {
+        TODO("Add steps to delete post and related information")
+    }
 }

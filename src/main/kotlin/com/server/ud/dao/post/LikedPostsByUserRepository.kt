@@ -14,4 +14,7 @@ interface LikedPostsByUserRepository : CassandraRepository<LikedPostsByUser?, St
 
     @AllowFiltering
     fun deleteByUserIdAndPostTypeAndPostId(userId: String, postType: PostType, postId: String)
+
+    @AllowFiltering
+    fun findAllByPostId(postId: String): List<LikedPostsByUser>
 }

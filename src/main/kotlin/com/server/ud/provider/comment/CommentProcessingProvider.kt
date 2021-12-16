@@ -1,5 +1,6 @@
 package com.server.ud.provider.comment
 
+import com.server.ud.dao.comment.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -28,6 +29,21 @@ class CommentProcessingProvider {
     @Autowired
     private lateinit var commentForPostByUserProvider: CommentForPostByUserProvider
 
+    @Autowired
+    private lateinit var commentRepository: CommentRepository
+
+    @Autowired
+    private lateinit var commentForPostByUserRepository: CommentForPostByUserRepository
+
+    @Autowired
+    private lateinit var commentsByPostRepository: CommentsByPostRepository
+
+    @Autowired
+    private lateinit var commentsByUserRepository: CommentsByUserRepository
+
+    @Autowired
+    private lateinit var commentsCountByPostRepository: CommentsCountByPostRepository
+
     fun processComment(commentId: String) {
         GlobalScope.launch {
             logger.info("Start: comment processing for commentId: $commentId")
@@ -41,6 +57,16 @@ class CommentProcessingProvider {
             commentsCountByPostFuture.await()
             commentForPostByUserFuture.await()
             logger.info("Done: comment processing for commentId: $commentId")
+        }
+    }
+
+    fun deletePost(postId: String) {
+        GlobalScope.launch {
+            commentRepository.deleteAll(commentRepository.findAllByPostId(postId))
+            commentForPostByUserRepository.deleteAll(commentForPostByUserRepository.findAllByPostId(postId))
+            commentsByPostRepository.deleteAll(commentsByPostRepository.findAllByPostId_V2(postId))
+            commentsByUserRepository.deleteAll(commentsByUserRepository.findAllByPostId(postId))
+            commentsCountByPostRepository.deleteAll(commentsCountByPostRepository.findAllByPostId(postId))
         }
     }
 }

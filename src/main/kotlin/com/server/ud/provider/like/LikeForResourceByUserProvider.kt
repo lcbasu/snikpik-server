@@ -17,7 +17,7 @@ class LikeForResourceByUserProvider {
 
     fun getLikeForResourceByUser(resourceId: String, userId: String): LikeForResourceByUser? =
     try {
-        val resourceLikes = likeForResourceByUserRepository.findAllByResourceAndUserId(resourceId, userId)
+        val resourceLikes = likeForResourceByUserRepository.findAllByResourceIdAndUserId(resourceId, userId)
         if (resourceLikes.size > 1) {
             error("More than one likes has same resourceId: $resourceId by the userId: $userId")
         }

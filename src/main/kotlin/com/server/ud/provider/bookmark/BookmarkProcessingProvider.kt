@@ -1,5 +1,6 @@
 package com.server.ud.provider.bookmark
 
+import com.server.ud.dao.bookmark.*
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.provider.post.BookmarkedPostsByUserProvider
 import kotlinx.coroutines.GlobalScope
@@ -37,6 +38,24 @@ class BookmarkProcessingProvider {
     @Autowired
     private lateinit var bookmarkedPostsByUserProvider: BookmarkedPostsByUserProvider
 
+    @Autowired
+    private lateinit var bookmarksForResourceByUserRepository: BookmarkForResourceByUserRepository
+
+    @Autowired
+    private lateinit var bookmarkRepository: BookmarkRepository
+
+    @Autowired
+    private lateinit var bookmarksByResourceRepository: BookmarksByResourceRepository
+
+    @Autowired
+    private lateinit var bookmarksByUserRepository: BookmarksByUserRepository
+
+    @Autowired
+    private lateinit var bookmarksCountByResourceRepository: BookmarksCountByResourceRepository
+
+    @Autowired
+    private lateinit var bookmarksCountByUserRepository: BookmarksCountByUserRepository
+
     fun processBookmark(bookmarkId: String) {
         GlobalScope.launch {
             logger.info("Later:Start: bookmark processing for bookmarkId: $bookmarkId")
@@ -69,6 +88,28 @@ class BookmarkProcessingProvider {
                 bookmarksCountByUserFuture.await()
             }
             logger.info("Now:Done: bookmark processing for bookmarkId: ${bookmark.bookmarkId}")
+        }
+    }
+
+    fun deletePost(postId: String) {
+        GlobalScope.launch {
+            val allUsersBookmarks = bookmarksByUserRepository.findAllByResourceId(postId)
+            val bookmarksGroupedByUser = allUsersBookmarks.groupBy { it.userId }
+            bookmarksGroupedByUser.map {
+                val userId = it.key
+                val userBookmarks = it.value
+                val bookmarkedRows = userBookmarks.filter { it.bookmarked }
+                val unBookmarkedRows = userBookmarks.filter { !it.bookmarked }
+                // Decrease like only if the post has been bookmarked in the end
+                if (bookmarkedRows.size > unBookmarkedRows.size) {
+                    bookmarksCountByUserRepository.decrementBookmarkCount(userId)
+                }
+            }
+            bookmarksForResourceByUserRepository.deleteAll(bookmarksForResourceByUserRepository.findAllByResourceId(postId))
+            bookmarkRepository.deleteAll(bookmarkRepository.findAllByResourceId(postId))
+            bookmarksByResourceRepository.deleteAll(bookmarksByResourceRepository.findAllByResourceId(postId))
+            bookmarksCountByResourceRepository.deleteAll(bookmarksCountByResourceRepository.findAllByResourceId(postId))
+            bookmarksByUserRepository.deleteAll(allUsersBookmarks)
         }
     }
 

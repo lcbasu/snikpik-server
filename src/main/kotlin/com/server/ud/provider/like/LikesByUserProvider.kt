@@ -37,4 +37,8 @@ class LikesByUserProvider {
             return null
         }
     }
+
+    fun deletePost(postId: String) {
+        TODO("Add steps to delete post and related information")
+    }
 }

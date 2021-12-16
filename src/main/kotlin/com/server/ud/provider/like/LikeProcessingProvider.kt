@@ -1,5 +1,6 @@
 package com.server.ud.provider.like
 
+import com.server.ud.dao.like.*
 import com.server.ud.entities.like.Like
 import com.server.ud.provider.post.LikedPostsByUserProvider
 import kotlinx.coroutines.GlobalScope
@@ -37,6 +38,24 @@ class LikeProcessingProvider {
     @Autowired
     private lateinit var likedPostsByUserProvider: LikedPostsByUserProvider
 
+    @Autowired
+    private lateinit var likeForResourceByUserRepository: LikeForResourceByUserRepository
+
+    @Autowired
+    private lateinit var likeRepository: LikeRepository
+
+    @Autowired
+    private lateinit var likesByResourceRepository: LikesByResourceRepository
+
+    @Autowired
+    private lateinit var likesByUserRepository: LikesByUserRepository
+
+    @Autowired
+    private lateinit var likesCountByResourceRepository: LikesCountByResourceRepository
+
+    @Autowired
+    private lateinit var likesCountByUserRepository: LikesCountByUserRepository
+
     fun processLike(likeId: String) {
         GlobalScope.launch {
             logger.info("Later:Start: like processing for likeId: $likeId")
@@ -71,6 +90,30 @@ class LikeProcessingProvider {
                 likesCountByUserFuture.await()
             }
             logger.info("Now:Done: like processing for likeId: ${like.likeId}")
+        }
+    }
+
+    fun deletePost(postId: String) {
+        GlobalScope.launch {
+            likeForResourceByUserRepository.deleteAll(likeForResourceByUserRepository.findAllByResourceId(postId))
+            likeRepository.deleteAll(likeRepository.findAllByResourceId(postId))
+            likesByResourceRepository.deleteAll(likesByResourceRepository.findAllByResourceId(postId))
+            likesCountByResourceRepository.deleteAll(likesCountByResourceRepository.findAllByResourceId(postId))
+
+            val allUserLikes = likesByUserRepository.findAllByResourceId(postId)
+            val likedGroupedByUser = allUserLikes.groupBy { it.userId }
+            likedGroupedByUser.map {
+                val userId = it.key
+                val userLikes = it.value
+                val likedRows = userLikes.filter { it.liked }
+                val unLikedRows = userLikes.filter { !it.liked }
+                // Decrease like only if the post has been liked in the end
+                if (likedRows.size > unLikedRows.size) {
+                    likesCountByUserRepository.decrementLikes(userId)
+                }
+            }
+
+            likesByUserRepository.deleteAll(allUserLikes)
         }
     }
 }

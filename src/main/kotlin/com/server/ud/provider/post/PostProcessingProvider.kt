@@ -2,6 +2,7 @@ package com.server.ud.provider.post
 
 import com.server.common.provider.MediaHandlerProvider
 import com.server.common.utils.DateUtils
+import com.server.ud.dao.post.*
 import com.server.ud.dto.GetFollowersRequest
 import com.server.ud.entities.location.Location
 import com.server.ud.entities.post.*
@@ -80,6 +81,39 @@ class PostProcessingProvider {
 
     @Autowired
     private lateinit var deferredProcessingProvider: DeferredProcessingProvider
+
+    @Autowired
+    private lateinit var bookmarkedPostsByUserRepository: BookmarkedPostsByUserRepository
+
+    @Autowired
+    private lateinit var likedPostsByUserRepository: LikedPostsByUserRepository
+
+    @Autowired
+    private lateinit var nearbyPostsByZipcodeRepository: NearbyPostsByZipcodeRepository
+
+    @Autowired
+    private lateinit var nearbyVideoPostsByZipcodeRepository: NearbyVideoPostsByZipcodeRepository
+
+    @Autowired
+    private lateinit var postRepository: PostRepository
+
+    @Autowired
+    private lateinit var postsByCategoryRepository: PostsByCategoryRepository
+
+    @Autowired
+    private lateinit var postsByFollowingRepository: PostsByFollowingRepository
+
+    @Autowired
+    private lateinit var postsByHashTagRepository: PostsByHashTagRepository
+
+    @Autowired
+    private lateinit var postsByUserRepository: PostsByUserRepository
+
+    @Autowired
+    private lateinit var postsByZipcodeRepository: PostsByZipcodeRepository
+
+    @Autowired
+    private lateinit var postsCountByUserRepository: PostsCountByUserRepository
 
     fun postProcessPost(postId: String) {
         // Update
@@ -264,6 +298,30 @@ class PostProcessingProvider {
 
             followersFeedFuture.map { it.await() }
             logger.info("Followers Post processing completed for postId: $postId for followers of the original poster with userId: $userId.")
+        }
+    }
+
+    fun deletePost(postId: String, userId: String) {
+        GlobalScope.launch {
+            logger.info("Start: Delete post and other dependent information for postId: $postId")
+
+            bookmarkedPostsByUserRepository.deleteAll(bookmarkedPostsByUserRepository.findAllByPostId(postId))
+            likedPostsByUserRepository.deleteAll(likedPostsByUserRepository.findAllByPostId(postId))
+            nearbyPostsByZipcodeRepository.deleteAll(nearbyPostsByZipcodeRepository.findAllByPostId(postId))
+            nearbyVideoPostsByZipcodeRepository.deleteAll(nearbyVideoPostsByZipcodeRepository.findAllByPostId(postId))
+            postsByCategoryRepository.deleteAll(postsByCategoryRepository.findAllByPostId(postId))
+            postsByFollowingRepository.deleteAll(postsByFollowingRepository.findAllByPostId(postId))
+            postsByHashTagRepository.deleteAll(postsByHashTagRepository.findAllByPostId(postId))
+            postsByUserRepository.deleteAll(postsByUserRepository.findAllByPostId(postId))
+            postsByZipcodeRepository.deleteAll(postsByZipcodeRepository.findAllByPostId(postId))
+
+            // Only one count has to be decreases as the one post is created by
+            // only one user and adds only one count
+            postsCountByUserRepository.decrementPostCount(userId)
+
+            postRepository.deleteAll(postRepository.findAllByPostId(postId))
+
+            logger.info("End: Delete post and other dependent information for postId: $postId")
         }
     }
 

@@ -8,6 +8,7 @@ import com.server.common.model.MediaDetailsV2
 import com.server.common.model.convertToString
 import com.server.common.provider.MediaHandlerProvider
 import com.server.common.provider.RandomIdProvider
+import com.server.common.provider.SecurityProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostRepository
 import com.server.ud.dto.*
@@ -28,6 +29,8 @@ import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.location.LocationProvider
 import com.server.ud.provider.user.UserV2Provider
 import com.server.ud.utils.pagination.PaginationRequestUtil
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -63,6 +66,12 @@ class PostProvider {
 
     @Autowired
     private lateinit var postsByUserProvider: PostsByUserProvider
+
+    @Autowired
+    private lateinit var securityProvider: SecurityProvider
+
+    @Autowired
+    private lateinit var deletePostProvider: DeletePostProvider
 
     fun getPost(postId: String): Post? =
         try {
@@ -228,6 +237,19 @@ class PostProvider {
     fun getPageOfUsers(cassandraPageRequest: CassandraPageRequest?): CassandraPageV2<Post?>? {
         val userSlice = postRepository.findAll(cassandraPageRequest as Pageable)
         return CassandraPageV2(userSlice)
+    }
+
+    fun deletePost(postId: String) {
+        val loggedInUserId = securityProvider.validateRequest().getUserIdToUse()
+        val post = getPost(postId) ?: error("No post found for postId: $postId")
+        if (post.userId != loggedInUserId) {
+            error("User $loggedInUserId is not authorized to delete post: $postId. User can only delete their own post.")
+        }
+        GlobalScope.launch {
+            logger.info("Start: Delete post and other dependent information for postId: $postId")
+            deletePostProvider.deletePost(postId, loggedInUserId)
+            logger.info("End: Delete post and other dependent information for postId: $postId")
+        }
     }
 
 }

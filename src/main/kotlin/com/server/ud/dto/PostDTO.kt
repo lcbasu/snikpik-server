@@ -1,8 +1,8 @@
 package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.server.common.utils.DateUtils
 import com.server.common.model.MediaDetailsV2
+import com.server.common.utils.DateUtils
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.getCategories
 import com.server.ud.entities.post.getHashTags
@@ -14,6 +14,11 @@ import com.server.ud.model.AllHashTags
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class FakePostRequest(
     val countOfPost: Int,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class DeletePostRequest(
+    val postId: String,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

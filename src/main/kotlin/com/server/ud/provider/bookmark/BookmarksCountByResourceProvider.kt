@@ -2,6 +2,8 @@ package com.server.ud.provider.bookmark
 
 import com.server.ud.dao.bookmark.BookmarksCountByResourceRepository
 import com.server.ud.entities.bookmark.BookmarksCountByResource
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -41,5 +43,4 @@ class BookmarksCountByResourceProvider {
             logger.warn("The bookmarks count is already zero. So skipping decreasing it further for resourceId: $resourceId")
         }
     }
-
 }

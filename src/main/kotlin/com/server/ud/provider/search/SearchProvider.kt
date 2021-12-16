@@ -91,4 +91,11 @@ class SearchProvider {
         }
     }
 
+    fun deletePost(postId: String) {
+        GlobalScope.launch {
+            val index = searchClient.initIndex("posts", AlgoliaPost::class.java)
+            index.deleteObject(postId)
+        }
+    }
+
 }

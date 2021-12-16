@@ -17,7 +17,7 @@ class ReplyForCommentByUserProvider {
 
     fun getRepliesForCommentByUser(commentId: String, userId: String): ReplyForCommentByUser? =
         try {
-            val commentReplies = replyForCommentByUserRepository.findAllByCommentAndUserId(commentId, userId)
+            val commentReplies = replyForCommentByUserRepository.findAllByCommentIdAndUserId(commentId, userId)
             if (commentReplies.size > 1) {
                 error("More than one replies has same commentId: $commentId by the userId: $userId")
             }
@@ -44,6 +44,10 @@ class ReplyForCommentByUserProvider {
 
     fun setReplied(commentId: String, userId: String) {
         save(commentId, userId, true)
+    }
+
+    fun deletePost(postId: String) {
+        TODO("Add steps to delete post and related information")
     }
 
 }

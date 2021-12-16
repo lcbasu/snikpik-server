@@ -1,8 +1,8 @@
 package com.server.ud.provider.comment
 
 import com.server.ud.dao.comment.CommentsByUserRepository
-import com.server.ud.entities.comment.CommentsByUser
 import com.server.ud.entities.comment.Comment
+import com.server.ud.entities.comment.CommentsByUser
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

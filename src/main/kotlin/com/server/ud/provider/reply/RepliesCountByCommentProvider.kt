@@ -33,4 +33,8 @@ class RepliesCountByCommentProvider {
         logger.warn("Increased replies count for commentId: $commentId")
     }
 
+    fun deletePost(postId: String) {
+        TODO("Add steps to delete post and related information")
+    }
+
 }

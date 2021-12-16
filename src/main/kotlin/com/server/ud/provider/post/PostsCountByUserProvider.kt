@@ -39,4 +39,19 @@ class PostsCountByUserProvider {
         postsCountByUserRepository.incrementPostCount(userId)
         logger.warn("Increased post count for userId: $userId")
     }
+
+    fun decrementPostCount(userId: String) {
+        val existing = getPostsCountByUser(userId)
+        if (existing?.postsCount != null && existing.postsCount!! > 0) {
+            postsCountByUserRepository.decrementPostCount(userId)
+            logger.warn("Decreased posts count for userId: $userId")
+        } else {
+            logger.warn("The posts count is already zero. So skipping decreasing it further for userId: $userId")
+        }
+    }
+
+
+    fun deletePost(postId: String) {
+        TODO("Add steps to delete post and related information")
+    }
 }

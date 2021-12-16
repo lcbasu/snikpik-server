@@ -4,7 +4,6 @@ import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.convertToString
 import com.server.common.provider.RandomIdProvider
 import com.server.common.utils.DateUtils
-import com.server.dk.model.convertToString
 import com.server.ud.dao.comment.CommentRepository
 import com.server.ud.dto.SaveCommentRequest
 import com.server.ud.entities.MediaProcessingDetail

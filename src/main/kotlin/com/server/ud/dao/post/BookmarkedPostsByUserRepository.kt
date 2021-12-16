@@ -14,4 +14,7 @@ interface BookmarkedPostsByUserRepository : CassandraRepository<BookmarkedPostsB
 
     @AllowFiltering
     fun deleteByUserIdAndPostTypeAndPostId(userId: String, postType: PostType, postId: String)
+
+    @AllowFiltering
+    fun findAllByPostId(postId: String): List<BookmarkedPostsByUser>
 }

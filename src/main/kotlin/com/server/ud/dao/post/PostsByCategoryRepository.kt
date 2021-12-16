@@ -16,4 +16,8 @@ interface PostsByCategoryRepository : CassandraRepository<PostsByCategory?, Stri
 //    fun findAllByCategoryId(categoryV2: CategoryV2, pageable: Pageable): Slice<PostsByCategory>
 
     fun findAllByCategoryIdAndPostTypeAndForDate(categoryV2: CategoryV2, postType: PostType, forDate: Instant, pageable: Pageable): Slice<PostsByCategory>
+
+
+    @AllowFiltering
+    fun findAllByPostId(postId: String): List<PostsByCategory>
 }

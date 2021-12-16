@@ -27,7 +27,7 @@ class SocialRelationProvider {
 
     fun getSocialRelation(fromUserId: String, toUserId: String): SocialRelation? =
     try {
-        val resourceLikes = socialRelationRepository.getAllByUserAndOtherUser(fromUserId, toUserId)
+        val resourceLikes = socialRelationRepository.findAllByFromUserIdAndToUserId(fromUserId, toUserId)
         if (resourceLikes.size > 1) {
             error("More than one social relation present for fromUserId: $fromUserId & toUserId: $toUserId")
         }

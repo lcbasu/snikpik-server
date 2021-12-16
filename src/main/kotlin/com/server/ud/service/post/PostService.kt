@@ -10,4 +10,5 @@ abstract class PostService {
     abstract fun getPosts(request: PaginatedRequest): CassandraPageV2<Post?>?
     abstract fun getPost(postId: String): Post?
     abstract fun getPostsCountByUser(userId: String): PostsCountByUser?
+    abstract fun deletePost(request: DeletePostRequest): Boolean
 }

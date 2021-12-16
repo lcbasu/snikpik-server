@@ -41,4 +41,8 @@ class LikesCountByUserProvider {
             logger.warn("The likes count is already zero. So skipping decreasing it further for userId: $userId")
         }
     }
+
+    fun deletePost(postId: String) {
+        TODO("Add steps to delete post and related information")
+    }
 }

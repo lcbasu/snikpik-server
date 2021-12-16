@@ -106,4 +106,8 @@ class NearbyPostsByZipcodeProvider {
         return CassandraPageV2(posts)
     }
 
+    fun deletePost(postId: String) {
+        TODO("Add steps to delete post and related information")
+    }
+
 }

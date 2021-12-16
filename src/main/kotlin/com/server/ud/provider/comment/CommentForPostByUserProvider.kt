@@ -17,7 +17,7 @@ class CommentForPostByUserProvider {
 
     fun getCommentForPostByUser(postId: String, userId: String): CommentForPostByUser? =
         try {
-            val postLikes = commentForPostByUserRepository.findAllByPostAndUserId(postId, userId)
+            val postLikes = commentForPostByUserRepository.findAllByPostIdAndUserId(postId, userId)
             if (postLikes.size > 1) {
                 error("More than one comments has same postId: $postId by the userId: $userId")
             }
