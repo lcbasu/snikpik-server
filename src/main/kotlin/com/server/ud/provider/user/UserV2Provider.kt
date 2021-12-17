@@ -204,7 +204,7 @@ class UserV2Provider {
                 locationFor = LocationFor.USER,
                 zipcode = ipAddressLocation.zipcode,
                 googlePlaceId = null,
-                name = "${ipAddressLocation.city}, ${ipAddressLocation.state}",
+                name = ipAddressLocation.city ?: "Some Location",
                 lat = ipAddressLocation.latitude,
                 lng = ipAddressLocation.longitude,
             )
