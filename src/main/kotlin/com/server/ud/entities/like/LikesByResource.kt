@@ -18,13 +18,13 @@ class LikesByResource (
     @PrimaryKeyColumn(name = "resource_type", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
     var resourceType: ResourceType,
 
-    @PrimaryKeyColumn(name = "for_date", ordinal = 2, type = PrimaryKeyType.PARTITIONED)
-    var forDate: Instant = DateUtils.getInstantToday(),
+//    @PrimaryKeyColumn(name = "for_date", ordinal = 2, type = PrimaryKeyType.PARTITIONED)
+//    var forDate: Instant = DateUtils.getInstantToday(),
 
-    @PrimaryKeyColumn(name = "created_at", ordinal = 3, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
+    @PrimaryKeyColumn(name = "created_at", ordinal = 2, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
     var createdAt: Instant = DateUtils.getInstantNow(),
 
-    @PrimaryKeyColumn(name = "user_id", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
+    @PrimaryKeyColumn(name = "user_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
     var userId: String? = null,
 
     // True or false based on like or unlike(remove like after liking)

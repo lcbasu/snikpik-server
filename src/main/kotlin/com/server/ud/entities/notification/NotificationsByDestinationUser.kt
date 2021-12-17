@@ -8,7 +8,6 @@ import java.time.Instant
 //@Table("notifications_by_destination_user")
 class NotificationsByDestinationUser (
     val userId: String,
-    val forDate: Instant,
     val notificationCreatedByUserId: String,
     val notificationCreatedAt: Instant,
     val notificationType: NotificationType,

@@ -19,13 +19,11 @@ class CommunityWallFeedController {
 
     @RequestMapping(value = ["/getFeed"], method = [RequestMethod.GET])
     fun getFeed(@RequestParam zipcode: String,
-                @RequestParam forDate: String,
                 @RequestParam limit: Int,
                 @RequestParam pagingState: String? = null): CommunityWallViewResponse {
         return communityWallFeedService.getFeed(
             CommunityWallFeedRequest(
                 zipcode,
-                forDate,
                 limit,
                 pagingState
             )

@@ -21,7 +21,6 @@ class PostsByHashTagProvider {
         try {
             val postsByHashTag = PostsByHashTag(
                 hashTagId = hashTagId,
-                forDate = DateUtils.getInstantDate(post.createdAt),
                 createdAt = post.createdAt,
                 postId = post.postId,
                 postType = post.postType,

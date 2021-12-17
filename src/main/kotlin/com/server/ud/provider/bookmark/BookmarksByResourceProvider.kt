@@ -24,7 +24,6 @@ class BookmarksByResourceProvider {
             val bookmarksByResource = BookmarksByResource(
                 resourceId = bookmark.resourceId,
                 resourceType = bookmark.resourceType,
-                forDate = DateUtils.getInstantDate(bookmark.createdAt),
                 createdAt = bookmark.createdAt,
                 userId = bookmark.userId,
                 bookmarkId = bookmark.bookmarkId,

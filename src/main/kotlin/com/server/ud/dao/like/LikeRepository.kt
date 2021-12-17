@@ -3,6 +3,7 @@ package com.server.ud.dao.like
 import com.server.ud.entities.like.Like
 import org.springframework.data.cassandra.repository.AllowFiltering
 import org.springframework.data.cassandra.repository.CassandraRepository
+import org.springframework.data.cassandra.repository.Query
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -12,4 +13,9 @@ interface LikeRepository : CassandraRepository<Like?, String?> {
 
     @AllowFiltering
     fun findAllByResourceId(resourceId: String): List<Like>
+
+
+    @AllowFiltering
+    @Query("SELECT * FROM likes")
+    fun getAll(): List<Like>
 }

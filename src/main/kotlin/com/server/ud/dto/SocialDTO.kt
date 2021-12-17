@@ -7,7 +7,6 @@ import com.server.ud.entities.social.SocialRelation
 
 data class FollowersByUserResponse (
     var userId: String,
-    var forDate: Long,
     var createdAt: Long,
     var followerUserId: String,
     val userHandle: String? = null,
@@ -59,7 +58,6 @@ fun FollowersByUser.toSocialRelationResponse(): FollowersByUserResponse {
     this.apply {
         return FollowersByUserResponse(
             userId = userId,
-            forDate = DateUtils.getEpoch(forDate),
             createdAt = DateUtils.getEpoch(createdAt),
             followerUserId = followerUserId,
             userHandle = userHandle,

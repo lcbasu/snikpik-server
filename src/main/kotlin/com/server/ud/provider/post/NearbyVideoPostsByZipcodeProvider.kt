@@ -61,7 +61,6 @@ class NearbyVideoPostsByZipcodeProvider {
             val posts = nearbyZipcodes.map {
                 NearbyVideoPostsByZipcode(
                     zipcode = it.nearbyZipcode,
-                    forDate = DateUtils.getInstantDate(post.createdAt),
                     createdAt = post.createdAt,
                     postId = post.postId,
                     postType = post.postType,
@@ -89,19 +88,17 @@ class NearbyVideoPostsByZipcodeProvider {
     fun getNearbyVideoFeed(request: NearbyFeedRequest): CassandraPageV2<NearbyVideoPostsByZipcode> {
         return getPaginatedFeed(
             zipCode = request.zipcode,
-            forDate = request.forDate,
             postType = PostType.GENERIC_POST,
             limit = request.limit,
             pagingState = request.pagingState,
         )
     }
 
-    private fun getPaginatedFeed(zipCode: String, forDate: String, postType: PostType, limit: Int, pagingState: String?): CassandraPageV2<NearbyVideoPostsByZipcode> {
+    private fun getPaginatedFeed(zipCode: String, postType: PostType, limit: Int, pagingState: String?): CassandraPageV2<NearbyVideoPostsByZipcode> {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
-        val posts = nearbyVideoPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndForDate(
+        val posts = nearbyVideoPostsByZipcodeRepository.findAllByZipcodeAndPostType(
             zipCode,
             postType,
-            DateUtils.getInstantFromLocalDateTime(DateUtils.parseStandardDate(forDate)),
             pageRequest as Pageable
         )
         return CassandraPageV2(posts)

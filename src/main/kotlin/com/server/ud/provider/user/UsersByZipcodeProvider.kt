@@ -25,7 +25,6 @@ class UsersByZipcodeProvider {
             }
             val usersByZipcode = UsersByZipcode(
                 zipcode = userV2.permanentLocationZipcode,
-                forDate = DateUtils.getInstantDate(userV2.createdAt),
                 createdAt = userV2.createdAt,
                 userId = userV2.userId,
             )

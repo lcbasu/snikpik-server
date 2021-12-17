@@ -21,13 +21,11 @@ class NearbyFeedController {
 
     @RequestMapping(value = ["/getNearbyFeed"], method = [RequestMethod.GET])
     fun getNearbyFeed(@RequestParam zipcode: String,
-                      @RequestParam forDate: String,
                       @RequestParam limit: Int,
                       @RequestParam pagingState: String? = null): VideoFeedViewResultList {
         return nearbyFeedService.getNearbyFeed(
             NearbyFeedRequest(
                 zipcode,
-                forDate,
                 limit,
                 pagingState
             )

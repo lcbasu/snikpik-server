@@ -38,7 +38,6 @@ data class ExploreTabViewResponse(
 
 data class ExploreFeedRequest (
     val category: CategoryV2,
-    val forDate: String,// YYYY-MM-DD
     override val limit: Int = 10,
     override val pagingState: String? = null,
 ): PaginationRequest(limit, pagingState)

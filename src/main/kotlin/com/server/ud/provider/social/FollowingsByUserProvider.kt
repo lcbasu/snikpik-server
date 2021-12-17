@@ -21,7 +21,6 @@ class FollowingsByUserProvider {
         try {
             val followingByUser = FollowingsByUser (
                 userId = user.userId,
-                forDate = DateUtils.getInstantToday(),
                 createdAt = DateUtils.getInstantNow(),
                 followingUserId = following.userId,
                 userHandle = user.handle,

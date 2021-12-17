@@ -21,7 +21,6 @@ class LikesByUserProvider {
         try {
             val likesByUser = LikesByUser(
                 userId = like.userId,
-                forDate = DateUtils.getInstantDate(like.createdAt),
                 createdAt = like.createdAt,
                 resourceId = like.resourceId,
                 resourceType = like.resourceType,

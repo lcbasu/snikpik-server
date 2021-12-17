@@ -22,13 +22,11 @@ class ExploreFeedController {
 
     @RequestMapping(value = ["/getFeedForCategory"], method = [RequestMethod.GET])
     fun getFeedForCategory(@RequestParam category: CategoryV2,
-                           @RequestParam forDate: String,
                            @RequestParam limit: Int,
                            @RequestParam pagingState: String? = null): ExploreTabViewResponse {
         return exploreFeedService.getFeedForCategory(
             ExploreFeedRequest(
                 category,
-                forDate,
                 limit,
                 pagingState
             )

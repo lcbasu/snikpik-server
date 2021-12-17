@@ -23,7 +23,6 @@ class UsersByProfileCategoryProvider {
             val usersByProfiles = userV2.getProfiles().profileTypes.map {
                 UsersByProfileCategory(
                     profileCategory = it.category,
-                    forDate = DateUtils.getInstantDate(userV2.createdAt),
                     createdAt = userV2.createdAt,
                     userId = userV2.userId,
                 )

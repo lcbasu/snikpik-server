@@ -25,7 +25,6 @@ class LocationsByZipcodeProvider {
             }
             val locationByZipcode = LocationsByZipcode(
                 zipcode = location.zipcode!!,
-                forDate = DateUtils.getInstantDate(location.createdAt),
                 userId = location.userId,
                 locationId = location.locationId,
                 locationFor = location.locationFor,

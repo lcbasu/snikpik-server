@@ -1,7 +1,6 @@
 package com.server.ud.provider.post
 
 import com.server.common.provider.MediaHandlerProvider
-import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.*
 import com.server.ud.dto.GetFollowersRequest
 import com.server.ud.entities.location.Location
@@ -218,23 +217,17 @@ class PostProcessingProvider {
             val postsPerDayToUse = 50
             val maxSaveListSize = 10
 
-            val dateNow = DateUtils.dateTimeNow()
-            val dateInPast = DateUtils.getDateInPast(daysToGoInPast)
-            val datesList = DateUtils.getDatesBetweenInclusiveOfStartAndEndDates(dateInPast, dateNow).map { DateUtils.toStringForDate(it) }
             val nearbyPosts = mutableListOf<NearbyPostsByZipcode>()
             nearbyZipcodes.map { zipcode ->
                 PostType.values().map { postType ->
-                    datesList.map { forDate ->
-                        // 50 Posts from each date
-                        nearbyPosts.addAll(
-                            nearbyPostsByZipcodeProvider.getPaginatedFeed(
-                                zipCode = zipcode,
-                                forDate = forDate,
-                                postType = postType,
-                                limit = postsPerDayToUse,
-                            ).content?.filterNotNull() ?: emptyList()
-                        )
-                    }
+                    // 50 Posts from each date
+                    nearbyPosts.addAll(
+                        nearbyPostsByZipcodeProvider.getPaginatedFeed(
+                            zipCode = zipcode,
+                            postType = postType,
+                            limit = postsPerDayToUse,
+                        ).content?.filterNotNull() ?: emptyList()
+                    )
                 }
             }
             logger.info("Total ${nearbyPosts.size} nearby post found for the current location ${originalLocation.name}. Save in batches of $maxSaveListSize")

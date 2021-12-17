@@ -21,13 +21,13 @@ class FollowersByUser (
     // So we can not just allow for_date partition and
     // @AllowFilter on query, that will be equally bad
     // Keeping for_date as cluster so that we can query based on date if we want to
-    @PrimaryKeyColumn(name = "for_date", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
-    var forDate: Instant = DateUtils.getInstantToday(),
+//    @PrimaryKeyColumn(name = "for_date", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
+//    var forDate: Instant = DateUtils.getInstantToday(),
 
-    @PrimaryKeyColumn(name = "created_at", ordinal = 2, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
+    @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
     var createdAt: Instant = DateUtils.getInstantNow(),
 
-    @PrimaryKeyColumn(name = "follower_user_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
+    @PrimaryKeyColumn(name = "follower_user_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     var followerUserId: String,
 
     @Column("user_handle")

@@ -26,13 +26,10 @@ class PostsByCategoryProvider {
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
 
-    val getFeedFromPastDays = 7L
-
     fun save(post: Post, categoryId: CategoryV2): PostsByCategory? {
         try {
             val postsByZipcode = PostsByCategory(
                 categoryId = categoryId,
-                forDate = DateUtils.getInstantDate(post.createdAt),
                 createdAt = post.createdAt,
                 postId = post.postId,
                 postType = post.postType,
@@ -58,7 +55,7 @@ class PostsByCategoryProvider {
 
     fun getFeedForCategory(request: ExploreFeedRequest): CassandraPageV2<PostsByCategory> {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
-         val posts = postsByCategoryRepository.findAllByCategoryIdAndPostTypeAndForDate(request.category, PostType.GENERIC_POST, DateUtils.getInstantFromLocalDateTime(DateUtils.parseStandardDate(request.forDate)), pageRequest as Pageable)
+         val posts = postsByCategoryRepository.findAllByCategoryIdAndPostType(request.category, PostType.GENERIC_POST, pageRequest as Pageable)
         return CassandraPageV2(posts)
     }
 

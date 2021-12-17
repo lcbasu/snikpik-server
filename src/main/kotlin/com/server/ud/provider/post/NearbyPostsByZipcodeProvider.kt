@@ -50,7 +50,6 @@ class NearbyPostsByZipcodeProvider {
             val posts = nearbyZipcodes.map {
                 NearbyPostsByZipcode(
                     zipcode = it.nearbyZipcode,
-                    forDate = DateUtils.getInstantDate(post.createdAt),
                     createdAt = post.createdAt,
                     postId = post.postId,
                     postType = post.postType,
@@ -78,7 +77,6 @@ class NearbyPostsByZipcodeProvider {
     fun getNearbyFeed(request: NearbyFeedRequest): CassandraPageV2<NearbyPostsByZipcode> {
         return getPaginatedFeed(
             zipCode = request.zipcode,
-            forDate = request.forDate,
             postType = PostType.GENERIC_POST,
             limit = request.limit,
             pagingState = request.pagingState,
@@ -88,19 +86,17 @@ class NearbyPostsByZipcodeProvider {
     fun getCommunityWallFeed(request: CommunityWallFeedRequest): CassandraPageV2<NearbyPostsByZipcode> {
         return getPaginatedFeed(
             zipCode = request.zipcode,
-            forDate = request.forDate,
             postType = PostType.COMMUNITY_WALL_POST,
             limit = request.limit,
             pagingState = request.pagingState,
         )
     }
 
-    fun getPaginatedFeed(zipCode: String, forDate: String, postType: PostType, limit: Int, pagingState: String? = null): CassandraPageV2<NearbyPostsByZipcode> {
+    fun getPaginatedFeed(zipCode: String, postType: PostType, limit: Int, pagingState: String? = null): CassandraPageV2<NearbyPostsByZipcode> {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
-        val posts = nearbyPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndForDate(
+        val posts = nearbyPostsByZipcodeRepository.findAllByZipcodeAndPostType(
             zipCode,
             postType,
-            DateUtils.getInstantFromLocalDateTime(DateUtils.parseStandardDate(forDate)),
             pageRequest as Pageable
         )
         return CassandraPageV2(posts)

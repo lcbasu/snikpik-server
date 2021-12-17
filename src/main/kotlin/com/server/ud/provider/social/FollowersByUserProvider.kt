@@ -58,7 +58,6 @@ class FollowersByUserProvider {
         try {
             val followersByUser = FollowersByUser (
                 userId = user.userId,
-                forDate = DateUtils.getInstantToday(),
                 createdAt = DateUtils.getInstantNow(),
                 followerUserId = follower.userId,
                 userHandle = user.handle,

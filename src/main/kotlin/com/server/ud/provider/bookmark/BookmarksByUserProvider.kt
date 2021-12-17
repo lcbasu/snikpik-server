@@ -23,7 +23,6 @@ class BookmarksByUserProvider {
         try {
             val bookmarksByUser = BookmarksByUser(
                 userId = bookmark.userId,
-                forDate = DateUtils.getInstantDate(bookmark.createdAt),
                 createdAt = bookmark.createdAt,
                 resourceId = bookmark.resourceId,
                 resourceType = bookmark.resourceType,
