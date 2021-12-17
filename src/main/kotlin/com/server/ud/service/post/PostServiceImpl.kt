@@ -36,8 +36,8 @@ class PostServiceImpl : PostService() {
         return postProvider.getPosts(request)
     }
 
-    override fun getPost(postId: String): Post? {
-        return postProvider.getPost(postId)
+    override fun getPost(postId: String): SavedPostResponse? {
+        return postProvider.getPost(postId)?.toSavedUserPostResponse()
     }
 
     override fun getPostsCountByUser(userId: String): PostsCountByUser? {

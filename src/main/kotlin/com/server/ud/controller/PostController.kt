@@ -38,7 +38,7 @@ class PostController {
     }
 
     @RequestMapping(value = ["/getPost"], method = [RequestMethod.GET])
-    fun getPost(@RequestParam postId: String): Post? {
+    fun getPost(@RequestParam postId: String): SavedPostResponse? {
         return postService.getPost(postId)
     }
 

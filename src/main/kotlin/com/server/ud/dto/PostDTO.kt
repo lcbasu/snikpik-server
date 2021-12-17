@@ -34,16 +34,16 @@ data class SavePostRequest(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SavedPostResponse(
-    val postId: String? = null,
+    val postId: String,
     val postType: PostType,
-    val userId: String? = null,
+    val userId: String,
+    val createdAt: Long,
     val locationId: String? = null,
     val googlePlaceId: String? = null,
     val zipcode: String? = null,
     val locationName: String? = null,
     val locationLat: Double? = null,
     val locationLng: Double? = null,
-    val createdAt: Long? = null,
     val title: String? = null,
     val description: String? = null,
     val tags: AllHashTags = AllHashTags(emptySet()),
