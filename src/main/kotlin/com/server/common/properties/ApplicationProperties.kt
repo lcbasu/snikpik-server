@@ -85,4 +85,9 @@ data class CloudinaryProperties(val cloudName: String, val apiKey: String, val a
 
 @ConstructorBinding
 @ConfigurationProperties("algolia")
-data class AlgoliaProperties(val applicationId: String, val apiKey: String)
+data class AlgoliaProperties(
+    val applicationId: String,
+    val apiKey: String,
+    val postIndex: String,
+    val postAutoSuggestIndex: String
+)

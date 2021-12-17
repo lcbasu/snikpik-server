@@ -1,6 +1,7 @@
 package com.server.ud.provider.search
 
 import com.algolia.search.SearchClient
+import com.server.common.properties.AlgoliaProperties
 import com.server.ud.dto.PostsSearchResponse
 import com.server.ud.dto.UDSearchRequest
 import com.server.ud.entities.post.*
@@ -23,6 +24,9 @@ class SearchProvider {
 
     @Autowired
     private lateinit var searchClient: SearchClient
+
+    @Autowired
+    private lateinit var algoliaProperties: AlgoliaProperties
 
     fun getPostsForSearchText(request: UDSearchRequest): PostsSearchResponse? {
         return null
@@ -77,14 +81,14 @@ class SearchProvider {
 
     private fun savePostToAlgolia(post: Post) {
         GlobalScope.launch {
-            val index = searchClient.initIndex("posts", AlgoliaPost::class.java)
+            val index = searchClient.initIndex(algoliaProperties.postIndex, AlgoliaPost::class.java)
             index.saveObject(post.toAlgoliaPost())
         }
     }
 
     fun saveAutoSuggestForPostToAlgolia(post: Post) {
         GlobalScope.launch {
-            val index = searchClient.initIndex("posts_query_suggestions", AlgoliaPostAutoSuggest::class.java)
+            val index = searchClient.initIndex(algoliaProperties.postAutoSuggestIndex, AlgoliaPostAutoSuggest::class.java)
             post.toAlgoliaPostAutoSuggest().map {
                 async { index.saveObject(it) }
             }.map { it.await() }
@@ -93,7 +97,7 @@ class SearchProvider {
 
     fun deletePost(postId: String) {
         GlobalScope.launch {
-            val index = searchClient.initIndex("posts", AlgoliaPost::class.java)
+            val index = searchClient.initIndex(algoliaProperties.postIndex, AlgoliaPost::class.java)
             index.deleteObject(postId)
         }
     }
