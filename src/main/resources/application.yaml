@@ -190,3 +190,6 @@ management:
         api-key: ${DATADOG_API_KEY}
         app-key: ${DATADOG_APP_KEY}
         step: 20s
+
+bugsnag:
+  unbox-server-api-key: ${UNBOX_SERVER_API_KEY}

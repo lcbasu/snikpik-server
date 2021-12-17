@@ -2,12 +2,12 @@ package com.server.common.provider
 
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model.GetObjectRequest
+import com.bugsnag.Bugsnag
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.dataformat.csv.CsvMapper
 import com.fasterxml.jackson.dataformat.csv.CsvSchema
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.server.ud.dto.CityLocationData
-import io.sentry.Sentry
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,6 +27,9 @@ class CSVDataProvider {
 
     @Autowired
     private lateinit var s3Client: AmazonS3
+
+    @Autowired
+    private lateinit var bugsnag: Bugsnag
 
     fun loadCitiesLocationData(): Map<String, CityLocationData> {
         return try {
@@ -58,7 +61,7 @@ class CSVDataProvider {
         } catch (e: Exception) {
             logger.error("Error while reading CSV data for cities.")
             e.printStackTrace()
-            Sentry.captureException(e)
+            bugsnag.notify(e);
             emptyMap()
         }
     }

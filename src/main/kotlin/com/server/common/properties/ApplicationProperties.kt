@@ -91,3 +91,7 @@ data class AlgoliaProperties(
     val postIndex: String,
     val postAutoSuggestIndex: String
 )
+
+@ConstructorBinding
+@ConfigurationProperties("bugsnag")
+data class BugsnagProperties(val unboxServerApiKey: String)

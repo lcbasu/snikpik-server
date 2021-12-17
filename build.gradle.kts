@@ -35,6 +35,7 @@ dependencies {
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools:2.3.8.RELEASE")
 
+	implementation("com.bugsnag:bugsnag-spring:3.6.3")
 	// Be careful of the version number for fasterxml
 	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.11.4")
 	implementation("io.micrometer:micrometer-registry-datadog:1.8.0")

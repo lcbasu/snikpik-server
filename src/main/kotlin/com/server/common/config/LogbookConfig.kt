@@ -1,6 +1,5 @@
 package com.server.common.config
 
-import io.sentry.Sentry
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.zalando.logbook.Conditions.exclude
@@ -34,7 +33,6 @@ class LogbookConfig {
                 .build()
         } catch (e: Exception) {
             e.printStackTrace()
-            Sentry.captureException(e)
             return null
         }
     }
