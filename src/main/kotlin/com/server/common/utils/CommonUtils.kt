@@ -2,7 +2,6 @@ package com.server.common.utils
 
 import com.server.dk.dto.PhoneVerificationResponse
 import com.twilio.rest.lookups.v1.PhoneNumber
-import io.sentry.Sentry
 
 object CommonUtils {
     var STRING_SEPARATOR = "_-_"
@@ -40,7 +39,6 @@ object CommonUtils {
             )
         } catch (e: Exception) {
             e.printStackTrace()
-            Sentry.captureException(e)
             PhoneVerificationResponse(
                 valid = false
             )

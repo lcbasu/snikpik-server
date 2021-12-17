@@ -1,10 +1,9 @@
 package com.server.common.config
 
-import com.server.common.properties.SecurityProperties
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
-import io.sentry.Sentry
+import com.server.common.properties.SecurityProperties
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -31,7 +30,6 @@ class FirebaseConfig {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            Sentry.captureException(e)
         }
     }
 

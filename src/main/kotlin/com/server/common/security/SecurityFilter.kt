@@ -1,17 +1,16 @@
 package com.server.common.security
 
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseToken
+import com.nimbusds.jose.proc.SecurityContext
+import com.nimbusds.jwt.JWTClaimsSet
+import com.nimbusds.jwt.proc.ConfigurableJWTProcessor
 import com.server.common.enums.CredentialType
 import com.server.common.model.Credentials
 import com.server.common.model.UserDetailsFromToken
 import com.server.common.properties.AwsProperties
 import com.server.common.properties.SecurityProperties
 import com.server.common.service.SecurityService
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseToken
-import com.nimbusds.jose.proc.SecurityContext
-import com.nimbusds.jwt.JWTClaimsSet
-import com.nimbusds.jwt.proc.ConfigurableJWTProcessor
-import io.sentry.Sentry
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder

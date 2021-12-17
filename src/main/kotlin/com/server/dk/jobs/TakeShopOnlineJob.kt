@@ -2,7 +2,6 @@ package com.server.dk.jobs
 
 import com.server.dk.entities.Company
 import com.server.dk.provider.CompanyProvider
-import io.sentry.Sentry
 import org.quartz.JobDataMap
 import org.quartz.JobExecutionContext
 import org.slf4j.Logger
@@ -26,6 +25,5 @@ class TakeShopOnlineJob: QuartzJobBean() {
         val company: Company = companyProvider.getCompany(companyId) ?: error("Could not find company for companyId: $companyId")
         companyProvider.takeShopOnline(company)
         logger.info("Shop taken online for companyId: ${company.id}")
-        Sentry.captureMessage("Shop taken online for companyId: ${company.id}")
     }
 }

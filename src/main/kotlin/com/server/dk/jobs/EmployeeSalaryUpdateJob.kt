@@ -2,7 +2,6 @@ package com.server.dk.jobs
 
 import com.server.dk.entities.Employee
 import com.server.dk.provider.EmployeeProvider
-import io.sentry.Sentry
 import org.quartz.JobDataMap
 import org.quartz.JobExecutionContext
 import org.slf4j.Logger
@@ -26,6 +25,5 @@ class EmployeeSalaryUpdateJob: QuartzJobBean() {
         val employee: Employee = employeeProvider.getEmployee(employeeId) ?: error("Could not find employee for employeeId: $employeeId")
         employeeProvider.updateSalary(employee)
         logger.info("Salary updated for employeeId: ${employee.id}")
-        Sentry.captureMessage("Salary updated for employeeId: ${employee.id}")
     }
 }

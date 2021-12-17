@@ -2,7 +2,6 @@ package com.server.common.config
 
 import com.server.common.properties.TwilioProperties
 import com.twilio.Twilio
-import io.sentry.Sentry
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -21,7 +20,6 @@ class TwilioConfig {
             Twilio.init(twilioProperties.accountSid, twilioProperties.authToken)
         } catch (e: Exception) {
             e.printStackTrace()
-            Sentry.captureException(e)
         }
     }
 

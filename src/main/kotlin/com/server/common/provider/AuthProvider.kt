@@ -5,9 +5,8 @@ import com.server.common.entities.User
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.enums.RoleType
-import com.server.common.model.UserDetailsFromToken
-import com.server.dk.dto.PhoneVerificationResponse
 import com.server.common.model.RequestContext
+import com.server.dk.dto.PhoneVerificationResponse
 import com.server.dk.entities.Address
 import com.server.dk.entities.Company
 import com.server.dk.entities.Employee
@@ -16,11 +15,9 @@ import com.server.dk.provider.CompanyProvider
 import com.server.dk.provider.EmployeeProvider
 import com.server.ud.provider.user.UserV2Provider
 import com.twilio.rest.lookups.v1.PhoneNumber
-import io.sentry.Sentry
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 
 @Component
@@ -64,7 +61,6 @@ class AuthProvider {
         if (requestingUser == null) {
             val uid = securityProvider.getFirebaseAuthUser()?.getUid() ?: error("User needs to be logged in through phone number or anonymously.")
             logger.warn("Creating user for anonymous user with uid: $uid")
-            Sentry.captureMessage("Creating user for anonymous user with uid: $uid")
             return createUser(uid = uid)
         }
         return requestingUser
@@ -308,7 +304,6 @@ class AuthProvider {
             )
         } catch (e: Exception) {
             e.printStackTrace()
-            Sentry.captureException(e)
             PhoneVerificationResponse(
                 valid = false
             )
