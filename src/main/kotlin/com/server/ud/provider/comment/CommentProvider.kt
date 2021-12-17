@@ -26,6 +26,9 @@ class CommentProvider {
     private lateinit var deferredProcessingProvider: DeferredProcessingProvider
 
     @Autowired
+    private lateinit var commentProcessingProvider: CommentProcessingProvider
+
+    @Autowired
     private lateinit var randomIdProvider: RandomIdProvider
 
     fun getComment(commentId: String): Comment? =
@@ -53,6 +56,7 @@ class CommentProvider {
                 media = request.mediaDetails?.convertToString(),
             )
             val savedComment = commentRepository.save(comment)
+            commentProcessingProvider.processCommentNow(savedComment)
             deferredProcessingProvider.deferProcessingForComment(savedComment.commentId)
             return savedComment
         } catch (e: Exception) {

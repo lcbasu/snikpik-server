@@ -4,7 +4,6 @@ import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.convertToString
 import com.server.common.provider.RandomIdProvider
 import com.server.common.utils.DateUtils
-import com.server.dk.model.convertToString
 import com.server.ud.dao.reply.CommentReplyRepository
 import com.server.ud.dto.SaveCommentReplyRequest
 import com.server.ud.entities.MediaProcessingDetail
@@ -25,6 +24,9 @@ class ReplyProvider {
 
     @Autowired
     private lateinit var deferredProcessingProvider: DeferredProcessingProvider
+
+    @Autowired
+    private lateinit var replyProcessingProvider: ReplyProcessingProvider
 
     @Autowired
     private lateinit var randomIdProvider: RandomIdProvider
@@ -55,6 +57,7 @@ class ReplyProvider {
                 media = request.mediaDetails?.convertToString(),
             )
             val savedReply = commentReplyRepository.save(reply)
+            replyProcessingProvider.processReplyNow(savedReply)
             deferredProcessingProvider.deferProcessingForReply(savedReply.replyId)
             return savedReply
         } catch (e: Exception) {

@@ -1,9 +1,11 @@
 package com.server.ud.provider.comment
 
 import com.server.ud.dao.comment.*
+import com.server.ud.entities.comment.Comment
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -48,15 +50,22 @@ class CommentProcessingProvider {
         GlobalScope.launch {
             logger.info("Start: comment processing for commentId: $commentId")
             val postComment = commentProvider.getComment(commentId) ?: error("Failed to get comments data for commentId: $commentId")
-            val commentsByPostFuture = async { commentsByPostProvider.save(postComment) }
             val commentsByUserFuture = async { commentsByUserProvider.save(postComment) }
-            val commentsCountByPostFuture = async { commentsCountByPostProvider.increaseCommentCount(postComment.postId) }
             val commentForPostByUserFuture = async { commentForPostByUserProvider.setCommented(postComment.postId, postComment.userId) }
-            commentsByPostFuture.await()
             commentsByUserFuture.await()
-            commentsCountByPostFuture.await()
             commentForPostByUserFuture.await()
             logger.info("Done: comment processing for commentId: $commentId")
+        }
+    }
+
+    fun processCommentNow(comment: Comment) {
+        runBlocking {
+            logger.info("StartNow: comment processing for commentId: ${comment.commentId}")
+            val commentsByPostFuture = async { commentsByPostProvider.save(comment) }
+            val commentsCountByPostFuture = async { commentsCountByPostProvider.increaseCommentCount(comment.postId) }
+            commentsByPostFuture.await()
+            commentsCountByPostFuture.await()
+            logger.info("DoneNow: comment processing for commentId: ${comment.commentId}")
         }
     }
 
