@@ -394,90 +394,90 @@ class FakerProvider {
     private lateinit var usersByZipcodeProvider: UsersByZipcodeProvider
 
     fun doSomething(): Any {
-        recoverDeletedData()
+//        recoverDeletedData()
         return "Something was done..."
     }
 
-    private fun recoverDeletedData() {
-        GlobalScope.launch {
-            // Bookmark
-            val bookmark = async {
-                bookmarkRepository.getAll().forEach {
-                    bookmarksByUserProvider.save(it)
-                    bookmarksByResourceProvider.save(it)
-                }
-            }
-
-
-            // Likes
-            val likes = async {
-                likeRepository.getAll().forEach {
-                    likesByUserProvider.save(it)
-                    likesByResourceProvider.save(it)
-                }
-            }
-
-
-            // Location
-            val location = async {
-                locationRepository.getAll().forEach {
-                    locationsByUserProvider.save(it)
-                    locationsByZipcodeProvider.save(it)
-                }
-            }
-
-
-            // Post
-            val post = async {
-                postRepository.getAll().forEach { post ->
-                    post.getCategories().categories
-                        .map { postsByCategoryProvider.save(post, it.id) }
-
-                    postsByCategoryProvider.save(post, CategoryV2.ALL)
-
-                    post.getHashTags().tags
-                        .map { postsByHashTagProvider.save(post, it) }
-
-                    postsByZipcodeProvider.save(post)
-
-                    post.zipcode?.let {
-                        val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(it)
-                        nearbyPostsByZipcodeProvider.save(post, nearbyZipcodes)
-                        nearbyVideoPostsByZipcodeProvider.save(post, nearbyZipcodes)
-                    }
-                }
-            }
-
-
-            // Social
-            val social = async {
-                socialRelationRepository.getAll().forEach {
-                    val fromUser = userV2Provider.getUser(it.fromUserId)
-                        ?: error("Error getting user for fromUserId: ${it.fromUserId}")
-                    val toUser =
-                        userV2Provider.getUser(it.toUserId) ?: error("Error getting user for toUserId: ${it.toUserId}")
-                    followersByUserProvider.save(user = toUser, follower = fromUser)
-                    followingsByUserProvider.save(user = fromUser, following = toUser)
-                }
-            }
-
-
-            // User
-            val user = async {
-                userV2Repository.getAll().forEach {
-                    usersByProfileCategoryProvider.save(it)
-                    usersByProfileTypeProvider.save(it)
-                    usersByZipcodeProvider.save(it)
-                }
-            }
-
-            bookmark.await()
-            likes.await()
-            location.await()
-            post.await()
-            social.await()
-            user.await()
-        }
-    }
+//    private fun recoverDeletedData() {
+//        GlobalScope.launch {
+//            // Bookmark
+//            val bookmark = async {
+//                bookmarkRepository.getAll().forEach {
+//                    bookmarksByUserProvider.save(it)
+//                    bookmarksByResourceProvider.save(it)
+//                }
+//            }
+//
+//
+//            // Likes
+//            val likes = async {
+//                likeRepository.getAll().forEach {
+//                    likesByUserProvider.save(it)
+//                    likesByResourceProvider.save(it)
+//                }
+//            }
+//
+//
+//            // Location
+//            val location = async {
+//                locationRepository.getAll().forEach {
+//                    locationsByUserProvider.save(it)
+//                    locationsByZipcodeProvider.save(it)
+//                }
+//            }
+//
+//
+//            // Post
+//            val post = async {
+//                postRepository.getAll().forEach { post ->
+//                    post.getCategories().categories
+//                        .map { postsByCategoryProvider.save(post, it.id) }
+//
+//                    postsByCategoryProvider.save(post, CategoryV2.ALL)
+//
+//                    post.getHashTags().tags
+//                        .map { postsByHashTagProvider.save(post, it) }
+//
+//                    postsByZipcodeProvider.save(post)
+//
+//                    post.zipcode?.let {
+//                        val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(it)
+//                        nearbyPostsByZipcodeProvider.save(post, nearbyZipcodes)
+//                        nearbyVideoPostsByZipcodeProvider.save(post, nearbyZipcodes)
+//                    }
+//                }
+//            }
+//
+//
+//            // Social
+//            val social = async {
+//                socialRelationRepository.getAll().forEach {
+//                    val fromUser = userV2Provider.getUser(it.fromUserId)
+//                        ?: error("Error getting user for fromUserId: ${it.fromUserId}")
+//                    val toUser =
+//                        userV2Provider.getUser(it.toUserId) ?: error("Error getting user for toUserId: ${it.toUserId}")
+//                    followersByUserProvider.save(user = toUser, follower = fromUser)
+//                    followingsByUserProvider.save(user = fromUser, following = toUser)
+//                }
+//            }
+//
+//
+//            // User
+//            val user = async {
+//                userV2Repository.getAll().forEach {
+//                    usersByProfileCategoryProvider.save(it)
+//                    usersByProfileTypeProvider.save(it)
+//                    usersByZipcodeProvider.save(it)
+//                }
+//            }
+//
+//            bookmark.await()
+//            likes.await()
+//            location.await()
+//            post.await()
+//            social.await()
+//            user.await()
+//        }
+//    }
 
 }

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository
 interface SocialRelationRepository : CassandraRepository<SocialRelation?, String?> {
     fun findAllByFromUserIdAndToUserId(fromUserId: String, toUserId: String): List<SocialRelation>
 
-    @AllowFiltering
-    @Query("SELECT * FROM social_relation")
-    fun getAll(): List<SocialRelation>
+//    @AllowFiltering
+//    @Query("SELECT * FROM social_relation")
+//    fun getAll(): List<SocialRelation>
 }

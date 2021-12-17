@@ -11,7 +11,7 @@ interface LocationRepository : CassandraRepository<Location?, String?> {
 //    @Query("select * from locations where location_id = ?0")
     fun findAllByLocationId(locationId: String?): List<Location>
 
-    @AllowFiltering
-    @Query("SELECT * FROM locations")
-    fun getAll(): List<Location>
+//    @AllowFiltering
+//    @Query("SELECT * FROM locations")
+//    fun getAll(): List<Location>
 }

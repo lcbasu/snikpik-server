@@ -12,7 +12,7 @@ interface PostRepository : CassandraRepository<Post?, String?> {
 //    @Query("select * from posts where post_id = ?0")
     fun findAllByPostId(postId: String?): List<Post>
 
-    @AllowFiltering
-    @Query("SELECT * FROM posts")
-    fun getAll(): List<Post>
+//    @AllowFiltering
+//    @Query("SELECT * FROM posts")
+//    fun getAll(): List<Post>
 }

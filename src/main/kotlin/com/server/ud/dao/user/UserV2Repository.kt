@@ -11,7 +11,7 @@ interface UserV2Repository : CassandraRepository<UserV2?, String?> {
 //    @Query("select * from users where user_id = ?0")
     fun findAllByUserId(userId: String): List<UserV2>
 
-    @AllowFiltering
-    @Query("SELECT * FROM users")
-    fun getAll(): List<UserV2>
+//    @AllowFiltering
+//    @Query("SELECT * FROM users")
+//    fun getAll(): List<UserV2>
 }
