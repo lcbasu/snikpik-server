@@ -154,7 +154,7 @@ class LocationProvider {
             val scriptParams: MutableMap<String, Any> = HashMap()
 
             // TODO: Make this dynamic by taking this input from user
-            scriptParams["distance_in_km"] = "300km"
+            scriptParams["distance_in_km"] = "150km"
             scriptParams["latitude"] = lat.toString()
             scriptParams["longitude"] = lng.toString()
             request.scriptParams = scriptParams
