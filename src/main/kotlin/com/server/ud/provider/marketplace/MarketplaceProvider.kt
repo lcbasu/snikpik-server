@@ -43,7 +43,7 @@ class MarketplaceProvider {
             )
             ProfileTypeWithUsersResponse(
                 profileTypeToShow = it.profileType.toProfileTypeResponse(),
-                users = (users.content?.filterNotNull()?.mapNotNull { it.toMarketplaceUserDetailV2(userV2Provider) } ?: emptyList())
+                users = (users.content?.filterNotNull()?.mapNotNull { it.toMarketplaceUserDetail(userV2Provider) } ?: emptyList())
             )
         } ?: emptyList()
         return MarketplaceUsersFeedResponseV2(

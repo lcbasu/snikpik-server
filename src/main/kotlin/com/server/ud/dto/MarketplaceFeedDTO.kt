@@ -1,6 +1,5 @@
 package com.server.ud.dto
 
-import com.server.common.dto.MarketplaceUserDetailV2
 import com.server.common.dto.ProfileTypeResponse
 import com.server.common.dto.ProfileTypeWithUsersResponse
 import com.server.common.dto.toProfileTypeResponse
@@ -80,26 +79,6 @@ fun UsersByNearbyZipcodeAndProfileType.toMarketplaceUserDetail(userV2Provider: U
         } catch (e: Exception) {
             e.printStackTrace()
             return null
-        }
-    }
-}
-
-
-fun UsersByNearbyZipcodeAndProfileType.toMarketplaceUserDetailV2(userV2Provider: UserV2Provider): MarketplaceUserDetailV2? {
-    this.apply {
-        return try {
-            val user = userV2Provider.getUser(userId) ?: error("User not found for userId: $userId")
-            MarketplaceUserDetailV2(
-                userId = userId,
-                name = user.fullName,
-                dp = user.getMediaDetailsForDP(),
-                // Location of the work
-                locationName = user.permanentLocationName,
-                verified = user.verified
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
         }
     }
 }

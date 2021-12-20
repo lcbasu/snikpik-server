@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.enums.ProfileCategory
 import com.server.common.enums.ProfileType
 import com.server.common.model.MediaDetailsV2
+import com.server.ud.dto.MarketplaceUserDetail
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AllLabelsResponse(
@@ -44,18 +45,10 @@ data class ProfileTypeResponse(
     val media: MediaDetailsV2?
 )
 
-data class MarketplaceUserDetailV2(
-    val userId: String,
-    val name: String?,
-    val verified: Boolean,
-    val dp: MediaDetailsV2?,
-    val locationName: String?,
-)
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class ProfileTypeWithUsersResponse(
     val profileTypeToShow: ProfileTypeResponse,
-    val users: List<MarketplaceUserDetailV2>,
+    val users: List<MarketplaceUserDetail>,
 )
 
 fun ProfileType.toProfileTypeResponse(): ProfileTypeResponse {
