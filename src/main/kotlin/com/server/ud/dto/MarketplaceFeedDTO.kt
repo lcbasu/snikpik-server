@@ -1,6 +1,8 @@
 package com.server.ud.dto
 
+import com.server.common.dto.MarketplaceUserDetailV2
 import com.server.common.dto.ProfileTypeResponse
+import com.server.common.dto.ProfileTypeWithUsersResponse
 import com.server.common.dto.toProfileTypeResponse
 import com.server.common.enums.ProfileCategory
 import com.server.common.enums.ProfileType
@@ -32,6 +34,13 @@ data class MarketplaceProfileTypesFeedResponse(
     override val hasNext: Boolean? = null,
 ): PaginationResponse(count, pagingState, hasNext)
 
+data class MarketplaceUsersFeedResponseV2(
+    val users: List<ProfileTypeWithUsersResponse>,
+    override val count: Int? = null,
+    override val pagingState: String? = null,
+    override val hasNext: Boolean? = null,
+): PaginationResponse(count, pagingState, hasNext)
+
 data class MarketplaceUserFeedRequest (
     val zipcode: String,
     val profileType: ProfileType,
@@ -40,6 +49,13 @@ data class MarketplaceUserFeedRequest (
 ): PaginationRequest(limit, pagingState)
 
 data class MarketplaceProfileTypesFeedRequest (
+    val zipcode: String,
+    val profileCategory: ProfileCategory,
+    override val limit: Int = 10,
+    override val pagingState: String? = null, // YYYY-MM-DD
+): PaginationRequest(limit, pagingState)
+
+data class MarketplaceUsersFeedRequestV2 (
     val zipcode: String,
     val profileCategory: ProfileCategory,
     override val limit: Int = 10,
@@ -64,6 +80,26 @@ fun UsersByNearbyZipcodeAndProfileType.toMarketplaceUserDetail(userV2Provider: U
         } catch (e: Exception) {
             e.printStackTrace()
             return null
+        }
+    }
+}
+
+
+fun UsersByNearbyZipcodeAndProfileType.toMarketplaceUserDetailV2(userV2Provider: UserV2Provider): MarketplaceUserDetailV2? {
+    this.apply {
+        return try {
+            val user = userV2Provider.getUser(userId) ?: error("User not found for userId: $userId")
+            MarketplaceUserDetailV2(
+                userId = userId,
+                name = user.fullName,
+                dp = user.getMediaDetailsForDP(),
+                // Location of the work
+                locationName = user.permanentLocationName,
+                verified = user.verified
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }

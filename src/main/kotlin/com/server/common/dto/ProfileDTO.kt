@@ -44,6 +44,20 @@ data class ProfileTypeResponse(
     val media: MediaDetailsV2?
 )
 
+data class MarketplaceUserDetailV2(
+    val userId: String,
+    val name: String?,
+    val verified: Boolean,
+    val dp: MediaDetailsV2?,
+    val locationName: String?,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ProfileTypeWithUsersResponse(
+    val profileTypeToShow: ProfileTypeResponse,
+    val users: List<MarketplaceUserDetailV2>,
+)
+
 fun ProfileType.toProfileTypeResponse(): ProfileTypeResponse {
     this.apply {
         return ProfileTypeResponse(

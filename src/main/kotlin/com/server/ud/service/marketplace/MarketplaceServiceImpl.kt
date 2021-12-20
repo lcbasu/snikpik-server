@@ -2,6 +2,7 @@ package com.server.ud.service.marketplace
 
 import com.server.common.dto.toProfileTypeResponse
 import com.server.ud.dto.*
+import com.server.ud.provider.marketplace.MarketplaceProvider
 import com.server.ud.provider.user.ProfileTypesByNearbyZipcodeProvider
 import com.server.ud.provider.user.UserV2Provider
 import com.server.ud.provider.user.UsersByNearbyZipcodeAndProfileTypeProvider
@@ -16,6 +17,9 @@ class MarketplaceServiceImpl : MarketplaceService() {
 
     @Autowired
     private lateinit var profileTypesByNearbyZipcodeProvider: ProfileTypesByNearbyZipcodeProvider
+
+    @Autowired
+    private lateinit var marketplaceProvider: MarketplaceProvider
 
     @Autowired
     private lateinit var userV2Provider: UserV2Provider
@@ -38,5 +42,9 @@ class MarketplaceServiceImpl : MarketplaceService() {
             hasNext = result.hasNext,
             pagingState = result.pagingState
         )
+    }
+
+    override fun getFeedForMarketplaceUsersV2(request: MarketplaceUsersFeedRequestV2): MarketplaceUsersFeedResponseV2 {
+        return marketplaceProvider.getFeedForMarketplaceUsersV2(request);
     }
 }
