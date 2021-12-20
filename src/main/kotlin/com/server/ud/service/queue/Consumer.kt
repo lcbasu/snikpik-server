@@ -3,8 +3,8 @@ package com.server.ud.service.queue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.properties.AwsProperties
-import com.server.dk.enums.MessageDedupIdType
-import com.server.dk.enums.MessageGroupIdType
+import com.server.ud.enums.MessageDedupIdType
+import com.server.ud.enums.MessageGroupIdType
 import com.server.ud.provider.bookmark.BookmarkProcessingProvider
 import com.server.ud.provider.comment.CommentProcessingProvider
 import com.server.ud.provider.faker.FakerProvider
@@ -156,6 +156,11 @@ class Consumer {
                 messageDeduplicationId == MessageDedupIdType.ProcessUserV2_DedupId) {
                 logger.info("Do UserV2 processing for userId: $messageBody")
                 userV2ProcessingProvider.processUserV2(messageBody)
+            }  else if (messageBody.startsWith(ReadableIdPrefix.USR.name) &&
+                messageGroupId == MessageGroupIdType.ReProcessUserV2_GroupId &&
+                messageDeduplicationId == MessageDedupIdType.ReProcessUserV2_DedupId) {
+                logger.info("Do UserV2 re-processing for userId: $messageBody")
+                userV2ProcessingProvider.reProcessUserV2(messageBody)
             } else if (messageBody.startsWith(ReadableIdPrefix.PST.name) &&
                 messageGroupId == MessageGroupIdType.ProcessPostForFollowers_GroupId &&
                 messageDeduplicationId == MessageDedupIdType.ProcessPostForFollowers_DedupId) {

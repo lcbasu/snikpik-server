@@ -24,8 +24,6 @@ import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.entities.comment.Comment
 import com.server.ud.entities.like.Like
 import com.server.ud.entities.post.Post
-import com.server.ud.entities.post.getCategories
-import com.server.ud.entities.post.getHashTags
 import com.server.ud.entities.reply.Reply
 import com.server.ud.entities.social.SocialRelation
 import com.server.ud.entities.user.UserV2
@@ -53,9 +51,6 @@ import com.server.ud.provider.user.UserV2Provider
 import com.server.ud.provider.user.UsersByProfileCategoryProvider
 import com.server.ud.provider.user.UsersByProfileTypeProvider
 import com.server.ud.provider.user.UsersByZipcodeProvider
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -163,7 +158,7 @@ class FakerProvider {
                 fullName = faker.name().fullName(),
                 notificationToken = null,
                 notificationTokenProvider = NotificationTokenProvider.FIREBASE
-            ), false) ?: error("Error saving userV2 for userId: ${id}")
+            ), ProcessingType.NO_PROCESSING) ?: error("Error saving userV2 for userId: ${id}")
             // This save will also take care of creating the job to process location data
             userV2Provider.updateUserV2Location(UpdateUserV2LocationRequest (
                 updateTypes = setOf(UserLocationUpdateType.CURRENT, UserLocationUpdateType.PERMANENT),

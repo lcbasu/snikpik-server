@@ -14,6 +14,7 @@ import com.server.ud.dao.user.UserV2Repository
 import com.server.ud.dto.*
 import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.LocationFor
+import com.server.ud.enums.ProcessingType
 import com.server.ud.enums.UserLocationUpdateType
 import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.location.LocationProvider
@@ -56,12 +57,14 @@ class UserV2Provider {
             null
         }
 
-    fun saveUserV2(userV2: UserV2, scheduleJob: Boolean = true) : UserV2? {
+    fun saveUserV2(userV2: UserV2, processingType: ProcessingType = ProcessingType.REFRESH) : UserV2? {
         try {
             val savedUser = userV2Repository.save(userV2)
             logger.info("UserV2 saved with userId: ${savedUser.userId}.")
-            if (scheduleJob) {
+            if (processingType == ProcessingType.REFRESH) {
                 deferredProcessingProvider.deferProcessingForUserV2(savedUser.userId)
+            } else if (processingType == ProcessingType.DELETE_AND_REFRESH) {
+                deferredProcessingProvider.deferReProcessingForUserV2(savedUser.userId)
             }
             return savedUser
         } catch (e: Exception) {
@@ -99,7 +102,7 @@ class UserV2Provider {
         val firebaseAuthUser = securityProvider.validateRequest()
         val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
         val newUserToBeSaved = user.copy(profiles = AllProfileTypeResponse(request.profiles.map { it.toProfileTypeResponse() }).convertToString())
-        return saveUserV2(newUserToBeSaved)
+        return saveUserV2(newUserToBeSaved, ProcessingType.DELETE_AND_REFRESH)
     }
 
     fun updateUserV2Name(request: UpdateUserV2NameRequest): UserV2? {
@@ -149,7 +152,17 @@ class UserV2Provider {
             } else {
                 newUserToBeSaved
             }
-            saveUserV2(newUserToBeSaved)
+
+            val processingType = if (request.updateTypes.contains(UserLocationUpdateType.PERMANENT)) {
+                // delete old data that was processed for user
+                // and then process the user
+                // This is required as when the user changes their permanent location
+                // We need to move all the data from old location to the new one
+                ProcessingType.DELETE_AND_REFRESH
+            } else {
+                ProcessingType.REFRESH
+            }
+            saveUserV2(newUserToBeSaved, processingType)
         } catch (e: Exception) {
             e.printStackTrace()
             logger.error("Error while updating user location for userId: $userId")
@@ -284,7 +297,7 @@ class UserV2Provider {
             fullName = request.newName,
             dp = request.dp?.convertToString())
 
-        val nameUpdatedUser = saveUserV2(newUserToBeSaved, false) ?: error("Error while updating name and dp for userId: ${firebaseAuthUser.getUserIdToUse()}")
+        val nameUpdatedUser = saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING) ?: error("Error while updating name and dp for userId: ${firebaseAuthUser.getUserIdToUse()}")
 
         // Now update the username as it requires uniqueness enforcement
         // and once, updated, do user level processing by job scheduling
@@ -295,7 +308,7 @@ class UserV2Provider {
         val firebaseAuthUser = securityProvider.validateRequest()
         val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
         val newUserToBeSaved = user.copy(email = request.email,)
-        val emailSavedUser = saveUserV2(newUserToBeSaved, false) ?: error("Error while updating email for userId: ${firebaseAuthUser.getUserIdToUse()}")
+        val emailSavedUser = saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING) ?: error("Error while updating email for userId: ${firebaseAuthUser.getUserIdToUse()}")
         return request.location?.let { updateUserV2Location(request.location, emailSavedUser.userId) } ?: emailSavedUser
     }
 
@@ -305,7 +318,7 @@ class UserV2Provider {
         val newUserToBeSaved = user.copy(preferredCategories = AllCategoryV2Response(
             request.categories.map { it.toCategoryV2Response() }
         ).convertToString(),)
-        return saveUserV2(newUserToBeSaved) ?: error("Error while updating categories for userId: ${firebaseAuthUser.getUserIdToUse()}")
+        return saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING) ?: error("Error while updating categories for userId: ${firebaseAuthUser.getUserIdToUse()}")
     }
 
     fun getProfileTypesByProfileCategory(profileCategory: ProfileCategory): AllProfileTypeResponse? {

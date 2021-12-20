@@ -81,25 +81,25 @@ class LocationProcessingProvider {
              *
              *
              * */
-            doNearbyFeedRelatedProcessing(location, nearbyZipcodes)
+            doNearbyFeedRelatedProcessingForNewLocation(location, nearbyZipcodes)
 
             logger.info("End: Save nearby locations processing for locationId: ${location.locationId}")
         }
     }
 
-    private fun doNearbyFeedRelatedProcessing(
+    private fun doNearbyFeedRelatedProcessingForNewLocation(
         location: Location,
         nearbyZipcodes: Set<String>
     ) {
         // Get all the posts that are near to this location
         // and save them for this zipcode
-        postProcessingProvider.processPostForNearbyLocation(
+        postProcessingProvider.processPostForNewNearbyLocation(
             originalLocation = location,
             nearbyZipcodes = nearbyZipcodes
         )
 
         // Do same thing for MarketplaceUser
-        userV2ProcessingProvider.processUserDataForNearbyLocation(
+        userV2ProcessingProvider.processUserDataForNewNearbyLocation(
             originalLocation = location,
             nearbyZipcodes = nearbyZipcodes
         )

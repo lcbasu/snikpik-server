@@ -1,4 +1,4 @@
-package com.server.dk.enums
+package com.server.ud.enums
 
 enum class MessageGroupIdType {
 
@@ -21,6 +21,7 @@ enum class MessageGroupIdType {
     ProcessBookmark_GroupId,
 
     ProcessUserV2_GroupId,
+    ReProcessUserV2_GroupId,
 
     FakeDataGeneration_GroupId,
 

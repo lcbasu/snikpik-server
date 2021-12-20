@@ -205,7 +205,7 @@ class PostProcessingProvider {
         }
     }
 
-    fun processPostForNearbyLocation(originalLocation: Location, nearbyZipcodes: Set<String>) {
+    fun processPostForNewNearbyLocation(originalLocation: Location, nearbyZipcodes: Set<String>) {
         GlobalScope.launch {
             logger.info("Start: processPostForNearbyLocation for locationId: ${originalLocation.locationId}")
             if (originalLocation.zipcode == null) {

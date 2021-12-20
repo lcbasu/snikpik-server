@@ -2,6 +2,7 @@ package com.server.ud.provider.user
 
 import com.server.common.enums.ProfileCategory
 import com.server.common.enums.ProfileType
+import com.server.ud.dao.user.*
 import com.server.ud.dto.MarketplaceProfileTypesFeedRequest
 import com.server.ud.dto.MarketplaceUserFeedRequest
 import com.server.ud.entities.location.Location
@@ -50,6 +51,39 @@ class UserV2ProcessingProvider {
 
     @Autowired
     private lateinit var locationProvider: LocationProvider
+
+    @Autowired
+    private lateinit var usersByNearbyZipcodeAndProfileTypeRepository: UsersByNearbyZipcodeAndProfileTypeRepository
+
+    @Autowired
+    private lateinit var usersByProfileCategoryRepository: UsersByProfileCategoryRepository
+
+    @Autowired
+    private lateinit var usersByProfileTypeRepository: UsersByProfileTypeRepository
+
+    @Autowired
+    private lateinit var usersByZipcodeAndProfileTypeRepository: UsersByZipcodeAndProfileTypeRepository
+
+    @Autowired
+    private lateinit var usersByZipcodeRepository: UsersByZipcodeRepository
+
+    fun reProcessUserV2(userId: String) {
+        GlobalScope.launch {
+            logger.info("Start: Delete user data for dependent information for userId: $userId")
+
+            // Delete the older data
+            usersByNearbyZipcodeAndProfileTypeRepository.deleteAll(usersByNearbyZipcodeAndProfileTypeRepository.findAllByUserId(userId))
+            usersByProfileCategoryRepository.deleteAll(usersByProfileCategoryRepository.findAllByUserId(userId))
+            usersByProfileTypeRepository.deleteAll(usersByProfileTypeRepository.findAllByUserId(userId))
+            usersByZipcodeAndProfileTypeRepository.deleteAll(usersByZipcodeAndProfileTypeRepository.findAllByUserId(userId))
+            usersByZipcodeRepository.deleteAll(usersByZipcodeRepository.findAllByUserId(userId))
+
+            // Now Re-Process the user
+            processUserV2(userId)
+
+            logger.info("End: Delete user data for dependent information for userId: $userId")
+        }
+    }
 
     fun processUserV2(userId: String) {
         GlobalScope.launch {
@@ -107,7 +141,7 @@ class UserV2ProcessingProvider {
         }
     }
 
-    fun processUserDataForNearbyLocation(originalLocation: Location, nearbyZipcodes: Set<String>) {
+    fun processUserDataForNewNearbyLocation(originalLocation: Location, nearbyZipcodes: Set<String>) {
         GlobalScope.launch {
             processUserForNearbyLocation(originalLocation, nearbyZipcodes)
             processProfileTypesForNearbyLocation(originalLocation, nearbyZipcodes)

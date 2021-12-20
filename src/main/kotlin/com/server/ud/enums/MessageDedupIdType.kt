@@ -1,4 +1,4 @@
-package com.server.dk.enums
+package com.server.ud.enums
 
 enum class MessageDedupIdType {
 
@@ -21,6 +21,7 @@ enum class MessageDedupIdType {
     ProcessBookmark_DedupId,
 
     ProcessUserV2_DedupId,
+    ReProcessUserV2_DedupId,
 
     FakeDataGeneration_DedupId,
 

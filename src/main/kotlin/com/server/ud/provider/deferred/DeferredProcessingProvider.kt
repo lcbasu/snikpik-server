@@ -1,8 +1,8 @@
 package com.server.ud.provider.deferred
 
 import com.server.common.utils.DateUtils
-import com.server.dk.enums.MessageDedupIdType
-import com.server.dk.enums.MessageGroupIdType
+import com.server.ud.enums.MessageDedupIdType
+import com.server.ud.enums.MessageGroupIdType
 import com.server.ud.service.queue.Producer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -95,6 +95,15 @@ class DeferredProcessingProvider {
             messagePayload = userV2Id,
             messageGroupID = MessageGroupIdType.ProcessUserV2_GroupId.name,
             messageDedupID = MessageDedupIdType.ProcessUserV2_DedupId.name,
+        )
+    }
+
+    fun deferReProcessingForUserV2(userV2Id: String) {
+        logger.info("deferReProcessingForUserV2: $userV2Id")
+        producer.sendToFifoQueue(
+            messagePayload = userV2Id,
+            messageGroupID = MessageGroupIdType.ReProcessUserV2_GroupId.name,
+            messageDedupID = MessageDedupIdType.ReProcessUserV2_DedupId.name,
         )
     }
 
