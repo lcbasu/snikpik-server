@@ -9,6 +9,7 @@ import com.server.ud.entities.location.Location
 import com.server.ud.entities.user.ProfileTypesByNearbyZipcode
 import com.server.ud.entities.user.UsersByNearbyZipcodeAndProfileType
 import com.server.ud.provider.location.LocationProvider
+import com.server.ud.provider.search.SearchProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -67,23 +68,8 @@ class UserV2ProcessingProvider {
     @Autowired
     private lateinit var usersByZipcodeRepository: UsersByZipcodeRepository
 
-    fun reProcessUserV2(userId: String) {
-        GlobalScope.launch {
-            logger.info("Start: Delete user data for dependent information for userId: $userId")
-
-            // Delete the older data
-            usersByNearbyZipcodeAndProfileTypeRepository.deleteAll(usersByNearbyZipcodeAndProfileTypeRepository.findAllByUserId(userId))
-            usersByProfileCategoryRepository.deleteAll(usersByProfileCategoryRepository.findAllByUserId(userId))
-            usersByProfileTypeRepository.deleteAll(usersByProfileTypeRepository.findAllByUserId(userId))
-            usersByZipcodeAndProfileTypeRepository.deleteAll(usersByZipcodeAndProfileTypeRepository.findAllByUserId(userId))
-            usersByZipcodeRepository.deleteAll(usersByZipcodeRepository.findAllByUserId(userId))
-
-            // Now Re-Process the user
-            processUserV2(userId)
-
-            logger.info("End: Delete user data for dependent information for userId: $userId")
-        }
-    }
+    @Autowired
+    private lateinit var searchProvider: SearchProvider
 
     fun processUserV2(userId: String) {
         GlobalScope.launch {
@@ -129,6 +115,10 @@ class UserV2ProcessingProvider {
                 usersByZipcodeProvider.save(user)
             }
 
+            val algoliaIndexingFuture = async {
+                searchProvider.doSearchProcessingForUser(user)
+            }
+
             handlesByUserFuture.await()
             usersByProfileCategoryFuture.await()
             usersByProfileTypeFuture.await()
@@ -136,8 +126,27 @@ class UserV2ProcessingProvider {
             profileTypesByZipcodeAndProfileCategoryProviderFuture.await()
             usersByZipcodeFuture.await()
             usersNearbyTasksFuture.await()
+            algoliaIndexingFuture.await()
 
             logger.info("Done: UserV2 processing for userId: $userId")
+        }
+    }
+
+    fun reProcessUserV2(userId: String) {
+        GlobalScope.launch {
+            logger.info("Start: Delete user data for dependent information for userId: $userId")
+
+            // Delete the older data
+            usersByNearbyZipcodeAndProfileTypeRepository.deleteAll(usersByNearbyZipcodeAndProfileTypeRepository.findAllByUserId(userId))
+            usersByProfileCategoryRepository.deleteAll(usersByProfileCategoryRepository.findAllByUserId(userId))
+            usersByProfileTypeRepository.deleteAll(usersByProfileTypeRepository.findAllByUserId(userId))
+            usersByZipcodeAndProfileTypeRepository.deleteAll(usersByZipcodeAndProfileTypeRepository.findAllByUserId(userId))
+            usersByZipcodeRepository.deleteAll(usersByZipcodeRepository.findAllByUserId(userId))
+
+            // Now Re-Process the user
+            processUserV2(userId)
+
+            logger.info("End: Delete user data for dependent information for userId: $userId")
         }
     }
 

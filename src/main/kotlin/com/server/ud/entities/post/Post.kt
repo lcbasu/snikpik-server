@@ -146,38 +146,6 @@ fun Post.getHashTags(): AllHashTags {
     }
 }
 
-fun Post.toAlgoliaPost(): AlgoliaPost {
-    this.apply {
-        return AlgoliaPost(
-            objectID = postId,
-            postId = postId,
-            createdAt = DateUtils.getEpoch(createdAt),
-            userId = userId,
-            postType = postType,
-            title = title,
-            userHandle = userHandle,
-            userName = userName,
-            userMobile = userMobile,
-            userProfiles = getUserProfiles(),
-            description = description,
-            media = getMediaDetails(),
-            tags = getHashTags(),
-            categories = getCategories(),
-            locationId = locationId,
-            googlePlaceId = googlePlaceId,
-            zipcode = zipcode,
-            locationName = locationName,
-            locationLat = locationLat,
-            locationLng = locationLng,
-            _geoloc = if (locationLat != null && locationLng != null) GeoLoc(
-                lat = locationLat,
-                lng = locationLng
-            ) else null,
-            labels = getLabels()
-        )
-    }
-}
-
 fun Post.toAlgoliaPostAutoSuggest(): List<AlgoliaPostAutoSuggest> {
     this.apply {
         val result = mutableListOf<AlgoliaPostAutoSuggest>()

@@ -5,6 +5,9 @@ import com.server.common.properties.AlgoliaProperties
 import com.server.ud.dto.PostsSearchResponse
 import com.server.ud.dto.UDSearchRequest
 import com.server.ud.entities.post.*
+import com.server.ud.entities.user.AlgoliaUser
+import com.server.ud.entities.user.UserV2
+import com.server.ud.entities.user.toAlgoliaUser
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -79,6 +82,13 @@ class SearchProvider {
         }
     }
 
+    fun doSearchProcessingForUser(user: UserV2) {
+        GlobalScope.launch {
+            val postSave = async { saveUserToAlgolia(user) }
+            postSave.await()
+        }
+    }
+
     private fun savePostToAlgolia(post: Post) {
         GlobalScope.launch {
             val index = searchClient.initIndex(algoliaProperties.postIndex, AlgoliaPost::class.java)
@@ -92,6 +102,13 @@ class SearchProvider {
             post.toAlgoliaPostAutoSuggest().map {
                 async { index.saveObject(it) }
             }.map { it.await() }
+        }
+    }
+
+    private fun saveUserToAlgolia(user: UserV2) {
+        GlobalScope.launch {
+            val index = searchClient.initIndex(algoliaProperties.userIndex, AlgoliaUser::class.java)
+            index.saveObject(user.toAlgoliaUser())
         }
     }
 

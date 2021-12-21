@@ -89,6 +89,7 @@ data class AlgoliaProperties(
     val applicationId: String,
     val apiKey: String,
     val postIndex: String,
+    val userIndex: String,
     val postAutoSuggestIndex: String
 )
 

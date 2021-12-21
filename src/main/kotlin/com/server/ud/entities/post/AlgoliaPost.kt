@@ -4,6 +4,7 @@ import com.server.common.dto.AllLabelsResponse
 import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.utils.CommonUtils
 import com.server.common.model.MediaDetailsV2
+import com.server.common.utils.DateUtils
 import com.server.ud.dto.AllCategoryV2Response
 import com.server.ud.enums.PostType
 import com.server.ud.model.AllHashTags
@@ -52,6 +53,38 @@ fun String.toAlgoliaPostAutoSuggest(): AlgoliaPostAutoSuggest {
             nb_words = 1,
             popularity = 1,
             query = this,
+        )
+    }
+}
+
+fun Post.toAlgoliaPost(): AlgoliaPost {
+    this.apply {
+        return AlgoliaPost(
+            objectID = postId,
+            postId = postId,
+            createdAt = DateUtils.getEpoch(createdAt),
+            userId = userId,
+            postType = postType,
+            title = title,
+            userHandle = userHandle,
+            userName = userName,
+            userMobile = userMobile,
+            userProfiles = getUserProfiles(),
+            description = description,
+            media = getMediaDetails(),
+            tags = getHashTags(),
+            categories = getCategories(),
+            locationId = locationId,
+            googlePlaceId = googlePlaceId,
+            zipcode = zipcode,
+            locationName = locationName,
+            locationLat = locationLat,
+            locationLng = locationLng,
+            _geoloc = if (locationLat != null && locationLng != null) GeoLoc(
+                lat = locationLat,
+                lng = locationLng
+            ) else null,
+            labels = getLabels()
         )
     }
 }

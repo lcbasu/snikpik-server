@@ -4,6 +4,7 @@ algolia:
   application-id: ${ALGOLIA_APPLICATION_ID}
   api-key: ${ALGOLIA_API_KEY}
   post-index: ${ALGOLIA_POST_INDEX}
+  user-index: ${ALGOLIA_USER_INDEX}
   post-autosuggest-index: ${ALGOLIA_POST_AUTO_SUGGEST_INDEX}
 cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME}
