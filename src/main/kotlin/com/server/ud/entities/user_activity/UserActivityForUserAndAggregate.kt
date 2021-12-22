@@ -12,23 +12,23 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
 
-@Table("user_activities_by_user")
-class UserActivityByUser (
+@Table("user_activities_for_user_and_aggregate")
+class UserActivityForUserAndAggregate (
 
-    @PrimaryKeyColumn(name = "by_user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    var byUserId: String,
+    @PrimaryKeyColumn(name = "for_user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+    var forUserId: String,
 
-    @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
-    var createdAt: Instant = DateUtils.getInstantNow(),
-
-    @Column("user_aggregate_activity_type")
+    @PrimaryKeyColumn(name = "user_aggregate_activity_type", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
     var userAggregateActivityType: UserAggregateActivityType,
+
+    @PrimaryKeyColumn(name = "created_at", ordinal = 2, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
+    var createdAt: Instant = DateUtils.getInstantNow(),
 
     @Column("user_activity_type")
     var userActivityType: UserActivityType,
 
-    @Column("for_user_id")
-    var forUserId: String?,
+    @Column("by_user_id")
+    var byUserId: String,
 
     @Column("user_activity_id")
     var userActivityId: String,
@@ -37,13 +37,26 @@ class UserActivityByUser (
     var userActivityData: String, // String form of the data object
 )
 
-
-fun UserActivityByUser.getUserActivityData(): UserActivityData? {
+fun UserActivityForUserAndAggregate.getUserActivityData(): UserActivityData? {
     this.apply {
         return try {
             parseUserActivityData(userActivityData, userActivityType)
         } catch (e: Exception) {
             null
         }
+    }
+}
+
+fun UserActivityForUserAndAggregate.toUserActivityForUser(): UserActivityForUser {
+    this.apply {
+        return UserActivityForUser(
+            userActivityId = userActivityId,
+            userAggregateActivityType = userAggregateActivityType,
+            userActivityType = userActivityType,
+            createdAt = createdAt,
+            byUserId = byUserId,
+            userActivityData = userActivityData,
+            forUserId = forUserId,
+        )
     }
 }

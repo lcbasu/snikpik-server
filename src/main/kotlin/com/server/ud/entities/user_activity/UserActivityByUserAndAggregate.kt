@@ -12,17 +12,17 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
 
-@Table("user_activities_by_user")
-class UserActivityByUser (
+@Table("user_activities_by_user_and_aggregate")
+class UserActivityByUserAndAggregate (
 
     @PrimaryKeyColumn(name = "by_user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var byUserId: String,
 
-    @PrimaryKeyColumn(name = "created_at", ordinal = 1, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
-    var createdAt: Instant = DateUtils.getInstantNow(),
-
-    @Column("user_aggregate_activity_type")
+    @PrimaryKeyColumn(name = "user_aggregate_activity_type", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
     var userAggregateActivityType: UserAggregateActivityType,
+
+    @PrimaryKeyColumn(name = "created_at", ordinal = 2, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
+    var createdAt: Instant = DateUtils.getInstantNow(),
 
     @Column("user_activity_type")
     var userActivityType: UserActivityType,
@@ -37,13 +37,26 @@ class UserActivityByUser (
     var userActivityData: String, // String form of the data object
 )
 
-
-fun UserActivityByUser.getUserActivityData(): UserActivityData? {
+fun UserActivityByUserAndAggregate.getUserActivityData(): UserActivityData? {
     this.apply {
         return try {
             parseUserActivityData(userActivityData, userActivityType)
         } catch (e: Exception) {
             null
         }
+    }
+}
+
+fun UserActivityByUserAndAggregate.toUserActivityByUser(): UserActivityByUser {
+    this.apply {
+        return UserActivityByUser(
+            userActivityId = userActivityId,
+            userAggregateActivityType = userAggregateActivityType,
+            userActivityType = userActivityType,
+            createdAt = createdAt,
+            byUserId = byUserId,
+            userActivityData = userActivityData,
+            forUserId = forUserId,
+        )
     }
 }

@@ -3,9 +3,7 @@ package com.server.ud.provider.user_activity
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.RandomIdProvider
 import com.server.common.utils.DateUtils
-import com.server.ud.dao.user_activity.UserActivitiesByUserRepository
-import com.server.ud.dao.user_activity.UserActivitiesForUserRepository
-import com.server.ud.dao.user_activity.UserActivitiesRepository
+import com.server.ud.dao.user_activity.*
 import com.server.ud.dto.ByUserActivitiesFeedRequest
 import com.server.ud.dto.ForUserActivitiesFeedRequest
 import com.server.ud.entities.bookmark.Bookmark
@@ -46,7 +44,13 @@ class UserActivitiesProvider {
     private lateinit var userActivitiesForUserRepository: UserActivitiesForUserRepository
 
     @Autowired
+    private lateinit var userActivitiesForUserAndAggregateRepository: UserActivitiesForUserAndAggregateRepository
+
+    @Autowired
     private lateinit var userActivitiesByUserRepository: UserActivitiesByUserRepository
+
+    @Autowired
+    private lateinit var userActivitiesByUserAndAggregateRepository: UserActivitiesByUserAndAggregateRepository
 
     @Autowired
     private lateinit var randomIdProvider: RandomIdProvider
@@ -66,7 +70,8 @@ class UserActivitiesProvider {
     fun getActivitiesFeedForUser(request: ForUserActivitiesFeedRequest): CassandraPageV2<UserActivityForUser> {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
         val activities = request.userAggregateActivityType?.let {
-            userActivitiesForUserRepository.findAllByForUserIdAndUserAggregateActivityType(request.forUserId, request.userAggregateActivityType, pageRequest as Pageable)
+            userActivitiesForUserAndAggregateRepository.findAllByForUserIdAndUserAggregateActivityType(request.forUserId, request.userAggregateActivityType, pageRequest as Pageable)
+                .map { it.toUserActivityForUser() }
         } ?: userActivitiesForUserRepository.findAllByForUserId(request.forUserId, pageRequest as Pageable)
         return CassandraPageV2(activities)
     }
@@ -74,7 +79,8 @@ class UserActivitiesProvider {
     fun getActivitiesFeedByUser(request: ByUserActivitiesFeedRequest): CassandraPageV2<UserActivityByUser> {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
         val activities = request.userAggregateActivityType?.let {
-            userActivitiesByUserRepository.findAllByByUserIdAndUserAggregateActivityType(request.byUserId, request.userAggregateActivityType, pageRequest as Pageable)
+            userActivitiesByUserAndAggregateRepository.findAllByByUserIdAndUserAggregateActivityType(request.byUserId, request.userAggregateActivityType, pageRequest as Pageable)
+                .map { it.toUserActivityByUser() }
         } ?: userActivitiesByUserRepository.findAllByByUserId(request.byUserId, pageRequest as Pageable)
         return CassandraPageV2(activities)
     }
@@ -85,8 +91,14 @@ class UserActivitiesProvider {
             userActivity.getUserActivityByUser().let {
                 userActivitiesByUserRepository.save(it!!)
             }
+            userActivity.getUserActivityByUserAndAggregate().let {
+                userActivitiesByUserAndAggregateRepository.save(it!!)
+            }
             userActivity.getUserActivityForUser().let {
                 userActivitiesForUserRepository.save(it!!)
+            }
+            userActivity.getUserActivityForUserAndAggregate().let {
+                userActivitiesForUserAndAggregateRepository.save(it!!)
             }
         }
     }

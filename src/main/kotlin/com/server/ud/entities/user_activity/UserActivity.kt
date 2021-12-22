@@ -3,7 +3,8 @@ package com.server.ud.entities.user_activity
 import com.server.common.utils.DateUtils
 import com.server.ud.enums.UserActivityType
 import com.server.ud.enums.UserAggregateActivityType
-import com.server.ud.model.*
+import com.server.ud.model.UserActivityData
+import com.server.ud.model.parseUserActivityData
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
@@ -20,11 +21,11 @@ class UserActivity (
     @PrimaryKeyColumn(name = "user_aggregate_activity_type", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
     var userAggregateActivityType: UserAggregateActivityType,
 
-    @PrimaryKeyColumn(name = "user_activity_type", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
-    var userActivityType: UserActivityType,
-
-    @PrimaryKeyColumn(name = "created_at", ordinal = 3, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
+    @PrimaryKeyColumn(name = "created_at", ordinal = 2, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
     var createdAt: Instant = DateUtils.getInstantNow(),
+
+    @Column("user_activity_type")
+    var userActivityType: UserActivityType,
 
     @Column("by_user_id")
     var byUserId: String,
@@ -64,11 +65,49 @@ fun UserActivity.getUserActivityByUser(): UserActivityByUser? {
     }
 }
 
+fun UserActivity.getUserActivityByUserAndAggregate(): UserActivityByUserAndAggregate? {
+    this.apply {
+        return try {
+            return UserActivityByUserAndAggregate(
+                userActivityId = userActivityId,
+                userAggregateActivityType = userAggregateActivityType,
+                userActivityType = userActivityType,
+                createdAt = createdAt,
+                byUserId = byUserId,
+                userActivityData = userActivityData,
+                forUserId = forUserId,
+            )
+        } catch (e: Exception) {
+            null
+        }
+    }
+}
+
 fun UserActivity.getUserActivityForUser(): UserActivityForUser? {
     this.apply {
         return try {
             return forUserId?.let {
                 UserActivityForUser(
+                    userActivityId = userActivityId,
+                    userAggregateActivityType = userAggregateActivityType,
+                    userActivityType = userActivityType,
+                    createdAt = createdAt,
+                    byUserId = byUserId,
+                    userActivityData = userActivityData,
+                    forUserId = it,
+                )
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+}
+
+fun UserActivity.getUserActivityForUserAndAggregate(): UserActivityForUserAndAggregate? {
+    this.apply {
+        return try {
+            return forUserId?.let {
+                UserActivityForUserAndAggregate(
                     userActivityId = userActivityId,
                     userAggregateActivityType = userAggregateActivityType,
                     userActivityType = userActivityType,
