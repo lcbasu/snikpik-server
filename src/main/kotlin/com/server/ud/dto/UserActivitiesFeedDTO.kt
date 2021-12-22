@@ -1,15 +1,15 @@
 package com.server.ud.dto
 
 import com.server.common.model.MediaDetailsV2
+import com.server.common.model.getMediaDetails
 import com.server.common.utils.DateUtils
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getMediaDetailsForDP
 import com.server.ud.entities.user_activity.UserActivityByUser
 import com.server.ud.entities.user_activity.UserActivityForUser
-import com.server.ud.entities.user_activity.getUserActivityData
+import com.server.ud.enums.PostType
 import com.server.ud.enums.UserActivityType
 import com.server.ud.enums.UserAggregateActivityType
-import com.server.ud.model.UserActivityData
 
 data class ActivityByUserData (
     val userId: String,
@@ -23,9 +23,25 @@ data class UserActivityResponse (
     val userActivityType: UserActivityType,
     val createdAt: Long,
     val byUserId: String,
-    val userActivityData: UserActivityData,
     val forUserId: String?,
     val userActivityId: String,
+
+    val replyId: String? = null,
+    val replyUserId: String? = null,
+    val replyText: String? = null,
+    val replyMediaDetails: MediaDetailsV2? = null,
+
+    val commentId: String? = null,
+    val commentUserId: String? = null,
+    val commentText: String? = null,
+    val commentMediaDetails: MediaDetailsV2? = null,
+
+    val postId: String? = null,
+    val postType: PostType? = null,
+    val postUserId: String? = null,
+    val postMediaDetails: MediaDetailsV2? = null,
+    val postTitle: String? = null,
+    val postDescription: String? = null,
 )
 
 data class UserActivitiesFeedResponse (
@@ -55,17 +71,31 @@ data class ByUserActivitiesFeedRequest (
 fun UserActivityForUser.toUserActivityResponse(): UserActivityResponse? {
     this.apply {
         return try {
-            getUserActivityData()?.let {
-                UserActivityResponse(
-                    userAggregateActivityType = userAggregateActivityType,
-                    userActivityType = userActivityType,
-                    createdAt = DateUtils.getEpoch(createdAt),
-                    byUserId = byUserId,
-                    userActivityData = it,
-                    forUserId = forUserId,
-                    userActivityId = userActivityId,
-                )
-            }
+            UserActivityResponse(
+                userAggregateActivityType = userAggregateActivityType,
+                userActivityType = userActivityType,
+                createdAt = DateUtils.getEpoch(createdAt),
+                byUserId = byUserId,
+                forUserId = forUserId,
+                userActivityId = userActivityId,
+
+                replyId = replyId,
+                replyUserId = replyUserId,
+                replyText = replyText,
+                replyMediaDetails = getMediaDetails(replyMediaDetails),
+
+                commentId = commentId,
+                commentUserId = commentUserId,
+                commentText = commentText,
+                commentMediaDetails = getMediaDetails(commentMediaDetails),
+
+                postId = postId,
+                postType = postType,
+                postUserId = postUserId,
+                postMediaDetails = getMediaDetails(postMediaDetails),
+                postTitle = postTitle,
+                postDescription = postDescription,
+            )
         } catch (e: Exception) {
             null
         }
@@ -76,17 +106,32 @@ fun UserActivityForUser.toUserActivityResponse(): UserActivityResponse? {
 fun UserActivityByUser.toUserActivityResponse(): UserActivityResponse? {
     this.apply {
         return try {
-            getUserActivityData()?.let {
-                UserActivityResponse(
-                    userAggregateActivityType = userAggregateActivityType,
-                    userActivityType = userActivityType,
-                    createdAt = DateUtils.getEpoch(createdAt),
-                    byUserId = byUserId,
-                    userActivityData = it,
-                    forUserId = forUserId,
-                    userActivityId = userActivityId,
-                )
-            }
+            UserActivityResponse(
+                userAggregateActivityType = userAggregateActivityType,
+                userActivityType = userActivityType,
+                createdAt = DateUtils.getEpoch(createdAt),
+                byUserId = byUserId,
+                forUserId = forUserId,
+                userActivityId = userActivityId,
+
+
+                replyId = replyId,
+                replyUserId = replyUserId,
+                replyText = replyText,
+                replyMediaDetails = getMediaDetails(replyMediaDetails),
+
+                commentId = commentId,
+                commentUserId = commentUserId,
+                commentText = commentText,
+                commentMediaDetails = getMediaDetails(commentMediaDetails),
+
+                postId = postId,
+                postType = postType,
+                postUserId = postUserId,
+                postMediaDetails = getMediaDetails(postMediaDetails),
+                postTitle = postTitle,
+                postDescription = postDescription,
+            )
         } catch (e: Exception) {
             null
         }

@@ -68,7 +68,11 @@ class LikeProcessingProvider {
             val likesByResourceFuture = async { likesByResourceProvider.save(like) }
             val likesByUserFuture = async { likesByUserProvider.save(like) }
             val userActivityFuture = async {
-                userActivitiesProvider.saveLikeLevelActivity(like)
+                if (like.liked) {
+                    userActivitiesProvider.saveLikeLevelActivity(like)
+                } else {
+                    userActivitiesProvider.deleteLikeLevelActivity(like)
+                }
             }
             likedPostsByUserProviderFuture.await()
             likesByResourceFuture.await()

@@ -65,7 +65,11 @@ class BookmarkProcessingProvider {
             logger.info("Later:Start: bookmark processing for bookmarkId: $bookmarkId")
             val bookmark = bookmarksProvider.getBookmark(bookmarkId) ?: error("Failed to get bookmark data for bookmarkId: $bookmarkId")
             val userActivityFuture = async {
-                userActivitiesProvider.saveBookmarkLevelActivity(bookmark)
+                if (bookmark.bookmarked) {
+                    userActivitiesProvider.saveBookmarkLevelActivity(bookmark)
+                } else {
+                    userActivitiesProvider.deleteBookmarkLevelActivity(bookmark)
+                }
             }
             val bookmarkedPostsByUserProviderFuture = async { bookmarkedPostsByUserProvider.processBookmark(bookmark) }
             val bookmarksByResourceFuture = async { bookmarksByResourceProvider.save(bookmark) }

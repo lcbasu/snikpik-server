@@ -95,6 +95,15 @@ class SocialRelationProcessingProvider {
 
             } else {
                 // User has unfollowed the other user
+
+                val userActivityFuture = async {
+                    userActivitiesProvider.deleteUserLevelActivity(
+                        byUser = fromUser,
+                        forUser = toUser,
+                        userActivityType = UserActivityType.USER_FOLLOWED
+                    )
+                }
+
                 // Update followers count
                 val followersCountByUserFuture = async {
                     followersCountByUserProvider.decreaseFollowersCount(toUserId)
@@ -107,6 +116,7 @@ class SocialRelationProcessingProvider {
 
                 followersCountByUserFuture.await()
                 followingsCountByUserFuture.await()
+                userActivityFuture.await()
 
                 // TODO: Delete the data from followersByUserProvider & followingsByUserProvider
                 // Since we can not actually delete in cassandra, mark a flag in the table

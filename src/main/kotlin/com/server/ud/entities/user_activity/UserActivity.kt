@@ -1,10 +1,9 @@
 package com.server.ud.entities.user_activity
 
 import com.server.common.utils.DateUtils
+import com.server.ud.enums.PostType
 import com.server.ud.enums.UserActivityType
 import com.server.ud.enums.UserAggregateActivityType
-import com.server.ud.model.UserActivityData
-import com.server.ud.model.parseUserActivityData
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
@@ -30,22 +29,40 @@ class UserActivity (
     @Column("by_user_id")
     var byUserId: String,
 
-    @Column("user_activity_data")
-    var userActivityData: String, // String form of the data object
-
     @Column("for_user_id")
     var forUserId: String?,
-)
 
-fun UserActivity.getUserActivityData(): UserActivityData? {
-    this.apply {
-        return try {
-            parseUserActivityData(userActivityData, userActivityType)
-        } catch (e: Exception) {
-            null
-        }
-    }
-}
+    @Column("reply_id")
+    val replyId: String? = null,
+    @Column("reply_user_id")
+    val replyUserId: String? = null,
+    @Column("reply_text")
+    val replyText: String? = null,
+    @Column("reply_media_details")
+    val replyMediaDetails: String? = null,
+
+    @Column("comment_id")
+    val commentId: String? = null,
+    @Column("comment_user_id")
+    val commentUserId: String? = null,
+    @Column("comment_text")
+    val commentText: String? = null,
+    @Column("comment_media_details")
+    val commentMediaDetails: String? = null,
+
+    @Column("post_id")
+    val postId: String? = null,
+    @Column("post_type")
+    val postType: PostType? = null,
+    @Column("post_user_id")
+    val postUserId: String? = null,
+    @Column("post_media_details")
+    val postMediaDetails: String? = null,
+    @Column("post_title")
+    val postTitle: String? = null,
+    @Column("post_description")
+    val postDescription: String? = null,
+)
 
 fun UserActivity.getUserActivityByUser(): UserActivityByUser? {
     this.apply {
@@ -56,8 +73,24 @@ fun UserActivity.getUserActivityByUser(): UserActivityByUser? {
                 userActivityType = userActivityType,
                 createdAt = createdAt,
                 byUserId = byUserId,
-                userActivityData = userActivityData,
                 forUserId = forUserId,
+
+                replyId = replyId,
+                replyUserId = replyUserId,
+                replyText = replyText,
+                replyMediaDetails = replyMediaDetails,
+
+                commentId = commentId,
+                commentUserId = commentUserId,
+                commentText = commentText,
+                commentMediaDetails = commentMediaDetails,
+
+                postId = postId,
+                postType = postType,
+                postUserId = postUserId,
+                postMediaDetails = postMediaDetails,
+                postTitle = postTitle,
+                postDescription = postDescription,
             )
         } catch (e: Exception) {
             null
@@ -74,8 +107,24 @@ fun UserActivity.getUserActivityByUserAndAggregate(): UserActivityByUserAndAggre
                 userActivityType = userActivityType,
                 createdAt = createdAt,
                 byUserId = byUserId,
-                userActivityData = userActivityData,
                 forUserId = forUserId,
+
+                replyId = replyId,
+                replyUserId = replyUserId,
+                replyText = replyText,
+                replyMediaDetails = replyMediaDetails,
+
+                commentId = commentId,
+                commentUserId = commentUserId,
+                commentText = commentText,
+                commentMediaDetails = commentMediaDetails,
+
+                postId = postId,
+                postType = postType,
+                postUserId = postUserId,
+                postMediaDetails = postMediaDetails,
+                postTitle = postTitle,
+                postDescription = postDescription,
             )
         } catch (e: Exception) {
             null
@@ -93,8 +142,24 @@ fun UserActivity.getUserActivityForUser(): UserActivityForUser? {
                     userActivityType = userActivityType,
                     createdAt = createdAt,
                     byUserId = byUserId,
-                    userActivityData = userActivityData,
                     forUserId = it,
+
+                    replyId = replyId,
+                    replyUserId = replyUserId,
+                    replyText = replyText,
+                    replyMediaDetails = replyMediaDetails,
+
+                    commentId = commentId,
+                    commentUserId = commentUserId,
+                    commentText = commentText,
+                    commentMediaDetails = commentMediaDetails,
+
+                    postId = postId,
+                    postType = postType,
+                    postUserId = postUserId,
+                    postMediaDetails = postMediaDetails,
+                    postTitle = postTitle,
+                    postDescription = postDescription,
                 )
             }
         } catch (e: Exception) {
@@ -113,8 +178,24 @@ fun UserActivity.getUserActivityForUserAndAggregate(): UserActivityForUserAndAgg
                     userActivityType = userActivityType,
                     createdAt = createdAt,
                     byUserId = byUserId,
-                    userActivityData = userActivityData,
                     forUserId = it,
+
+                    replyId = replyId,
+                    replyUserId = replyUserId,
+                    replyText = replyText,
+                    replyMediaDetails = replyMediaDetails,
+
+                    commentId = commentId,
+                    commentUserId = commentUserId,
+                    commentText = commentText,
+                    commentMediaDetails = commentMediaDetails,
+
+                    postId = postId,
+                    postType = postType,
+                    postUserId = postUserId,
+                    postMediaDetails = postMediaDetails,
+                    postTitle = postTitle,
+                    postDescription = postDescription,
                 )
             }
         } catch (e: Exception) {

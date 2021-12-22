@@ -17,7 +17,6 @@ import com.server.ud.enums.PostType
 import com.server.ud.enums.ResourceType
 import com.server.ud.enums.UserActivityType
 import com.server.ud.enums.toUserAggregateActivityType
-import com.server.ud.model.*
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.comment.CommentProvider
 import com.server.ud.provider.post.PostProvider
@@ -67,82 +66,9 @@ class UserActivitiesProvider {
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
 
-    fun getActivitiesFeedForUser(request: ForUserActivitiesFeedRequest): CassandraPageV2<UserActivityForUser> {
-        val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
-        val activities = request.userAggregateActivityType?.let {
-            userActivitiesForUserAndAggregateRepository.findAllByForUserIdAndUserAggregateActivityType(request.forUserId, request.userAggregateActivityType, pageRequest as Pageable)
-                .map { it.toUserActivityForUser() }
-        } ?: userActivitiesForUserRepository.findAllByForUserId(request.forUserId, pageRequest as Pageable)
-        return CassandraPageV2(activities)
-    }
-
-    fun getActivitiesFeedByUser(request: ByUserActivitiesFeedRequest): CassandraPageV2<UserActivityByUser> {
-        val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
-        val activities = request.userAggregateActivityType?.let {
-            userActivitiesByUserAndAggregateRepository.findAllByByUserIdAndUserAggregateActivityType(request.byUserId, request.userAggregateActivityType, pageRequest as Pageable)
-                .map { it.toUserActivityByUser() }
-        } ?: userActivitiesByUserRepository.findAllByByUserId(request.byUserId, pageRequest as Pageable)
-        return CassandraPageV2(activities)
-    }
-
-    private fun asyncSaveUserActivity(userActivity: UserActivity) {
-        GlobalScope.launch {
-            userActivitiesRepository.save(userActivity)
-            userActivity.getUserActivityByUser().let {
-                userActivitiesByUserRepository.save(it!!)
-            }
-            userActivity.getUserActivityByUserAndAggregate().let {
-                userActivitiesByUserAndAggregateRepository.save(it!!)
-            }
-            userActivity.getUserActivityForUser().let {
-                userActivitiesForUserRepository.save(it!!)
-            }
-            userActivity.getUserActivityForUserAndAggregate().let {
-                userActivitiesForUserAndAggregateRepository.save(it!!)
-            }
-        }
-    }
-
     fun savePostCreationActivity(post: Post) {
         val userActivityType = if (post.postType == PostType.GENERIC_POST) UserActivityType.POST_CREATED else UserActivityType.WALL_CREATED
         savePostActivity(post.userId, null, post, userActivityType)
-    }
-
-    private fun savePostActivity(byUserId: String, forUserId: String?, post: Post, userActivityType: UserActivityType) {
-        try {
-            val data = when (userActivityType) {
-                UserActivityType.POST_CREATED,
-                UserActivityType.POST_LIKED,
-                UserActivityType.POST_SAVED,
-                UserActivityType.POST_SHARED,
-                UserActivityType.WALL_CREATED,
-                UserActivityType.WALL_LIKED,
-                UserActivityType.WALL_SAVED,
-                UserActivityType.WALL_SHARED -> PostLevelUserActivity(
-                    activityByUserId = post.userId,
-                    postId = post.postId,
-                    postType = post.postType,
-                    postUserId = post.userId,
-                    mediaDetails = post.media,
-                    title = post.title,
-                    description = post.description,
-                    userActivityType = userActivityType,
-                )
-                else -> error("Incorrect User Activity Method called for postId: ${post.postId} for userActivityType: $userActivityType")
-            }
-            asyncSaveUserActivity(UserActivity(
-                userActivityId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.UAT),
-                createdAt = DateUtils.getInstantNow(),
-                userAggregateActivityType = userActivityType.toUserAggregateActivityType(),
-                userActivityType = userActivityType,
-                byUserId = byUserId,
-                forUserId = forUserId,
-                userActivityData = data.convertToString(),
-            ))
-        } catch (e: Exception) {
-            logger.error("Saving UserActivity for postId: ${post.postId} for userActivityType: $userActivityType failed.")
-            e.printStackTrace()
-        }
     }
 
     fun saveCommentCreationActivity(comment: Comment) {
@@ -152,45 +78,6 @@ class UserActivitiesProvider {
             saveCommentActivity(comment.userId, post.userId, post, comment, userActivityType)
         } catch (e: Exception) {
             logger.error("Error while getting post with postId: ${comment.postId}")
-            e.printStackTrace()
-        }
-    }
-
-    private fun saveCommentActivity(byUserId: String, forUserId: String?, post: Post, comment: Comment, userActivityType: UserActivityType) {
-        try {
-            val data = when (userActivityType) {
-                UserActivityType.COMMENTED_ON_POST,
-                UserActivityType.POST_COMMENT_LIKED,
-                UserActivityType.COMMENTED_ON_WALL,
-                UserActivityType.WALL_COMMENT_LIKED -> CommentLevelUserActivity(
-                    activityByUserId = comment.userId,
-
-                    commentId = comment.commentId,
-                    commentUserId = comment.userId,
-                    commentText = comment.text,
-                    commentMediaDetails = comment.media,
-
-                    postId = post.postId,
-                    postType = post.postType,
-                    postUserId = post.userId,
-                    postMediaDetails = post.media,
-                    postTitle = post.title,
-                    postDescription = post.description,
-                    userActivityType = userActivityType,
-                )
-                else -> error("Incorrect User Activity Method called for postId: ${post.postId}, commentId: ${comment.commentId} for userActivityType: $userActivityType")
-            }
-            asyncSaveUserActivity(UserActivity(
-                userActivityId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.UAT),
-                createdAt = DateUtils.getInstantNow(),
-                userAggregateActivityType = userActivityType.toUserAggregateActivityType(),
-                userActivityType = userActivityType,
-                byUserId = byUserId,
-                forUserId = forUserId,
-                userActivityData = data.convertToString(),
-            ))
-        } catch (e: Exception) {
-            logger.error("Saving UserActivity for postId: ${post.postId}, commentId: ${comment.commentId} for userActivityType: $userActivityType failed.")
             e.printStackTrace()
         }
     }
@@ -207,77 +94,82 @@ class UserActivitiesProvider {
         }
     }
 
-    private fun saveReplyActivity(byUserId: String, forUserId: String?, post: Post, comment: Comment, reply: Reply, userActivityType: UserActivityType) {
-        try {
-            val data = when (userActivityType) {
-                UserActivityType.REPLIED_TO_POST_COMMENT,
-                UserActivityType.POST_COMMENT_REPLY_LIKED,
-                UserActivityType.REPLIED_TO_WALL_COMMENT,
-                UserActivityType.WALL_COMMENT_REPLY_LIKED -> ReplyLevelUserActivity(
-                    activityByUserId = reply.userId,
-
-                    replyId = reply.replyId,
-                    replyUserId = reply.userId,
-                    replyText = reply.text,
-                    replyMediaDetails = reply.media,
-
-                    commentId = comment.commentId,
-                    commentUserId = comment.userId,
-                    commentText = comment.text,
-                    commentMediaDetails = comment.media,
-
-                    postId = post.postId,
-                    postType = post.postType,
-                    postUserId = post.userId,
-                    postMediaDetails = post.media,
-                    postTitle = post.title,
-                    postDescription = post.description,
-                    userActivityType = userActivityType,
-                )
-                else -> error("Incorrect User Activity Method called for postId: ${post.postId}, commentId: ${comment.commentId}, replyId: ${reply.replyId} for userActivityType: $userActivityType")
-            }
-            asyncSaveUserActivity(UserActivity(
-                userActivityId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.UAT),
-                createdAt = DateUtils.getInstantNow(),
-                userAggregateActivityType = userActivityType.toUserAggregateActivityType(),
-                userActivityType = userActivityType,
-                byUserId = byUserId,
-                forUserId = forUserId,
-                userActivityData = data.convertToString(),
-            ))
-        } catch (e: Exception) {
-            logger.error("Saving UserActivity for postId: ${post.postId}, commentId: ${comment.commentId}, replyId: ${reply.replyId} for userActivityType: $userActivityType failed.")
-            e.printStackTrace()
-        }
-    }
-
     fun saveUserLevelActivity(byUser: UserV2, forUser: UserV2, userActivityType: UserActivityType) {
         try {
-            val data = when (userActivityType) {
+            val activity = when (userActivityType) {
                 UserActivityType.USER_FOLLOWED,
                 UserActivityType.USER_CLICKED_CONNECT,
-                UserActivityType.USER_PROFILE_SHARED -> UserLevelUserActivity(
-                    activityByUserId = byUser.userId,
-                    forUserId = forUser.userId,
+                UserActivityType.USER_PROFILE_SHARED -> UserActivity(
+                    userActivityId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.UAT),
+                    createdAt = DateUtils.getInstantNow(),
+                    userAggregateActivityType = userActivityType.toUserAggregateActivityType(),
                     userActivityType = userActivityType,
+                    byUserId = byUser.userId,
+                    forUserId = forUser.userId,
                 )
                 else -> error("Incorrect User Activity Method called for byUserId: ${byUser.userId}, forUserId: ${forUser.userId} for userActivityType: $userActivityType")
             }
-            asyncSaveUserActivity(UserActivity(
-                userActivityId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.UAT),
-                createdAt = DateUtils.getInstantNow(),
-                userAggregateActivityType = userActivityType.toUserAggregateActivityType(),
-                userActivityType = userActivityType,
-                byUserId = byUser.userId,
-                forUserId = forUser.userId,
-                userActivityData = data.convertToString(),
-            ))
+            asyncSaveUserActivity(activity)
         } catch (e: Exception) {
             logger.error("Saving UserActivity byUserId: ${byUser.userId}, forUserId: ${forUser.userId} for userActivityType: $userActivityType failed.")
             e.printStackTrace()
         }
     }
 
+    fun deleteUserLevelActivity(byUser: UserV2, forUser: UserV2, userActivityType: UserActivityType) {
+        try {
+            when (userActivityType) {
+                UserActivityType.USER_FOLLOWED,
+                UserActivityType.USER_CLICKED_CONNECT,
+                UserActivityType.USER_PROFILE_SHARED -> {
+
+                    userActivitiesRepository.deleteAll(
+                        userActivitiesRepository.findAllByByUserIdAndForUserIdAndUserActivityType(
+                            byUser.userId,
+                            forUser.userId,
+                            userActivityType,
+                        )
+                    )
+
+                    userActivitiesByUserRepository.deleteAll(
+                        userActivitiesByUserRepository.findAllByByUserIdAndForUserIdAndUserActivityType(
+                            byUser.userId,
+                            forUser.userId,
+                            userActivityType,
+                        )
+                    )
+
+                    userActivitiesByUserAndAggregateRepository.deleteAll(
+                        userActivitiesByUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityType(
+                            byUser.userId,
+                            forUser.userId,
+                            userActivityType,
+                        )
+                    )
+
+                    userActivitiesForUserRepository.deleteAll(
+                        userActivitiesForUserRepository.findAllByByUserIdAndForUserIdAndUserActivityType(
+                            byUser.userId,
+                            forUser.userId,
+                            userActivityType,
+                        )
+                    )
+
+                    userActivitiesForUserAndAggregateRepository.deleteAll(
+                        userActivitiesForUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityType(
+                            byUser.userId,
+                            forUser.userId,
+                            userActivityType,
+                        )
+                    )
+                }
+                else -> error("Incorrect User Activity Method called for byUserId: ${byUser.userId}, forUserId: ${forUser.userId} for userActivityType: $userActivityType")
+            }
+        } catch (e: Exception) {
+            logger.error("Saving UserActivity byUserId: ${byUser.userId}, forUserId: ${forUser.userId} for userActivityType: $userActivityType failed.")
+            e.printStackTrace()
+        }
+    }
 
     fun saveLikeLevelActivity(like: Like) {
         GlobalScope.launch {
@@ -329,6 +221,187 @@ class UserActivitiesProvider {
         }
     }
 
+    fun deleteLikeLevelActivity(like: Like) {
+        GlobalScope.launch {
+            logger.info("Later:Start: User Activity Like processing for likeId: ${like.likeId}")
+            val userActivityFuture = async {
+                when (like.resourceType) {
+                    ResourceType.POST,
+                    ResourceType.WALL -> {
+                        val post = postProvider.getPost(like.resourceId) ?: error("Failed to get post data for postId: ${like.resourceId}")
+                        val activityType = if (post.postType == PostType.GENERIC_POST) UserActivityType.POST_LIKED else UserActivityType.WALL_LIKED
+                        userActivitiesRepository.deleteAll(
+                            userActivitiesRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
+                                like.userId,
+                                post.userId,
+                                activityType,
+                                post.postId
+                            )
+                        )
+
+                        userActivitiesByUserRepository.deleteAll(
+                            userActivitiesByUserRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
+                                like.userId,
+                                post.userId,
+                                activityType,
+                                post.postId
+                            )
+                        )
+
+                        userActivitiesByUserAndAggregateRepository.deleteAll(
+                            userActivitiesByUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
+                                like.userId,
+                                post.userId,
+                                activityType,
+                                post.postId
+                            )
+                        )
+
+                        userActivitiesForUserRepository.deleteAll(
+                            userActivitiesForUserRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
+                                like.userId,
+                                post.userId,
+                                activityType,
+                                post.postId
+                            )
+                        )
+
+                        userActivitiesForUserAndAggregateRepository.deleteAll(
+                            userActivitiesForUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
+                                like.userId,
+                                post.userId,
+                                activityType,
+                                post.postId
+                            )
+                        )
+                    }
+
+                    ResourceType.POST_COMMENT,
+                    ResourceType.WALL_COMMENT -> {
+                        val comment = commentProvider.getComment(like.resourceId) ?: error("Failed to get comment data for commentId: ${like.resourceId}")
+                        val post = postProvider.getPost(comment.postId) ?: error("Failed to get post data for postId: ${comment.postId}")
+                        val activityType = if (post.postType == PostType.GENERIC_POST) UserActivityType.POST_COMMENT_LIKED else UserActivityType.WALL_COMMENT_LIKED
+
+                        userActivitiesRepository.deleteAll(
+                            userActivitiesRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentId(
+                                like.userId,
+                                post.userId,
+                                activityType,
+                                post.postId,
+                                comment.commentId
+                            )
+                        )
+
+                        userActivitiesByUserRepository.deleteAll(
+                            userActivitiesByUserRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentId(
+                                like.userId,
+                                post.userId,
+                                activityType,
+                                post.postId,
+                                comment.commentId
+                            )
+                        )
+
+                        userActivitiesByUserAndAggregateRepository.deleteAll(
+                            userActivitiesByUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentId(
+                                like.userId,
+                                post.userId,
+                                activityType,
+                                post.postId,
+                                comment.commentId
+                            )
+                        )
+
+                        userActivitiesForUserRepository.deleteAll(
+                            userActivitiesForUserRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentId(
+                                like.userId,
+                                post.userId,
+                                activityType,
+                                post.postId,
+                                comment.commentId
+                            )
+                        )
+
+                        userActivitiesForUserAndAggregateRepository.deleteAll(
+                            userActivitiesForUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentId(
+                                like.userId,
+                                post.userId,
+                                activityType,
+                                post.postId,
+                                comment.commentId
+                            )
+                        )
+                    }
+
+                    ResourceType.POST_COMMENT_REPLY,
+                    ResourceType.WALL_COMMENT_REPLY -> {
+                        val reply = replyProvider.getCommentReply(like.resourceId) ?: error("Failed to get reply data for replyId: ${like.resourceId}")
+                        val comment = commentProvider.getComment(reply.commentId) ?: error("Failed to get comment data for commentId: ${reply.commentId}")
+                        val post = postProvider.getPost(comment.postId) ?: error("Failed to get post data for postId: ${reply.postId}")
+                        val activityType = if (post.postType == PostType.GENERIC_POST) UserActivityType.POST_COMMENT_REPLY_LIKED else UserActivityType.WALL_COMMENT_REPLY_LIKED
+
+                        userActivitiesRepository.deleteAll(
+                            userActivitiesRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentIdAndReplyId(
+                                like.userId,
+                                post.userId,
+                                activityType,
+                                post.postId,
+                                comment.commentId,
+                                reply.replyId
+                            )
+                        )
+
+                        userActivitiesByUserRepository.deleteAll(
+                            userActivitiesByUserRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentIdAndReplyId(
+                                like.userId,
+                                post.userId,
+                                activityType,
+                                post.postId,
+                                comment.commentId,
+                                reply.replyId
+                            )
+                        )
+
+                        userActivitiesByUserAndAggregateRepository.deleteAll(
+                            userActivitiesByUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentIdAndReplyId(
+                                like.userId,
+                                post.userId,
+                                activityType,
+                                post.postId,
+                                comment.commentId,
+                                reply.replyId
+                            )
+                        )
+
+                        userActivitiesForUserRepository.deleteAll(
+                            userActivitiesForUserRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentIdAndReplyId(
+                                like.userId,
+                                post.userId,
+                                activityType,
+                                post.postId,
+                                comment.commentId,
+                                reply.replyId
+                            )
+                        )
+
+                        userActivitiesForUserAndAggregateRepository.deleteAll(
+                            userActivitiesForUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentIdAndReplyId(
+                                like.userId,
+                                post.userId,
+                                activityType,
+                                post.postId,
+                                comment.commentId,
+                                reply.replyId
+                            )
+                        )
+                    }
+                }
+            }
+            userActivityFuture.await()
+            logger.info("Later:Done: User Activity Like processing for likeId: ${like.likeId}")
+        }
+    }
+
     fun saveBookmarkLevelActivity(bookmark: Bookmark) {
         GlobalScope.launch {
             logger.info("Later:Start: User Activity Bookmark processing for bookmarkId: ${bookmark.bookmarkId}")
@@ -349,6 +422,215 @@ class UserActivitiesProvider {
             }
             userActivityFuture.await()
             logger.info("Later:Done: User Activity Bookmark processing for bookmarkId: ${bookmark.bookmarkId}")
+        }
+    }
+
+    fun deleteBookmarkLevelActivity(bookmark: Bookmark) {
+        GlobalScope.launch {
+            logger.info("Later:Start: User Activity Bookmark processing for bookmarkId: ${bookmark.bookmarkId}")
+            try {
+                when (bookmark.resourceType) {
+                    ResourceType.POST,
+                    ResourceType.WALL -> {
+                        val post = postProvider.getPost(bookmark.resourceId) ?: error("Failed to get post data for postId: ${bookmark.resourceId}")
+                        val activityType = if (post.postType == PostType.GENERIC_POST) UserActivityType.POST_SAVED else UserActivityType.WALL_SAVED
+                        userActivitiesRepository.deleteAll(
+                            userActivitiesRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
+                                bookmark.userId,
+                                post.userId,
+                                activityType,
+                                post.postId
+                            )
+                        )
+
+                        userActivitiesByUserRepository.deleteAll(
+                            userActivitiesByUserRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
+                                bookmark.userId,
+                                post.userId,
+                                activityType,
+                                post.postId
+                            )
+                        )
+
+                        userActivitiesByUserAndAggregateRepository.deleteAll(
+                            userActivitiesByUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
+                                bookmark.userId,
+                                post.userId,
+                                activityType,
+                                post.postId
+                            )
+                        )
+
+                        userActivitiesForUserRepository.deleteAll(
+                            userActivitiesForUserRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
+                                bookmark.userId,
+                                post.userId,
+                                activityType,
+                                post.postId
+                            )
+                        )
+
+                        userActivitiesForUserAndAggregateRepository.deleteAll(
+                            userActivitiesForUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
+                                bookmark.userId,
+                                post.userId,
+                                activityType,
+                                post.postId
+                            )
+                        )
+                    }
+                    else -> error("Incorrect User Activity Method called for bookmarkId: ${bookmark.bookmarkId}, resourceType: ${bookmark.resourceType}")
+                }
+            } catch (e: Exception) {
+                logger.error("Incorrect User Activity Method called for bookmarkId: ${bookmark.bookmarkId}, resourceType: ${bookmark.resourceType}")
+                e.printStackTrace()
+            }
+
+            logger.info("Later:Done: User Activity Bookmark processing for bookmarkId: ${bookmark.bookmarkId}")
+        }
+    }
+
+    fun getActivitiesFeedForUser(request: ForUserActivitiesFeedRequest): CassandraPageV2<UserActivityForUser> {
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
+        val activities = request.userAggregateActivityType?.let {
+            userActivitiesForUserAndAggregateRepository.findAllByForUserIdAndUserAggregateActivityType(request.forUserId, request.userAggregateActivityType, pageRequest as Pageable)
+                .map { it.toUserActivityForUser() }
+        } ?: userActivitiesForUserRepository.findAllByForUserId(request.forUserId, pageRequest as Pageable)
+        return CassandraPageV2(activities)
+    }
+
+    fun getActivitiesFeedByUser(request: ByUserActivitiesFeedRequest): CassandraPageV2<UserActivityByUser> {
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
+        val activities = request.userAggregateActivityType?.let {
+            userActivitiesByUserAndAggregateRepository.findAllByByUserIdAndUserAggregateActivityType(request.byUserId, request.userAggregateActivityType, pageRequest as Pageable)
+                .map { it.toUserActivityByUser() }
+        } ?: userActivitiesByUserRepository.findAllByByUserId(request.byUserId, pageRequest as Pageable)
+        return CassandraPageV2(activities)
+    }
+
+    private fun asyncSaveUserActivity(userActivity: UserActivity) {
+        GlobalScope.launch {
+            userActivitiesRepository.save(userActivity)
+            userActivity.getUserActivityByUser().let {
+                userActivitiesByUserRepository.save(it!!)
+            }
+            userActivity.getUserActivityByUserAndAggregate().let {
+                userActivitiesByUserAndAggregateRepository.save(it!!)
+            }
+            userActivity.getUserActivityForUser().let {
+                userActivitiesForUserRepository.save(it!!)
+            }
+            userActivity.getUserActivityForUserAndAggregate().let {
+                userActivitiesForUserAndAggregateRepository.save(it!!)
+            }
+        }
+    }
+
+    private fun savePostActivity(byUserId: String, forUserId: String?, post: Post, userActivityType: UserActivityType) {
+        try {
+            val activity = when (userActivityType) {
+                UserActivityType.POST_CREATED,
+                UserActivityType.POST_LIKED,
+                UserActivityType.POST_SAVED,
+                UserActivityType.POST_SHARED,
+                UserActivityType.WALL_CREATED,
+                UserActivityType.WALL_LIKED,
+                UserActivityType.WALL_SAVED,
+                UserActivityType.WALL_SHARED -> UserActivity(
+                    userActivityId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.UAT),
+                    createdAt = DateUtils.getInstantNow(),
+                    userAggregateActivityType = userActivityType.toUserAggregateActivityType(),
+                    userActivityType = userActivityType,
+                    byUserId = byUserId,
+                    forUserId = forUserId,
+                    postId = post.postId,
+                    postType = post.postType,
+                    postUserId = post.userId,
+                    postMediaDetails = post.media,
+                    postTitle = post.title,
+                    postDescription = post.description,
+                )
+                else -> error("Incorrect User Activity Method called for postId: ${post.postId} for userActivityType: $userActivityType")
+            }
+            asyncSaveUserActivity(activity)
+        } catch (e: Exception) {
+            logger.error("Saving UserActivity for postId: ${post.postId} for userActivityType: $userActivityType failed.")
+            e.printStackTrace()
+        }
+    }
+
+    private fun saveReplyActivity(byUserId: String, forUserId: String?, post: Post, comment: Comment, reply: Reply, userActivityType: UserActivityType) {
+        try {
+            val activity = when (userActivityType) {
+                UserActivityType.REPLIED_TO_POST_COMMENT,
+                UserActivityType.POST_COMMENT_REPLY_LIKED,
+                UserActivityType.REPLIED_TO_WALL_COMMENT,
+                UserActivityType.WALL_COMMENT_REPLY_LIKED -> UserActivity(
+                    userActivityId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.UAT),
+                    createdAt = DateUtils.getInstantNow(),
+                    userAggregateActivityType = userActivityType.toUserAggregateActivityType(),
+                    userActivityType = userActivityType,
+                    byUserId = byUserId,
+                    forUserId = forUserId,
+
+                    replyId = reply.replyId,
+                    replyUserId = reply.userId,
+                    replyText = reply.text,
+                    replyMediaDetails = reply.media,
+
+                    commentId = comment.commentId,
+                    commentUserId = comment.userId,
+                    commentText = comment.text,
+                    commentMediaDetails = comment.media,
+
+                    postId = post.postId,
+                    postType = post.postType,
+                    postUserId = post.userId,
+                    postMediaDetails = post.media,
+                    postTitle = post.title,
+                    postDescription = post.description,
+                )
+                else -> error("Incorrect User Activity Method called for postId: ${post.postId}, commentId: ${comment.commentId}, replyId: ${reply.replyId} for userActivityType: $userActivityType")
+            }
+            asyncSaveUserActivity(activity)
+        } catch (e: Exception) {
+            logger.error("Saving UserActivity for postId: ${post.postId}, commentId: ${comment.commentId}, replyId: ${reply.replyId} for userActivityType: $userActivityType failed.")
+            e.printStackTrace()
+        }
+    }
+
+    private fun saveCommentActivity(byUserId: String, forUserId: String?, post: Post, comment: Comment, userActivityType: UserActivityType) {
+        try {
+            val activity = when (userActivityType) {
+                UserActivityType.COMMENTED_ON_POST,
+                UserActivityType.POST_COMMENT_LIKED,
+                UserActivityType.COMMENTED_ON_WALL,
+                UserActivityType.WALL_COMMENT_LIKED -> UserActivity(
+                    userActivityId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.UAT),
+                    createdAt = DateUtils.getInstantNow(),
+                    userAggregateActivityType = userActivityType.toUserAggregateActivityType(),
+                    userActivityType = userActivityType,
+                    byUserId = byUserId,
+                    forUserId = forUserId,
+
+                    commentId = comment.commentId,
+                    commentUserId = comment.userId,
+                    commentText = comment.text,
+                    commentMediaDetails = comment.media,
+
+                    postId = post.postId,
+                    postType = post.postType,
+                    postUserId = post.userId,
+                    postMediaDetails = post.media,
+                    postTitle = post.title,
+                    postDescription = post.description,
+                )
+                else -> error("Incorrect User Activity Method called for postId: ${post.postId}, commentId: ${comment.commentId} for userActivityType: $userActivityType")
+            }
+            asyncSaveUserActivity(activity)
+        } catch (e: Exception) {
+            logger.error("Saving UserActivity for postId: ${post.postId}, commentId: ${comment.commentId} for userActivityType: $userActivityType failed.")
+            e.printStackTrace()
         }
     }
 

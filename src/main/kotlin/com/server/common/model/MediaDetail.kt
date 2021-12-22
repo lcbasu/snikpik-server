@@ -35,6 +35,14 @@ data class MediaDetailsV2(
     val media: List<SingleMediaDetail> = emptyList()
 )
 
+fun getMediaDetails(mediaStr: String?): MediaDetailsV2 {
+    return try {
+        jacksonObjectMapper().readValue(mediaStr, MediaDetailsV2::class.java)
+    } catch (e: Exception) {
+        MediaDetailsV2(emptyList())
+    }
+}
+
 val sampleVideoMedia = listOf(
     MediaDetailsV2(listOf(
         SingleMediaDetail(
