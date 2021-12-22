@@ -29,4 +29,5 @@ abstract class UserV2Service {
     abstract fun updateUserV2PreferredCategories(request: UpdateUserV2PreferredCategoriesRequest): SavedUserV2Response?
     abstract fun getProfileTypesByProfileCategory(profileCategory: ProfileCategory): AllProfileTypeResponse?
     abstract fun getAllProfileTypes(): AllProfileTypeResponse?
+    abstract fun getActivityByUserData(userId: String): ActivityByUserData?
 }

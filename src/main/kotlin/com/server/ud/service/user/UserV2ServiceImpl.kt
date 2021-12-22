@@ -80,6 +80,10 @@ class UserV2ServiceImpl : UserV2Service() {
         return userV2Provider.getUser(userId)?.toProfilePageUserDetailsResponse()
     }
 
+    override fun getActivityByUserData(userId: String): ActivityByUserData? {
+        return userV2Provider.getUser(userId)?.toActivityByUserData()
+    }
+
     override fun getLikedPostsByUser(request: LikedPostsByUserRequest): LikedPostsByUserResponse {
         val result = likedPostsByUserProvider.getLikedPostsByUser(request)
         return LikedPostsByUserResponse(

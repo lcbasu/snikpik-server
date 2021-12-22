@@ -1,6 +1,9 @@
 package com.server.ud.dto
 
+import com.server.common.model.MediaDetailsV2
 import com.server.common.utils.DateUtils
+import com.server.ud.entities.user.UserV2
+import com.server.ud.entities.user.getMediaDetailsForDP
 import com.server.ud.entities.user_activity.UserActivityByUser
 import com.server.ud.entities.user_activity.UserActivityForUser
 import com.server.ud.entities.user_activity.getUserActivityData
@@ -8,14 +11,21 @@ import com.server.ud.enums.UserActivityType
 import com.server.ud.enums.UserAggregateActivityType
 import com.server.ud.model.UserActivityData
 
+data class ActivityByUserData (
+    val userId: String,
+    val name: String?,
+    val handle: String?,
+    val dp: MediaDetailsV2?,
+)
+
 data class UserActivityResponse (
-    var userAggregateActivityType: UserAggregateActivityType,
-    var userActivityType: UserActivityType,
-    var createdAt: Long,
-    var byUserId: String,
-    var userActivityData: UserActivityData,
-    var forUserId: String?,
-    var userActivityId: String,
+    val userAggregateActivityType: UserAggregateActivityType,
+    val userActivityType: UserActivityType,
+    val createdAt: Long,
+    val byUserId: String,
+    val userActivityData: UserActivityData,
+    val forUserId: String?,
+    val userActivityId: String,
 )
 
 data class UserActivitiesFeedResponse (
@@ -77,6 +87,21 @@ fun UserActivityByUser.toUserActivityResponse(): UserActivityResponse? {
                     userActivityId = userActivityId,
                 )
             }
+        } catch (e: Exception) {
+            null
+        }
+    }
+}
+
+fun UserV2.toActivityByUserData(): ActivityByUserData? {
+    this.apply {
+        return try {
+            ActivityByUserData(
+                userId = userId,
+                name = fullName,
+                handle = handle,
+                dp = getMediaDetailsForDP(),
+            )
         } catch (e: Exception) {
             null
         }
