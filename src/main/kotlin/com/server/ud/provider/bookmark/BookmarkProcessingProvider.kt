@@ -3,6 +3,7 @@ package com.server.ud.provider.bookmark
 import com.server.ud.dao.bookmark.*
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.provider.post.BookmarkedPostsByUserProvider
+import com.server.ud.provider.user_activity.UserActivitiesProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -56,11 +57,16 @@ class BookmarkProcessingProvider {
     @Autowired
     private lateinit var bookmarksCountByUserRepository: BookmarksCountByUserRepository
 
+    @Autowired
+    private lateinit var userActivitiesProvider: UserActivitiesProvider
+
     fun processBookmark(bookmarkId: String) {
         GlobalScope.launch {
             logger.info("Later:Start: bookmark processing for bookmarkId: $bookmarkId")
             val bookmark = bookmarksProvider.getBookmark(bookmarkId) ?: error("Failed to get bookmark data for bookmarkId: $bookmarkId")
-
+            val userActivityFuture = async {
+                userActivitiesProvider.saveBookmarkLevelActivity(bookmark)
+            }
             val bookmarkedPostsByUserProviderFuture = async { bookmarkedPostsByUserProvider.processBookmark(bookmark) }
             val bookmarksByResourceFuture = async { bookmarksByResourceProvider.save(bookmark) }
             val bookmarksByUserFuture = async { bookmarksByUserProvider.save(bookmark) }
@@ -68,6 +74,7 @@ class BookmarkProcessingProvider {
             bookmarksByResourceFuture.await()
             bookmarksByUserFuture.await()
             bookmarkedPostsByUserProviderFuture.await()
+            userActivityFuture.await()
             logger.info("Later:Done: bookmark processing for bookmarkId: $bookmarkId")
         }
     }

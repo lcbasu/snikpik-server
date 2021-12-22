@@ -13,6 +13,7 @@ import com.server.ud.provider.location.LocationProcessingProvider
 import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
 import com.server.ud.provider.search.SearchProvider
 import com.server.ud.provider.social.FollowersByUserProvider
+import com.server.ud.provider.user_activity.UserActivitiesProvider
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -76,6 +77,9 @@ class PostProcessingProvider {
     private lateinit var searchProvider: SearchProvider
 
     @Autowired
+    private lateinit var userActivityProvider: UserActivitiesProvider
+
+    @Autowired
     private lateinit var mediaHandlerProvider: MediaHandlerProvider
 
     @Autowired
@@ -124,6 +128,11 @@ class PostProcessingProvider {
         GlobalScope.launch {
             logger.info("Start: post processing for postId: $postId")
             val post = postProvider.getPost(postId) ?: error("No post found for $postId while doing post processing.")
+
+            val userActivityFuture = async {
+                userActivityProvider.savePostCreationActivity(post)
+            }
+
             val labels = mediaHandlerProvider.getLabelsForMedia(post.getMediaDetails())
 
             val updatedPost = if (labels.isNotEmpty()) {
@@ -187,6 +196,7 @@ class PostProcessingProvider {
                 searchProvider.doSearchProcessingForPost(updatedPost)
             }
 
+            userActivityFuture.await()
             postsByUserFuture.await()
             postsCountByUserFuture.await()
             postsByZipcodeFuture.await()

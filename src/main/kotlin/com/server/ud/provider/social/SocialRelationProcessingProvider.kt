@@ -1,7 +1,9 @@
 package com.server.ud.provider.social
 
 import com.server.common.utils.CommonUtils
+import com.server.ud.enums.UserActivityType
 import com.server.ud.provider.user.UserV2Provider
+import com.server.ud.provider.user_activity.UserActivitiesProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -33,6 +35,9 @@ class SocialRelationProcessingProvider {
     @Autowired
     private lateinit var userV2Provider: UserV2Provider
 
+    @Autowired
+    private lateinit var userActivitiesProvider: UserActivitiesProvider
+
     fun processSocialRelation(socialRelationId: String) {
         val fromUserId = socialRelationId.split(CommonUtils.STRING_SEPARATOR)[0]
         val toUserId = socialRelationId.split(CommonUtils.STRING_SEPARATOR)[1]
@@ -53,6 +58,14 @@ class SocialRelationProcessingProvider {
 
             if (socialRelation.following) {
                 // User just started following this user
+
+                val userActivityFuture = async {
+                    userActivitiesProvider.saveUserLevelActivity(
+                        byUser = fromUser,
+                        forUser = toUser,
+                        userActivityType = UserActivityType.USER_FOLLOWED
+                    )
+                }
 
                 // Update followers count
                 val followersCountByUserFuture = async {
@@ -78,6 +91,7 @@ class SocialRelationProcessingProvider {
                 followingsCountByUserFuture.await()
                 followersByUserFuture.await()
                 followingsByUserFuture.await()
+                userActivityFuture.await()
 
             } else {
                 // User has unfollowed the other user

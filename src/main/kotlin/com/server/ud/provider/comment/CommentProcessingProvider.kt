@@ -2,6 +2,7 @@ package com.server.ud.provider.comment
 
 import com.server.ud.dao.comment.*
 import com.server.ud.entities.comment.Comment
+import com.server.ud.provider.user_activity.UserActivitiesProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -46,14 +47,21 @@ class CommentProcessingProvider {
     @Autowired
     private lateinit var commentsCountByPostRepository: CommentsCountByPostRepository
 
+    @Autowired
+    private lateinit var userActivitiesProvider: UserActivitiesProvider
+
     fun processComment(commentId: String) {
         GlobalScope.launch {
             logger.info("Start: comment processing for commentId: $commentId")
             val postComment = commentProvider.getComment(commentId) ?: error("Failed to get comments data for commentId: $commentId")
             val commentsByUserFuture = async { commentsByUserProvider.save(postComment) }
             val commentForPostByUserFuture = async { commentForPostByUserProvider.setCommented(postComment.postId, postComment.userId) }
+            val userActivityFuture = async {
+                userActivitiesProvider.saveCommentCreationActivity(postComment)
+            }
             commentsByUserFuture.await()
             commentForPostByUserFuture.await()
+            userActivityFuture.await()
             logger.info("Done: comment processing for commentId: $commentId")
         }
     }

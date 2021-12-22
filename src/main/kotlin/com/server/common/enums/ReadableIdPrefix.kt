@@ -28,5 +28,6 @@ enum class ReadableIdPrefix {
     CMT, // Comment
     RPL, // Reply
     BMK, // Bookmark
+    UAT, // User Activity
 }
 

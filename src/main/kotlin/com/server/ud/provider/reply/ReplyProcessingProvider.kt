@@ -3,6 +3,7 @@ package com.server.ud.provider.reply
 import com.server.ud.dao.reply.CommentReplyRepository
 import com.server.ud.dao.reply.RepliesByCommentRepository
 import com.server.ud.entities.reply.Reply
+import com.server.ud.provider.user_activity.UserActivitiesProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -35,12 +36,19 @@ class ReplyProcessingProvider {
     @Autowired
     private lateinit var commentReplyRepository: CommentReplyRepository
 
+    @Autowired
+    private lateinit var userActivitiesProvider: UserActivitiesProvider
+
     fun processReply(replyId: String) {
         GlobalScope.launch {
             logger.info("Start: reply processing for replyId: $replyId")
             val reply = replyProvider.getCommentReply(replyId) ?: error("Failed to get reply for replyId: $replyId")
             val replyForCommentByUserFuture = async { replyForCommentByUserProvider.setReplied(reply.commentId, reply.userId) }
+            val userActivityFuture = async {
+                userActivitiesProvider.saveReplyCreationActivity(reply)
+            }
             replyForCommentByUserFuture.await()
+            userActivityFuture.await()
             logger.info("Done: reply processing for replyId: $replyId")
         }
     }

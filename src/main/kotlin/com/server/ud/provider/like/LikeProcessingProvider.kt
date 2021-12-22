@@ -3,6 +3,7 @@ package com.server.ud.provider.like
 import com.server.ud.dao.like.*
 import com.server.ud.entities.like.Like
 import com.server.ud.provider.post.LikedPostsByUserProvider
+import com.server.ud.provider.user_activity.UserActivitiesProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -56,6 +57,9 @@ class LikeProcessingProvider {
     @Autowired
     private lateinit var likesCountByUserRepository: LikesCountByUserRepository
 
+    @Autowired
+    private lateinit var userActivitiesProvider: UserActivitiesProvider
+
     fun processLike(likeId: String) {
         GlobalScope.launch {
             logger.info("Later:Start: like processing for likeId: $likeId")
@@ -63,9 +67,13 @@ class LikeProcessingProvider {
             val likedPostsByUserProviderFuture = async { likedPostsByUserProvider.processLike(like) }
             val likesByResourceFuture = async { likesByResourceProvider.save(like) }
             val likesByUserFuture = async { likesByUserProvider.save(like) }
+            val userActivityFuture = async {
+                userActivitiesProvider.saveLikeLevelActivity(like)
+            }
             likedPostsByUserProviderFuture.await()
             likesByResourceFuture.await()
             likesByUserFuture.await()
+            userActivityFuture.await()
             logger.info("Later:Done: like processing for likeId: $likeId")
         }
     }
