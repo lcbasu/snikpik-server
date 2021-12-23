@@ -30,4 +30,6 @@ abstract class UserV2Service {
     abstract fun getProfileTypesByProfileCategory(profileCategory: ProfileCategory): AllProfileTypeResponse?
     abstract fun getAllProfileTypes(): AllProfileTypeResponse?
     abstract fun getActivityByUserData(userId: String): ActivityByUserData?
+    abstract fun updateUserV2Email(request: UpdateUserV2EmailRequest): SavedUserV2Response?
+    abstract fun removeUserV2DP(): SavedUserV2Response?
 }

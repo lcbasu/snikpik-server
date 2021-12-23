@@ -96,6 +96,13 @@ data class UpdateUserV2HandleRequest (
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class UpdateUserV2EmailRequest (
+    // Take it from request for any update related action
+//    val userId: String,
+    val newEmail: String,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateUserV2DPRequest (
     // Take it from request for any update related action
 //    val userId: String,
@@ -153,7 +160,6 @@ data class UpdateUserV2LocationRequest (
     val name: String?,
     var googlePlaceId: String?,
 )
-
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AWSLambdaAuthResponse(

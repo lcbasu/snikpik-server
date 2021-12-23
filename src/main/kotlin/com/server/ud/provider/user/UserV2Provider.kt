@@ -112,6 +112,20 @@ class UserV2Provider {
         return saveUserV2(newUserToBeSaved)
     }
 
+    fun updateUserV2Email(request: UpdateUserV2EmailRequest): UserV2? {
+        val firebaseAuthUser = securityProvider.validateRequest()
+        val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
+        val newUserToBeSaved = user.copy(email = request.newEmail)
+        return saveUserV2(newUserToBeSaved)
+    }
+
+    fun removeUserV2DP(): UserV2? {
+        val firebaseAuthUser = securityProvider.validateRequest()
+        val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
+        val newUserToBeSaved = user.copy(dp = null)
+        return saveUserV2(newUserToBeSaved)
+    }
+
     // Adding user id filed to handle Faker
     // Figure out a better solve without exposing the user id
     fun updateUserV2Location(request: UpdateUserV2LocationRequest, userId: String): UserV2? {

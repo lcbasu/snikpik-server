@@ -144,6 +144,14 @@ class UserV2ServiceImpl : UserV2Service() {
         return userV2Provider.updateUserV2PreferredCategories(request)?.toSavedUserV2Response()
     }
 
+    override fun updateUserV2Email(request: UpdateUserV2EmailRequest): SavedUserV2Response? {
+        return userV2Provider.updateUserV2Email(request)?.toSavedUserV2Response()
+    }
+
+    override fun removeUserV2DP(): SavedUserV2Response? {
+        return userV2Provider.removeUserV2DP()?.toSavedUserV2Response()
+    }
+
     override fun getProfileTypesByProfileCategory(profileCategory: ProfileCategory): AllProfileTypeResponse? {
         return userV2Provider.getProfileTypesByProfileCategory(profileCategory)
     }

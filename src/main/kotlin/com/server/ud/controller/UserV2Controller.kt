@@ -122,6 +122,18 @@ class UserV2Controller {
         return userV2Service.updateUserV2Handle(request)
     }
 
+    @RequestMapping(value = ["/updateUserV2Email"], method = [RequestMethod.POST])
+    fun updateUserV2Email(@RequestBody request: UpdateUserV2EmailRequest): SavedUserV2Response? {
+        securityProvider.validateRequest()
+        return userV2Service.updateUserV2Email(request)
+    }
+
+    @RequestMapping(value = ["/removeUserV2DP"], method = [RequestMethod.POST])
+    fun removeUserV2DP(): SavedUserV2Response? {
+        securityProvider.validateRequest()
+        return userV2Service.removeUserV2DP()
+    }
+
     @RequestMapping(value = ["/isUserHandleAvailable"], method = [RequestMethod.GET])
     fun isUserHandleAvailable(@RequestParam handle: String): UserHandleAvailabilityResponse {
         securityProvider.validateRequest()
