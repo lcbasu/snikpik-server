@@ -152,6 +152,12 @@ class UserV2Controller {
         return userV2Service.updateUserV2DP(request)
     }
 
+    @RequestMapping(value = ["/updateUserV2CoverImage"], method = [RequestMethod.POST])
+    fun updateUserV2CoverImage(@RequestBody request: UpdateUserV2CoverImageRequest): SavedUserV2Response? {
+        securityProvider.validateRequest()
+        return userV2Service.updateUserV2CoverImage(request)
+    }
+
     @RequestMapping(value = ["/updateUserV2Profiles"], method = [RequestMethod.POST])
     fun updateUserV2Profiles(@RequestBody request: UpdateUserV2ProfilesRequest): SavedUserV2Response? {
         securityProvider.validateRequest()

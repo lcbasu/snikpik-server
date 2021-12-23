@@ -98,6 +98,13 @@ class UserV2Provider {
         return saveUserV2(newUserToBeSaved)
     }
 
+    fun updateUserV2CoverImage(request: UpdateUserV2CoverImageRequest): UserV2? {
+        val firebaseAuthUser = securityProvider.validateRequest()
+        val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
+        val newUserToBeSaved = user.copy(coverImage = request.coverImage.convertToString())
+        return saveUserV2(newUserToBeSaved)
+    }
+
     fun updateUserV2Profiles(request: UpdateUserV2ProfilesRequest): UserV2? {
         val firebaseAuthUser = securityProvider.validateRequest()
         val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")

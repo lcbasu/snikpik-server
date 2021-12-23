@@ -36,10 +36,14 @@ data class UserV2 (
     @Column("handle")
     val handle: String? = null,
 
+    @Column
     val email: String? = null,
 
     @Column
     val dp: String? = null, // MediaDetailsV2
+
+    @Column("cover_image")
+    val coverImage: String? = null, // MediaDetailsV2
 
     @Column
     val uid: String? = "",
@@ -134,6 +138,16 @@ fun UserV2.getMediaDetailsForDP(): MediaDetailsV2 {
     this.apply {
         return try {
             jacksonObjectMapper().readValue(dp, MediaDetailsV2::class.java)
+        } catch (e: Exception) {
+            MediaDetailsV2(emptyList())
+        }
+    }
+}
+
+fun UserV2.getMediaDetailsForCoverImage(): MediaDetailsV2 {
+    this.apply {
+        return try {
+            jacksonObjectMapper().readValue(coverImage, MediaDetailsV2::class.java)
         } catch (e: Exception) {
             MediaDetailsV2(emptyList())
         }

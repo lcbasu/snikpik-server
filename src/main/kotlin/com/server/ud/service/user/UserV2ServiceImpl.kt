@@ -152,6 +152,10 @@ class UserV2ServiceImpl : UserV2Service() {
         return userV2Provider.removeUserV2DP()?.toSavedUserV2Response()
     }
 
+    override fun updateUserV2CoverImage(request: UpdateUserV2CoverImageRequest): SavedUserV2Response? {
+        return userV2Provider.updateUserV2CoverImage(request)?.toSavedUserV2Response()
+    }
+
     override fun getProfileTypesByProfileCategory(profileCategory: ProfileCategory): AllProfileTypeResponse? {
         return userV2Provider.getProfileTypesByProfileCategory(profileCategory)
     }

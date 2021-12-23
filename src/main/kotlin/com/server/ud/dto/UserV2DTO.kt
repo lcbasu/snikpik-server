@@ -11,10 +11,7 @@ import com.server.ud.entities.post.BookmarkedPostsByUser
 import com.server.ud.entities.post.LikedPostsByUser
 import com.server.ud.entities.post.PostsByUser
 import com.server.ud.entities.post.getMediaDetails
-import com.server.ud.entities.user.UserV2
-import com.server.ud.entities.user.getMediaDetailsForDP
-import com.server.ud.entities.user.getPreferredCategories
-import com.server.ud.entities.user.getProfiles
+import com.server.ud.entities.user.*
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.UserLocationUpdateType
 
@@ -110,6 +107,11 @@ data class UpdateUserV2DPRequest (
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class UpdateUserV2CoverImageRequest (
+    val coverImage: MediaDetailsV2,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateUserV2BusinessSignupRequest (
     val email: String,
     val location: UpdateUserV2LocationRequest?,
@@ -195,6 +197,7 @@ data class SavedUserV2Response(
     var createdAt: Long?,
     var handle: String?,
     var dp: MediaDetailsV2?, // MediaDetailsV2
+    var coverImage: MediaDetailsV2?, // MediaDetailsV2
     var verified: Boolean?,
     var profiles: AllProfileTypeResponse?,
     val preferredCategories: AllCategoryV2Response = AllCategoryV2Response(emptyList()),
@@ -233,6 +236,7 @@ fun UserV2.toSavedUserV2Response(): SavedUserV2Response {
             createdAt = DateUtils.getEpoch(createdAt),
             handle = handle,
             dp = getMediaDetailsForDP(),
+            coverImage = getMediaDetailsForCoverImage(),
             verified = verified,
             profiles = getProfiles(),
             preferredCategories = getPreferredCategories(),

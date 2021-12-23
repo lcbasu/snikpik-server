@@ -32,4 +32,5 @@ abstract class UserV2Service {
     abstract fun getActivityByUserData(userId: String): ActivityByUserData?
     abstract fun updateUserV2Email(request: UpdateUserV2EmailRequest): SavedUserV2Response?
     abstract fun removeUserV2DP(): SavedUserV2Response?
+    abstract fun updateUserV2CoverImage(request: UpdateUserV2CoverImageRequest): SavedUserV2Response?
 }
