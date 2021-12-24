@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.dto.ProfileTypeResponse
 import com.server.common.enums.NotificationTokenProvider
+import com.server.common.enums.ProfileCategory
 import com.server.common.enums.ProfileType
 import com.server.common.model.MediaDetailsV2
 import com.server.common.utils.DateUtils
@@ -176,12 +177,16 @@ data class ProfilePageUserDetailsResponse(
     val uid: String?,
     var createdAt: Long?,
     var handle: String?,
+    var email: String?, // Send to client only for Pros
+    var absoluteMobile: String?, // Send to client only for Pros
     var dp: MediaDetailsV2?, // MediaDetailsV2
     var coverImage: MediaDetailsV2?, // MediaDetailsV2
     var verified: Boolean?,
     var profileToShow: ProfileTypeResponse?,
     val userCurrentLocationName: String?,
+    var userCurrentLocationZipcode: String?,
     val userPermanentLocationName: String?,
+    val userPermanentLocationZipcode: String?,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -267,12 +272,16 @@ fun UserV2.toProfilePageUserDetailsResponse(): ProfilePageUserDetailsResponse {
             uid = uid,
             createdAt = DateUtils.getEpoch(createdAt),
             handle = handle,
+            email = if (getProfiles().profileTypes.firstOrNull()?.category !== ProfileCategory.OWNER) email else "",
+            absoluteMobile = if (getProfiles().profileTypes.firstOrNull()?.category !== ProfileCategory.OWNER) absoluteMobile else "",
             dp = getMediaDetailsForDP(),
             coverImage = getMediaDetailsForCoverImage(),
             verified = verified,
             profileToShow = getProfiles().profileTypes.firstOrNull(),
             userCurrentLocationName = currentLocationName,
+            userCurrentLocationZipcode = currentLocationZipcode,
             userPermanentLocationName = permanentLocationName,
+            userPermanentLocationZipcode = permanentLocationZipcode,
         )
     }
 }
