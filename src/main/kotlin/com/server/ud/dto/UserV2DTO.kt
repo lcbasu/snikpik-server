@@ -177,6 +177,7 @@ data class ProfilePageUserDetailsResponse(
     var createdAt: Long?,
     var handle: String?,
     var dp: MediaDetailsV2?, // MediaDetailsV2
+    var coverImage: MediaDetailsV2?, // MediaDetailsV2
     var verified: Boolean?,
     var profileToShow: ProfileTypeResponse?,
     val userCurrentLocationName: String?,
@@ -267,6 +268,7 @@ fun UserV2.toProfilePageUserDetailsResponse(): ProfilePageUserDetailsResponse {
             createdAt = DateUtils.getEpoch(createdAt),
             handle = handle,
             dp = getMediaDetailsForDP(),
+            coverImage = getMediaDetailsForCoverImage(),
             verified = verified,
             profileToShow = getProfiles().profileTypes.firstOrNull(),
             userCurrentLocationName = currentLocationName,
