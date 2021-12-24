@@ -266,18 +266,19 @@ fun UserV2.toSavedUserV2Response(): SavedUserV2Response {
 
 fun UserV2.toProfilePageUserDetailsResponse(): ProfilePageUserDetailsResponse {
     this.apply {
+        val profileToShow = getProfiles().profileTypes.firstOrNull()
         return ProfilePageUserDetailsResponse(
             userId = userId,
             fullName = fullName,
             uid = uid,
             createdAt = DateUtils.getEpoch(createdAt),
             handle = handle,
-            email = if (getProfiles().profileTypes.firstOrNull()?.category !== ProfileCategory.OWNER) email else "",
-            absoluteMobile = if (getProfiles().profileTypes.firstOrNull()?.category !== ProfileCategory.OWNER) absoluteMobile else "",
+            email = if (profileToShow?.category !== ProfileCategory.OWNER) email else "",
+            absoluteMobile = if (profileToShow?.category !== ProfileCategory.OWNER) absoluteMobile else "",
             dp = getMediaDetailsForDP(),
             coverImage = getMediaDetailsForCoverImage(),
             verified = verified,
-            profileToShow = getProfiles().profileTypes.firstOrNull(),
+            profileToShow = profileToShow,
             userCurrentLocationName = currentLocationName,
             userCurrentLocationZipcode = currentLocationZipcode,
             userPermanentLocationName = permanentLocationName,
