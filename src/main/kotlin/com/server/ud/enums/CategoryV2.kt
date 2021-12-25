@@ -293,4 +293,19 @@ enum class CategoryV2(
             )
         ))
     ),
+    DIY(
+        CategoryGroupV2.HOME,
+        18,
+        "DIY (Do It Yourself)",
+        MediaDetailsV2(listOf(
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/CategoryImages/DIY.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 3222,
+                height = 2327,
+                mediaQualityType = MediaQualityType.HIGH,
+            )
+        ))
+    ),
 }
