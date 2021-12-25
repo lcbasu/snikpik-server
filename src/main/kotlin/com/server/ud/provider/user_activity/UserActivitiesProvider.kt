@@ -509,6 +509,10 @@ class UserActivitiesProvider {
     }
 
     private fun asyncSaveUserActivity(userActivity: UserActivity) {
+        if (userActivity.byUserId == userActivity.forUserId) {
+            logger.info("No need to track own activities")
+            return
+        }
         GlobalScope.launch {
             userActivitiesRepository.save(userActivity)
             userActivity.getUserActivityByUser().let {
