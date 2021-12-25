@@ -1,12 +1,14 @@
 package com.server.ud.provider.search
 
 import com.algolia.search.SearchClient
+import com.server.common.enums.ProfileCategory
 import com.server.common.properties.AlgoliaProperties
 import com.server.ud.dto.PostsSearchResponse
 import com.server.ud.dto.UDSearchRequest
 import com.server.ud.entities.post.*
 import com.server.ud.entities.user.AlgoliaUser
 import com.server.ud.entities.user.UserV2
+import com.server.ud.entities.user.getProfiles
 import com.server.ud.entities.user.toAlgoliaUser
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -107,8 +109,14 @@ class SearchProvider {
 
     private fun saveUserToAlgolia(user: UserV2) {
         GlobalScope.launch {
-            val index = searchClient.initIndex(algoliaProperties.userIndex, AlgoliaUser::class.java)
-            index.saveObject(user.toAlgoliaUser())
+            // Only save if the user has signed up using phone number
+            // and is a professional
+            val categories = user.getProfiles().profileTypes.map { it.category }.filterNot { it == ProfileCategory.OWNER || it == ProfileCategory.GUEST }
+            val isMarketplaceUser = categories.isNotEmpty()
+            if (isMarketplaceUser) {
+                val index = searchClient.initIndex(algoliaProperties.userIndex, AlgoliaUser::class.java)
+                index.saveObject(user.toAlgoliaUser())
+            }
         }
     }
 
