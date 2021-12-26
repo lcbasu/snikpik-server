@@ -86,7 +86,7 @@ fun Comment.toSavedCommentResponse(): SavedCommentResponse {
             commentId = commentId,
             postId = postId,
             userId = userId,
-            createdAt = createdAt.toEpochMilli(),
+            createdAt = DateUtils.getEpoch(createdAt),
             text = text,
             mediaDetails = getMediaDetails()
         )

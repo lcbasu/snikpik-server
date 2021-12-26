@@ -1,6 +1,7 @@
 package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.server.common.utils.DateUtils
 import com.server.ud.entities.location.Location
 import com.server.ud.enums.LocationFor
 
@@ -74,7 +75,7 @@ fun Location.toSavedLocationResponse(): SavedLocationResponse {
         return SavedLocationResponse(
             locationId = locationId,
             userId = userId,
-            createdAt = createdAt.toEpochMilli(),
+            createdAt = DateUtils.getEpoch(createdAt),
             zipcode = zipcode,
             googlePlaceId = googlePlaceId,
             name = name,

@@ -2,6 +2,7 @@ package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.server.common.model.MediaDetailsV2
+import com.server.common.utils.DateUtils
 import com.server.ud.entities.reply.RepliesByComment
 import com.server.ud.entities.reply.Reply
 import com.server.ud.entities.reply.getMediaDetails
@@ -82,7 +83,7 @@ fun Reply.toSavedCommentReplyResponse(): SavedCommentReplyResponse {
             commentId = commentId,
             postId = postId,
             userId = userId,
-            createdAt = createdAt.toEpochMilli(),
+            createdAt = DateUtils.getEpoch(createdAt),
             text = text,
             mediaDetails = getMediaDetails()
         )
@@ -96,7 +97,7 @@ fun RepliesByComment.toSavedCommentReplyResponse(): SavedCommentReplyResponse {
             commentId = commentId,
             postId = postId,
             userId = userId,
-            createdAt = createdAt.toEpochMilli(),
+            createdAt = DateUtils.getEpoch(createdAt),
             text = replyText,
             mediaDetails = getMediaDetails()
         )
