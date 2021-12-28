@@ -17,10 +17,11 @@ datastax:
 multipart:
   enabled: true
 spring:
-  http:
+  servlet:
     multipart:
-      max-request-size: 500000KB
-      max-file-size: 500000KB
+      enabled: true
+      max-file-size: 10000MB
+      max-request-size: 10MB
   data:
     cassandra:
       keyspace-name: ${ASTRA_DB_KEYSPACE}
