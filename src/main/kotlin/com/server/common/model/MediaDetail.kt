@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.enums.ContentType
 import com.server.common.enums.MediaQualityType
 import com.server.common.enums.MediaType
+import com.server.ud.utils.UDCommonUtils.getFileExtension
 
 data class MediaDetail(
     val mediaUrl: String,
@@ -220,3 +221,67 @@ fun MediaDetailsV2.convertToString(): String {
         }
     }
 }
+
+fun MediaDetailsV2.getSanitizedMediaDetails(): MediaDetailsV2 {
+    this.apply {
+        return try {
+            MediaDetailsV2(this.media.map {
+                val extension = getFileExtension(it.mediaUrl)
+                if (validVideoExtensions.contains(extension) && it.mediaType != MediaType.VIDEO) {
+                    it.copy(mediaType = MediaType.VIDEO, mimeType = "video")
+                } else {
+                    it
+                }
+            })
+        } catch (e: Exception) {
+            e.printStackTrace()
+            this
+        }
+    }
+}
+
+val validVideoExtensions = listOf(
+    ".3g2",
+    ".3gp",
+    ".264",
+    ".265",
+    ".a64",
+    ".apng",
+    ".asf",
+    ".avi",
+    ".avs",
+    ".avs2",
+    ".cavs",
+    ".f4v",
+    ".flm",
+    ".flv",
+    ".gif",
+    ".gxf",
+    ".h261",
+    ".h263",
+    ".h264",
+    ".h265",
+    ".hevc",
+    ".ismv",
+    ".ivf",
+    ".m1v",
+    ".m2v",
+    ".m4v",
+    ".mjpeg",
+    ".mjpg",
+    ".mkv",
+    ".mov",
+    ".mp4",
+    ".mpeg",
+    ".mpeg4",
+    ".mpg",
+    ".ogv",
+    ".rm",
+    ".vc1",
+    ".vc2",
+    ".vob",
+    ".webm",
+    ".wmv",
+    ".y4m",
+    ".m3u8",
+)

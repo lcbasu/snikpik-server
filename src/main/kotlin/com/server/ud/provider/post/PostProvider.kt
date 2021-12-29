@@ -6,6 +6,7 @@ import com.server.common.enums.MediaType
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.MediaDetailsV2
 import com.server.common.model.convertToString
+import com.server.common.model.getSanitizedMediaDetails
 import com.server.common.provider.MediaHandlerProvider
 import com.server.common.provider.RandomIdProvider
 import com.server.common.provider.SecurityProvider
@@ -124,7 +125,7 @@ class PostProvider {
                 postType = request.postType,
                 title = request.title,
                 description = request.description,
-                media = request.mediaDetails?.convertToString(),
+                media = request.mediaDetails?.getSanitizedMediaDetails()?.convertToString(),
                 tags = AllHashTags(request.tags).convertToString(),
                 categories = AllCategoryV2Response(
                     request.categories.map { it.toCategoryV2Response() }
