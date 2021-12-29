@@ -39,12 +39,12 @@ data class CityLocationDataResponse(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class CitiesLocationResponse(
-    var cities: List<CityLocationDataResponse>,
+    val cities: List<CityLocationDataResponse>,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class FakeLocationRequest(
-    var countOfLocation: Int,
+    val countOfLocation: Int,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -55,19 +55,35 @@ data class SaveLocationRequest(
     val name: String? = null,
     val lat: Double? = null,
     val lng:Double? = null,
+    val locality: String? = null,
+    val subLocality: String? = null,
+    val route: String? = null,
+    val city: String? = null,
+    val state: String? = null,
+    val country: String? = null,
+    val countryCode: String? = null,
+    val completeAddress: String? = null,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SavedLocationResponse(
-    var locationId: String,
+    val locationId: String,
     val locationFor: LocationFor,
-    var userId: String,
-    var createdAt: Long,
+    val userId: String,
+    val createdAt: Long,
     val zipcode: String? = null,
     val googlePlaceId: String? = null,
     val name: String? = null,
     val lat: Double? = null,
     val lng:Double? = null,
+    val locality: String? = null,
+    val subLocality: String? = null,
+    val route: String? = null,
+    val city: String? = null,
+    val state: String? = null,
+    val country: String? = null,
+    val countryCode: String? = null,
+    val completeAddress: String? = null,
 )
 
 fun Location.toSavedLocationResponse(): SavedLocationResponse {

@@ -10,6 +10,7 @@ import com.server.common.model.MediaDetailsV2
 import com.server.common.model.SingleMediaDetail
 import com.server.common.model.convertToString
 import com.server.common.model.sampleMedia
+import com.server.common.provider.CassandraTableModificationProvider
 import com.server.common.provider.RandomIdProvider
 import com.server.common.provider.SecurityProvider
 import com.server.common.utils.DateUtils
@@ -388,8 +389,13 @@ class FakerProvider {
     @Autowired
     private lateinit var usersByZipcodeProvider: UsersByZipcodeProvider
 
+    @Autowired
+    private lateinit var cassandraTableModificationProvider: CassandraTableModificationProvider
+
+
     fun doSomething(): Any {
 //        recoverDeletedData()
+        cassandraTableModificationProvider.addNewColumns()
         return "Something was done..."
     }
 

@@ -33,6 +33,14 @@ class LocationsByZipcodeProvider {
                 lat = location.lat,
                 lng = location.lng,
                 name = location.name,
+                locality = location.locality,
+                subLocality = location.subLocality,
+                route = location.route,
+                city = location.city,
+                state = location.state,
+                country = location.country,
+                countryCode = location.countryCode,
+                completeAddress = location.completeAddress,
             )
             val savedLocationByZipcode = locationsByZipcodeRepository.save(locationByZipcode)
             logger.info("Saved LocationsByZipcode into cassandra for locationId: ${savedLocationByZipcode.locationId}")

@@ -93,6 +93,30 @@ data class UserV2 (
     @Column("current_location_lng")
     val currentLocationLng: Double? = null,
 
+    @Column("current_location_locality")
+    val currentLocationLocality: String? = null,
+
+    @Column("current_location_sub_locality")
+    val currentLocationSubLocality: String? = null,
+
+    @Column("current_location_route")
+    val currentLocationRoute: String? = null,
+
+    @Column("current_location_city")
+    val currentLocationCity: String? = null,
+
+    @Column("current_location_state")
+    val currentLocationState: String? = null,
+
+    @Column("current_location_country")
+    val currentLocationCountry: String? = null,
+
+    @Column("current_location_country_code")
+    val currentLocationCountryCode: String? = null,
+
+    @Column("current_location_complete_address")
+    val currentLocationCompleteAddress: String? = null,
+
     /**
      * Permanent location.
      *
@@ -118,6 +142,30 @@ data class UserV2 (
 
     @Column("permanent_location_lng")
     val permanentLocationLng: Double? = null,
+
+    @Column("permanent_location_locality")
+    val permanentLocationLocality: String? = null,
+
+    @Column("permanent_location_sub_locality")
+    val permanentLocationSubLocality: String? = null,
+
+    @Column("permanent_location_route")
+    val permanentLocationRoute: String? = null,
+
+    @Column("permanent_location_city")
+    val permanentLocationCity: String? = null,
+
+    @Column("permanent_location_state")
+    val permanentLocationState: String? = null,
+
+    @Column("permanent_location_country")
+    val permanentLocationCountry: String? = null,
+
+    @Column("permanent_location_country_code")
+    val permanentLocationCountryCode: String? = null,
+
+    @Column("permanent_location_complete_address")
+    val permanentLocationCompleteAddress: String? = null,
 
     @Column("preferred_categories")
     val preferredCategories: String? = null,  //  List of AllCategoryV2Response

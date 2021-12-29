@@ -38,7 +38,15 @@ class ESLocationProvider {
                 lng = location.lng,
                 zipcode = location.zipcode,
                 googlePlaceId = location.googlePlaceId,
-                geoPoint = location.getGeoPointData()
+                geoPoint = location.getGeoPointData(),
+                locality = location.locality,
+                subLocality = location.subLocality,
+                route = location.route,
+                city = location.city,
+                state = location.state,
+                country = location.country,
+                countryCode = location.countryCode,
+                completeAddress = location.completeAddress,
             )
             val savedESLocation = esLocationRepository.save(esLocation)
             logger.info("Saved location to elastic search locationId: ${savedESLocation.locationId}")

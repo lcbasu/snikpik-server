@@ -21,6 +21,7 @@ import com.server.ud.provider.location.LocationProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.stereotype.Component
 
 @Component
@@ -145,6 +146,14 @@ class UserV2Provider {
                 name = request.name,
                 lat = request.lat,
                 lng = request.lng,
+                locality = request.locality,
+                subLocality = request.subLocality,
+                route = request.route,
+                city = request.city,
+                state = request.state,
+                country = request.country,
+                countryCode = request.countryCode,
+                completeAddress = request.completeAddress,
             )
 
             val location = locationProvider.save(user.userId, locationRequest) ?: error("Error saving location for userId: $userId")
@@ -157,6 +166,14 @@ class UserV2Provider {
                     currentLocationZipcode = location.zipcode,
                     currentLocationName = location.name,
                     currentGooglePlaceId = location.googlePlaceId,
+                    currentLocationLocality = location.locality,
+                    currentLocationSubLocality = location.subLocality,
+                    currentLocationRoute = location.route,
+                    currentLocationCity = location.city,
+                    currentLocationState = location.state,
+                    currentLocationCountry = location.country,
+                    currentLocationCountryCode = location.countryCode,
+                    currentLocationCompleteAddress = location.completeAddress,
                 )
             } else {
                 user
@@ -169,6 +186,14 @@ class UserV2Provider {
                     permanentLocationZipcode = location.zipcode,
                     permanentLocationName = location.name,
                     permanentGooglePlaceId = location.googlePlaceId,
+                    permanentLocationLocality = location.locality,
+                    permanentLocationSubLocality = location.subLocality,
+                    permanentLocationRoute = location.route,
+                    permanentLocationCity = location.city,
+                    permanentLocationState = location.state,
+                    permanentLocationCountry = location.country,
+                    permanentLocationCountryCode = location.countryCode,
+                    permanentLocationCompleteAddress = location.completeAddress,
                 )
             } else {
                 newUserToBeSaved
@@ -241,30 +266,57 @@ class UserV2Provider {
                 name = ipAddressLocation.city ?: "Some Location",
                 lat = ipAddressLocation.latitude,
                 lng = ipAddressLocation.longitude,
+                city = request.city,
+                state = request.state,
+                country = request.country,
+                countryCode = request.countryCode,
             )
             val location = locationProvider.save(userId, locationRequest) ?: error("Error saving location for userId: $userId")
 
             // Save User
             val userToBeSavedDraft = existing ?: getUserV2ObjectFromFirebaseObject(firebaseAuthUser)
 
-            val userToBeSaved = userToBeSavedDraft.copy(
+            val userToBeSavedWithCurrentAddress = userToBeSavedDraft.copy(
                 currentLocationId = location.locationId,
                 currentLocationLat = location.lat,
                 currentLocationLng = location.lng,
                 currentLocationZipcode = location.zipcode,
                 currentLocationName = location.name,
                 currentGooglePlaceId = location.googlePlaceId,
-
-                permanentLocationId = if (hasPermanentLocation) userToBeSavedDraft.permanentLocationId else location.locationId,
-                permanentLocationLat = if (hasPermanentLocation) userToBeSavedDraft.permanentLocationLat else location.lat,
-                permanentLocationLng = if (hasPermanentLocation) userToBeSavedDraft.permanentLocationLng else location.lng,
-                permanentLocationZipcode = if (hasPermanentLocation) userToBeSavedDraft.permanentLocationZipcode else location.zipcode,
-                permanentLocationName = if (hasPermanentLocation) userToBeSavedDraft.permanentLocationName else location.name,
-                permanentGooglePlaceId = if (hasPermanentLocation) userToBeSavedDraft.permanentGooglePlaceId else location.googlePlaceId,
-
+                currentLocationLocality = location.locality,
+                currentLocationSubLocality = location.subLocality,
+                currentLocationRoute = location.route,
+                currentLocationCity = location.city,
+                currentLocationState = location.state,
+                currentLocationCountry = location.country,
+                currentLocationCountryCode = location.countryCode,
+                currentLocationCompleteAddress = location.completeAddress,
                 anonymous = firebaseAuthUser.getIsAnonymous() == true,
                 absoluteMobile = firebaseAuthUser.getAbsoluteMobileNumber()
             )
+
+            val userToBeSaved = if (hasPermanentLocation.not()) {
+                // Update permanent address only if it does not exist
+                userToBeSavedWithCurrentAddress.copy(
+                    permanentLocationId = location.locationId,
+                    permanentLocationLat = location.lat,
+                    permanentLocationLng = location.lng,
+                    permanentLocationZipcode = location.zipcode,
+                    permanentLocationName = location.name,
+                    permanentGooglePlaceId = location.googlePlaceId,
+                    permanentLocationLocality = location.locality,
+                    permanentLocationSubLocality = location.subLocality,
+                    permanentLocationRoute = location.route,
+                    permanentLocationCity = location.city,
+                    permanentLocationState = location.state,
+                    permanentLocationCountry = location.country,
+                    permanentLocationCountryCode = location.countryCode,
+                    permanentLocationCompleteAddress = location.completeAddress,
+                )
+            } else {
+                userToBeSavedWithCurrentAddress
+            }
+
             return saveUserV2(userToBeSaved) ?: error("Error while saving user with ip address for userId: $userId")
         } else {
             saveUserV2WhoJustLoggedIn()

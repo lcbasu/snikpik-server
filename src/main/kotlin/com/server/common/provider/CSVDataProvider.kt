@@ -65,4 +65,12 @@ class CSVDataProvider {
             emptyMap()
         }
     }
+
+    fun getNewCassandraColumns(): List<AddColumnDetails> {
+        val reader = mapper.readerFor(AddColumnDetails::class.java)
+        return reader
+            .with(schema)
+            .readValues<AddColumnDetails>(File::class.java.getResourceAsStream("/cassandra_columns.csv"))
+            .readAll()
+    }
 }

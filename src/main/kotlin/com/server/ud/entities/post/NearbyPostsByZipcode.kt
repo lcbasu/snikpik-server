@@ -71,6 +71,30 @@ data class NearbyPostsByZipcode (
     val locationLng: Double? = null,
 
     @Column
+    val locality: String? = null,
+
+    @Column("sub_locality")
+    val subLocality: String? = null,
+
+    @Column
+    val route: String? = null,
+
+    @Column
+    val city: String? = null,
+
+    @Column
+    val state: String? = null,
+
+    @Column
+    val country: String? = null,
+
+    @Column("country_code")
+    val countryCode: String? = null,
+
+    @Column("complete_address")
+    val completeAddress: String? = null,
+
+    @Column
     var title: String? = null,
 
     @Column
@@ -107,6 +131,14 @@ fun NearbyPostsByZipcode.toNearbyVideoPostsByZipcode(): NearbyVideoPostsByZipcod
                 media = media,
                 tags = tags,
                 categories = categories,
+                locality = locality,
+                subLocality = subLocality,
+                route = route,
+                city = city,
+                state = state,
+                country = country,
+                countryCode = countryCode,
+                completeAddress = completeAddress,
             )
         } else {
             null

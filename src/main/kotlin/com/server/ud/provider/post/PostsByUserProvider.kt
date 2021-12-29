@@ -43,6 +43,14 @@ class PostsByUserProvider {
                 locationName = post.locationName,
                 locationLat = post.locationLat,
                 locationLng = post.locationLng,
+                locality = post.locality,
+                subLocality = post.subLocality,
+                route = post.route,
+                city = post.city,
+                state = post.state,
+                country = post.country,
+                countryCode = post.countryCode,
+                completeAddress = post.completeAddress,
             )
             return postsByUserRepository.save(postsByUser)
         } catch (e: Exception) {

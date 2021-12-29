@@ -141,6 +141,14 @@ class PostProvider {
                 userHandle = user.handle,
                 userCountryCode = user.countryCode,
                 userProfiles = user.getProfiles().convertToString(),
+                locality = location?.locality,
+                subLocality = location?.subLocality,
+                route = location?.route,
+                city = location?.city,
+                state = location?.state,
+                country = location?.country,
+                countryCode = location?.countryCode,
+                completeAddress = location?.completeAddress,
             )
             val savedPost = postRepository.save(post)
             // Saving this temporarily with whatever media url is in the source

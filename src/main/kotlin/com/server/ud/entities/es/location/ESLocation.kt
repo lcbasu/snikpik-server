@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.server.common.utils.DateUtils
 import com.server.ud.enums.LocationFor
 import org.springframework.data.annotation.Id
+import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.elasticsearch.annotations.Document
 import org.springframework.data.elasticsearch.annotations.Field
 import org.springframework.data.elasticsearch.annotations.FieldType
@@ -56,5 +57,29 @@ class ESLocation (
 
     @GeoPointField
     val geoPoint: GeoPoint? = null,
+
+    @Field(type = FieldType.Text)
+    val locality: String? = null,
+
+    @Field(type = FieldType.Text)
+    val subLocality: String? = null,
+
+    @Field(type = FieldType.Text)
+    val route: String? = null,
+
+    @Field(type = FieldType.Text)
+    val city: String? = null,
+
+    @Field(type = FieldType.Text)
+    val state: String? = null,
+
+    @Field(type = FieldType.Text)
+    val country: String? = null,
+
+    @Field(type = FieldType.Text)
+    val countryCode: String? = null,
+
+    @Field(type = FieldType.Text)
+    val completeAddress: String? = null,
 )
 

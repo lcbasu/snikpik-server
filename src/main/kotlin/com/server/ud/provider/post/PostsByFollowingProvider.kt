@@ -35,6 +35,14 @@ class PostsByFollowingProvider {
                 locationName = post.locationName,
                 locationLat = post.locationLat,
                 locationLng = post.locationLng,
+                locality = post.locality,
+                subLocality = post.subLocality,
+                route = post.route,
+                city = post.city,
+                state = post.state,
+                country = post.country,
+                countryCode = post.countryCode,
+                completeAddress = post.completeAddress,
             )
             val saved = postsByFollowingRepository.save(postsByFollowing)
             logger.info("Saved PostsByFollowing for postId:${saved.postId}, followerId: $followerId and followingUserId: ${saved.followingUserId}.")

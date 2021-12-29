@@ -74,6 +74,14 @@ class LocationProvider {
                 lat = request.lat,
                 lng = request.lng,
                 name = request.name,
+                locality = request.locality,
+                subLocality = request.subLocality,
+                route = request.route,
+                city = request.city,
+                state = request.state,
+                country = request.country,
+                countryCode = request.countryCode,
+                completeAddress = request.completeAddress,
             )
             val savedLocation = locationRepository.save(location)
             logger.info("Saved location into cassandra with locationId: ${savedLocation.locationId}")

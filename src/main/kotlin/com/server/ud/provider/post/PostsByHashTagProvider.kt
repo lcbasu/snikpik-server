@@ -35,6 +35,14 @@ class PostsByHashTagProvider {
                 media = post.media,
                 tags = post.tags,
                 categories = post.categories,
+                locality = post.locality,
+                subLocality = post.subLocality,
+                route = post.route,
+                city = post.city,
+                state = post.state,
+                country = post.country,
+                countryCode = post.countryCode,
+                completeAddress = post.completeAddress,
             )
             return postsByHashTagRepository.save(postsByHashTag)
         } catch (e: Exception) {

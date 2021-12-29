@@ -27,23 +27,23 @@ import java.time.Instant
 class Location (
 
     @PrimaryKeyColumn(name = "location_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
-    var locationId: String,
+    val locationId: String,
 
     @Column("created_at")
     @CassandraType(type = CassandraType.Name.TIMESTAMP)
-    var createdAt: Instant = DateUtils.getInstantNow(),
+    val createdAt: Instant = DateUtils.getInstantNow(),
 
     @Column("user_id")
-    var userId: String,
+    val userId: String,
 
     @Column("location_for")
-    var locationFor: LocationFor,
+    val locationFor: LocationFor,
 
     @Column("zipcode")
-    var zipcode: String? = null,
+    val zipcode: String? = null,
 
     @Column("google_place_id")
-    var googlePlaceId: String? = null,
+    val googlePlaceId: String? = null,
 
     @Column
     val name: String? = null,
@@ -52,7 +52,31 @@ class Location (
     val lat: Double? = null,
 
     @Column
-    val lng:Double? = null,
+    val lng: Double? = null,
+
+    @Column
+    val locality: String? = null,
+
+    @Column("sub_locality")
+    val subLocality: String? = null,
+
+    @Column
+    val route: String? = null,
+
+    @Column
+    val city: String? = null,
+
+    @Column
+    val state: String? = null,
+
+    @Column
+    val country: String? = null,
+
+    @Column("country_code")
+    val countryCode: String? = null,
+
+    @Column("complete_address")
+    val completeAddress: String? = null,
 )
 
 fun Location.getGeoPointData(): GeoPoint? {
