@@ -1,6 +1,7 @@
 package com.server.ud.entities.user
 
 import com.server.common.dto.AllProfileTypeResponse
+import com.server.common.model.MediaDetailsV2
 import com.server.common.utils.DateUtils
 import com.server.ud.dto.AllCategoryV2Response
 import com.server.ud.entities.post.GeoLoc
@@ -14,7 +15,8 @@ data class AlgoliaUser (
     val countryCode: String? = null,
     val handle: String? = null,
     val email: String? = null,
-    val dp: String? = null,
+    @Deprecated("Start using dpV2")val dp: String? = null,
+    val dpV2: MediaDetailsV2? = null,
     val uid: String? = "",
     val anonymous: Boolean = false,
     val verified: Boolean = false,
@@ -66,7 +68,7 @@ fun UserV2.toAlgoliaUser(): AlgoliaUser {
             countryCode = countryCode,
             handle = handle,
             email = email,
-            dp = dp,
+            dpV2 = getMediaDetailsForDP(),
             uid = uid,
             anonymous = anonymous,
             verified = verified,
