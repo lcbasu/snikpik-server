@@ -15,8 +15,8 @@ data class UserChatIdResponse (
 
 data class SaveUserChatMessageRequest (
     val chatId: String,
-    val senderUserId: String,
-    val receiverUserId: String,
+//    val senderUserId: String,
+//    val receiverUserId: String,
     val text: String? = null,
     val media: MediaDetailsV2? = null, // MediaDetailsV2
     val categories: Set<CategoryV2>? = null, //  Set of CategoryV2

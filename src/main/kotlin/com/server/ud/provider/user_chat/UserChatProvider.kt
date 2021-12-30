@@ -91,13 +91,19 @@ class UserChatProvider {
         return CassandraPageV2(messages)
     }
 
-    fun saveChatMessage(request: SaveUserChatMessageRequest): UserChatMessage {
+    fun saveChatMessage(loggedInUserId: String, request: SaveUserChatMessageRequest): UserChatMessage {
+        val userChatIdResponse = getUserIdsFromChatId(request.chatId)
+        val receiverUserId = if (userChatIdResponse.userId1 == loggedInUserId) {
+            userChatIdResponse.userId2
+        } else {
+            userChatIdResponse.userId1
+        }
         val chatMessage = userChatMessageRepository.save(UserChatMessage(
             messageId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.UCT),
             createdAt = DateUtils.getInstantNow(),
             chatId = request.chatId,
-            senderUserId = request.senderUserId,
-            receiverUserId = request.receiverUserId,
+            senderUserId = loggedInUserId,
+            receiverUserId = receiverUserId,
             text = request.text,
             media = request.media?.convertToString(),
             categories = AllCategoryV2Response(

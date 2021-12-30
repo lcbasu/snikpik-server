@@ -35,16 +35,8 @@ class UserChatServiceImpl: UserChatService() {
 
     override fun saveChatMessage(request: SaveUserChatMessageRequest): SavedUserChatMessageResponse {
         validateChatId(request.chatId)
-        val userChatIdResponse = getChatId(request.senderUserId, request.receiverUserId)
-        if (userChatIdResponse.chatId != request.chatId) {
-            error("Invalid chat Id for message. chatId: ${request.chatId} senderUserId: ${request.senderUserId}, receiverUserId: ${request.receiverUserId}")
-        }
-
         val userDetailsFromToken = securityProvider.validateRequest()
-        if (userDetailsFromToken.getUserIdToUse() != request.senderUserId) {
-            error("Only logged in user can send message on their behalf. loggedInUserId: ${userDetailsFromToken.getUserIdToUse()}, messageSenderId: ${request.senderUserId}")
-        }
-        return userChatProvider.saveChatMessage(request).toSavedUserChatMessageResponse()
+        return userChatProvider.saveChatMessage(userDetailsFromToken.getUserIdToUse(), request).toSavedUserChatMessageResponse()
     }
 
     override fun getUserChatMessages(request: UserChatMessagesFeedRequest): UserChatMessagesFeedResponse {
