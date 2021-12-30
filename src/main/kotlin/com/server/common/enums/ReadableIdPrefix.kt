@@ -29,5 +29,6 @@ enum class ReadableIdPrefix {
     RPL, // Reply
     BMK, // Bookmark
     UAT, // User Activity
+    UCT, // User Chat
 }
 

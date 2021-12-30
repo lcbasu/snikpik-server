@@ -4,7 +4,7 @@ import com.server.dk.dto.PhoneVerificationResponse
 import com.twilio.rest.lookups.v1.PhoneNumber
 
 object CommonUtils {
-    var STRING_SEPARATOR = "_-_"
+    const val STRING_SEPARATOR = "_-_"
 
     private fun convertToAlphaNumeric(str: String): String {
         return str.replace("[^A-Za-z0-9]".toRegex(), "");
