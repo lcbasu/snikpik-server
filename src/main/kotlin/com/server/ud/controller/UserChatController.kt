@@ -42,8 +42,7 @@ class UserChatController {
 
     @RequestMapping(value = ["/getChatStatusForUser"], method = [RequestMethod.GET])
     fun getChatStatusForUser(@RequestParam userId: String,
-                             @RequestParam chatId: String,
-                             @RequestParam messageId: String): UserChatStatusForUserResponse? {
+                             @RequestParam chatId: String): UserChatStatusForUserResponse? {
         return userChatService.getChatStatusForUser(UserChatStatusForUserRequest (
             userId = userId,
             chatId = chatId,
