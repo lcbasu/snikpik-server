@@ -27,6 +27,14 @@ data class CategoryV2Response(
     val mediaDetails: MediaDetailsV2
 )
 
+fun getCategories(categories: String?): AllCategoryV2Response {
+    return try {
+        jacksonObjectMapper().readValue(categories, AllCategoryV2Response::class.java)
+    } catch (e: Exception) {
+        AllCategoryV2Response(emptyList())
+    }
+}
+
 fun AllCategoryV2Response.convertToString(): String? {
     this.apply {
         return try {

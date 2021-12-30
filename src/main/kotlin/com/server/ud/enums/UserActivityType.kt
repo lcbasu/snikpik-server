@@ -40,6 +40,7 @@ enum class UserActivityType {
     USER_FOLLOWED,
     USER_CLICKED_CONNECT, // Tried to connect with the user by clicking on connect button
     USER_PROFILE_SHARED,
+    USER_SENT_CHAT_MESSAGE,
 
 }
 
@@ -77,6 +78,7 @@ fun UserActivityType.toUserAggregateActivityType(): UserAggregateActivityType {
 
 
             UserActivityType.USER_CLICKED_CONNECT -> UserAggregateActivityType.CLICKED_CONNECT
+            UserActivityType.USER_SENT_CHAT_MESSAGE -> UserAggregateActivityType.MESSAGE_SENT_OR_RECEIVED
         }
     }
 }
@@ -90,4 +92,5 @@ enum class UserAggregateActivityType {
     REPLIED,
     FOLLOWED,
     CLICKED_CONNECT,
+    MESSAGE_SENT_OR_RECEIVED,
 }

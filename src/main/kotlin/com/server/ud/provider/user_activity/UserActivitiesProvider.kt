@@ -13,10 +13,7 @@ import com.server.ud.entities.post.Post
 import com.server.ud.entities.reply.Reply
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user_activity.*
-import com.server.ud.enums.PostType
-import com.server.ud.enums.ResourceType
-import com.server.ud.enums.UserActivityType
-import com.server.ud.enums.toUserAggregateActivityType
+import com.server.ud.enums.*
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.comment.CommentProvider
 import com.server.ud.provider.post.PostProvider
@@ -91,6 +88,32 @@ class UserActivitiesProvider {
         } catch (e: Exception) {
             logger.error("Error while getting comment with commentId: ${reply.commentId}")
             e.printStackTrace()
+        }
+    }
+
+    fun saveChatMessageCreationActivity(message: UserChatMessage) {
+        GlobalScope.launch {
+            try {
+                asyncSaveUserActivity(UserActivity(
+                    userActivityId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.UAT),
+                    createdAt = DateUtils.getInstantNow(),
+                    userAggregateActivityType = UserAggregateActivityType.MESSAGE_SENT_OR_RECEIVED,
+                    userActivityType = UserActivityType.USER_SENT_CHAT_MESSAGE,
+                    byUserId = message.senderUserId,
+                    forUserId = message.receiverUserId,
+                    chatId = message.chatId,
+                    chatMessageId = message.messageId,
+                    chatSenderUserId = message.senderUserId,
+                    chatReceiverUserId = message.receiverUserId,
+                    chatText = message.text,
+                    chatMedia = message.media,
+                    chatCategories = message.categories,
+                    chatMessageLocationId = message.locationId,
+                ))
+            } catch (e: Exception) {
+                logger.error("Saving UserActivity for messageId: ${message.messageId} failed.")
+                e.printStackTrace()
+            }
         }
     }
 

@@ -62,6 +62,31 @@ class UserActivityForUserAndAggregate (
     val postTitle: String? = null,
     @Column("post_description")
     val postDescription: String? = null,
+
+
+    @Column("chat_id")
+    val chatId: String? = null,
+
+    @Column("chat_message_id")
+    val chatMessageId: String? = null,
+
+    @Column("chat_sender_user_id")
+    val chatSenderUserId: String? = null,
+
+    @Column("chat_receiver_user_id")
+    val chatReceiverUserId: String? = null,
+
+    @Column("chat_text")
+    val chatText: String? = null,
+
+    @Column("chat_media")
+    val chatMedia: String? = null, // MediaDetailsV2
+
+    @Column("chat_categories")
+    val chatCategories: String? = null, //  List of AllCategoryV2Response
+
+    @Column("chat_message_location_id")
+    val chatMessageLocationId: String? = null,
 )
 
 fun UserActivityForUserAndAggregate.toUserActivityForUser(): UserActivityForUser {
@@ -90,6 +115,15 @@ fun UserActivityForUserAndAggregate.toUserActivityForUser(): UserActivityForUser
             postMediaDetails = postMediaDetails,
             postTitle = postTitle,
             postDescription = postDescription,
+
+            chatId = chatId,
+            chatMessageId = chatMessageId,
+            chatSenderUserId = chatSenderUserId,
+            chatReceiverUserId = chatReceiverUserId,
+            chatText = chatText,
+            chatMedia = chatMedia,
+            chatCategories = chatCategories,
+            chatMessageLocationId = chatMessageLocationId,
         )
     }
 }

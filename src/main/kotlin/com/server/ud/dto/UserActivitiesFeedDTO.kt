@@ -42,6 +42,16 @@ data class UserActivityResponse (
     val postMediaDetails: MediaDetailsV2? = null,
     val postTitle: String? = null,
     val postDescription: String? = null,
+
+    // Chat
+    val chatId: String? = null,
+    val chatMessageId: String? = null,
+    val chatSenderUserId: String? = null,
+    val chatReceiverUserId: String? = null,
+    val chatText: String? = null,
+    val chatMedia: MediaDetailsV2? = null, // MediaDetailsV2
+    val chatCategories: AllCategoryV2Response? = null, //  List of AllCategoryV2Response
+    val chatMessageLocationId: String? = null,
 )
 
 data class UserActivitiesFeedResponse (
@@ -95,6 +105,15 @@ fun UserActivityForUser.toUserActivityResponse(): UserActivityResponse? {
                 postMediaDetails = getMediaDetails(postMediaDetails),
                 postTitle = postTitle,
                 postDescription = postDescription,
+
+                chatId = chatId,
+                chatMessageId = chatMessageId,
+                chatSenderUserId = chatSenderUserId,
+                chatReceiverUserId = chatReceiverUserId,
+                chatText = chatText,
+                chatMedia = getMediaDetails(chatMedia),
+                chatCategories = getCategories(chatCategories),
+                chatMessageLocationId = chatMessageLocationId,
             )
         } catch (e: Exception) {
             null
@@ -131,6 +150,15 @@ fun UserActivityByUser.toUserActivityResponse(): UserActivityResponse? {
                 postMediaDetails = getMediaDetails(postMediaDetails),
                 postTitle = postTitle,
                 postDescription = postDescription,
+
+                chatId = chatId,
+                chatMessageId = chatMessageId,
+                chatSenderUserId = chatSenderUserId,
+                chatReceiverUserId = chatReceiverUserId,
+                chatText = chatText,
+                chatMedia = getMediaDetails(chatMedia),
+                chatCategories = getCategories(chatCategories),
+                chatMessageLocationId = chatMessageLocationId,
             )
         } catch (e: Exception) {
             null

@@ -11,6 +11,7 @@ import com.server.ud.entities.user_activity.*
 import com.server.ud.enums.UserChatMessageStatus
 import com.server.ud.enums.UserChatStatus
 import com.server.ud.pagination.CassandraPageV2
+import com.server.ud.provider.user_activity.UserActivitiesProvider
 import com.server.ud.utils.pagination.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -51,6 +52,9 @@ class UserChatProvider {
 
     @Autowired
     private lateinit var randomIdProvider: RandomIdProvider
+
+    @Autowired
+    private lateinit var userActivitiesProvider: UserActivitiesProvider
 
     fun getChatId(userId1: String, userId2: String): String {
         val users = listOf(userId1, userId2)
@@ -155,6 +159,8 @@ class UserChatProvider {
         // Process chat message for user in background
         // Move this to better place like deferred processing
         GlobalScope.launch {
+
+            userActivitiesProvider.saveChatMessageCreationActivity(chatMessage)
 
             // Delete the older chat row, to store the last as we want it to be sorted by updatedAt
             val chatsBySender = userChatsByUserIdRepository.findAllByUserIdAndChatId(chatMessage.senderUserId, chatMessage.chatId)
