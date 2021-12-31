@@ -6,6 +6,11 @@ import com.server.common.enums.MediaQualityType
 import com.server.common.enums.MediaType
 import com.server.ud.utils.UDCommonUtils.getFileExtension
 
+const val ALL_MEDIA_SOURCE_BUCKET = "unboxed-video-ingestion-to-deliver-source71e471f1-1uyj9h1m9ewum";
+const val ALL_MEDIA_SOURCE_CLOUDFRONT_URL = "https://d2qrqijxy3rkcj.cloudfront.net";
+const val PROCESSED_IMAGE_CLOUDFRONT_URL = "https://d1fna9whmio5ul.cloudfront.net";
+const val SAMPLE_COVER_IMAGE_URL = "${ALL_MEDIA_SOURCE_CLOUDFRONT_URL}/assets01/AppData/SampleImages/sample-cover-image.jpeg"
+
 data class MediaDetail(
     val mediaUrl: String,
     val mimeType: String
@@ -42,6 +47,25 @@ fun getMediaDetails(mediaStr: String?): MediaDetailsV2 {
     } catch (e: Exception) {
         MediaDetailsV2(emptyList())
     }
+}
+
+fun getMediaUrlForNotification(mediaStr: String?): String {
+    val singleMediaDetail = getMediaDetails(mediaStr).media.firstOrNull() ?: return ""
+    if (singleMediaDetail.mediaType == MediaType.VIDEO && singleMediaDetail.mediaUrl.endsWith(".m3u8")) {
+        return try {
+            // Send the thumbnail URL for processed video media
+            val mediaUrl = singleMediaDetail.mediaUrl
+            val fileName = mediaUrl.substring(mediaUrl.lastIndexOf("USR")).replace(".m3u8", "")
+            val userId = fileName.split("_-_")[0]
+            val key = "assets01/userUploads/${userId}/${fileName}_thumbnail.0000000.jpg"
+            "${ALL_MEDIA_SOURCE_CLOUDFRONT_URL}/${key}"
+        } catch (e: Exception) {
+            e.printStackTrace()
+            ""
+        }
+    }
+    // For non-HLS video, we will return the media url
+    return singleMediaDetail.mediaUrl
 }
 
 val sampleVideoMedia = listOf(

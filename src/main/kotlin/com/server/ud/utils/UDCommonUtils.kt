@@ -21,5 +21,12 @@ object UDCommonUtils {
         }
     }
 
+    fun isValidString (str: String?): Boolean {
+        if (str == null || str.isEmpty() || str.isBlank()) {
+            return false
+        }
+        return true
+    }
+
 }
 

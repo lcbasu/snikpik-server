@@ -16,6 +16,7 @@ import com.server.ud.entities.user_activity.*
 import com.server.ud.enums.*
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.comment.CommentProvider
+import com.server.ud.provider.notification.DeviceNotificationProvider
 import com.server.ud.provider.post.PostProvider
 import com.server.ud.provider.reply.ReplyProvider
 import com.server.ud.utils.pagination.PaginationRequestUtil
@@ -59,6 +60,9 @@ class UserActivitiesProvider {
 
     @Autowired
     private lateinit var replyProvider: ReplyProvider
+
+    @Autowired
+    private lateinit var deviceNotificationProvider: DeviceNotificationProvider
 
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
@@ -550,6 +554,7 @@ class UserActivitiesProvider {
             userActivity.getUserActivityForUserAndAggregate().let {
                 userActivitiesForUserAndAggregateRepository.save(it!!)
             }
+            deviceNotificationProvider.sendNotification(userActivity)
         }
     }
 
