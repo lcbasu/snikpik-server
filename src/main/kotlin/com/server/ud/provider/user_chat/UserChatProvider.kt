@@ -1,5 +1,9 @@
 package com.server.ud.provider.user_chat
 
+import com.google.api.core.ApiFuture
+import com.google.cloud.firestore.Firestore
+import com.google.cloud.firestore.WriteResult
+import com.google.firebase.cloud.FirestoreClient
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.convertToString
 import com.server.common.provider.RandomIdProvider
@@ -20,6 +24,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
+
 
 @Component
 class UserChatProvider {
@@ -128,6 +133,8 @@ class UserChatProvider {
             countryCode = request.countryCode,
             completeAddress = request.completeAddress,
         ))
+
+        saveChatMessageToFirestore(chatMessage)
 
         userChatMessageByChatIdRepository.save(
             UserChatMessageByChatId(
@@ -306,6 +313,34 @@ class UserChatProvider {
             e.printStackTrace()
             null
         }
+    }
+
+    fun saveChatMessageToFirestore (chatMessage: UserChatMessage) {
+        val db: Firestore = FirestoreClient.getFirestore()
+
+        // Save all chat messages under chat Id
+        db
+            .collection("user_chats")
+            .document(chatMessage.chatId)
+            .collection("chat_messages")
+            .document(chatMessage.messageId)
+            .set(chatMessage)
+
+        // Chats list for users with last message -> Sender
+        db
+            .collection("user_chats_meta")
+            .document(chatMessage.senderUserId)
+            .collection("chats")
+            .document(chatMessage.chatId)
+            .set(chatMessage)
+
+        // Chats list for users with last message -> Receiver
+        db
+            .collection("user_chats_meta")
+            .document(chatMessage.receiverUserId)
+            .collection("chats")
+            .document(chatMessage.chatId)
+            .set(chatMessage)
     }
 
 }

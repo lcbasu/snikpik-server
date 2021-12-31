@@ -66,7 +66,7 @@ dependencies {
 	implementation("com.twilio.sdk:twilio:8.10.0")
 	implementation("org.hibernate:hibernate-envers:5.4.27.Final")
 	implementation("com.vladmihalcea:hibernate-types-52:2.9.11")
-	implementation("com.google.firebase:firebase-admin:7.1.0")
+	implementation("com.google.firebase:firebase-admin:8.1.0")
 	implementation("org.springframework.security:spring-security-core:5.3.6.RELEASE")
 	implementation("org.springframework.security:spring-security-web:5.3.6.RELEASE")
 	implementation("org.springframework.security:spring-security-config:5.3.6.RELEASE")
