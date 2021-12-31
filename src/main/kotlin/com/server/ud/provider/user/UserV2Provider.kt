@@ -21,7 +21,6 @@ import com.server.ud.provider.location.LocationProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.stereotype.Component
 
 @Component
@@ -92,18 +91,25 @@ class UserV2Provider {
         }
     }
 
+    fun updateNotificationToken(request: UpdateNotificationTokenRequest): UserV2? {
+        val firebaseAuthUser = securityProvider.validateRequest()
+        val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
+        val newUserToBeSaved = user.copy(notificationToken = request.token, notificationTokenProvider = request.tokenProvider)
+        return saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING)
+    }
+
     fun updateUserV2DP(request: UpdateUserV2DPRequest): UserV2? {
         val firebaseAuthUser = securityProvider.validateRequest()
         val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
         val newUserToBeSaved = user.copy(dp = request.dp.convertToString())
-        return saveUserV2(newUserToBeSaved)
+        return saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING)
     }
 
     fun updateUserV2CoverImage(request: UpdateUserV2CoverImageRequest): UserV2? {
         val firebaseAuthUser = securityProvider.validateRequest()
         val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
         val newUserToBeSaved = user.copy(coverImage = request.coverImage.convertToString())
-        return saveUserV2(newUserToBeSaved)
+        return saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING)
     }
 
     fun updateUserV2Profiles(request: UpdateUserV2ProfilesRequest): UserV2? {
@@ -117,21 +123,21 @@ class UserV2Provider {
         val firebaseAuthUser = securityProvider.validateRequest()
         val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
         val newUserToBeSaved = user.copy(fullName = request.newName)
-        return saveUserV2(newUserToBeSaved)
+        return saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING)
     }
 
     fun updateUserV2Email(request: UpdateUserV2EmailRequest): UserV2? {
         val firebaseAuthUser = securityProvider.validateRequest()
         val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
         val newUserToBeSaved = user.copy(email = request.newEmail)
-        return saveUserV2(newUserToBeSaved)
+        return saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING)
     }
 
     fun removeUserV2DP(): UserV2? {
         val firebaseAuthUser = securityProvider.validateRequest()
         val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
         val newUserToBeSaved = user.copy(dp = null)
-        return saveUserV2(newUserToBeSaved)
+        return saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING)
     }
 
     // Adding user id filed to handle Faker

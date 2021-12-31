@@ -156,6 +156,10 @@ class UserV2ServiceImpl : UserV2Service() {
         return userV2Provider.updateUserV2CoverImage(request)?.toSavedUserV2Response()
     }
 
+    override fun updateNotificationToken(request: UpdateNotificationTokenRequest): SavedUserV2Response? {
+        return userV2Provider.updateNotificationToken(request)?.toSavedUserV2Response()
+    }
+
     override fun getProfileTypesByProfileCategory(profileCategory: ProfileCategory): AllProfileTypeResponse? {
         return userV2Provider.getProfileTypesByProfileCategory(profileCategory)
     }

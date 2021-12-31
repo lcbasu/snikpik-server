@@ -33,4 +33,5 @@ abstract class UserV2Service {
     abstract fun updateUserV2Email(request: UpdateUserV2EmailRequest): SavedUserV2Response?
     abstract fun removeUserV2DP(): SavedUserV2Response?
     abstract fun updateUserV2CoverImage(request: UpdateUserV2CoverImageRequest): SavedUserV2Response?
+    abstract fun updateNotificationToken(request: UpdateNotificationTokenRequest): SavedUserV2Response?
 }

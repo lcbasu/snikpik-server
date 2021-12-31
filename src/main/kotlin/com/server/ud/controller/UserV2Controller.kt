@@ -122,6 +122,12 @@ class UserV2Controller {
         return userV2Service.updateUserV2Handle(request)
     }
 
+    @RequestMapping(value = ["/updateNotificationToken"], method = [RequestMethod.POST])
+    fun updateNotificationToken(@RequestBody request: UpdateNotificationTokenRequest): SavedUserV2Response? {
+        securityProvider.validateRequest()
+        return userV2Service.updateNotificationToken(request)
+    }
+
     @RequestMapping(value = ["/updateUserV2Email"], method = [RequestMethod.POST])
     fun updateUserV2Email(@RequestBody request: UpdateUserV2EmailRequest): SavedUserV2Response? {
         securityProvider.validateRequest()

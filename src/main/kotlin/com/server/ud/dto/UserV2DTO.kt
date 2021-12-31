@@ -15,7 +15,6 @@ import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.entities.user.*
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.UserLocationUpdateType
-import org.springframework.data.cassandra.core.mapping.Column
 
 data class LikedPostsByUserPostDetail(
     val likedByUserId: String,
@@ -99,6 +98,11 @@ data class UpdateUserV2EmailRequest (
     // Take it from request for any update related action
 //    val userId: String,
     val newEmail: String,
+)
+
+data class UpdateNotificationTokenRequest (
+    val token: String,
+    val tokenProvider: NotificationTokenProvider,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
