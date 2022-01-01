@@ -13,6 +13,7 @@ import com.server.ud.enums.LocationFor
 import com.server.ud.provider.cache.UDCacheProvider
 import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.es.ESProvider
+import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.utils.UDCommonUtils
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
@@ -41,7 +42,7 @@ class LocationProvider {
     private lateinit var randomIdProvider: RandomIdProvider
 
     @Autowired
-    private lateinit var deferredProcessingProvider: DeferredProcessingProvider
+    private lateinit var udJobProvider: UDJobProvider
 
     @Autowired
     private lateinit var udCacheProvider: UDCacheProvider
@@ -85,7 +86,7 @@ class LocationProvider {
             )
             val savedLocation = locationRepository.save(location)
             logger.info("Saved location into cassandra with locationId: ${savedLocation.locationId}")
-            deferredProcessingProvider.deferProcessingForLocation(savedLocation.locationId)
+            udJobProvider.scheduleProcessingForLocation(savedLocation.locationId)
             return savedLocation
         } catch (e: Exception) {
             logger.error("Saved location into cassandra failed for request: $request for userId: ${userId}")
@@ -116,7 +117,7 @@ class LocationProvider {
             )
             val savedLocation = locationRepository.save(location)
             logger.info("Saved location into cassandra with locationId: ${savedLocation.locationId}")
-            deferredProcessingProvider.deferProcessingForLocation(savedLocation.locationId)
+            udJobProvider.scheduleProcessingForLocation(savedLocation.locationId)
             return savedLocation
         } catch (e: Exception) {
             logger.error("Saved location into cassandra failed locationFor: $locationFor for userId: $userId")

@@ -7,6 +7,7 @@ import com.server.ud.dto.SaveBookmarkRequest
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.enums.BookmarkUpdateAction
 import com.server.ud.provider.deferred.DeferredProcessingProvider
+import com.server.ud.provider.job.UDJobProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
@@ -26,7 +27,7 @@ class BookmarkProvider {
     private lateinit var randomIdProvider: RandomIdProvider
 
     @Autowired
-    private lateinit var deferredProcessingProvider: DeferredProcessingProvider
+    private lateinit var udJobProvider: UDJobProvider
 
     @Autowired
     private lateinit var bookmarkProcessingProvider: BookmarkProcessingProvider
@@ -55,7 +56,7 @@ class BookmarkProvider {
             )
             val savedBookmark = bookmarkRepository.save(bookmark)
             bookmarkProcessingProvider.thingsToDoForBookmarkProcessingNow(savedBookmark)
-            deferredProcessingProvider.deferProcessingForBookmark(savedBookmark.bookmarkId)
+            udJobProvider.scheduleProcessingForBookmark(savedBookmark.bookmarkId)
             return savedBookmark
         } catch (e: Exception) {
             e.printStackTrace()

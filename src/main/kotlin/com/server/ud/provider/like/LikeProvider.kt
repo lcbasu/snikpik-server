@@ -9,6 +9,7 @@ import com.server.ud.dto.SaveLikeRequest
 import com.server.ud.entities.like.Like
 import com.server.ud.enums.LikeUpdateAction
 import com.server.ud.provider.deferred.DeferredProcessingProvider
+import com.server.ud.provider.job.UDJobProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,7 +27,7 @@ class LikeProvider {
     private lateinit var randomIdProvider: RandomIdProvider
 
     @Autowired
-    private lateinit var deferredProcessingProvider: DeferredProcessingProvider
+    private lateinit var udJobProvider: UDJobProvider
 
     @Autowired
     private lateinit var likesCountByResourceProvider: LikesCountByResourceProvider
@@ -66,7 +67,7 @@ class LikeProvider {
             )
             val savedLike = likeRepository.save(like)
             likeProcessingProvider.thingsToDoForLikeProcessingNow(savedLike)
-            deferredProcessingProvider.deferProcessingForLike(savedLike.likeId)
+            udJobProvider.scheduleProcessingForLike(savedLike.likeId)
             return savedLike
         } catch (e: Exception) {
             e.printStackTrace()

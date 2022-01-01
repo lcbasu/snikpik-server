@@ -81,6 +81,7 @@ class Consumer {
     // and when running locally, we would start consuming prod messages
     // @SqsListener(value = ["ud-deffered-task-processing_standard"], deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS )
     fun processMessage(message: String) {
+        // After deploying scheduler changes, there should be NO messages coming in here
         logger.info("Message received for processing: $message")
         GlobalScope.launch {
             val messageMap = try {

@@ -9,6 +9,7 @@ import com.server.ud.dto.SaveCommentRequest
 import com.server.ud.entities.MediaProcessingDetail
 import com.server.ud.entities.comment.Comment
 import com.server.ud.provider.deferred.DeferredProcessingProvider
+import com.server.ud.provider.job.UDJobProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,7 +24,7 @@ class CommentProvider {
     private lateinit var commentRepository: CommentRepository
 
     @Autowired
-    private lateinit var deferredProcessingProvider: DeferredProcessingProvider
+    private lateinit var udJobProvider: UDJobProvider
 
     @Autowired
     private lateinit var commentProcessingProvider: CommentProcessingProvider
@@ -57,7 +58,7 @@ class CommentProvider {
             )
             val savedComment = commentRepository.save(comment)
             commentProcessingProvider.processCommentNow(savedComment)
-            deferredProcessingProvider.deferProcessingForComment(savedComment.commentId)
+            udJobProvider.scheduleProcessingForComment(savedComment.commentId)
             return savedComment
         } catch (e: Exception) {
             e.printStackTrace()

@@ -8,6 +8,7 @@ import com.server.ud.entities.post.*
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
 import com.server.ud.provider.deferred.DeferredProcessingProvider
+import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.location.ESLocationProvider
 import com.server.ud.provider.location.LocationProcessingProvider
 import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
@@ -83,7 +84,7 @@ class PostProcessingProvider {
     private lateinit var mediaHandlerProvider: MediaHandlerProvider
 
     @Autowired
-    private lateinit var deferredProcessingProvider: DeferredProcessingProvider
+    private lateinit var udJobProvider: UDJobProvider
 
     @Autowired
     private lateinit var bookmarkedPostsByUserRepository: BookmarkedPostsByUserRepository
@@ -209,7 +210,7 @@ class PostProcessingProvider {
             algoliaIndexingFuture.await()
 
             // Schedule Heavy job to be done in isolation
-            deferredProcessingProvider.deferProcessingForPostForFollowers(postId)
+            udJobProvider.scheduleProcessingForPostForFollowers(postId)
 
             logger.info("Done: post processing for postId: $postId")
         }

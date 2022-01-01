@@ -6,6 +6,7 @@ import com.server.ud.dto.ResourceViewsReportDetail
 import com.server.ud.dto.ResourceViewsReportDetailForUser
 import com.server.ud.dto.toResourceViewId
 import com.server.ud.provider.deferred.DeferredProcessingProvider
+import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.view.ResourceViewByUserProvider
 import com.server.ud.provider.view.ResourceViewsCountByResourceProvider
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,10 +25,10 @@ class ResourceViewServiceImpl : ResourceViewService() {
     private lateinit var resourceViewByUserProvider: ResourceViewByUserProvider
 
     @Autowired
-    private lateinit var deferredProcessingProvider: DeferredProcessingProvider
+    private lateinit var udJobProvider: UDJobProvider
 
     override fun saveResourceView(request: ResourceViewRequest): Boolean? {
-        deferredProcessingProvider.deferProcessingForView(request.toResourceViewId())
+        udJobProvider.scheduleProcessingForView(request.toResourceViewId())
         return true
     }
 

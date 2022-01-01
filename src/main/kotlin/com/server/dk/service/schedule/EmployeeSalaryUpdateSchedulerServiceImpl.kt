@@ -1,7 +1,7 @@
 package com.server.dk.service.schedule
 
 import com.server.dk.entities.Employee
-import com.server.dk.enums.JobGroupType
+import com.server.common.enums.JobGroupType
 import com.server.dk.enums.SalaryType
 import com.server.dk.jobs.EmployeeSalaryUpdateJob
 import com.server.common.utils.DateUtils

@@ -27,6 +27,7 @@ import com.server.ud.model.MediaInputDetail
 import com.server.ud.model.convertToString
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.deferred.DeferredProcessingProvider
+import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.location.LocationProvider
 import com.server.ud.provider.user.UserV2Provider
 import com.server.ud.utils.pagination.PaginationRequestUtil
@@ -54,7 +55,7 @@ class PostProvider {
     private lateinit var locationProvider: LocationProvider
 
     @Autowired
-    private lateinit var deferredProcessingProvider: DeferredProcessingProvider
+    private lateinit var udJobProvider: UDJobProvider
 
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
@@ -208,10 +209,10 @@ class PostProvider {
             } catch (e: Exception) {
                 e.printStackTrace()
                 // Fallback to normal processing
-                deferredProcessingProvider.deferProcessingForPost(savedPost.postId)
+                udJobProvider.scheduleProcessingForPost(savedPost.postId)
             }
         } else {
-            deferredProcessingProvider.deferProcessingForPost(savedPost.postId)
+            udJobProvider.scheduleProcessingForPost(savedPost.postId)
         }
     }
 
@@ -231,7 +232,7 @@ class PostProvider {
         }
         updateMedia(post, MediaDetailsV2(newMedia))
         // Now do the post-processing with new media URL
-        deferredProcessingProvider.deferProcessingForPost(post.postId)
+        udJobProvider.scheduleProcessingForPost(post.postId)
     }
 
     fun getPosts(request: PaginatedRequest): CassandraPageV2<Post?>? {

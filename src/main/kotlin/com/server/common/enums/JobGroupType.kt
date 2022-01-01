@@ -1,4 +1,4 @@
-package com.server.dk.enums
+package com.server.common.enums
 
 enum class JobGroupType {
     EmployeeSalaryUpdate_Job,

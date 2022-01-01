@@ -5,6 +5,7 @@ import com.server.ud.dto.FakerRequest
 import com.server.ud.dto.FakerResponse
 import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.faker.FakerProvider
+import com.server.ud.provider.job.UDJobProvider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -18,7 +19,7 @@ class FakerServiceImpl : FakerService() {
     private lateinit var fakerProvider: FakerProvider
 
     @Autowired
-    private lateinit var deferredProcessingProvider: DeferredProcessingProvider
+    private lateinit var udJobProvider: UDJobProvider
 
     override fun createFakeData(request: FakerRequest): FakerResponse {
         val userDetailsFromToken = securityProvider.validateRequest()
@@ -34,7 +35,7 @@ class FakerServiceImpl : FakerService() {
 //        val user = requestContext.userV2
 
 //        if (user.absoluteMobile != "+919742097429") error("Only Admin is allowed to do this.")
-        deferredProcessingProvider.deferFakeDataGeneration()
+        udJobProvider.scheduleFakeDataGeneration(userDetailsFromToken.getUserIdToUse())
         return "Job scheduled to generate fake data"
     }
 

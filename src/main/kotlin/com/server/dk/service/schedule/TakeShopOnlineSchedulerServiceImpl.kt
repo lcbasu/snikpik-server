@@ -1,7 +1,7 @@
 package com.server.dk.service.schedule
 
 import com.server.dk.entities.Company
-import com.server.dk.enums.JobGroupType
+import com.server.common.enums.JobGroupType
 import com.server.dk.enums.TakeShopOnlineAfter
 import com.server.dk.jobs.TakeShopOnlineJob
 import com.server.common.utils.DateUtils
