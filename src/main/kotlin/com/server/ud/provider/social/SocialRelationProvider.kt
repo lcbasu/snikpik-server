@@ -1,12 +1,14 @@
 package com.server.ud.provider.social
 
+import com.google.firebase.cloud.FirestoreClient
 import com.server.common.utils.CommonUtils
 import com.server.ud.dao.social.SocialRelationRepository
 import com.server.ud.dto.FollowersResponse
 import com.server.ud.dto.GetFollowersRequest
 import com.server.ud.entities.social.SocialRelation
-import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.job.UDJobProvider
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -50,10 +52,20 @@ class SocialRelationProvider {
             if (scheduleJob) {
                 udJobProvider.scheduleProcessingForSocialRelation(getId(savedRelation))
             }
+            saveSocialRelationToFirestore(savedRelation)
             return savedRelation
         } catch (e: Exception) {
             e.printStackTrace()
             return null
+        }
+    }
+
+    private fun saveSocialRelationToFirestore (relation: SocialRelation) {
+        GlobalScope.launch {
+            FirestoreClient.getFirestore()
+                .collection("social_relation")
+                .document(getId(relation))
+                .set(relation)
         }
     }
 
@@ -62,6 +74,12 @@ class SocialRelationProvider {
 
     fun getFollowers(request: GetFollowersRequest): FollowersResponse? {
         return followersByUserProvider.getFeedForFollowersResponse(request)
+    }
+
+    fun saveAllToFirestore() {
+        socialRelationRepository.findAll().forEach {
+            saveSocialRelationToFirestore(it!!)
+        }
     }
 
 }

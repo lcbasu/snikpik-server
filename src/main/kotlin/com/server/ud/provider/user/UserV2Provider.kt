@@ -1,5 +1,6 @@
 package com.server.ud.provider.user
 
+import com.google.firebase.cloud.FirestoreClient
 import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.dto.convertToString
 import com.server.common.dto.toProfileTypeResponse
@@ -16,9 +17,10 @@ import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.LocationFor
 import com.server.ud.enums.ProcessingType
 import com.server.ud.enums.UserLocationUpdateType
-import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.location.LocationProvider
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -67,6 +69,7 @@ class UserV2Provider {
             } else if (processingType == ProcessingType.DELETE_AND_REFRESH) {
                 udJobProvider.scheduleReProcessingForUserV2(savedUser.userId)
             }
+            saveUserV2ToFirestore(savedUser)
             return savedUser
         } catch (e: Exception) {
             logger.error("Saving UserV2 for ${userV2.userId} failed.")
@@ -415,6 +418,24 @@ class UserV2Provider {
                 it.toProfileTypeResponse()
             }
         )
+    }
+
+
+    private fun saveUserV2ToFirestore (user: UserV2) {
+        GlobalScope.launch {
+            FirestoreClient.getFirestore()
+                .collection("users")
+                .document(user.userId)
+                .collection("users")
+                .document(user.userId)
+                .set(user)
+        }
+    }
+
+    fun saveAllToFirestore() {
+        userV2Repository.findAll().forEach {
+            saveUserV2ToFirestore(it!!)
+        }
     }
 
 }

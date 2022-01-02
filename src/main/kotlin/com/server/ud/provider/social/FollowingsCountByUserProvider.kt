@@ -1,7 +1,10 @@
 package com.server.ud.provider.social
 
+import com.google.firebase.cloud.FirestoreClient
 import com.server.ud.dao.social.FollowingsCountByUserRepository
 import com.server.ud.entities.social.FollowingsCountByUser
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,6 +34,7 @@ class FollowingsCountByUserProvider {
     fun increaseFollowingsCount(userId: String) {
         followingsCountByUserRepository.incrementFollowings(userId)
         logger.warn("Increased followings count for userId: $userId")
+        saveFollowingsCountByUserToFirestore(getFollowingsCountByUser(userId))
     }
 
     fun decreaseFollowingsCount(userId: String) {
@@ -40,6 +44,28 @@ class FollowingsCountByUserProvider {
             logger.warn("Decreased followings count for userId: $userId")
         } else {
             logger.warn("The followings count is already zero. So skipping decreasing it further for userId: $userId")
+        }
+        saveFollowingsCountByUserToFirestore(getFollowingsCountByUser(userId))
+    }
+
+    private fun saveFollowingsCountByUserToFirestore (followingsCountByUser: FollowingsCountByUser?) {
+        GlobalScope.launch {
+            if (followingsCountByUser?.userId == null) {
+                logger.error("No userId found in followings count by user. So skipping saving it to firestore.")
+                return@launch
+            }
+            FirestoreClient.getFirestore()
+                .collection("users")
+                .document(followingsCountByUser.userId!!)
+                .collection("followings_count_by_user")
+                .document(followingsCountByUser.userId!!)
+                .set(followingsCountByUser)
+        }
+    }
+
+    fun saveAllToFirestore() {
+        followingsCountByUserRepository.findAll().forEach {
+            saveFollowingsCountByUserToFirestore(it)
         }
     }
 }

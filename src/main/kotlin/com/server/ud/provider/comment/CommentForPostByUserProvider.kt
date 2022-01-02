@@ -1,7 +1,10 @@
 package com.server.ud.provider.comment
 
+import com.google.firebase.cloud.FirestoreClient
 import com.server.ud.dao.comment.CommentForPostByUserRepository
 import com.server.ud.entities.comment.CommentForPostByUser
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,21 +32,40 @@ class CommentForPostByUserProvider {
         }
 
     fun save(postId: String, userId: String, commented: Boolean) : CommentForPostByUser? {
-        try {
+        return try {
             val comment = CommentForPostByUser(
                 postId = postId,
                 userId = userId,
                 commented = commented,
             )
-            return commentForPostByUserRepository.save(comment)
+            val result = commentForPostByUserRepository.save(comment)
+            saveCommentForPostByUserToFirestore(result)
+            result
         } catch (e: Exception) {
             e.printStackTrace()
-            return null
+            null
         }
     }
 
     fun setCommented(postId: String, userId: String) {
         save(postId, userId, true)
+    }
+
+    private fun saveCommentForPostByUserToFirestore (commentForPostByUser: CommentForPostByUser) {
+        GlobalScope.launch {
+            FirestoreClient.getFirestore()
+                .collection("users")
+                .document(commentForPostByUser.userId)
+                .collection("comment_for_post_by_user")
+                .document(commentForPostByUser.postId)
+                .set(commentForPostByUser)
+        }
+    }
+
+    fun saveAllToFirestore() {
+        commentForPostByUserRepository.findAll().forEach {
+            saveCommentForPostByUserToFirestore(it!!)
+        }
     }
 
 }

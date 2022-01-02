@@ -1,8 +1,10 @@
 package com.server.ud.provider.post
 
+import com.google.firebase.cloud.FirestoreClient
 import com.server.ud.dao.post.PostsCountByUserRepository
 import com.server.ud.entities.user.PostsCountByUser
-
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,6 +40,7 @@ class PostsCountByUserProvider {
     fun increasePostCount(userId: String) {
         postsCountByUserRepository.incrementPostCount(userId)
         logger.warn("Increased post count for userId: $userId")
+        savePostsCountByUserToFirestore(getPostsCountByUser(userId))
     }
 
     fun decrementPostCount(userId: String) {
@@ -48,10 +51,31 @@ class PostsCountByUserProvider {
         } else {
             logger.warn("The posts count is already zero. So skipping decreasing it further for userId: $userId")
         }
+        savePostsCountByUserToFirestore(getPostsCountByUser(userId))
     }
-
 
     fun deletePost(postId: String) {
         TODO("Add steps to delete post and related information")
+    }
+
+    private fun savePostsCountByUserToFirestore (postsCountByUser: PostsCountByUser?) {
+        GlobalScope.launch {
+            if (postsCountByUser?.userId == null) {
+                logger.error("No user id found in postsCountByUser. So skipping saving it to firestore.")
+                return@launch
+            }
+            FirestoreClient.getFirestore()
+                .collection("users")
+                .document(postsCountByUser.userId!!)
+                .collection("posts_count_by_user")
+                .document(postsCountByUser.userId!!)
+                .set(postsCountByUser)
+        }
+    }
+
+    fun saveAllToFirestore() {
+        postsCountByUserRepository.findAll().forEach {
+            savePostsCountByUserToFirestore(it)
+        }
     }
 }

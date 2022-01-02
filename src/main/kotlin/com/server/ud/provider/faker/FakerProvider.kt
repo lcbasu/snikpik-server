@@ -42,6 +42,7 @@ import com.server.ud.provider.location.LocationProvider
 import com.server.ud.provider.location.LocationsByUserProvider
 import com.server.ud.provider.location.LocationsByZipcodeProvider
 import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
+import com.server.ud.provider.one_off.OneOffSaveDataToFirestore
 import com.server.ud.provider.post.*
 import com.server.ud.provider.reply.ReplyProvider
 import com.server.ud.provider.social.FollowersByUserProvider
@@ -389,13 +390,17 @@ class FakerProvider {
     @Autowired
     private lateinit var usersByZipcodeProvider: UsersByZipcodeProvider
 
+
     @Autowired
     private lateinit var cassandraTableModificationProvider: CassandraTableModificationProvider
 
+    @Autowired
+    private lateinit var oneOffSaveDataToFirestore: OneOffSaveDataToFirestore
 
     fun doSomething(): Any {
 //        recoverDeletedData()
-        cassandraTableModificationProvider.addNewColumns()
+//        cassandraTableModificationProvider.addNewColumns()
+        oneOffSaveDataToFirestore.saveMetadataToFirestore()
         return "Something was done..."
     }
 

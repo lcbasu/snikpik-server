@@ -1,7 +1,10 @@
 package com.server.ud.provider.reply
 
+import com.google.firebase.cloud.FirestoreClient
 import com.server.ud.dao.reply.RepliesCountByCommentRepository
 import com.server.ud.entities.reply.RepliesCountByComment
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,10 +34,30 @@ class RepliesCountByCommentProvider {
     fun increaseRepliesCount(commentId: String) {
         repliesCountByCommentRepository.incrementReplyCount(commentId)
         logger.warn("Increased replies count for commentId: $commentId")
+        saveRepliesCountByCommentToFirestore(getRepliesCountByComment(commentId))
     }
 
     fun deletePost(postId: String) {
         TODO("Add steps to delete post and related information")
+    }
+
+    private fun saveRepliesCountByCommentToFirestore (repliesCountByComment: RepliesCountByComment?) {
+        GlobalScope.launch {
+            if (repliesCountByComment?.commentId == null) {
+                logger.error("No comment found in repliesCountByComment. So skipping saving it to firestore.")
+                return@launch
+            }
+            FirestoreClient.getFirestore()
+                .collection("replies_count_by_comment")
+                .document(repliesCountByComment.commentId!!)
+                .set(repliesCountByComment)
+        }
+    }
+
+    fun saveAllToFirestore() {
+        repliesCountByCommentRepository.findAll().forEach {
+            saveRepliesCountByCommentToFirestore(it)
+        }
     }
 
 }

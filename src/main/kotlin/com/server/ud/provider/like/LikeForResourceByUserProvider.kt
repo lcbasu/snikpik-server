@@ -1,7 +1,10 @@
 package com.server.ud.provider.like
 
+import com.google.firebase.cloud.FirestoreClient
 import com.server.ud.dao.like.LikeForResourceByUserRepository
 import com.server.ud.entities.like.LikeForResourceByUser
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,16 +32,18 @@ class LikeForResourceByUserProvider {
     }
 
     fun save(resourceId: String, userId: String, liked: Boolean) : LikeForResourceByUser? {
-        try {
+        return try {
             val like = LikeForResourceByUser(
                 resourceId = resourceId,
                 userId = userId,
                 liked = liked,
             )
-            return likeForResourceByUserRepository.save(like)
+            val result = likeForResourceByUserRepository.save(like)
+            saveLikeForResourceByUserToFirestore(result)
+            result
         } catch (e: Exception) {
             e.printStackTrace()
-            return null
+            null
         }
     }
 
@@ -46,6 +51,23 @@ class LikeForResourceByUserProvider {
         // Using save instead of update as they both would eventually do the same thing for
         // single row documents
         save(resourceId, userId, value)
+    }
+
+    private fun saveLikeForResourceByUserToFirestore (likeForResourceByUser: LikeForResourceByUser) {
+        GlobalScope.launch {
+            FirestoreClient.getFirestore()
+                .collection("users")
+                .document(likeForResourceByUser.userId)
+                .collection("like_for_resource_by_user")
+                .document(likeForResourceByUser.resourceId)
+                .set(likeForResourceByUser)
+        }
+    }
+
+    fun saveAllToFirestore() {
+        likeForResourceByUserRepository.findAll().forEach {
+            saveLikeForResourceByUserToFirestore(it!!)
+        }
     }
 
 }

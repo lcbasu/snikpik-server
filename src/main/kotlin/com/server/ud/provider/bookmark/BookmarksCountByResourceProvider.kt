@@ -1,5 +1,6 @@
 package com.server.ud.provider.bookmark
 
+import com.google.firebase.cloud.FirestoreClient
 import com.server.ud.dao.bookmark.BookmarksCountByResourceRepository
 import com.server.ud.entities.bookmark.BookmarksCountByResource
 import kotlinx.coroutines.GlobalScope
@@ -33,6 +34,7 @@ class BookmarksCountByResourceProvider {
     fun increaseBookmark(resourceId: String) {
         bookmarksCountByResourceRepository.incrementBookmarkCount(resourceId)
         logger.warn("Increased bookmark for resourceId: $resourceId")
+        saveBookmarksCountByResourceToFirestore(getBookmarksCountByResource(resourceId))
     }
     fun decreaseBookmark(resourceId: String) {
         val existing = getBookmarksCountByResource(resourceId)
@@ -41,6 +43,26 @@ class BookmarksCountByResourceProvider {
             logger.warn("Decreased bookmark for resourceId: $resourceId")
         } else {
             logger.warn("The bookmarks count is already zero. So skipping decreasing it further for resourceId: $resourceId")
+        }
+        saveBookmarksCountByResourceToFirestore(getBookmarksCountByResource(resourceId))
+    }
+
+    private fun saveBookmarksCountByResourceToFirestore (bookmarksCountByResource: BookmarksCountByResource?) {
+        GlobalScope.launch {
+            if (bookmarksCountByResource?.resourceId == null) {
+                logger.error("No resource id found in bookmarksCountByResource. So skipping saving it to firestore.")
+                return@launch
+            }
+            FirestoreClient.getFirestore()
+                .collection("bookmarks_count_by_resource")
+                .document(bookmarksCountByResource.resourceId!!)
+                .set(bookmarksCountByResource)
+        }
+    }
+
+    fun saveAllToFirestore() {
+        bookmarksCountByResourceRepository.findAll().forEach {
+            saveBookmarksCountByResourceToFirestore(it)
         }
     }
 }

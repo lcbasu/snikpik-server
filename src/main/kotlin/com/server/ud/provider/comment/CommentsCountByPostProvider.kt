@@ -1,7 +1,10 @@
 package com.server.ud.provider.comment
 
+import com.google.firebase.cloud.FirestoreClient
 import com.server.ud.dao.comment.CommentsCountByPostRepository
 import com.server.ud.entities.comment.CommentsCountByPost
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,6 +34,7 @@ class CommentsCountByPostProvider {
     fun increaseCommentCount(postId: String) {
         commentsCountByPostRepository.incrementCommentCount(postId)
         logger.warn("Increased comment for postId: $postId")
+        saveCommentsCountByPostToFirestore(getCommentsCountByPost(postId))
     }
 
     // Decreasing is Not supported as the comments are immutable right now
@@ -47,5 +51,24 @@ class CommentsCountByPostProvider {
 //
 //    fun resetCommentsCount(postId: String) =
 //        commentsCountByPostRepository.setCommentCount(postId, 0)
+
+    private fun saveCommentsCountByPostToFirestore (commentsCountByPost: CommentsCountByPost?) {
+        GlobalScope.launch {
+            if (commentsCountByPost?.postId == null) {
+                logger.error("No post id found in commentsCountByPost. So skipping saving it to firestore.")
+                return@launch
+            }
+            FirestoreClient.getFirestore()
+                .collection("comments_count_by_post")
+                .document(commentsCountByPost.postId!!)
+                .set(commentsCountByPost)
+        }
+    }
+
+    fun saveAllToFirestore() {
+        commentsCountByPostRepository.findAll().forEach {
+            saveCommentsCountByPostToFirestore(it)
+        }
+    }
 
 }

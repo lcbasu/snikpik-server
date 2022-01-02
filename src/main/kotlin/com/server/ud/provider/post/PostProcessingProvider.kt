@@ -7,7 +7,6 @@ import com.server.ud.entities.location.Location
 import com.server.ud.entities.post.*
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
-import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.location.ESLocationProvider
 import com.server.ud.provider.location.LocationProcessingProvider
@@ -321,7 +320,8 @@ class PostProcessingProvider {
 
             // Only one count has to be decreases as the one post is created by
             // only one user and adds only one count
-            postsCountByUserRepository.decrementPostCount(userId)
+//            postsCountByUserRepository.decrementPostCount(userId)
+            postsCountByUserProvider.decrementPostCount(userId)
 
             postRepository.deleteAll(postRepository.findAllByPostId(postId))
 
