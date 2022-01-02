@@ -428,7 +428,7 @@ class UserV2Provider {
                 .document(user.userId)
                 .collection("users")
                 .document(user.userId)
-                .set(user)
+                .set(user.toSavedUserV2Response())
         }
     }
 
