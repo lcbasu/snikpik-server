@@ -280,55 +280,6 @@ data class SavedUserV2Response(
     val permanentLocationCompleteAddress: String?,
 )
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class UserV2ForFirebase(
-    val userId: String,
-    val fullName: String?,
-    val uid: String?,
-    val anonymous: Boolean?,
-    val absoluteMobile: String?,
-    val email: String?,
-    val countryCode: String?,
-    val notificationToken: String?,
-    val notificationTokenProvider: NotificationTokenProvider?,
-    val createdAt: Long?,
-    val handle: String?,
-    val dp: String?, // MediaDetailsV2
-    val coverImage: String?, // MediaDetailsV2
-    val verified: Boolean?,
-    val profiles: String?,
-    val preferredCategories: String?,
-
-    val currentLocationZipcode: String?,
-    val currentGooglePlaceId: String?,
-    val currentLocationId: String?,
-    val currentLocationName: String?,
-    val currentLocationLat: Double?,
-    val currentLocationLng: Double?,
-    val currentLocationLocality: String?,
-    val currentLocationSubLocality: String?,
-    val currentLocationRoute: String?,
-    val currentLocationCity: String?,
-    val currentLocationState: String?,
-    val currentLocationCountry: String?,
-    val currentLocationCountryCode: String?,
-    val currentLocationCompleteAddress: String?,
-    val permanentLocationZipcode: String?,
-    val permanentGooglePlaceId: String?,
-    val permanentLocationId: String?,
-    val permanentLocationName: String?,
-    val permanentLocationLat: Double?,
-    val permanentLocationLng: Double?,
-    val permanentLocationLocality: String?,
-    val permanentLocationSubLocality: String?,
-    val permanentLocationRoute: String?,
-    val permanentLocationCity: String?,
-    val permanentLocationState: String?,
-    val permanentLocationCountry: String?,
-    val permanentLocationCountryCode: String?,
-    val permanentLocationCompleteAddress: String?,
-)
-
 data class UserHandleAvailabilityResponse(
     val available: Boolean,
 )
@@ -352,59 +303,6 @@ fun UserV2.toSavedUserV2Response(): SavedUserV2Response {
             verified = verified,
             profiles = getProfiles(),
             preferredCategories = getPreferredCategories(),
-
-            currentLocationId = currentLocationId,
-            currentLocationLat = currentLocationLat,
-            currentLocationLng = currentLocationLng,
-            currentLocationZipcode = currentLocationZipcode,
-            currentLocationName = currentLocationName,
-            currentGooglePlaceId = currentGooglePlaceId,
-            currentLocationLocality = currentLocationLocality,
-            currentLocationSubLocality = currentLocationSubLocality,
-            currentLocationRoute = currentLocationRoute,
-            currentLocationCity = currentLocationCity,
-            currentLocationState = currentLocationState,
-            currentLocationCountry = currentLocationCountry,
-            currentLocationCountryCode = currentLocationCountryCode,
-            currentLocationCompleteAddress = currentLocationCompleteAddress,
-
-            permanentLocationId = permanentLocationId,
-            permanentLocationLat = permanentLocationLat,
-            permanentLocationLng = permanentLocationLng,
-            permanentLocationZipcode = permanentLocationZipcode,
-            permanentLocationName = permanentLocationName,
-            permanentGooglePlaceId = permanentGooglePlaceId,
-            permanentLocationLocality = permanentLocationLocality,
-            permanentLocationSubLocality = permanentLocationSubLocality,
-            permanentLocationRoute = permanentLocationRoute,
-            permanentLocationCity = permanentLocationCity,
-            permanentLocationState = permanentLocationState,
-            permanentLocationCountry = permanentLocationCountry,
-            permanentLocationCountryCode = permanentLocationCountryCode,
-            permanentLocationCompleteAddress = permanentLocationCompleteAddress,
-        )
-    }
-}
-
-fun UserV2.toUserV2ForFirebase(): UserV2ForFirebase {
-    this.apply {
-        return UserV2ForFirebase(
-            userId = userId,
-            fullName = fullName,
-            uid = uid,
-            anonymous = anonymous,
-            absoluteMobile = absoluteMobile,
-            email = email,
-            countryCode = countryCode,
-            notificationToken = notificationToken,
-            notificationTokenProvider = notificationTokenProvider,
-            createdAt = DateUtils.getEpoch(createdAt),
-            handle = handle,
-            dp = dp,
-            coverImage = coverImage,
-            verified = verified,
-            profiles = profiles,
-            preferredCategories = preferredCategories,
 
             currentLocationId = currentLocationId,
             currentLocationLat = currentLocationLat,
