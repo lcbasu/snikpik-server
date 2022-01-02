@@ -191,3 +191,5 @@ management:
 
 bugsnag:
   unbox-server-api-key: ${BUGSNAG_UNBOX_SERVER_API_KEY}
+ably:
+  api-key: ${ABLY_API_KEY}

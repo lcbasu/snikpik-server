@@ -96,3 +96,7 @@ data class AlgoliaProperties(
 @ConstructorBinding
 @ConfigurationProperties("bugsnag")
 data class BugsnagProperties(val unboxServerApiKey: String)
+
+@ConstructorBinding
+@ConfigurationProperties("ably")
+data class AblyProperties(val apiKey: String)

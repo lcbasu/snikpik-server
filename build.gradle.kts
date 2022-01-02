@@ -35,6 +35,10 @@ dependencies {
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools:2.3.8.RELEASE")
 
+	// Ably - Start
+	implementation("io.ably:ably-java:1.2.3")
+	// Ably - End
+
 	implementation("com.bugsnag:bugsnag-spring:3.6.3")
 	// Be careful of the version number for fasterxml
 	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.11.4")

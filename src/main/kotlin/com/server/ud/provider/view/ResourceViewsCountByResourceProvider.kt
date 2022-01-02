@@ -1,5 +1,6 @@
 package com.server.ud.provider.view
 
+import com.server.common.provider.AblyProvider
 import com.server.ud.dao.view.ResourceViewsCountByResourceRepository
 import com.server.ud.entities.view.ResourceViewsCountByResource
 import org.slf4j.Logger
@@ -14,6 +15,9 @@ class ResourceViewsCountByResourceProvider {
 
     @Autowired
     private lateinit var repository: ResourceViewsCountByResourceRepository
+
+    @Autowired
+    private lateinit var ablyProvider: AblyProvider
 
     fun getResourceViewsCountByResource(resourceId: String): ResourceViewsCountByResource? =
         try {
@@ -30,6 +34,13 @@ class ResourceViewsCountByResourceProvider {
 
     fun incrementResourceViewCount(resourceId: String) {
         repository.incrementResourceViewCount(resourceId)
+        getResourceViewsCountByResource(resourceId)?.let {
+            ablyProvider.publishToChannel(
+                channelName = "resource-views-count",
+                "update",
+                it
+            )
+        }
         logger.warn("Increased views for resourceId: $resourceId")
     }
 
