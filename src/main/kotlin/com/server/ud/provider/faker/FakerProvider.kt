@@ -400,7 +400,7 @@ class FakerProvider {
     fun doSomething(): Any {
 //        recoverDeletedData()
 //        cassandraTableModificationProvider.addNewColumns()
-//        oneOffSaveDataToFirestore.saveMetadataToFirestore()
+        oneOffSaveDataToFirestore.saveMetadataToFirestore()
         return "Something was done..."
     }
 
