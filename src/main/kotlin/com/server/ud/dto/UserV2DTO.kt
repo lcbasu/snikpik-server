@@ -232,6 +232,30 @@ data class ProfilePageUserDetailsResponse(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class UserV2PublicMiniDataResponse(
+    val userId: String,
+    val fullName: String?,
+    val uid: String?,
+    val createdAt: Long?,
+    val handle: String?,
+    val email: String?, // Send to client only for Pros
+    val absoluteMobile: String?, // Send to client only for Pros
+    val dp: MediaDetailsV2?, // MediaDetailsV2
+    val coverImage: MediaDetailsV2?, // MediaDetailsV2
+    val verified: Boolean?,
+    val profileToShow: ProfileTypeResponse?,
+
+    val clZipcode: String?,
+    val clId: String?,
+    val clName: String?,
+    val clCity: String?,
+    val plZipcode: String?,
+    val plId: String?,
+    val plName: String?,
+    val plCity: String?,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class SavedUserV2Response(
     val userId: String,
     val fullName: String?,
@@ -386,6 +410,35 @@ fun UserV2.toProfilePageUserDetailsResponse(): ProfilePageUserDetailsResponse {
             permanentLocationCountry = permanentLocationCountry,
             permanentLocationCountryCode = permanentLocationCountryCode,
             permanentLocationCompleteAddress = permanentLocationCompleteAddress,
+        )
+    }
+}
+
+fun UserV2.toUserV2PublicMiniDataResponse(): UserV2PublicMiniDataResponse {
+    this.apply {
+        val profileToShow = getProfiles().profileTypes.firstOrNull()
+        return UserV2PublicMiniDataResponse(
+            userId = userId,
+            fullName = fullName,
+            uid = uid,
+            createdAt = DateUtils.getEpoch(createdAt),
+            handle = handle,
+            email = if (profileToShow?.category !== ProfileCategory.OWNER) email else "",
+            absoluteMobile = if (profileToShow?.category !== ProfileCategory.OWNER) absoluteMobile else "",
+            dp = getMediaDetailsForDP(),
+            coverImage = getMediaDetailsForCoverImage(),
+            verified = verified,
+            profileToShow = profileToShow,
+
+            clId = currentLocationId,
+            clZipcode = currentLocationZipcode,
+            clName = currentLocationName,
+            clCity = currentLocationCity,
+
+            plId = permanentLocationId,
+            plZipcode = permanentLocationZipcode,
+            plName = permanentLocationName,
+            plCity = permanentLocationCity,
         )
     }
 }

@@ -429,6 +429,13 @@ class UserV2Provider {
                 .collection("users")
                 .document(user.userId)
                 .set(user.toSavedUserV2Response())
+
+            FirestoreClient.getFirestore()
+                .collection("users")
+                .document(user.userId)
+                .collection("users_public")
+                .document(user.userId)
+                .set(user.toUserV2PublicMiniDataResponse())
         }
     }
 
