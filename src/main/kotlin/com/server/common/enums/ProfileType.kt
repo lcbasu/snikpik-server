@@ -134,6 +134,14 @@ enum class ProfileType(
         )
     ),
 
+    ARCHITECTURAL_PHOTOGRAPHY(
+        ProfileCategory.PROFESSIONAL,
+        "Architectural Photography",
+        MediaDetailsV2(
+            media = emptyList()
+        )
+    ),
+
     // Suppliers
 
     APPLIANCES(
