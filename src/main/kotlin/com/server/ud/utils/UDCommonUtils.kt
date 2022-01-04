@@ -28,5 +28,42 @@ object UDCommonUtils {
         return true
     }
 
+    fun lockedUsernames (): Set<String> {
+        return setOf(
+            "kairalitmt",
+            "steelex",
+            "malabardevelopers",
+            "lulugroup",
+            "ikea",
+            "asianpaints",
+            "godrej",
+            "prestige",
+            "whirlpool",
+            "samsung",
+            "ultratechcement",
+            "ambujacement",
+            "tata",
+            "birla",
+            "bergerpaints",
+            "nipponpaint",
+            "kansainerolacpaints",
+            "jswsteel",
+            "sail",
+            "tatasteel",
+            "fevicol",
+            "drfixit",
+            "usha",
+            "wipro",
+            "havells",
+            "philips",
+            "anchor",
+            "legrand",
+            "polycabwires",
+            "finolexcables",
+            "prestige",
+            "jrc",
+        )
+    }
+
 }
 
