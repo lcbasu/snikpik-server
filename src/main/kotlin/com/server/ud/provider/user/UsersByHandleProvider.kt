@@ -4,6 +4,7 @@ import com.server.common.utils.CommonUtils
 import com.server.ud.dao.user.UsersByHandleRepository
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.UsersByHandle
+import com.server.ud.utils.UDCommonUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -39,6 +40,10 @@ class UsersByHandleProvider {
             return false
         }
         if (handle.length < MIN_HANDLE_LENGTH) {
+            return false
+        }
+        // Blocked locked usernames
+        if (UDCommonUtils.lockedUsernames().map { it.toLowerCase() }.contains(handle.toLowerCase())) {
             return false
         }
         return getUsersByHandle(handle) == null
