@@ -62,6 +62,18 @@ object UDCommonUtils {
             "finolexcables",
             "prestige",
             "jrc",
+            "kajaria",
+            "jaguar",
+            "pepperfry",
+            "Hindware",
+            "cera",
+            "kohler",
+            "cromptongreaves",
+            "vguard",
+            "homecentre",
+            "urbanladder",
+            "somany",
+            "centuryply",
         )
     }
 
