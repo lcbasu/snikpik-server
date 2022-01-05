@@ -251,7 +251,7 @@ fun MediaDetailsV2.getSanitizedMediaDetails(): MediaDetailsV2 {
         return try {
             MediaDetailsV2(this.media.map {
                 val extension = getFileExtension(it.mediaUrl)
-                if (validVideoExtensions.contains(extension) && it.mediaType != MediaType.VIDEO) {
+                if (validVideoExtensions.contains(".$extension") && it.mediaType != MediaType.VIDEO) {
                     it.copy(mediaType = MediaType.VIDEO, mimeType = "video")
                 } else {
                     it
