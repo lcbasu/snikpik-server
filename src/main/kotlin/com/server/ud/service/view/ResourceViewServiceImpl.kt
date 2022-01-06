@@ -5,10 +5,11 @@ import com.server.ud.dto.ResourceViewRequest
 import com.server.ud.dto.ResourceViewsReportDetail
 import com.server.ud.dto.ResourceViewsReportDetailForUser
 import com.server.ud.dto.toResourceViewId
-import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.view.ResourceViewByUserProvider
 import com.server.ud.provider.view.ResourceViewsCountByResourceProvider
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -28,7 +29,9 @@ class ResourceViewServiceImpl : ResourceViewService() {
     private lateinit var udJobProvider: UDJobProvider
 
     override fun saveResourceView(request: ResourceViewRequest): Boolean? {
-        udJobProvider.scheduleProcessingForView(request.toResourceViewId())
+        GlobalScope.launch {
+            udJobProvider.scheduleProcessingForView(request.toResourceViewId())
+        }
         return true
     }
 
