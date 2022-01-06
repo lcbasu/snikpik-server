@@ -2,6 +2,7 @@ package com.server.ud.dto
 
 import com.server.common.dto.ProfileTypeResponse
 import com.server.common.dto.ProfileTypeWithUsersResponse
+import com.server.common.dto.ProfileTypeWithUsersResponseV3
 import com.server.common.dto.toProfileTypeResponse
 import com.server.common.enums.ProfileCategory
 import com.server.common.enums.ProfileType
@@ -26,6 +27,13 @@ data class MarketplaceUserFeedResponse(
     override val hasNext: Boolean? = null,
 ): PaginationResponse(count, pagingState, hasNext)
 
+data class MarketplaceUserFeedV2Response(
+    val users: List<UserV2PublicMiniDataResponse>,
+    override val count: Int? = null,
+    override val pagingState: String? = null,
+    override val hasNext: Boolean? = null,
+): PaginationResponse(count, pagingState, hasNext)
+
 data class MarketplaceProfileTypesFeedResponse(
     val profileTypes: List<ProfileTypeResponse>,
     override val count: Int? = null,
@@ -35,6 +43,13 @@ data class MarketplaceProfileTypesFeedResponse(
 
 data class MarketplaceUsersFeedResponseV2(
     val users: List<ProfileTypeWithUsersResponse>,
+    override val count: Int? = null,
+    override val pagingState: String? = null,
+    override val hasNext: Boolean? = null,
+): PaginationResponse(count, pagingState, hasNext)
+
+data class MarketplaceUsersFeedResponseV3(
+    val users: List<ProfileTypeWithUsersResponseV3>,
     override val count: Int? = null,
     override val pagingState: String? = null,
     override val hasNext: Boolean? = null,
@@ -60,6 +75,19 @@ data class MarketplaceUsersFeedRequestV2 (
     override val limit: Int = 10,
     override val pagingState: String? = null, // YYYY-MM-DD
 ): PaginationRequest(limit, pagingState)
+
+fun UsersByNearbyZipcodeAndProfileType.toUserV2PublicMiniDataResponse(userV2Provider: UserV2Provider): UserV2PublicMiniDataResponse? {
+    this.apply {
+        try {
+            val user = userV2Provider.getUser(userId) ?: error("User not found for userId: $userId")
+            return user.toUserV2PublicMiniDataResponse()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
+    }
+}
+
 
 fun UsersByNearbyZipcodeAndProfileType.toMarketplaceUserDetail(userV2Provider: UserV2Provider): MarketplaceUserDetail? {
     this.apply {

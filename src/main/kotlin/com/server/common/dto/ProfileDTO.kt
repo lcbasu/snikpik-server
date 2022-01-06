@@ -6,6 +6,7 @@ import com.server.common.enums.ProfileCategory
 import com.server.common.enums.ProfileType
 import com.server.common.model.MediaDetailsV2
 import com.server.ud.dto.MarketplaceUserDetail
+import com.server.ud.dto.UserV2PublicMiniDataResponse
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AllLabelsResponse(
@@ -49,6 +50,12 @@ data class ProfileTypeResponse(
 data class ProfileTypeWithUsersResponse(
     val profileTypeToShow: ProfileTypeResponse,
     val users: List<MarketplaceUserDetail>,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ProfileTypeWithUsersResponseV3(
+    val profileTypeToShow: ProfileTypeResponse,
+    val users: List<UserV2PublicMiniDataResponse>,
 )
 
 fun ProfileType.toProfileTypeResponse(): ProfileTypeResponse {

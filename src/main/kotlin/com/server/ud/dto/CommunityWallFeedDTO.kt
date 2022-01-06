@@ -1,23 +1,24 @@
 package com.server.ud.dto
 
 import com.server.common.dto.ProfileTypeResponse
-import com.server.common.dto.toProfileTypeResponse
-import com.server.common.utils.DateUtils
 import com.server.common.model.MediaDetailsV2
+import com.server.common.utils.DateUtils
 import com.server.ud.entities.post.NearbyPostsByZipcode
+import com.server.ud.entities.post.getCategories
+import com.server.ud.entities.post.getHashTags
 import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getMediaDetailsForDP
 import com.server.ud.entities.user.getProfiles
 
-data class CommunityWallViewPostDetail(
-    override val postId: String,
-    override val userId: String,
-    override val createdAt: Long,
-    override val media: MediaDetailsV2?,
-    override val title: String?,
-    override val description: String?
-): PostMiniDetail
+//data class CommunityWallViewPostDetail(
+//    override val postId: String,
+//    override val userId: String,
+//    override val createdAt: Long,
+//    override val media: MediaDetailsV2?,
+//    override val title: String?,
+//    override val description: String?
+//): PostCommonDetail
 
 data class CommunityWallViewUserDetail(
     val userId: String,
@@ -29,7 +30,7 @@ data class CommunityWallViewUserDetail(
 )
 
 data class CommunityWallViewResponse(
-    val posts: List<CommunityWallViewPostDetail>,
+    val posts: List<SavedPostResponse>,
     override val count: Int? = null,
     override val pagingState: String? = null,
     override val hasNext: Boolean? = null,
@@ -43,15 +44,32 @@ data class CommunityWallFeedRequest (
 ): PaginationRequest(limit, pagingState)
 
 
-fun NearbyPostsByZipcode.toCommunityWallViewPostDetail(): CommunityWallViewPostDetail {
+fun NearbyPostsByZipcode.toSavedPostResponse(): SavedPostResponse {
     this.apply {
-        return CommunityWallViewPostDetail(
+        return SavedPostResponse(
             postId = postId,
             userId = userId,
             createdAt = DateUtils.getEpoch(createdAt),
             media = getMediaDetails(),
             title = title,
-            description = description
+            description = description,
+            postType = postType,
+            tags = getHashTags(),
+            locationId = locationId,
+            zipcode = zipcode,
+            locationName = locationName,
+            city = city,
+            categories = getCategories(),
+            locationLat = locationLat,
+            locationLng = locationLng,
+            locality = locality,
+            subLocality = subLocality,
+            route = route,
+            state = state,
+            country = country,
+            countryCode = countryCode,
+            completeAddress = completeAddress,
+            mediaDetails = getMediaDetails(),
         )
     }
 }

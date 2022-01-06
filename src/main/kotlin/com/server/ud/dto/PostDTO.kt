@@ -32,6 +32,32 @@ data class SavePostRequest(
     val mediaDetails: MediaDetailsV2? = null,
 )
 
+//@JsonIgnoreProperties(ignoreUnknown = true)
+//data class PostCommonDetail (
+//    val postId: String,
+//    val postType: PostType,
+//    val userId: String,
+//    val createdAt: Long,
+//    val media: MediaDetailsV2?,
+//    val title: String?,
+//    val description: String?,
+//    val tags: AllHashTags,
+//    val locationId: String?,
+//    val zipcode: String?,
+//    val locationName: String?,
+//    val city: String?,
+//    val categories: AllCategoryV2Response,
+//)
+
+interface PostMiniDetail{
+    val postId: String
+    val userId: String
+    val createdAt: Long
+    val media: MediaDetailsV2?
+    val title: String?
+    val description: String?
+}
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SavedPostResponse(
     val postId: String,
@@ -57,9 +83,12 @@ data class SavedPostResponse(
     val tags: AllHashTags = AllHashTags(emptySet()),
     val categories: AllCategoryV2Response = AllCategoryV2Response(emptyList()),
     val mediaDetails: MediaDetailsV2? = null,
+
+    // For backward compatibility
+    val media: MediaDetailsV2? = null,
 )
 
-fun Post.toSavedUserPostResponse(): SavedPostResponse {
+fun Post.toSavedPostResponse(): SavedPostResponse {
     this.apply {
         return SavedPostResponse(
             postId = postId,
@@ -85,6 +114,7 @@ fun Post.toSavedUserPostResponse(): SavedPostResponse {
             tags = getHashTags(),
             categories = getCategories(),
             mediaDetails = getMediaDetails(),
+            media = getMediaDetails(),
         )
     }
 }

@@ -160,6 +160,10 @@ class UserV2ServiceImpl : UserV2Service() {
         return userV2Provider.updateNotificationToken(request)?.toSavedUserV2Response()
     }
 
+    override fun getUserPublicData(userId: String): UserV2PublicMiniDataResponse? {
+        return userV2Provider.getUser(userId)?.toUserV2PublicMiniDataResponse()
+    }
+
     override fun getProfileTypesByProfileCategory(profileCategory: ProfileCategory): AllProfileTypeResponse? {
         return userV2Provider.getProfileTypesByProfileCategory(profileCategory)
     }

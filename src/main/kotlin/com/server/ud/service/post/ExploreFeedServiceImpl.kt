@@ -18,7 +18,7 @@ class ExploreFeedServiceImpl : ExploreFeedService() {
     override fun getFeedForCategory(request: ExploreFeedRequest): ExploreTabViewResponse {
         val result = postsByCategoryProvider.getFeedForCategory(request)
         return ExploreTabViewResponse(
-            posts = result.content?.filterNotNull()?.map { it.toExploreTabViewPostDetail() } ?: emptyList(),
+            posts = result.content?.filterNotNull()?.map { it.toSavedPostResponse() } ?: emptyList(),
             count = result.count,
             hasNext = result.hasNext,
             pagingState = result.pagingState

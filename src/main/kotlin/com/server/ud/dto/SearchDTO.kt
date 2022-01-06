@@ -11,18 +11,18 @@ data class UDSearchRequest(
     override val size: Int
 ): PaginationSearchRequest(typedText, from, size)
 
-data class SRPPostResponse(
-    override val postId: String,
-    override val userId: String,
-    override val createdAt: Long,
-    override val media: MediaDetailsV2?,
-    override val title: String?,
-    override val description: String?
-): PostMiniDetail
+//data class SRPPostResponse(
+//    override val postId: String,
+//    override val userId: String,
+//    override val createdAt: Long,
+//    override val media: MediaDetailsV2?,
+//    override val title: String?,
+//    override val description: String?
+//): PostCommonDetail
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class PostsSearchResponse(
-    var posts: List<SRPPostResponse>,
+    var posts: List<SavedPostResponse>,
     override val typedText: String,
     override val from: Int,
     override val size: Int,

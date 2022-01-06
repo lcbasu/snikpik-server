@@ -1,8 +1,10 @@
 package com.server.ud.dto
 
-import com.server.common.utils.DateUtils
 import com.server.common.model.MediaDetailsV2
+import com.server.common.utils.DateUtils
 import com.server.ud.entities.post.PostsByCategory
+import com.server.ud.entities.post.getCategories
+import com.server.ud.entities.post.getHashTags
 import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getMediaDetailsForDP
@@ -13,14 +15,14 @@ data class ExploreTabViewCategories(
     val categories: List<CategoryV2>
 )
 
-data class ExploreTabViewPostDetail(
-    override val postId: String,
-    override val userId: String,
-    override val createdAt: Long,
-    override val media: MediaDetailsV2?,
-    override val title: String?,
-    override val description: String?
-): PostMiniDetail
+//data class ExploreTabViewPostDetail(
+//    override val postId: String,
+//    override val userId: String,
+//    override val createdAt: Long,
+//    override val media: MediaDetailsV2?,
+//    override val title: String?,
+//    override val description: String?
+//): PostCommonDetail
 
 data class ExploreTabViewUserDetail(
     val userId: String,
@@ -29,7 +31,7 @@ data class ExploreTabViewUserDetail(
 )
 
 data class ExploreTabViewResponse(
-    val posts: List<ExploreTabViewPostDetail>,
+    val posts: List<SavedPostResponse>,
     override val count: Int? = null,
     override val pagingState: String? = null,
     override val hasNext: Boolean? = null,
@@ -42,15 +44,34 @@ data class ExploreFeedRequest (
     override val pagingState: String? = null,
 ): PaginationRequest(limit, pagingState)
 
-fun PostsByCategory.toExploreTabViewPostDetail(): ExploreTabViewPostDetail {
+fun PostsByCategory.toSavedPostResponse(): SavedPostResponse {
     this.apply {
-        return ExploreTabViewPostDetail(
+        return SavedPostResponse(
             postId = postId,
             userId = userId,
+            createdAt = DateUtils.getEpoch(createdAt),
             media = getMediaDetails(),
             title = title,
-            createdAt = DateUtils.getEpoch(createdAt),
-            description = description
+            description = description,
+            postType = postType,
+            tags = getHashTags(),
+            locationId = locationId,
+            zipcode = zipcode,
+            locationName = locationName,
+            city = city,
+            categories = getCategories(),
+
+
+            locationLat = locationLat,
+            locationLng = locationLng,
+            locality = locality,
+            subLocality = subLocality,
+            route = route,
+            state = state,
+            country = country,
+            countryCode = countryCode,
+            completeAddress = completeAddress,
+            mediaDetails = getMediaDetails(),
         )
     }
 }

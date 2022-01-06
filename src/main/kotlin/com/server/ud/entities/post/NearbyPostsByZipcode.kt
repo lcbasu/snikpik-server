@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.enums.MediaType
 import com.server.common.utils.DateUtils
 import com.server.common.model.MediaDetailsV2
+import com.server.ud.dto.AllCategoryV2Response
 import com.server.ud.enums.PostType
 import com.server.ud.model.AllHashTags
 import org.springframework.data.cassandra.core.cql.Ordering
@@ -163,6 +164,16 @@ fun NearbyPostsByZipcode.getHashTags(): AllHashTags {
         } catch (e: Exception) {
             e.printStackTrace()
             AllHashTags(emptySet())
+        }
+    }
+}
+
+fun NearbyPostsByZipcode.getCategories(): AllCategoryV2Response {
+    this.apply {
+        return try {
+            jacksonObjectMapper().readValue(categories, AllCategoryV2Response::class.java)
+        } catch (e: Exception) {
+            AllCategoryV2Response(emptyList())
         }
     }
 }

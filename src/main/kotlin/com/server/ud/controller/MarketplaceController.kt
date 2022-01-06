@@ -34,6 +34,21 @@ class MarketplaceController {
         )
     }
 
+    @RequestMapping(value = ["/getUsersFeedForType"], method = [RequestMethod.GET])
+    fun getUsersFeedForType(@RequestParam zipcode: String,
+                                   @RequestParam profileType: ProfileType,
+                                   @RequestParam limit: Int,
+                                   @RequestParam pagingState: String?): MarketplaceUserFeedV2Response? {
+        return marketplaceService.getUsersFeedForType(
+            MarketplaceUserFeedRequest(
+                zipcode,
+                profileType,
+                limit,
+                pagingState
+            )
+        )
+    }
+
     @RequestMapping(value = ["/getFeedForMarketplaceProfileTypes"], method = [RequestMethod.GET])
     fun getFeedForMarketplaceProfileTypes(@RequestParam zipcode: String,
                                    @RequestParam profileCategory: ProfileCategory,
@@ -55,6 +70,21 @@ class MarketplaceController {
                                      @RequestParam limit: Int,
                                      @RequestParam pagingState: String?): MarketplaceUsersFeedResponseV2 {
         return marketplaceService.getFeedForMarketplaceUsersV2(
+            MarketplaceUsersFeedRequestV2(
+                zipcode,
+                profileCategory,
+                limit,
+                pagingState
+            )
+        )
+    }
+
+    @RequestMapping(value = ["/getFeedForMarketplaceUsersV3"], method = [RequestMethod.GET])
+    fun getFeedForMarketplaceUsersV3(@RequestParam zipcode: String,
+                                     @RequestParam profileCategory: ProfileCategory,
+                                     @RequestParam limit: Int,
+                                     @RequestParam pagingState: String?): MarketplaceUsersFeedResponseV3 {
+        return marketplaceService.getFeedForMarketplaceUsersV3(
             MarketplaceUsersFeedRequestV2(
                 zipcode,
                 profileCategory,

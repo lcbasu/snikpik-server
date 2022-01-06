@@ -2,7 +2,6 @@ package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.server.common.utils.CommonUtils
-import com.server.common.model.MediaDetailsV2
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 
@@ -45,15 +44,6 @@ data class FollowingFollowerResponse (
     val otherUserId: String,
     val followed: Boolean,
 )
-
-interface PostMiniDetail{
-    val postId: String
-    val userId: String
-    val createdAt: Long
-    val media: MediaDetailsV2?
-    val title: String?
-    val description: String?
-}
 
 open class PaginationRequest (
     @Min(1)

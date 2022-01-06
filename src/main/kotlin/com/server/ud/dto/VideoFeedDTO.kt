@@ -1,27 +1,27 @@
 package com.server.ud.dto
 
 import com.server.common.dto.ProfileTypeResponse
-import com.server.common.utils.DateUtils
 import com.server.common.model.MediaDetailsV2
+import com.server.common.utils.DateUtils
 import com.server.ud.entities.post.NearbyVideoPostsByZipcode
+import com.server.ud.entities.post.getCategories
 import com.server.ud.entities.post.getHashTags
 import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getMediaDetailsForDP
 import com.server.ud.entities.user.getProfiles
-import com.server.ud.model.AllHashTags
 
 // VideoFeedView -> VFV
 
-data class VideoFeedViewSinglePostDetail(
-    val tags: AllHashTags,
-    override val postId: String,
-    override val userId: String,
-    override val createdAt: Long,
-    override val media: MediaDetailsV2?,
-    override val title: String?,
-    override val description: String?
-): PostMiniDetail
+//data class VideoFeedViewSinglePostDetail(
+//    val tags: AllHashTags,
+//    override val postId: String,
+//    override val userId: String,
+//    override val createdAt: Long,
+//    override val media: MediaDetailsV2?,
+//    override val title: String?,
+//    override val description: String?
+//): PostCommonDetail
 
 data class VideoFeedViewSingleUserDetail(
     val userId: String,
@@ -57,22 +57,38 @@ data class VideoFeedViewSingleUserDetail(
 //)
 
 data class VideoFeedViewResultList(
-    val posts: List<VideoFeedViewSinglePostDetail>,
+    val posts: List<SavedPostResponse>,
     override val count: Int? = null,
     override val pagingState: String? = null,
     override val hasNext: Boolean? = null,
 ): PaginationResponse(count, pagingState, hasNext)
 
-fun NearbyVideoPostsByZipcode.toVideoFeedViewSinglePostDetail(): VideoFeedViewSinglePostDetail {
+fun NearbyVideoPostsByZipcode.toSavedPostResponse(): SavedPostResponse {
     this.apply {
-        return VideoFeedViewSinglePostDetail(
+        return SavedPostResponse(
             postId = postId,
             userId = userId,
             createdAt = DateUtils.getEpoch(createdAt),
             media = getMediaDetails(),
             title = title,
             tags = getHashTags(),
-            description = description
+            description = description,
+            postType = postType,
+            locationId = locationId,
+            zipcode = zipcode,
+            locationName = locationName,
+            city = city,
+            categories = getCategories(),
+            locationLat = locationLat,
+            locationLng = locationLng,
+            locality = locality,
+            subLocality = subLocality,
+            route = route,
+            state = state,
+            country = country,
+            countryCode = countryCode,
+            completeAddress = completeAddress,
+            mediaDetails = getMediaDetails(),
         )
     }
 }

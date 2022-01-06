@@ -18,7 +18,7 @@ class NearbyFeedServiceImpl : NearbyFeedService() {
     override fun getNearbyFeed(request: NearbyFeedRequest): VideoFeedViewResultList {
         val result = nearbyVideoPostsByZipcodeProvider.getNearbyVideoFeed(request)
         return VideoFeedViewResultList(
-            posts = result.content?.filterNotNull()?.map { it.toVideoFeedViewSinglePostDetail() } ?: emptyList(),
+            posts = result.content?.filterNotNull()?.map { it.toSavedPostResponse() } ?: emptyList(),
             count = result.count,
             hasNext = result.hasNext,
             pagingState = result.pagingState

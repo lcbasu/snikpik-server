@@ -29,7 +29,7 @@ class PostServiceImpl : PostService() {
     override fun savePost(savePostRequest: SavePostRequest): SavedPostResponse? {
         val requestContext = securityProvider.validateRequest()
         val post = postProvider.save(requestContext.getUserIdToUse(), savePostRequest)
-        return post?.toSavedUserPostResponse()
+        return post?.toSavedPostResponse()
     }
 
     override fun getPosts(request: PaginatedRequest): CassandraPageV2<Post?>? {
@@ -37,7 +37,7 @@ class PostServiceImpl : PostService() {
     }
 
     override fun getPost(postId: String): SavedPostResponse? {
-        return postProvider.getPost(postId)?.toSavedUserPostResponse()
+        return postProvider.getPost(postId)?.toSavedPostResponse()
     }
 
     override fun getPostsCountByUser(userId: String): PostsCountByUser? {

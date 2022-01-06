@@ -52,6 +52,12 @@ class UserV2Controller {
         return userV2Service.getUser(userId)
     }
 
+    @RequestMapping(value = ["/getUserPublicData"], method = [RequestMethod.GET])
+    fun getUserPublicData(@RequestParam userId: String): UserV2PublicMiniDataResponse? {
+        securityProvider.validateRequest()
+        return userV2Service.getUserPublicData(userId)
+    }
+
     @RequestMapping(value = ["/getFollowersCountByUser"], method = [RequestMethod.GET])
     fun getFollowersCountByUser(@RequestParam userId: String): FollowersCountByUser? {
         return userV2Service.getFollowersCountByUser(userId)

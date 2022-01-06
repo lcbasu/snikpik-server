@@ -47,4 +47,18 @@ class MarketplaceServiceImpl : MarketplaceService() {
     override fun getFeedForMarketplaceUsersV2(request: MarketplaceUsersFeedRequestV2): MarketplaceUsersFeedResponseV2 {
         return marketplaceProvider.getFeedForMarketplaceUsersV2(request);
     }
+
+    override fun getFeedForMarketplaceUsersV3(request: MarketplaceUsersFeedRequestV2): MarketplaceUsersFeedResponseV3 {
+        return marketplaceProvider.getFeedForMarketplaceUsersV3(request);
+    }
+
+    override fun getUsersFeedForType(request: MarketplaceUserFeedRequest): MarketplaceUserFeedV2Response? {
+        val result = usersByNearbyZipcodeAndProfileTypeProvider.getFeedForMarketplaceUsers(request)
+        return MarketplaceUserFeedV2Response(
+            users = result.content?.filterNotNull()?.mapNotNull { it.toUserV2PublicMiniDataResponse(userV2Provider) } ?: emptyList(),
+            count = result.count,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
+    }
 }
