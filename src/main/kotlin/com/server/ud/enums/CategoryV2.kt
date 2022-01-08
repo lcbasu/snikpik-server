@@ -323,4 +323,19 @@ enum class CategoryV2(
             )
         ))
     ),
+    DECOR(
+        CategoryGroupV2.HOME,
+        20,
+        "Decor",
+        MediaDetailsV2(listOf(
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/CategoryImages/DECOR.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 3222,
+                height = 2327,
+                mediaQualityType = MediaQualityType.HIGH,
+            )
+        ))
+    ),
 }
