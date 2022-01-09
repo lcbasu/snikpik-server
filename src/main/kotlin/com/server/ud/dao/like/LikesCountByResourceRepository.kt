@@ -1,6 +1,7 @@
 package com.server.ud.dao.like
 
 import com.server.ud.entities.like.LikesCountByResource
+import org.springframework.data.cassandra.repository.AllowFiltering
 import org.springframework.data.cassandra.repository.CassandraRepository
 import org.springframework.data.cassandra.repository.Query
 import org.springframework.stereotype.Repository
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Repository
 interface LikesCountByResourceRepository : CassandraRepository<LikesCountByResource?, String?> {
 
 //    @Query("select * from likes_count_by_resource where resource_id = ?0")
+
+    @AllowFiltering
     fun findAllByResourceId(resourceId: String?): List<LikesCountByResource>
 
     @Query("UPDATE likes_count_by_resource SET likes_count = likes_count + 1 WHERE resource_id = ?0")
