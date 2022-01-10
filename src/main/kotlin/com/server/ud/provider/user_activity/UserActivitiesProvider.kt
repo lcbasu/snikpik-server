@@ -548,8 +548,8 @@ class UserActivitiesProvider {
             userActivity.getUserActivityByUserAndAggregate().let {
                 userActivitiesByUserAndAggregateRepository.save(it!!)
             }
-            userActivity.getUserActivityForUser().let {
-                userActivitiesForUserRepository.save(it!!)
+            userActivity.getUserActivityForUser()?.let {
+                userActivitiesForUserRepository.save(it)
             }
             userActivity.getUserActivityForUserAndAggregate().let {
                 userActivitiesForUserAndAggregateRepository.save(it!!)
