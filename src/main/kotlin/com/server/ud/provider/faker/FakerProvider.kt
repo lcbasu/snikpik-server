@@ -405,7 +405,7 @@ class FakerProvider {
 //        recoverDeletedData()
 //        cassandraTableModificationProvider.addNewColumns()
 //        oneOffSaveDataToFirestore.saveMetadataToFirestore()
-        oneOffIndexUsersToAlgolia.saveUsersToAlgolia()
+//        oneOffIndexUsersToAlgolia.saveUsersToAlgolia()
         return "Something was done..."
     }
 
