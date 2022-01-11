@@ -316,31 +316,62 @@ class UserChatProvider {
     }
 
     fun saveChatMessageToFirestore (chatMessage: UserChatMessage) {
-        val db: Firestore = FirestoreClient.getFirestore()
+        GlobalScope.launch {
+            // Save all chat messages under chat Id
+            FirestoreClient.getFirestore()
+                .collection("user_chats")
+                .document(chatMessage.chatId)
+                .collection("chat_messages")
+                .document(chatMessage.messageId)
+                .set(chatMessage)
 
-        // Save all chat messages under chat Id
-        db
-            .collection("user_chats")
-            .document(chatMessage.chatId)
-            .collection("chat_messages")
-            .document(chatMessage.messageId)
-            .set(chatMessage)
+            // Chats list for users with last message -> Sender
+            FirestoreClient.getFirestore()
+                .collection("user_chats_meta")
+                .document(chatMessage.senderUserId)
+                .collection("chats")
+                .document(chatMessage.chatId)
+                .set(chatMessage)
 
-        // Chats list for users with last message -> Sender
-        db
-            .collection("user_chats_meta")
-            .document(chatMessage.senderUserId)
-            .collection("chats")
-            .document(chatMessage.chatId)
-            .set(chatMessage)
+            // Chats list for users with last message -> Receiver
+            FirestoreClient.getFirestore()
+                .collection("user_chats_meta")
+                .document(chatMessage.receiverUserId)
+                .collection("chats")
+                .document(chatMessage.chatId)
+                .set(chatMessage)
 
-        // Chats list for users with last message -> Receiver
-        db
-            .collection("user_chats_meta")
-            .document(chatMessage.receiverUserId)
-            .collection("chats")
-            .document(chatMessage.chatId)
-            .set(chatMessage)
+            // V2
+            // Save all chat messages under chat Id
+            FirestoreClient.getFirestore()
+                .collection("user_chats_v2")
+                .document(chatMessage.chatId)
+                .collection("chat_messages")
+                .document(chatMessage.messageId)
+                .set(chatMessage.toSavedUserChatMessageResponse())
+
+            // Chats list for users with last message -> Sender
+            FirestoreClient.getFirestore()
+                .collection("user_chats_meta_v2")
+                .document(chatMessage.senderUserId)
+                .collection("chats")
+                .document(chatMessage.chatId)
+                .set(chatMessage.toSavedUserChatMessageResponse())
+
+            // Chats list for users with last message -> Receiver
+            FirestoreClient.getFirestore()
+                .collection("user_chats_meta_v2")
+                .document(chatMessage.receiverUserId)
+                .collection("chats")
+                .document(chatMessage.chatId)
+                .set(chatMessage.toSavedUserChatMessageResponse())
+        }
+    }
+
+    fun saveAllChatsToFirestore() {
+        userChatMessageRepository.findAll().forEach {
+            it?.let { saveChatMessageToFirestore(it) }
+        }
     }
 
 }
