@@ -19,6 +19,7 @@ import com.server.ud.enums.ProcessingType
 import com.server.ud.enums.UserLocationUpdateType
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.location.LocationProvider
+import com.server.ud.provider.search.SearchProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
@@ -45,6 +46,9 @@ class UserV2Provider {
 
     @Autowired
     private lateinit var securityProvider: SecurityProvider
+
+    @Autowired
+    private lateinit var searchProvider: SearchProvider
 
     fun getUser(userId: String): UserV2? =
         try {
@@ -442,6 +446,15 @@ class UserV2Provider {
     fun saveAllToFirestore() {
         userV2Repository.findAll().forEach {
             saveUserV2ToFirestore(it!!)
+        }
+    }
+
+
+    fun saveAllToAlgolia() {
+        userV2Repository.findAll().forEach {
+            it?.let {
+                searchProvider.saveUserToAlgolia(it)
+            }
         }
     }
 

@@ -42,6 +42,7 @@ import com.server.ud.provider.location.LocationProvider
 import com.server.ud.provider.location.LocationsByUserProvider
 import com.server.ud.provider.location.LocationsByZipcodeProvider
 import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
+import com.server.ud.provider.one_off.OneOffIndexUsersToAlgolia
 import com.server.ud.provider.one_off.OneOffSaveDataToFirestore
 import com.server.ud.provider.post.*
 import com.server.ud.provider.reply.ReplyProvider
@@ -397,10 +398,14 @@ class FakerProvider {
     @Autowired
     private lateinit var oneOffSaveDataToFirestore: OneOffSaveDataToFirestore
 
+    @Autowired
+    private lateinit var oneOffIndexUsersToAlgolia: OneOffIndexUsersToAlgolia
+
     fun doSomething(): Any {
 //        recoverDeletedData()
 //        cassandraTableModificationProvider.addNewColumns()
 //        oneOffSaveDataToFirestore.saveMetadataToFirestore()
+        oneOffIndexUsersToAlgolia.saveUsersToAlgolia()
         return "Something was done..."
     }
 

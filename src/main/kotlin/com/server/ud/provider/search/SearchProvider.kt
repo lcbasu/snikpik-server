@@ -107,13 +107,10 @@ class SearchProvider {
         }
     }
 
-    private fun saveUserToAlgolia(user: UserV2) {
+    fun saveUserToAlgolia(user: UserV2) {
         GlobalScope.launch {
-            // Only save if the user has signed up using phone number
-            // and is a professional
-            val categories = user.getProfiles().profileTypes.map { it.category }.filterNot { it == ProfileCategory.OWNER || it == ProfileCategory.GUEST }
-            val isMarketplaceUser = categories.isNotEmpty()
-            if (isMarketplaceUser) {
+            // Index all the non-anonymous users
+            if (user.anonymous.not()) {
                 val index = searchClient.initIndex(algoliaProperties.userIndex, AlgoliaUser::class.java)
                 index.saveObject(user.toAlgoliaUser())
             }
