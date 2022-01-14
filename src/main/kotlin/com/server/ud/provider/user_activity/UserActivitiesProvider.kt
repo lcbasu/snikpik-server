@@ -551,8 +551,8 @@ class UserActivitiesProvider {
             userActivity.getUserActivityForUser()?.let {
                 userActivitiesForUserRepository.save(it)
             }
-            userActivity.getUserActivityForUserAndAggregate().let {
-                userActivitiesForUserAndAggregateRepository.save(it!!)
+            userActivity.getUserActivityForUserAndAggregate()?.let {
+                userActivitiesForUserAndAggregateRepository.save(it)
             }
             deviceNotificationProvider.sendNotification(userActivity)
         }
