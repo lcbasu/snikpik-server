@@ -48,4 +48,9 @@ class DeletePostProvider {
         }
     }
 
+    // This is a synchronous call
+    fun deletePostFromExplore(postId: String) {
+        postProcessingProvider.deletePostFromExplore(postId)
+    }
+
 }

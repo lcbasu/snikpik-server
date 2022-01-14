@@ -48,4 +48,9 @@ class PostServiceImpl : PostService() {
         postProvider.deletePost(request.postId)
         return true;
     }
+
+    override fun deletePostFromExplore(request: DeletePostRequest): Boolean {
+        postProvider.deletePostFromExplore(request.postId)
+        return true;
+    }
 }

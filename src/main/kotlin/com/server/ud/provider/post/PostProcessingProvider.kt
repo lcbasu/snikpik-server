@@ -329,4 +329,11 @@ class PostProcessingProvider {
         }
     }
 
+    // This is a synchronous call
+    fun deletePostFromExplore(postId: String) {
+        logger.info("Start: Delete post from explore feed for postId: $postId")
+        postsByCategoryRepository.deleteAll(postsByCategoryRepository.findAllByPostId(postId))
+        logger.info("End: Delete post from explore feed for postId: $postId")
+    }
+
 }

@@ -27,6 +27,11 @@ class PostController {
         return postService.deletePost(request)
     }
 
+    @RequestMapping(value = ["/deletePostFromExplore"], method = [RequestMethod.POST])
+    fun deletePostFromExplore(@RequestBody request: DeletePostRequest): Boolean {
+        return postService.deletePostFromExplore(request)
+    }
+
     @RequestMapping(value = ["/getPosts"], method = [RequestMethod.GET])
     fun getPosts(@RequestParam limit: Int, @RequestParam pagingState: String?): CassandraPageV2<Post?>? {
         return postService.getPosts(

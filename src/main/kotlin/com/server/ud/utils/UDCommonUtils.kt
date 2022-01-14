@@ -11,6 +11,12 @@ object UDCommonUtils {
     const val randomLocationZipcode = "ZZZZZZ"
     const val randomLocationName = "Global"
 
+    val admins = listOf("USR6JAUjEQIJBTtuQdnkmmpcdQhVfz2", "USREg7UVXtfVeZ4aFQSBwKmvuFa46A3")
+
+    fun isAdmin(userId: String): Boolean {
+        return admins.contains(userId)
+    }
+
     fun getFileExtension(fileUrl: String): String {
         return try {
             val extensionStartIndex = fileUrl.lastIndexOf(".")

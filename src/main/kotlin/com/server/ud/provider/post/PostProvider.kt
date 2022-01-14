@@ -30,6 +30,7 @@ import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.location.LocationProvider
 import com.server.ud.provider.user.UserV2Provider
+import com.server.ud.utils.UDCommonUtils
 import com.server.ud.utils.pagination.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -260,6 +261,17 @@ class PostProvider {
             deletePostProvider.deletePost(postId, loggedInUserId)
             logger.info("End: Delete post and other dependent information for postId: $postId")
         }
+    }
+
+    fun deletePostFromExplore(postId: String) {
+        val loggedInUserId = securityProvider.validateRequest().getUserIdToUse()
+        val isAdmin = UDCommonUtils.isAdmin(loggedInUserId)
+        if (isAdmin.not()) {
+            error("User $loggedInUserId is not authorized to delete post: $postId. Only admins can delete the post from explore.")
+        }
+        logger.info("Start: Delete post from explore feed for postId: $postId")
+        deletePostProvider.deletePostFromExplore(postId)
+        logger.info("End: Delete post from explore feed for postId: $postId")
     }
 
 }

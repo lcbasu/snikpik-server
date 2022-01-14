@@ -11,4 +11,5 @@ abstract class PostService {
     abstract fun getPost(postId: String): SavedPostResponse?
     abstract fun getPostsCountByUser(userId: String): PostsCountByUser?
     abstract fun deletePost(request: DeletePostRequest): Boolean
+    abstract fun deletePostFromExplore(request: DeletePostRequest): Boolean
 }
