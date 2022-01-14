@@ -11,7 +11,12 @@ object UDCommonUtils {
     const val randomLocationZipcode = "ZZZZZZ"
     const val randomLocationName = "Global"
 
-    val admins = listOf("USR6JAUjEQIJBTtuQdnkmmpcdQhVfz2", "USREg7UVXtfVeZ4aFQSBwKmvuFa46A3")
+    val admins = listOf(
+        "USR6JAUjEQIJBTtuQdnkmmpcdQhVfz2", // Basith
+        "USREg7UVXtfVeZ4aFQSBwKmvuFa46A3", // Lokesh
+        "USRX8WhrKwlfDTfhcRnsjpndxjOhFj1", // Akshay
+        "USR2S45nqK6GyUCKvgyBTM8J2NkMtC2", // Ibrahim
+        )
 
     fun isAdmin(userId: String): Boolean {
         return admins.contains(userId)
