@@ -410,7 +410,7 @@ class UserV2Provider {
 
     fun getProfileTypesByProfileCategory(profileCategory: ProfileCategory): AllProfileTypeResponse? {
         return AllProfileTypeResponse(
-            ProfileType.values().filter { it.category == profileCategory }.map {
+            getSortedProfileTypes().filter { it.category == profileCategory }.map {
                 it.toProfileTypeResponse()
             }
         )
@@ -418,7 +418,7 @@ class UserV2Provider {
 
     fun getAllProfileTypes(): AllProfileTypeResponse? {
         return AllProfileTypeResponse(
-            ProfileType.values().map {
+            getSortedProfileTypes().map {
                 it.toProfileTypeResponse()
             }
         )

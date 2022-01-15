@@ -236,3 +236,7 @@ enum class ProfileType(
         )
     ),
 }
+
+fun getSortedProfileTypes(): List<ProfileType> {
+    return ProfileType.values().sortedBy { it.displayName }
+}
