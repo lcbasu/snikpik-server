@@ -221,6 +221,11 @@ enum class ProfileType(
             media = emptyList()
         )
     ),
+    ROOFING(
+        ProfileCategory.SUPPLIER,
+        "Roofing",
+        MediaDetailsV2(emptyList())
+    ),
 
     // Owner
     HOME_OWNER(
