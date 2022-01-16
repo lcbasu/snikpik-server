@@ -105,13 +105,7 @@ class UserV2ServiceImpl : UserV2Service() {
     }
 
     override fun getPostsByUser(request: PostsByUserRequest): PostsByUserResponse {
-        val result = postsByUserProvider.getPostsByUser(request)
-        return PostsByUserResponse(
-            posts = result.content?.filterNotNull()?.map { it.toPostsByUserPostDetail() } ?: emptyList(),
-            count = result.count,
-            hasNext = result.hasNext,
-            pagingState = result.pagingState
-        )
+        return postsByUserProvider.getPostsByUserResponse(request)
     }
 
     override fun getFollowersCountByUser(userId: String): FollowersCountByUser? {

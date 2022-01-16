@@ -117,6 +117,7 @@ security:
     - /seoData/*
     - /auth/*
     - /consumeAPI/*
+    - /ud/openWeb/*
   exposed-headers:
     - X-Xsrf-Token
 

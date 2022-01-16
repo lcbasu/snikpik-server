@@ -27,7 +27,12 @@ class ResourceViewsCountByResourceProvider {
             if (resourceResourceViewCount.size > 1) {
                 error("More than one views has same resourceId: $resourceId")
             }
-            resourceResourceViewCount.firstOrNull()
+            resourceResourceViewCount.getOrElse(0) {
+                val resourceViewsCountByResource = ResourceViewsCountByResource()
+                resourceViewsCountByResource.viewsCount = 0
+                resourceViewsCountByResource.resourceId = resourceId
+                resourceViewsCountByResource
+            }
         } catch (e: Exception) {
             logger.error("Getting ResourceViewsCountByResource for $resourceId failed.")
             e.printStackTrace()

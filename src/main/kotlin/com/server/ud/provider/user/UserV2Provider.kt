@@ -64,6 +64,15 @@ class UserV2Provider {
             null
         }
 
+    fun getUserByHandle(handle: String): UserV2? {
+        val usersByHandle = usersByHandleProvider.getUsersByHandle(handle) ?: return null
+        return getUser(usersByHandle.userId)
+    }
+
+    fun getUserByIdOrHandle(userIdOrHandle: String) : UserV2? {
+        return getUser(userIdOrHandle) ?: getUserByHandle(userIdOrHandle)
+    }
+
     fun saveUserV2(userV2: UserV2, processingType: ProcessingType = ProcessingType.REFRESH) : UserV2? {
         try {
             val savedUser = userV2Repository.save(userV2)

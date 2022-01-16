@@ -24,7 +24,12 @@ class LikesCountByResourceProvider {
         if (resourceLikes.size > 1) {
             error("More than one likes has same resourceId: $resourceId")
         }
-        resourceLikes.firstOrNull()
+        resourceLikes.getOrElse(0) {
+            val likesCountByResource = LikesCountByResource()
+            likesCountByResource.likesCount = 0
+            likesCountByResource.resourceId = resourceId
+            likesCountByResource
+        }
     } catch (e: Exception) {
         logger.error("Getting LikesCountByResource for $resourceId failed.")
         e.printStackTrace()

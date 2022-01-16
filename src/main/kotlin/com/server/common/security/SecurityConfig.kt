@@ -80,6 +80,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                 .antMatchers(
                     "/seoData/**",
                     "/consumeAPI/**",
+                    "/ud/openWeb/**",
                     "/auth/**",
                     "/v2/api-docs",
                 "/configuration/ui",
@@ -91,6 +92,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                 .antMatchers(
                     "/seoData/**",
                     "/consumeAPI/**",
+                    "/ud/openWeb/**",
                     "/auth/**",
                     "/v2/api-docs",
                     "/configuration/ui",

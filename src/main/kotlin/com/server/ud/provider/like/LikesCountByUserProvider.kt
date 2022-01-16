@@ -3,7 +3,6 @@ package com.server.ud.provider.like
 import com.google.firebase.cloud.FirestoreClient
 import com.server.ud.dao.like.LikesCountByUserRepository
 import com.server.ud.entities.like.LikesCountByUser
-import com.server.ud.entities.user.PostsCountByUser
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
@@ -25,7 +24,12 @@ class LikesCountByUserProvider {
             if (resourceLikes.size > 1) {
                 error("More than one likes has same userId: $userId")
             }
-            resourceLikes.firstOrNull()
+            resourceLikes.getOrElse(0) {
+                val likesCountByUser = LikesCountByUser()
+                likesCountByUser.likesCount = 0
+                likesCountByUser.userId = userId
+                likesCountByUser
+            }
         } catch (e: Exception) {
             logger.error("Getting LikesCountByUser for $userId failed.")
             e.printStackTrace()

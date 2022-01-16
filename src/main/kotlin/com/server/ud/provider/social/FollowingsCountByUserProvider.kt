@@ -24,7 +24,12 @@ class FollowingsCountByUserProvider {
             if (followingsCount.size > 1) {
                 error("More than one followings count has same userId: $userId")
             }
-            followingsCount.firstOrNull()
+            followingsCount.getOrElse(0) {
+                val followingsCountByUser = FollowingsCountByUser()
+                followingsCountByUser.followingsCount = 0
+                followingsCountByUser.userId = userId
+                followingsCountByUser
+            }
         } catch (e: Exception) {
             logger.error("Getting followings count for $userId failed.")
             e.printStackTrace()

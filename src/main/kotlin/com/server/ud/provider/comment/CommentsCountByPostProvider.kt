@@ -24,7 +24,12 @@ class CommentsCountByPostProvider {
             if (postComments.size > 1) {
                 error("More than one comments has same postId: $postId")
             }
-            postComments.firstOrNull()
+            postComments.getOrElse(0) {
+                val commentsCountByPost = CommentsCountByPost()
+                commentsCountByPost.commentsCount = 0
+                commentsCountByPost.postId = postId
+                commentsCountByPost
+            }
         } catch (e: Exception) {
             logger.error("Getting CommentsCountByPost for $postId failed.")
             e.printStackTrace()

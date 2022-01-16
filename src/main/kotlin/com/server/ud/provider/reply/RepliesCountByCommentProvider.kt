@@ -24,7 +24,12 @@ class RepliesCountByCommentProvider {
             if (commentReplies.size > 1) {
                 error("More than one replies has same commentId: $commentId")
             }
-            commentReplies.firstOrNull()
+            commentReplies.getOrElse(0) {
+                val repliesCountByComment = RepliesCountByComment()
+                repliesCountByComment.repliesCount = 0
+                repliesCountByComment.commentId = commentId
+                repliesCountByComment
+            }
         } catch (e: Exception) {
             logger.error("Getting RepliesCountByComment for $commentId failed.")
             e.printStackTrace()

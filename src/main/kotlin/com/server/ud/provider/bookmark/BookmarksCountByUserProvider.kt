@@ -24,7 +24,12 @@ class BookmarksCountByUserProvider {
             if (resourceBookmarks.size > 1) {
                 error("More than one bookmarks has same userId: $userId")
             }
-            resourceBookmarks.firstOrNull()
+            resourceBookmarks.getOrElse(0) {
+                val bookmarksCountByUser = BookmarksCountByUser()
+                bookmarksCountByUser.bookmarksCount = 0
+                bookmarksCountByUser.userId = userId
+                bookmarksCountByUser
+            }
         } catch (e: Exception) {
             logger.error("Getting BookmarksCountByUser for $userId failed.")
             e.printStackTrace()

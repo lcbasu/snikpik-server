@@ -86,6 +86,12 @@ data class PostsByUserRequest (
     override val pagingState: String? = null,
 ): PaginationRequest(limit, pagingState)
 
+data class PostsByUserRequestV2 (
+    val userIdOrHandle: String,
+    override val limit: Int = 10,
+    override val pagingState: String? = null,
+): PaginationRequest(limit, pagingState)
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateUserV2HandleRequest (
     // Take it from request for any update related action

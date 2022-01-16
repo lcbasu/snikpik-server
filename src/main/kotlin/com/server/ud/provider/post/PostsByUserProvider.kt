@@ -3,6 +3,8 @@ package com.server.ud.provider.post
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostsByUserRepository
 import com.server.ud.dto.PostsByUserRequest
+import com.server.ud.dto.PostsByUserResponse
+import com.server.ud.dto.toPostsByUserPostDetail
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.PostsByUser
 import com.server.ud.enums.PostType
@@ -64,6 +66,16 @@ class PostsByUserProvider {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
         val posts = postsByUserRepository.findAllByUserIdAndPostType(request.userId, PostType.GENERIC_POST, pageRequest as Pageable)
         return CassandraPageV2(posts)
+    }
+
+    fun getPostsByUserResponse(request: PostsByUserRequest): PostsByUserResponse {
+        val result = getPostsByUser(request)
+        return PostsByUserResponse(
+            posts = result.content?.filterNotNull()?.map { it.toPostsByUserPostDetail() } ?: emptyList(),
+            count = result.count,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
     }
 
     fun deletePost(postId: String) {
