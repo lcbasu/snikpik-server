@@ -95,13 +95,7 @@ class UserV2ServiceImpl : UserV2Service() {
     }
 
     override fun getBookmarkedPostsByUser(request: BookmarkedPostsByUserRequest): BookmarkedPostsByUserResponse {
-        val result = bookmarkedPostsByUserProvider.getBookmarkedPostsByUser(request)
-        return BookmarkedPostsByUserResponse(
-            posts = result.content?.filterNotNull()?.map { it.toBookmarkedPostsByUserPostDetail() } ?: emptyList(),
-            count = result.count,
-            hasNext = result.hasNext,
-            pagingState = result.pagingState
-        )
+        return bookmarkedPostsByUserProvider.getBookmarkedPostsByUserResponse(request)
     }
 
     override fun getPostsByUser(request: PostsByUserRequest): PostsByUserResponse {

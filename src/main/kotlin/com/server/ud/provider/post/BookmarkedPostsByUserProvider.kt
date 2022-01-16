@@ -2,6 +2,8 @@ package com.server.ud.provider.post
 
 import com.server.ud.dao.post.BookmarkedPostsByUserRepository
 import com.server.ud.dto.BookmarkedPostsByUserRequest
+import com.server.ud.dto.BookmarkedPostsByUserResponse
+import com.server.ud.dto.toBookmarkedPostsByUserPostDetail
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.entities.post.BookmarkedPostsByUser
 import com.server.ud.entities.post.Post
@@ -83,6 +85,16 @@ class BookmarkedPostsByUserProvider {
 
     fun deletePost(postId: String) {
         TODO("Add steps to delete post and related information")
+    }
+
+    fun getBookmarkedPostsByUserResponse(request: BookmarkedPostsByUserRequest): BookmarkedPostsByUserResponse {
+        val result = getBookmarkedPostsByUser(request)
+        return BookmarkedPostsByUserResponse(
+            posts = result.content?.filterNotNull()?.map { it.toBookmarkedPostsByUserPostDetail() } ?: emptyList(),
+            count = result.count,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
     }
 
 }

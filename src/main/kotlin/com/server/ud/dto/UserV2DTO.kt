@@ -64,6 +64,12 @@ data class BookmarkedPostsByUserRequest (
     override val pagingState: String? = null,
 ): PaginationRequest(limit, pagingState)
 
+data class BookmarkedPostsByUserRequestV2 (
+    val userIdOrHandle: String,
+    override val limit: Int = 10,
+    override val pagingState: String? = null,
+): PaginationRequest(limit, pagingState)
+
 data class PostsByUserPostDetail(
     override val postId: String,
     override val userId: String,

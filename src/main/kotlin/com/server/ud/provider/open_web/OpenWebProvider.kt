@@ -10,6 +10,7 @@ import com.server.ud.entities.user.PostsCountByUser
 import com.server.ud.provider.bookmark.BookmarksCountByResourceProvider
 import com.server.ud.provider.comment.CommentsCountByPostProvider
 import com.server.ud.provider.like.LikesCountByResourceProvider
+import com.server.ud.provider.post.BookmarkedPostsByUserProvider
 import com.server.ud.provider.post.PostProvider
 import com.server.ud.provider.post.PostsByUserProvider
 import com.server.ud.provider.post.PostsCountByUserProvider
@@ -52,6 +53,9 @@ class OpenWebProvider {
 
     @Autowired
     private lateinit var postsCountByUserProvider: PostsCountByUserProvider
+
+    @Autowired
+    private lateinit var bookmarkedPostsByUserProvider: BookmarkedPostsByUserProvider
 
     fun getUserDetails(userIdOrHandle: String): UserV2PublicMiniDataResponse {
         val user = userV2Provider.getUserByIdOrHandle(userIdOrHandle) ?: error("User not found for userIdOrHandle: $userIdOrHandle")
@@ -96,6 +100,15 @@ class OpenWebProvider {
     fun getPostsCountByUser(userIdOrHandle: String): PostsCountByUser {
         val user = userV2Provider.getUserByIdOrHandle(userIdOrHandle) ?: error("User not found for userIdOrHandle: $userIdOrHandle")
         return postsCountByUserProvider.getPostsCountByUser(user.userId) ?: error("PostsCountByUser not found for userId: ${user.userId}")
+    }
+
+    fun getBookmarkedPostsByUser(request: BookmarkedPostsByUserRequestV2): BookmarkedPostsByUserResponse {
+        val user = userV2Provider.getUserByIdOrHandle(request.userIdOrHandle) ?: error("User not found for userIdOrHandle: ${request.userIdOrHandle}")
+        return bookmarkedPostsByUserProvider.getBookmarkedPostsByUserResponse(BookmarkedPostsByUserRequest(
+            userId = user.userId,
+            limit = request.limit,
+            pagingState = request.pagingState
+        ))
     }
 
 }

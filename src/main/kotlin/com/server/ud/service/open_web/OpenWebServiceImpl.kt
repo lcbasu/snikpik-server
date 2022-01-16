@@ -53,4 +53,8 @@ class OpenWebServiceImpl : OpenWebService() {
         return openWebProvider.getPostsCountByUser(userIdOrHandle)
     }
 
+    override fun getBookmarkedPostsByUser(request: BookmarkedPostsByUserRequestV2): BookmarkedPostsByUserResponse {
+        return openWebProvider.getBookmarkedPostsByUser(request)
+    }
+
 }

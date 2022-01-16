@@ -1,9 +1,6 @@
 package com.server.ud.controller
 
-import com.server.ud.dto.PostsByUserRequestV2
-import com.server.ud.dto.PostsByUserResponse
-import com.server.ud.dto.SavedPostResponse
-import com.server.ud.dto.UserV2PublicMiniDataResponse
+import com.server.ud.dto.*
 import com.server.ud.entities.bookmark.BookmarksCountByResource
 import com.server.ud.entities.comment.CommentsCountByPost
 import com.server.ud.entities.like.LikesCountByResource
@@ -52,6 +49,19 @@ class OpenWebController {
                        @RequestParam pagingState: String?): PostsByUserResponse {
         return openWebService.getPostsByUser(
             PostsByUserRequestV2(
+                userIdOrHandle,
+                limit,
+                pagingState
+            )
+        )
+    }
+
+    @RequestMapping(value = ["/getBookmarkedPostsByUser"], method = [RequestMethod.GET])
+    fun getBookmarkedPostsByUser(@RequestParam userIdOrHandle: String,
+                                 @RequestParam limit: Int,
+                                 @RequestParam pagingState: String?): BookmarkedPostsByUserResponse {
+        return openWebService.getBookmarkedPostsByUser(
+            BookmarkedPostsByUserRequestV2(
                 userIdOrHandle,
                 limit,
                 pagingState

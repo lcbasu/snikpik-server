@@ -18,4 +18,5 @@ abstract class OpenWebService {
     abstract fun getFollowersCountByUser(userIdOrHandle: String): FollowersCountByUser
     abstract fun getFollowingsCountByUser(userIdOrHandle: String): FollowingsCountByUser
     abstract fun getPostsCountByUser(userIdOrHandle: String): PostsCountByUser
+    abstract fun getBookmarkedPostsByUser(request: BookmarkedPostsByUserRequestV2): BookmarkedPostsByUserResponse
 }
