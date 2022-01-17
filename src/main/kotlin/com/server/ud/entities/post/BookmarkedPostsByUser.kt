@@ -49,6 +49,45 @@ class BookmarkedPostsByUser (
 
     @Column
     var categories: String? = null, //  List of AllCategoryV2Response
+
+    @Column("location_id")
+    var locationId: String? = null,
+
+    @Column("zipcode")
+    var zipcode: String? = null,
+
+    @Column("location_name")
+    val locationName: String? = null,
+
+    @Column("location_lat")
+    val locationLat: Double? = null,
+
+    @Column("location_lng")
+    val locationLng: Double? = null,
+
+    @Column
+    val locality: String? = null,
+
+    @Column("sub_locality")
+    val subLocality: String? = null,
+
+    @Column
+    val route: String? = null,
+
+    @Column
+    val city: String? = null,
+
+    @Column
+    val state: String? = null,
+
+    @Column
+    val country: String? = null,
+
+    @Column("country_code")
+    val countryCode: String? = null,
+
+    @Column("complete_address")
+    val completeAddress: String? = null,
 )
 
 fun BookmarkedPostsByUser.getMediaDetails(): MediaDetailsV2? {

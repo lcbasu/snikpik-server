@@ -8,10 +8,8 @@ import com.server.common.enums.ProfileCategory
 import com.server.common.enums.ProfileType
 import com.server.common.model.MediaDetailsV2
 import com.server.common.utils.DateUtils
-import com.server.ud.entities.post.BookmarkedPostsByUser
-import com.server.ud.entities.post.LikedPostsByUser
-import com.server.ud.entities.post.PostsByUser
-import com.server.ud.entities.post.getMediaDetails
+import com.server.ud.dto.getCategories
+import com.server.ud.entities.post.*
 import com.server.ud.entities.user.*
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.UserLocationUpdateType
@@ -58,6 +56,13 @@ data class BookmarkedPostsByUserResponse(
     override val hasNext: Boolean? = null,
 ): PaginationResponse(count, pagingState, hasNext)
 
+data class BookmarkedPostsByUserResponseV2(
+    val posts: List<SavedPostResponse>,
+    override val count: Int? = null,
+    override val pagingState: String? = null,
+    override val hasNext: Boolean? = null,
+): PaginationResponse(count, pagingState, hasNext)
+
 data class BookmarkedPostsByUserRequest (
     val userId: String,
     override val limit: Int = 10,
@@ -81,6 +86,13 @@ data class PostsByUserPostDetail(
 
 data class PostsByUserResponse(
     val posts: List<PostsByUserPostDetail>,
+    override val count: Int? = null,
+    override val pagingState: String? = null,
+    override val hasNext: Boolean? = null,
+): PaginationResponse(count, pagingState, hasNext)
+
+data class PostsByUserResponseV2(
+    val posts: List<SavedPostResponse>,
     override val count: Int? = null,
     override val pagingState: String? = null,
     override val hasNext: Boolean? = null,
@@ -495,6 +507,68 @@ fun PostsByUser.toPostsByUserPostDetail(): PostsByUserPostDetail {
             title = title,
             createdAt = DateUtils.getEpoch(createdAt),
             description = description,
+        )
+    }
+}
+
+fun PostsByUser.toSavedPostResponse(): SavedPostResponse {
+    this.apply {
+        return SavedPostResponse(
+            postId = postId,
+            postType = postType,
+            userId = userId,
+            locationId = locationId,
+            zipcode = zipcode,
+            googlePlaceId = null,
+            locationName = locationName,
+            locationLat = locationLat,
+            locationLng = locationLng,
+            locality = locality,
+            subLocality = subLocality,
+            route = route,
+            city = city,
+            state = state,
+            country = country,
+            countryCode = countryCode,
+            completeAddress = completeAddress,
+            createdAt = DateUtils.getEpoch(createdAt),
+            title = title,
+            description = description,
+            tags = getHashTags(),
+            categories = getCategories(),
+            mediaDetails = getMediaDetails(),
+            media = getMediaDetails(),
+        )
+    }
+}
+
+fun BookmarkedPostsByUser.toSavedPostResponse(): SavedPostResponse {
+    this.apply {
+        return SavedPostResponse(
+            postId = postId,
+            postType = postType,
+            userId = userId,
+            locationId = locationId,
+            zipcode = zipcode,
+            googlePlaceId = null,
+            locationName = locationName,
+            locationLat = locationLat,
+            locationLng = locationLng,
+            locality = locality,
+            subLocality = subLocality,
+            route = route,
+            city = city,
+            state = state,
+            country = country,
+            countryCode = countryCode,
+            completeAddress = completeAddress,
+            createdAt = DateUtils.getEpoch(createdAt),
+            title = title,
+            description = description,
+            tags = getHashTags(),
+            categories = getCategories(),
+            mediaDetails = getMediaDetails(),
+            media = getMediaDetails(),
         )
     }
 }

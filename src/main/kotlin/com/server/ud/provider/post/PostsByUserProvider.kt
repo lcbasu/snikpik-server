@@ -2,9 +2,7 @@ package com.server.ud.provider.post
 
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostsByUserRepository
-import com.server.ud.dto.PostsByUserRequest
-import com.server.ud.dto.PostsByUserResponse
-import com.server.ud.dto.toPostsByUserPostDetail
+import com.server.ud.dto.*
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.PostsByUser
 import com.server.ud.enums.PostType
@@ -72,6 +70,16 @@ class PostsByUserProvider {
         val result = getPostsByUser(request)
         return PostsByUserResponse(
             posts = result.content?.filterNotNull()?.map { it.toPostsByUserPostDetail() } ?: emptyList(),
+            count = result.count,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
+    }
+
+    fun getPostsByUserResponseV2(request: PostsByUserRequest): PostsByUserResponseV2 {
+        val result = getPostsByUser(request)
+        return PostsByUserResponseV2(
+            posts = result.content?.filterNotNull()?.map { it.toSavedPostResponse() } ?: emptyList(),
             count = result.count,
             hasNext = result.hasNext,
             pagingState = result.pagingState

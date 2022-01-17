@@ -46,7 +46,7 @@ class OpenWebController {
     @RequestMapping(value = ["/getPostsByUser"], method = [RequestMethod.GET])
     fun getPostsByUser(@RequestParam userIdOrHandle: String,
                        @RequestParam limit: Int,
-                       @RequestParam pagingState: String?): PostsByUserResponse {
+                       @RequestParam pagingState: String?): PostsByUserResponseV2 {
         return openWebService.getPostsByUser(
             PostsByUserRequestV2(
                 userIdOrHandle,
@@ -59,7 +59,7 @@ class OpenWebController {
     @RequestMapping(value = ["/getBookmarkedPostsByUser"], method = [RequestMethod.GET])
     fun getBookmarkedPostsByUser(@RequestParam userIdOrHandle: String,
                                  @RequestParam limit: Int,
-                                 @RequestParam pagingState: String?): BookmarkedPostsByUserResponse {
+                                 @RequestParam pagingState: String?): BookmarkedPostsByUserResponseV2 {
         return openWebService.getBookmarkedPostsByUser(
             BookmarkedPostsByUserRequestV2(
                 userIdOrHandle,

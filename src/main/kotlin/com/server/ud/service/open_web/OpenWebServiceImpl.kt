@@ -21,7 +21,7 @@ class OpenWebServiceImpl : OpenWebService() {
         return openWebProvider.getUserDetails(userIdOrHandle)
     }
 
-    override fun getPostsByUser(request: PostsByUserRequestV2): PostsByUserResponse {
+    override fun getPostsByUser(request: PostsByUserRequestV2): PostsByUserResponseV2 {
         return openWebProvider.getPostsByUser(request)
     }
 
@@ -53,7 +53,7 @@ class OpenWebServiceImpl : OpenWebService() {
         return openWebProvider.getPostsCountByUser(userIdOrHandle)
     }
 
-    override fun getBookmarkedPostsByUser(request: BookmarkedPostsByUserRequestV2): BookmarkedPostsByUserResponse {
+    override fun getBookmarkedPostsByUser(request: BookmarkedPostsByUserRequestV2): BookmarkedPostsByUserResponseV2 {
         return openWebProvider.getBookmarkedPostsByUser(request)
     }
 

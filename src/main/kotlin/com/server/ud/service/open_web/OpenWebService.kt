@@ -10,7 +10,7 @@ import com.server.ud.entities.user.PostsCountByUser
 
 abstract class OpenWebService {
     abstract fun getUserDetails(userIdOrHandle: String): UserV2PublicMiniDataResponse
-    abstract fun getPostsByUser(request: PostsByUserRequestV2): PostsByUserResponse
+    abstract fun getPostsByUser(request: PostsByUserRequestV2): PostsByUserResponseV2
     abstract fun getPost(postId: String): SavedPostResponse
     abstract fun getLikesCountByPost(postId: String): LikesCountByResource
     abstract fun getBookmarksCountByPost(postId: String): BookmarksCountByResource
@@ -18,5 +18,5 @@ abstract class OpenWebService {
     abstract fun getFollowersCountByUser(userIdOrHandle: String): FollowersCountByUser
     abstract fun getFollowingsCountByUser(userIdOrHandle: String): FollowingsCountByUser
     abstract fun getPostsCountByUser(userIdOrHandle: String): PostsCountByUser
-    abstract fun getBookmarkedPostsByUser(request: BookmarkedPostsByUserRequestV2): BookmarkedPostsByUserResponse
+    abstract fun getBookmarkedPostsByUser(request: BookmarkedPostsByUserRequestV2): BookmarkedPostsByUserResponseV2
 }

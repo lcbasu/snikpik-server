@@ -62,9 +62,9 @@ class OpenWebProvider {
         return user.toUserV2PublicMiniDataResponse()
     }
 
-    fun getPostsByUser(request: PostsByUserRequestV2): PostsByUserResponse {
+    fun getPostsByUser(request: PostsByUserRequestV2): PostsByUserResponseV2 {
         val user = userV2Provider.getUserByIdOrHandle(request.userIdOrHandle) ?: error("User not found for userIdOrHandle: ${request.userIdOrHandle}")
-        return postsByUserProvider.getPostsByUserResponse(PostsByUserRequest(
+        return postsByUserProvider.getPostsByUserResponseV2(PostsByUserRequest(
             userId = user.userId,
             limit = request.limit,
             pagingState = request.pagingState
@@ -102,9 +102,9 @@ class OpenWebProvider {
         return postsCountByUserProvider.getPostsCountByUser(user.userId) ?: error("PostsCountByUser not found for userId: ${user.userId}")
     }
 
-    fun getBookmarkedPostsByUser(request: BookmarkedPostsByUserRequestV2): BookmarkedPostsByUserResponse {
+    fun getBookmarkedPostsByUser(request: BookmarkedPostsByUserRequestV2): BookmarkedPostsByUserResponseV2 {
         val user = userV2Provider.getUserByIdOrHandle(request.userIdOrHandle) ?: error("User not found for userIdOrHandle: ${request.userIdOrHandle}")
-        return bookmarkedPostsByUserProvider.getBookmarkedPostsByUserResponse(BookmarkedPostsByUserRequest(
+        return bookmarkedPostsByUserProvider.getBookmarkedPostsByUserResponseV2(BookmarkedPostsByUserRequest(
             userId = user.userId,
             limit = request.limit,
             pagingState = request.pagingState

@@ -1,9 +1,7 @@
 package com.server.ud.provider.post
 
 import com.server.ud.dao.post.BookmarkedPostsByUserRepository
-import com.server.ud.dto.BookmarkedPostsByUserRequest
-import com.server.ud.dto.BookmarkedPostsByUserResponse
-import com.server.ud.dto.toBookmarkedPostsByUserPostDetail
+import com.server.ud.dto.*
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.entities.post.BookmarkedPostsByUser
 import com.server.ud.entities.post.Post
@@ -68,6 +66,20 @@ class BookmarkedPostsByUserProvider {
                 media = post.media,
                 tags = post.tags,
                 categories = post.categories,
+
+                locationId = post.locationId,
+                zipcode = post.zipcode!!,
+                locationName = post.locationName,
+                locationLat = post.locationLat,
+                locationLng = post.locationLng,
+                locality = post.locality,
+                subLocality = post.subLocality,
+                route = post.route,
+                city = post.city,
+                state = post.state,
+                country = post.country,
+                countryCode = post.countryCode,
+                completeAddress = post.completeAddress,
             )
             return bookmarkedPostsByUserRepository.save(bookmarkedPostByUser)
         } catch (e: Exception) {
@@ -91,6 +103,16 @@ class BookmarkedPostsByUserProvider {
         val result = getBookmarkedPostsByUser(request)
         return BookmarkedPostsByUserResponse(
             posts = result.content?.filterNotNull()?.map { it.toBookmarkedPostsByUserPostDetail() } ?: emptyList(),
+            count = result.count,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
+    }
+
+    fun getBookmarkedPostsByUserResponseV2(request: BookmarkedPostsByUserRequest): BookmarkedPostsByUserResponseV2 {
+        val result = getBookmarkedPostsByUser(request)
+        return BookmarkedPostsByUserResponseV2(
+            posts = result.content?.filterNotNull()?.map { it.toSavedPostResponse() } ?: emptyList(),
             count = result.count,
             hasNext = result.hasNext,
             pagingState = result.pagingState
