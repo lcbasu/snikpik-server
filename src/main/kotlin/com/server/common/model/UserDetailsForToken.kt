@@ -1,14 +1,13 @@
 package com.server.common.model
 
 data class UserDetailsForToken(
-        private val uid: String,
-        private val absoluteMobile: String? = null,
-) {
-    fun getAbsoluteMobileNumber(): String? {
-        return absoluteMobile
-    }
+        val uid: String,
+        val absoluteMobile: String? = null,
+)
 
-    fun getUid(): String {
-        return uid
-    }
-}
+
+data class UserDetailsFromUDTokens(
+        val token: String,
+        val uid: String,
+        val absoluteMobile: String,
+)

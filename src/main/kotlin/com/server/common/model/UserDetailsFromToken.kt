@@ -1,17 +1,19 @@
 package com.server.common.model
 
+import com.server.common.enums.CredentialType
 import com.server.common.enums.ReadableIdPrefix
 
 data class UserDetailsFromToken(
-        private val serialVersionUID: Long = 4408418647685225829L,
-        private val uid: String,
-        private val name: String? = null,
-        private val absoluteMobile: String? = null,
+    private val serialVersionUID: Long = 4408418647685225829L,
+    private val uid: String,
+    private val type: CredentialType,
+    private val name: String? = null,
+    private val absoluteMobile: String? = null,
 //        private val handle: String? = null,
-        private val email: String? = null,
-        private val issuer: String? = null,
-        private val picture: String? = null,
-        private val anonymous: Boolean? = true,
+    private val email: String? = null,
+    private val issuer: String? = null,
+    private val picture: String? = null,
+    private val anonymous: Boolean? = true,
 ) {
     // Adding getters so that we can access these values when we cast them from
     // Java Object to Kotlin Object
@@ -36,7 +38,11 @@ data class UserDetailsFromToken(
     }
 
     fun getUserIdToUse(): String {
-        return "${ReadableIdPrefix.USR.name}$uid"
+        return if (type == CredentialType.ID_TOKEN_UNBOX) {
+            uid
+        } else {
+            "${ReadableIdPrefix.USR.name}$uid"
+        }
     }
 
     fun getIsAnonymous(): Boolean? {

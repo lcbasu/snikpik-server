@@ -2,6 +2,7 @@ package com.server.common.service
 
 import com.server.common.model.UserDetailsForToken
 import com.server.common.provider.AuthProvider
+import com.server.common.provider.JwtProvider
 import com.server.common.provider.SecurityProvider
 import com.server.common.provider.communication.CommunicationProvider
 import com.server.common.utils.DateUtils
@@ -31,6 +32,9 @@ class AuthServiceImpl : AuthService() {
 
     @Autowired
     private lateinit var communicationProvider: CommunicationProvider
+
+    @Autowired
+    private lateinit var jwtProvider: JwtProvider
 
 //    @Autowired
 //    private lateinit var jwtUtil: JwtUtil
@@ -73,7 +77,7 @@ class AuthServiceImpl : AuthService() {
 
         val userV2ByMobileNumber = userV2ByMobileNumberProvider.getOrSaveUserV2ByMobileNumber(request.absoluteMobileNumber) ?: error("Error while generating id for mobile number: ${request.absoluteMobileNumber}")
 
-        val token = generateToken(UserDetailsForToken(
+        val token = jwtProvider.generateToken(UserDetailsForToken(
             uid = userV2ByMobileNumber.userId,
             absoluteMobile = userV2ByMobileNumber.absoluteMobile,
         ))
@@ -120,23 +124,4 @@ class AuthServiceImpl : AuthService() {
     override fun refreshToken(): LoginResponse {
         TODO("Not yet implemented")
     }
-
-    fun generateToken(userDetails: UserDetailsForToken): String? {
-        val claims: MutableMap<String, Any?> = HashMap()
-        claims["uid"] = userDetails.getUid()
-        claims["absoluteMobile"] = userDetails.getAbsoluteMobileNumber()
-        return createToken(claims.toMap(), userDetails.getAbsoluteMobileNumber())
-    }
-
-    fun createToken(claims: Map<String, Any?>, absoluteMobileNumber: String?): String? {
-        return Jwts.builder().setClaims(claims).setSubject(absoluteMobileNumber).setIssuedAt(
-            Date(
-                System.currentTimeMillis()
-            )
-        )
-            .setExpiration(Date(System.currentTimeMillis() + 1000 * 60 * 60 * 500))
-            .signWith(SignatureAlgorithm.HS256, "SECRET_KEY").compact()
-    }
-
-
 }

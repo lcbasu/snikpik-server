@@ -8,8 +8,10 @@ import com.nimbusds.jwt.proc.ConfigurableJWTProcessor
 import com.server.common.enums.CredentialType
 import com.server.common.model.Credentials
 import com.server.common.model.UserDetailsFromToken
+import com.server.common.model.UserDetailsFromUDTokens
 import com.server.common.properties.AwsProperties
 import com.server.common.properties.SecurityProperties
+import com.server.common.provider.JwtProvider
 import com.server.common.service.SecurityService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -39,6 +41,9 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
     @Autowired
     private lateinit var securityProps: SecurityProperties
 
+    @Autowired
+    private lateinit var jwtProvider: JwtProvider
+
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
 //        if (securityService?.isPublic() == false) {
@@ -67,15 +72,26 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
                 type = CredentialType.SESSION
             } else if (!strictServerSessionEnabled) {
                 if (token !== null && !token.equals("undefined", ignoreCase = true)) {
-                    // Option 1: Try Firebase
+
+                    // Option 1: Try Our own token verification
                     try {
-                        decodedToken = FirebaseAuth.getInstance().verifyIdToken(token)
-                        type = CredentialType.ID_TOKEN_FIREBASE
+                        decodedToken = jwtProvider.validateToken(token)
+                        type = CredentialType.ID_TOKEN_UNBOX
                     } catch (e: Exception) {
-//                        logger.info("Token is not from Firebase Auth. Trying Cognito Auth.")
+                        logger.error("Token is not from Unbox Auth. Try Firebase Auth.")
                     }
 
-                    // Option 2: Try Cognito
+                    // Option 2: Try Firebase
+                    if (decodedToken == null || type == null) {
+                        try {
+                            decodedToken = FirebaseAuth.getInstance().verifyIdToken(token)
+                            type = CredentialType.ID_TOKEN_FIREBASE
+                        } catch (e: Exception) {
+//                        logger.info("Token is not from Firebase Auth. Trying Cognito Auth.")
+                        }
+                    }
+
+                    // Option 3: Try Cognito
                     if (decodedToken == null || type == null) {
                         // Not handling it under Try catch as the Option 2 should always result in
                         // valid token otherwise it should fail
@@ -119,6 +135,7 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
                 UserDetailsFromToken(
                     uid = it.uid,
                     name = it.name,
+                    type = CredentialType.ID_TOKEN_FIREBASE,
                     absoluteMobile = it.claims["phone_number"] as String?,
                     picture = it.picture,
                     issuer = it.issuer,
@@ -130,9 +147,18 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
                 UserDetailsFromToken(
                     uid = it.getStringClaim("sub"),
                     name = it.getStringClaim("name"),
+                    type = CredentialType.ID_TOKEN_COGNITO,
                     absoluteMobile = it.getStringClaim("phone_number"),
                     picture = null,
                     issuer = "AWS_COGNITO",
+                    anonymous = false,
+                )
+            } else if (type == CredentialType.ID_TOKEN_UNBOX && it is UserDetailsFromUDTokens) {
+                UserDetailsFromToken(
+                    uid = it.uid,
+                    type = CredentialType.ID_TOKEN_UNBOX,
+                    absoluteMobile = it.absoluteMobile,
+                    issuer = "UNBOX",
                     anonymous = false,
                 )
             } else {
