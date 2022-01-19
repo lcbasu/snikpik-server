@@ -28,4 +28,9 @@ class AuthController {
     fun login(@RequestBody request: LoginRequest): LoginResponse {
         return authService.login(request)
     }
+
+    @RequestMapping(value = ["/refreshToken"], method = [RequestMethod.POST])
+    fun refreshToken(): LoginResponse {
+        return authService.refreshToken()
+    }
 }

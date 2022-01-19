@@ -30,5 +30,7 @@ enum class ReadableIdPrefix {
     BMK, // Bookmark
     UAT, // User Activity
     UCT, // User Chat
+
+    OTP, // OTP Validation
 }
 

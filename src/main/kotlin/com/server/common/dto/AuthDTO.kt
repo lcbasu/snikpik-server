@@ -21,7 +21,7 @@ data class OTPSentResponse(
     val countryCode: String,
     val absoluteMobileNumber: String,
     val sent: Boolean,
-    val loginSequenceId: String?, // Null if the OTP sending failed
+    val loginSequenceId: String? = null, // Null if the OTP sending failed
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
