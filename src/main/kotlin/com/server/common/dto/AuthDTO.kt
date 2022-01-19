@@ -10,6 +10,36 @@ data class RequestContextResponse(
     val anonymous: Boolean,
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SendOTPRequest(
+    val countryCode: String,
+    val absoluteMobileNumber: String,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class OTPSentResponse(
+    val countryCode: String,
+    val absoluteMobileNumber: String,
+    val sent: Boolean,
+    val loginSequenceId: String?, // Null if the OTP sending failed
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class LoginRequest(
+    val countryCode: String,
+    val absoluteMobileNumber: String,
+    val otp: String,
+    val loginSequenceId: String, // This is used for validation
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class LoginResponse(
+    val authenticated: Boolean,
+    val errorMessage: String? = null, // In case authentication failed
+    val token: String? = null,
+    val user: SavedUserResponse? = null,
+)
+
 fun RequestContext.toRequestContextResponse(): RequestContextResponse {
     this.apply {
         return RequestContextResponse(

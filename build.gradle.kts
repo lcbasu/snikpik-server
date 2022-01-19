@@ -39,6 +39,16 @@ dependencies {
 	implementation("io.ably:ably-java:1.2.3")
 	// Ably - End
 
+	// MessageBird - Start
+	implementation("com.messagebird:messagebird-api:3.2.0")
+	// MessageBird - End
+
+
+	// JWT
+	implementation("javax.xml.bind:jaxb-api:2.3.1")
+	implementation("io.jsonwebtoken:jjwt:0.9.1")
+	// JWT
+
 	implementation("com.bugsnag:bugsnag-spring:3.6.3")
 	// Be careful of the version number for fasterxml
 	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.11.4")

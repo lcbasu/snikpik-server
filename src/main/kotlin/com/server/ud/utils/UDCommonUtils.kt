@@ -1,5 +1,6 @@
 package com.server.ud.utils
 
+import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -86,6 +87,10 @@ object UDCommonUtils {
             "somany",
             "centuryply",
         )
+    }
+
+    fun getUserIdFromMobileNumber(absoluteMobileNumber: String): String {
+        return DigestUtils.sha256Hex(absoluteMobileNumber)
     }
 
 }

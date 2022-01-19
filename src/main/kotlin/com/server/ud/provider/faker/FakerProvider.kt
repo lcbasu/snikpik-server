@@ -13,6 +13,7 @@ import com.server.common.model.sampleMedia
 import com.server.common.provider.CassandraTableModificationProvider
 import com.server.common.provider.RandomIdProvider
 import com.server.common.provider.SecurityProvider
+import com.server.common.provider.communication.CommunicationProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.bookmark.BookmarkRepository
 import com.server.ud.dao.like.LikeRepository
@@ -405,12 +406,17 @@ class FakerProvider {
     @Autowired
     private lateinit var oneOffSaveChatsV2ToFirestore: OneOffSaveChatsV2ToFirestore
 
+    @Autowired
+    private lateinit var communicationProvider: CommunicationProvider
+
     fun doSomething(): Any {
 //        recoverDeletedData()
 //        cassandraTableModificationProvider.addNewColumns()
 //        oneOffSaveDataToFirestore.saveMetadataToFirestore()
-       oneOffIndexUsersToAlgolia.saveUsersToAlgolia()
-        oneOffSaveChatsV2ToFirestore.saveChatsV2ToFirestore()
+//       oneOffIndexUsersToAlgolia.saveUsersToAlgolia()
+//        oneOffSaveChatsV2ToFirestore.saveChatsV2ToFirestore()
+//        communicationProvider.sendSMS("+919742097429", "This is a test message")
+        userV2Provider.saveAllForAuthV2()
         return "Something was done..."
     }
 

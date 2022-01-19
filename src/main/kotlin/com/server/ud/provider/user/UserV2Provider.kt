@@ -50,6 +50,9 @@ class UserV2Provider {
     @Autowired
     private lateinit var searchProvider: SearchProvider
 
+    @Autowired
+    private lateinit var userV2ByMobileNumberProvider: UserV2ByMobileNumberProvider
+
     fun getUser(userId: String): UserV2? =
         try {
             val userIdToFind = if (userId.startsWith(ReadableIdPrefix.USR.name)) userId else "${ReadableIdPrefix.USR.name}$userId"
@@ -83,6 +86,7 @@ class UserV2Provider {
                 udJobProvider.scheduleReProcessingForUserV2(savedUser.userId)
             }
             saveUserV2ToFirestore(savedUser)
+            saveForAuthV2(savedUser)
             return savedUser
         } catch (e: Exception) {
             logger.error("Saving UserV2 for ${userV2.userId} failed.")
@@ -433,6 +437,18 @@ class UserV2Provider {
         )
     }
 
+    private fun saveForAuthV2 (user: UserV2) {
+        GlobalScope.launch {
+            if (user.absoluteMobile.isNullOrBlank().not()) {
+                userV2ByMobileNumberProvider.saveUserV2ByMobileNumber(
+                    absoluteMobileNumber = user.absoluteMobile!!,
+                    userId = user.userId
+                )
+            } else {
+                logger.warn("absoluteMobile is null so not saving for auth V2")
+            }
+        }
+    }
 
     private fun saveUserV2ToFirestore (user: UserV2) {
         GlobalScope.launch {
@@ -458,6 +474,11 @@ class UserV2Provider {
         }
     }
 
+    fun saveAllForAuthV2() {
+        userV2Repository.findAll().forEach {
+            saveForAuthV2(it!!)
+        }
+    }
 
     fun saveAllToAlgolia() {
         userV2Repository.findAll().forEach {
