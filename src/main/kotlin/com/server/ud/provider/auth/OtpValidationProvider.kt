@@ -2,6 +2,7 @@ package com.server.ud.provider.auth
 
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.RandomIdProvider
+import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.auth.OtpValidationRepository
 import com.server.ud.entities.auth.OtpValidation
@@ -20,6 +21,9 @@ class OtpValidationProvider {
 
     @Autowired
     private lateinit var randomIdProvider: RandomIdProvider
+
+    @Autowired
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     fun getOtpValidation(absoluteMobileNumber: String): OtpValidation? =
         try {
@@ -55,7 +59,7 @@ class OtpValidationProvider {
                     minLength = 6,
                     maxLength = 6,
                 ),
-                loginSequenceId = randomIdProvider.getRandomId(ReadableIdPrefix.OTP.name),
+                loginSequenceId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.OTP.name),
             ))
         } catch (e: Exception) {
             logger.error("Saving OtpValidation for absoluteMobileNumber: $absoluteMobileNumber failed.")

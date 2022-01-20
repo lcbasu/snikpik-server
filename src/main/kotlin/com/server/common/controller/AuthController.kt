@@ -30,7 +30,7 @@ class AuthController {
     }
 
     @RequestMapping(value = ["/refreshToken"], method = [RequestMethod.POST])
-    fun refreshToken(): LoginResponse {
-        return authService.refreshToken()
+    fun refreshToken(@RequestBody request: RefreshTokenRequest): TokenRefreshResponse {
+        return authService.refreshToken(request)
     }
 }

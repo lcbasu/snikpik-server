@@ -33,10 +33,27 @@ data class LoginRequest(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class RefreshTokenRequest(
+    val loginSequenceId: String, // This is the id that was used during the sign in
+    val token: String, // This is the old expired token
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class LoginResponse(
     val authenticated: Boolean,
     val errorMessage: String? = null, // In case authentication failed
     val token: String? = null,
+    val user: SavedUserResponse? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class TokenRefreshResponse(
+    val oldLoginSequenceId: String,
+    val refreshed: Boolean,
+    val oldToken: String, // old token
+    val errorMessage: String? = null, // In case authentication failed
+    val newToken: String? = null, // new token
+    val newLoginSequenceId: String? = null, // non-null in case of successful refresh
     val user: SavedUserResponse? = null,
 )
 

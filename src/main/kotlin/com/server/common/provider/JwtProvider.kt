@@ -2,8 +2,8 @@ package com.server.common.provider
 
 import com.server.common.model.UserDetailsForToken
 import com.server.common.model.UserDetailsFromUDTokens
+import com.server.ud.provider.auth.ValidTokenProvider
 import com.server.ud.provider.user.UserV2ByMobileNumberProvider
-import com.server.ud.provider.user.UserV2Provider
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
@@ -26,51 +26,13 @@ class JwtProvider {
     private lateinit var userV2ByMobileNumberProvider: UserV2ByMobileNumberProvider
 
     @Autowired
-    private lateinit var userV2Provider: UserV2Provider
+    private lateinit var validTokenProvider: ValidTokenProvider
 
-    fun extractSubject(token: String?): String {
-        return extractClaim(
-            token
-        ) { obj: Claims -> obj.subject }
-    }
-
-    fun extractKey(token: String, key: String): String {
-        return extractClaim(
-            token
-        ) { obj: Claims -> obj[key] as String }
-    }
-
-    fun extractExpiration(token: String?): Date {
-        return extractClaim(
-            token
-        ) { obj: Claims -> obj.expiration }
-    }
-
-    fun <T> extractClaim(token: String?, claimsResolver: Function<Claims, T>): T {
-        val claims = extractAllClaims(token)
-        return claimsResolver.apply(claims)
-    }
-
-    fun extractAllClaims(token: String?): Claims {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).body
-    }
-
-    fun isTokenExpired(token: String): Boolean {
-        return extractExpiration(token).before(Date())
-    }
-
-    fun generateToken(userDetails: UserDetailsForToken): String? {
+    fun generateToken(userDetails: UserDetailsForToken): String {
         val claims: MutableMap<String, Any?> = HashMap()
         claims["uid"] = userDetails.uid
         claims["absoluteMobile"] = userDetails.absoluteMobile
         return createToken(claims, userDetails.uid)
-    }
-
-    fun createToken(claims: Map<String, Any?>, uid: String?): String? {
-        return Jwts.builder().setClaims(claims).setSubject(uid)
-            .setIssuedAt(Date(System.currentTimeMillis()))
-            .setExpiration(Date(System.currentTimeMillis() + 1000 * 60 * 60 * 500))
-            .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact()
     }
 
     fun validateToken(token: String): UserDetailsFromUDTokens? {
@@ -79,6 +41,23 @@ class JwtProvider {
             if (isExpired) {
                 error("token is expired. token: $token")
             }
+
+            val validToken = validTokenProvider.getValidToken(token)
+
+            if (validToken == null || !validToken.valid) {
+                error("Token is not valid: $token")
+            }
+
+            return validateTokenForClaims(token)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            logger.error("Error while token validation. token: $token")
+            return null
+        }
+    }
+
+    fun validateTokenForClaims(token: String): UserDetailsFromUDTokens? {
+        try {
             // validate if the username is present in our DB or not
             val absoluteMobile = extractKey(token, "absoluteMobile")
             val uid = extractKey(token, "uid")
@@ -88,9 +67,11 @@ class JwtProvider {
             }
 
             val userV2ByMobileNumber = userV2ByMobileNumberProvider.getUserV2ByMobileNumber(absoluteMobile) ?: error("user not found for absoluteMobile: $absoluteMobile")
-            val userV2 = userV2Provider.getUser(uid) ?: error("user not found for uid: $uid")
 
-            if (userV2ByMobileNumber.userId != userV2.userId) {
+            // Commenting this as the user might not have actually been saved into db while the auth token is created.
+//            val userV2 = userV2Provider.getUser(uid) ?: error("user not found for uid: $uid")
+
+            if (userV2ByMobileNumber.userId != uid) {
                 error("Token absolute mobile does not match with the user id. token: $token")
             }
             return UserDetailsFromUDTokens(
@@ -103,5 +84,43 @@ class JwtProvider {
             logger.error("Error while token validation. token: $token")
             return null
         }
+    }
+
+    private fun createToken(claims: Map<String, Any?>, uid: String?): String {
+        return Jwts.builder().setClaims(claims).setSubject(uid)
+            .setIssuedAt(Date(System.currentTimeMillis()))
+            .setExpiration(Date(System.currentTimeMillis() + 1000 * 60 * 60 * 500))
+            .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact()
+    }
+
+    private fun extractSubject(token: String?): String {
+        return extractClaim(
+            token
+        ) { obj: Claims -> obj.subject }
+    }
+
+    private fun extractKey(token: String, key: String): String {
+        return extractClaim(
+            token
+        ) { obj: Claims -> obj[key] as String }
+    }
+
+    private fun extractExpiration(token: String?): Date {
+        return extractClaim(
+            token
+        ) { obj: Claims -> obj.expiration }
+    }
+
+    private fun <T> extractClaim(token: String?, claimsResolver: Function<Claims, T>): T {
+        val claims = extractAllClaims(token)
+        return claimsResolver.apply(claims)
+    }
+
+    private fun extractAllClaims(token: String?): Claims {
+        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).body
+    }
+
+    private fun isTokenExpired(token: String): Boolean {
+        return extractExpiration(token).before(Date())
     }
 }

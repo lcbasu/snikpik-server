@@ -1,19 +1,20 @@
 package com.server.common.service
 
+import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.UserDetailsForToken
 import com.server.common.provider.AuthProvider
 import com.server.common.provider.JwtProvider
 import com.server.common.provider.SecurityProvider
+import com.server.common.provider.UniqueIdProvider
 import com.server.common.provider.communication.CommunicationProvider
 import com.server.common.utils.DateUtils
 import com.server.dk.dto.*
 import com.server.ud.provider.auth.OtpValidationProvider
+import com.server.ud.provider.auth.RefreshTokenProvider
+import com.server.ud.provider.auth.ValidTokenProvider
 import com.server.ud.provider.user.UserV2ByMobileNumberProvider
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class AuthServiceImpl : AuthService() {
@@ -23,6 +24,9 @@ class AuthServiceImpl : AuthService() {
 
     @Autowired
     private lateinit var userV2ByMobileNumberProvider: UserV2ByMobileNumberProvider
+
+    @Autowired
+    private lateinit var refreshTokenProvider: RefreshTokenProvider
 
     @Autowired
     private lateinit var securityProvider: SecurityProvider
@@ -35,6 +39,12 @@ class AuthServiceImpl : AuthService() {
 
     @Autowired
     private lateinit var jwtProvider: JwtProvider
+
+    @Autowired
+    private lateinit var uniqueIdProvider: UniqueIdProvider
+
+    @Autowired
+    private lateinit var validTokenProvider: ValidTokenProvider
 
 //    @Autowired
 //    private lateinit var jwtUtil: JwtUtil
@@ -82,6 +92,20 @@ class AuthServiceImpl : AuthService() {
             absoluteMobile = userV2ByMobileNumber.absoluteMobile,
         ))
 
+        refreshTokenProvider.saveRefreshToken(
+            loginSequenceId = request.loginSequenceId,
+            userId = userV2ByMobileNumber.userId,
+            absoluteMobile = userV2ByMobileNumber.absoluteMobile,
+            token = token,
+            usedToRefresh = false,
+        )
+
+        validTokenProvider.saveValidToken(
+            token = token,
+            valid = true,
+            validByLoginSequenceId = request.loginSequenceId,
+        )
+
         return LoginResponse(
             authenticated = true,
             token = token,
@@ -121,7 +145,76 @@ class AuthServiceImpl : AuthService() {
         )
     }
 
-    override fun refreshToken(): LoginResponse {
-        TODO("Not yet implemented")
+    override fun refreshToken(request: RefreshTokenRequest): TokenRefreshResponse {
+        val oldLoginSequenceId = request.loginSequenceId
+        val oldToken = request.token
+        val refreshTokenObject = refreshTokenProvider.getRefreshToken(oldLoginSequenceId)
+        if (refreshTokenObject == null || refreshTokenObject.token != oldToken || refreshTokenObject.loginSequenceId != oldLoginSequenceId || refreshTokenObject.usedToRefresh) {
+            return TokenRefreshResponse(
+                oldLoginSequenceId = oldLoginSequenceId,
+                oldToken = oldToken,
+                refreshed = false,
+                errorMessage = "Invalid refresh attempt. Please try logging in again."
+            )
+        }
+
+        val userDetailsFromUDTokens = jwtProvider.validateTokenForClaims(oldToken) ?: return TokenRefreshResponse(
+            oldLoginSequenceId = oldLoginSequenceId,
+            oldToken = oldToken,
+            refreshed = false,
+            errorMessage = "Invalid refresh attempt. Please try logging in again."
+        )
+
+        val newToken = jwtProvider.generateToken(
+            UserDetailsForToken(
+                uid = userDetailsFromUDTokens.uid,
+                absoluteMobile = userDetailsFromUDTokens.absoluteMobile,
+            )
+        )
+
+        val newLoginSequenceId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.RFT.name)
+
+        // Save this for future use while refreshing the token
+
+        // Invalidate old one
+        refreshTokenProvider.saveRefreshToken(
+            loginSequenceId = oldLoginSequenceId,
+            userId = userDetailsFromUDTokens.uid,
+            absoluteMobile = userDetailsFromUDTokens.absoluteMobile,
+            token = oldToken,
+            usedToRefresh = true,
+        )
+
+        // Save new one
+        refreshTokenProvider.saveRefreshToken(
+            loginSequenceId = newLoginSequenceId,
+            userId = userDetailsFromUDTokens.uid,
+            absoluteMobile = userDetailsFromUDTokens.absoluteMobile,
+            token = newToken,
+            usedToRefresh = false,
+        )
+
+        // Invalidate old one
+        validTokenProvider.saveValidToken(
+            token = oldToken,
+            valid = false,
+            validByLoginSequenceId = oldLoginSequenceId,
+            invalidByLoginSequenceId = newLoginSequenceId,
+        )
+
+        // Save New one
+        validTokenProvider.saveValidToken(
+            token = newToken,
+            valid = true,
+            validByLoginSequenceId = newLoginSequenceId,
+        )
+
+        return TokenRefreshResponse(
+            oldLoginSequenceId = oldLoginSequenceId,
+            refreshed = true,
+            oldToken = oldToken,
+            newToken = newToken,
+            newLoginSequenceId = newLoginSequenceId,
+        )
     }
 }

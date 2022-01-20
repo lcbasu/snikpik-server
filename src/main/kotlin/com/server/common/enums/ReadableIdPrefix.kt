@@ -32,5 +32,6 @@ enum class ReadableIdPrefix {
     UCT, // User Chat
 
     OTP, // OTP Validation
+    RFT, // Refresh Token
 }
 
