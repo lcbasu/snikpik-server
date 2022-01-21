@@ -93,5 +93,9 @@ object UDCommonUtils {
         return DigestUtils.sha256Hex(absoluteMobileNumber)
     }
 
+    fun getOtp(length: Int): String {
+        return (1..length).map { (0..9).random() }.joinToString("")
+    }
+
 }
 

@@ -1,11 +1,11 @@
 package com.server.ud.provider.auth
 
 import com.server.common.enums.ReadableIdPrefix
-import com.server.common.provider.RandomIdProvider
 import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.auth.OtpValidationRepository
 import com.server.ud.entities.auth.OtpValidation
+import com.server.ud.utils.UDCommonUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,9 +18,6 @@ class OtpValidationProvider {
 
     @Autowired
     private lateinit var otpValidationRepository: OtpValidationRepository
-
-    @Autowired
-    private lateinit var randomIdProvider: RandomIdProvider
 
     @Autowired
     private lateinit var uniqueIdProvider: UniqueIdProvider
@@ -53,12 +50,7 @@ class OtpValidationProvider {
                 absoluteMobile = absoluteMobileNumber,
                 createdAt = DateUtils.getEpochNow(),
                 expireAt = DateUtils.getEpoch(DateUtils.getInstantNow().plusSeconds(10 * 60)), // After 10 minutes
-                otp = randomIdProvider.getRandomId(
-                    prefix = null,
-                    onlyNumbers = true,
-                    minLength = 6,
-                    maxLength = 6,
-                ),
+                otp = UDCommonUtils.getOtp(6),
                 loginSequenceId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.OTP.name),
             ))
         } catch (e: Exception) {
