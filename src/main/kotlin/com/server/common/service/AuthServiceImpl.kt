@@ -13,6 +13,7 @@ import com.server.ud.provider.auth.OtpValidationProvider
 import com.server.ud.provider.auth.RefreshTokenProvider
 import com.server.ud.provider.auth.ValidTokenProvider
 import com.server.ud.provider.user.UserV2ByMobileNumberProvider
+import com.server.ud.utils.UDCommonUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -152,7 +153,7 @@ class AuthServiceImpl : AuthService() {
         val oldLoginSequenceId = request.loginSequenceId
         val oldToken = request.token
         val refreshTokenObject = refreshTokenProvider.getRefreshToken(oldLoginSequenceId)
-        if (refreshTokenObject == null || refreshTokenObject.token != oldToken || refreshTokenObject.loginSequenceId != oldLoginSequenceId || refreshTokenObject.usedToRefresh) {
+        if (refreshTokenObject == null || refreshTokenObject.token != UDCommonUtils.getSha256Hash(oldToken) || refreshTokenObject.loginSequenceId != oldLoginSequenceId || refreshTokenObject.usedToRefresh) {
             return TokenRefreshResponse(
                 oldLoginSequenceId = oldLoginSequenceId,
                 oldToken = oldToken,
@@ -220,6 +221,41 @@ class AuthServiceImpl : AuthService() {
             newLoginSequenceId = newLoginSequenceId,
             userId = userDetailsFromUDTokens.uid,
             absoluteMobileNumber = refreshTokenObject.absoluteMobile,
+        )
+    }
+
+    override fun logout(request: LogoutRequest): LogoutResponse {
+        securityProvider.validateRequest()
+        val token = securityProvider.getFirebaseAuthUser()?.getToken() ?: return LogoutResponse(
+            loggedOut = false,
+            errorMessage = "Invalid logout attempt. Please try again."
+        )
+
+        val savedValidToken = validTokenProvider.getValidToken(token) ?: return LogoutResponse(
+            loggedOut = false,
+            errorMessage = "Invalid logout attempt. Please try again."
+        )
+
+        if (!savedValidToken.valid || savedValidToken.validByLoginSequenceId != request.loginSequenceId) {
+            return LogoutResponse(
+                loggedOut = false,
+                errorMessage = "Invalid logout attempt. Please try again."
+            )
+        }
+
+        // Invalidate the token
+        val updatedValidToken = validTokenProvider.saveValidToken(
+            token = token,
+            valid = false,
+            validByLoginSequenceId = request.loginSequenceId,
+            invalidByLoginSequenceId = request.loginSequenceId
+        ) ?: return LogoutResponse(
+            loggedOut = false,
+            errorMessage = "Failed to logout. Please try again."
+        )
+
+        return LogoutResponse(
+            loggedOut = !updatedValidToken.valid,
         )
     }
 }

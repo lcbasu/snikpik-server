@@ -60,6 +60,17 @@ data class TokenRefreshResponse(
     val absoluteMobileNumber: String? = null,
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class LogoutRequest(
+    val loginSequenceId: String, // Doing this so that even if someone has the token, he can not just logout. YOu need this id
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class LogoutResponse(
+    val loggedOut: Boolean,
+    val errorMessage: String? = null, // In case logout failed
+)
+
 fun RequestContext.toRequestContextResponse(): RequestContextResponse {
     this.apply {
         return RequestContextResponse(

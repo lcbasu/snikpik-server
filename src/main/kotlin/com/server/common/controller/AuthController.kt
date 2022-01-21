@@ -33,4 +33,9 @@ class AuthController {
     fun refreshToken(@RequestBody request: RefreshTokenRequest): TokenRefreshResponse {
         return authService.refreshToken(request)
     }
+
+    @RequestMapping(value = ["/logout"], method = [RequestMethod.POST])
+    fun logout(@RequestBody request: LogoutRequest): LogoutResponse {
+        return authService.logout(request)
+    }
 }

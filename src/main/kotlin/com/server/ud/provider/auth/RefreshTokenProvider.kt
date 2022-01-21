@@ -2,6 +2,7 @@ package com.server.ud.provider.auth
 
 import com.server.ud.dao.auth.RefreshTokenRepository
 import com.server.ud.entities.auth.RefreshToken
+import com.server.ud.utils.UDCommonUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -30,12 +31,13 @@ class RefreshTokenProvider {
 
     fun saveRefreshToken(loginSequenceId: String, userId: String, absoluteMobile: String, token: String, usedToRefresh: Boolean) : RefreshToken? {
         try {
+            val hashedToken = UDCommonUtils.getSha256Hash(token)
             // Not sent yet or already expired, so create a new one
             return refreshTokenRepository.save(RefreshToken(
                 loginSequenceId = loginSequenceId,
                 absoluteMobile = absoluteMobile,
                 userId = userId,
-                token = token,
+                token = hashedToken,
                 usedToRefresh = usedToRefresh,
             ))
         } catch (e: Exception) {

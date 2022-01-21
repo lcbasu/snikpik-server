@@ -89,12 +89,12 @@ object UDCommonUtils {
         )
     }
 
-    fun getUserIdFromMobileNumber(absoluteMobileNumber: String): String {
-        return DigestUtils.sha256Hex(absoluteMobileNumber)
-    }
-
     fun getOtp(length: Int): String {
         return (1..length).map { (0..9).random() }.joinToString("")
+    }
+
+    fun getSha256Hash(str: String): String {
+        return DigestUtils.sha256Hex(str)
     }
 
 }

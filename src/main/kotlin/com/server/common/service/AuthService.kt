@@ -7,4 +7,5 @@ abstract class AuthService {
     abstract fun login(request: LoginRequest): LoginResponse
     abstract fun sendOTP(request: SendOTPRequest): OTPSentResponse
     abstract fun refreshToken(request: RefreshTokenRequest): TokenRefreshResponse
+    abstract fun logout(request: LogoutRequest): LogoutResponse
 }

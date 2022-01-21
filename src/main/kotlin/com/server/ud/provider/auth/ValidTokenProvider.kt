@@ -2,6 +2,7 @@ package com.server.ud.provider.auth
 
 import com.server.ud.dao.auth.ValidTokenRepository
 import com.server.ud.entities.auth.ValidToken
+import com.server.ud.utils.UDCommonUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,7 +18,8 @@ class ValidTokenProvider {
 
     fun getValidToken(token: String): ValidToken? =
         try {
-            val users = validTokenRepository.findAllByToken(token)
+            val hashedToken = UDCommonUtils.getSha256Hash(token)
+            val users = validTokenRepository.findAllByToken(hashedToken)
             if (users.size > 1) {
                 error("More than one ValidToken has same token: $token")
             }
@@ -31,8 +33,9 @@ class ValidTokenProvider {
     fun saveValidToken(token: String, valid: Boolean, validByLoginSequenceId: String, invalidByLoginSequenceId: String? = null) : ValidToken? {
         try {
             // Not sent yet or already expired, so create a new one
+            val hashedToken = UDCommonUtils.getSha256Hash(token)
             return validTokenRepository.save(ValidToken(
-                token = token,
+                token = hashedToken,
                 valid = valid,
                 validByLoginSequenceId = validByLoginSequenceId,
                 invalidByLoginSequenceId = invalidByLoginSequenceId,
