@@ -109,6 +109,9 @@ class AuthServiceImpl : AuthService() {
         return LoginResponse(
             authenticated = true,
             token = token,
+            userId = userV2ByMobileNumber.userId,
+            loginSequenceId = request.loginSequenceId,
+            absoluteMobileNumber = request.absoluteMobileNumber,
         )
     }
 
@@ -215,6 +218,8 @@ class AuthServiceImpl : AuthService() {
             oldToken = oldToken,
             newToken = newToken,
             newLoginSequenceId = newLoginSequenceId,
+            userId = userDetailsFromUDTokens.uid,
+            absoluteMobileNumber = refreshTokenObject.absoluteMobile,
         )
     }
 }
