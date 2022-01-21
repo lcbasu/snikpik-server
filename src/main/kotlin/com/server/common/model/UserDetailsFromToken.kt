@@ -5,6 +5,7 @@ import com.server.common.enums.ReadableIdPrefix
 
 data class UserDetailsFromToken(
     private val serialVersionUID: Long = 4408418647685225829L,
+    private val token: String,
     private val uid: String,
     private val type: CredentialType,
     private val name: String? = null,
@@ -15,6 +16,11 @@ data class UserDetailsFromToken(
     private val picture: String? = null,
     private val anonymous: Boolean? = true,
 ) {
+
+    fun getToken(): String {
+        return token
+    }
+
     // Adding getters so that we can access these values when we cast them from
     // Java Object to Kotlin Object
     fun getAbsoluteMobileNumber(): String? {

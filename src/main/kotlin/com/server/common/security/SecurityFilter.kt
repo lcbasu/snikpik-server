@@ -133,6 +133,7 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
                 val phone = it.claims["phone_number"] as String?
                 val email = it.email
                 UserDetailsFromToken(
+                    token = token!!,
                     uid = it.uid,
                     name = it.name,
                     type = CredentialType.ID_TOKEN_FIREBASE,
@@ -145,6 +146,7 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
                 )
             } else if (type == CredentialType.ID_TOKEN_COGNITO && it is JWTClaimsSet) {
                 UserDetailsFromToken(
+                    token = token!!,
                     uid = it.getStringClaim("sub"),
                     name = it.getStringClaim("name"),
                     type = CredentialType.ID_TOKEN_COGNITO,
@@ -155,6 +157,7 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
                 )
             } else if (type == CredentialType.ID_TOKEN_UNBOX && it is UserDetailsFromUDTokens) {
                 UserDetailsFromToken(
+                    token = token!!,
                     uid = it.uid,
                     type = CredentialType.ID_TOKEN_UNBOX,
                     absoluteMobile = it.absoluteMobile,
