@@ -132,7 +132,7 @@ class AuthServiceImpl : AuthService() {
 
         communicationProvider.sendSMS(
             phoneNumber = otpValidation.absoluteMobile,
-            messageStr = "<#> Unbox login OTP is: ${otpValidation.otp}\n8g5Q4FSY3va"
+            messageStr = "<#> Unbox login OTP is: ${otpValidation.otp}\nFUQvhHBBP7x"
         )
 
         // Step 3
