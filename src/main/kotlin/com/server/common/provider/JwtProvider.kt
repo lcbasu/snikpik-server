@@ -5,6 +5,7 @@ import com.server.common.model.UserDetailsFromUDTokens
 import com.server.ud.provider.auth.ValidTokenProvider
 import com.server.ud.provider.user.UserV2ByMobileNumberProvider
 import io.jsonwebtoken.Claims
+import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import org.slf4j.Logger
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import java.util.*
 import java.util.function.Function
+
 
 @Component
 class JwtProvider {
@@ -89,7 +91,7 @@ class JwtProvider {
     private fun createToken(claims: Map<String, Any?>, uid: String?): String {
         return Jwts.builder().setClaims(claims).setSubject(uid)
             .setIssuedAt(Date(System.currentTimeMillis()))
-            .setExpiration(Date(System.currentTimeMillis() + 1000 * 60 * 60 * 500))
+            .setExpiration(Date(System.currentTimeMillis() + 1000 * 60 * 1)) // Let us expire token every 1 minute and test out the build
             .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact()
     }
 
@@ -117,7 +119,14 @@ class JwtProvider {
     }
 
     private fun extractAllClaims(token: String?): Claims {
-        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).body
+        try {
+            return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).body
+        } catch (e: ExpiredJwtException) {
+            logger.error("token is expired: $token")
+            e.printStackTrace()
+            // Return the claims for cases when the request was meant for generating a refresh token
+            return e.claims
+        }
     }
 
     private fun isTokenExpired(token: String): Boolean {
