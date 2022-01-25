@@ -52,8 +52,8 @@ class JwtProvider {
 
             return validateTokenForClaims(token)
         } catch (e: Exception) {
-            e.printStackTrace()
-            logger.error("Error while token validation. token: $token")
+//            e.printStackTrace()
+            logger.error("Error while token validation in validateToken. token: $token")
             return null
         }
     }
@@ -82,8 +82,8 @@ class JwtProvider {
                 absoluteMobile = absoluteMobile,
             )
         } catch (e: Exception) {
-            e.printStackTrace()
-            logger.error("Error while token validation. token: $token")
+//            e.printStackTrace()
+            logger.error("Error while token validation in validateTokenForClaims. token: $token")
             return null
         }
     }
