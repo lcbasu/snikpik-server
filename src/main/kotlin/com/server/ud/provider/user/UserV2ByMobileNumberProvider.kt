@@ -1,5 +1,7 @@
 package com.server.ud.provider.user
 
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserRecord
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.provider.UniqueIdProvider
 import com.server.ud.dao.user.UserV2ByMobileNumberRepository
@@ -54,12 +56,19 @@ class UserV2ByMobileNumberProvider {
             }
             return saveUserV2ByMobileNumber(
                 absoluteMobileNumber = absoluteMobileNumber,
-                userId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.USR.name))
+                userId = saveNewUserToFirebase(absoluteMobileNumber))
         } catch (e: Exception) {
             logger.error("Saving UserV2ByMobileNumber for absoluteMobileNumber: $absoluteMobileNumber failed.")
             e.printStackTrace()
             return null
         }
+    }
+
+    private fun saveNewUserToFirebase (absoluteMobileNumber: String): String {
+        val request = UserRecord.CreateRequest()
+            .setPhoneNumber(absoluteMobileNumber)
+        val userRecord: UserRecord = FirebaseAuth.getInstance().createUser(request)
+        return "${ReadableIdPrefix.USR.name}${userRecord.uid}"
     }
 
     fun saveUserV2ByMobileNumber(absoluteMobileNumber: String, userId: String) : UserV2ByMobileNumber? {
