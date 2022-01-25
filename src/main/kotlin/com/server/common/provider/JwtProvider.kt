@@ -91,7 +91,7 @@ class JwtProvider {
     private fun createToken(claims: Map<String, Any?>, uid: String?): String {
         return Jwts.builder().setClaims(claims).setSubject(uid)
             .setIssuedAt(Date(System.currentTimeMillis()))
-            .setExpiration(Date(System.currentTimeMillis() + 1000 * 60 * 1)) // Let us expire token every 1 minute and test out the build
+            .setExpiration(Date(System.currentTimeMillis() + 1000 * 60 * 60 * 500)) // Let us expire token every 1 minute and test out the build
             .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact()
     }
 
