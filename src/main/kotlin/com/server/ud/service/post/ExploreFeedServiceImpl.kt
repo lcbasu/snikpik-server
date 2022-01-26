@@ -1,6 +1,9 @@
 package com.server.ud.service.post
 
-import com.server.ud.dto.*
+import com.server.ud.dto.ExploreFeedRequest
+import com.server.ud.dto.ExploreTabViewResponse
+import com.server.ud.dto.ExploreTabViewUserDetail
+import com.server.ud.dto.toExploreTabViewUserDetail
 import com.server.ud.provider.post.PostsByCategoryProvider
 import com.server.ud.provider.user.UserV2Provider
 import org.springframework.beans.factory.annotation.Autowired
@@ -16,13 +19,7 @@ class ExploreFeedServiceImpl : ExploreFeedService() {
     private lateinit var userV2Provider: UserV2Provider
 
     override fun getFeedForCategory(request: ExploreFeedRequest): ExploreTabViewResponse {
-        val result = postsByCategoryProvider.getFeedForCategory(request)
-        return ExploreTabViewResponse(
-            posts = result.content?.filterNotNull()?.map { it.toSavedPostResponse() } ?: emptyList(),
-            count = result.count,
-            hasNext = result.hasNext,
-            pagingState = result.pagingState
-        )
+        return postsByCategoryProvider.getExploreTabViewResponse(request)
     }
 
     override fun getUserInfo(userId: String): ExploreTabViewUserDetail {

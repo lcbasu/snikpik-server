@@ -11,6 +11,7 @@ object UDCommonUtils {
     const val randomLocationId = "LOC_RANDOM"
     const val randomLocationZipcode = "ZZZZZZ"
     const val randomLocationName = "Global"
+    const val DEFAULT_PAGING_STATE_VALUE = "NOT_SET"
 
     val admins = listOf(
         "USR6JAUjEQIJBTtuQdnkmmpcdQhVfz2", // Basith
