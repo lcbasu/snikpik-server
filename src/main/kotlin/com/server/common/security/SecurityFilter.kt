@@ -73,22 +73,24 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
             } else if (!strictServerSessionEnabled) {
                 if (token !== null && !token.equals("undefined", ignoreCase = true)) {
 
-                    // Option 1: Try Our own token verification
+                    // Option 1: Try Firebase
                     try {
-                        decodedToken = jwtProvider.validateToken(token)
-                        type = CredentialType.ID_TOKEN_UNBOX
+                        decodedToken = FirebaseAuth.getInstance().verifyIdToken(token)
+                        type = CredentialType.ID_TOKEN_FIREBASE
                     } catch (e: Exception) {
-                        logger.error("Token is not from Unbox Auth. Try Firebase Auth.")
+//                        logger.info("Token is not from Firebase Auth. Trying Cognito Auth.")
                     }
 
-                    // Option 2: Try Firebase
+                    // Option 2: Try Our own token verification
                     if (decodedToken == null || type == null) {
                         try {
-                            decodedToken = FirebaseAuth.getInstance().verifyIdToken(token)
-                            type = CredentialType.ID_TOKEN_FIREBASE
+                            decodedToken = jwtProvider.validateToken(token)
+                            type = CredentialType.ID_TOKEN_UNBOX
                         } catch (e: Exception) {
-//                        logger.info("Token is not from Firebase Auth. Trying Cognito Auth.")
+                            logger.error("Token is not from Unbox Auth. Try Cognito Auth.")
                         }
+                    } else {
+                        logger.info("Token is from Firebase Auth.")
                     }
 
                     // Option 3: Try Cognito

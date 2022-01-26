@@ -55,6 +55,39 @@ class AuthServiceImpl : AuthService() {
         return requestContext.toRequestContextResponse()
     }
 
+    override fun sendOTP(request: SendOTPRequest): OTPSentResponse {
+        // Step 1
+        // Verify if the phone number is valid
+
+        val otpValidation = otpValidationProvider.getOrSaveOtpValidation(request.absoluteMobileNumber)
+            ?: return OTPSentResponse(
+                countryCode = request.countryCode,
+                absoluteMobileNumber = request.absoluteMobileNumber,
+                sent = false,
+            )
+
+        // Step 2
+        // Send SMS
+
+        communicationProvider.sendSMS(
+            phoneNumber = otpValidation.absoluteMobile,
+            messageStr = "<#> Unbox login OTP is: ${otpValidation.otp}\nFUQvhHBBP7x"
+        )
+
+        // Step 3
+        // Save the OTP in the cache/database to verify later with timeout of 10 minutes
+
+        // Step 4
+        // Send Login sequence Id along with response to be used for validation
+
+        return OTPSentResponse(
+            countryCode = request.countryCode,
+            absoluteMobileNumber = otpValidation.absoluteMobile,
+            sent = true,
+            loginSequenceId = otpValidation.loginSequenceId,
+        )
+    }
+
     override fun login(request: LoginRequest): LoginResponse {
 
         // Verify if the OTP is same as what we saved earlier
@@ -116,36 +149,47 @@ class AuthServiceImpl : AuthService() {
         )
     }
 
-    override fun sendOTP(request: SendOTPRequest): OTPSentResponse {
-        // Step 1
-        // Verify if the phone number is valid
+    override fun loginV2(request: LoginRequest): LoginResponseV2 {
 
-        val otpValidation = otpValidationProvider.getOrSaveOtpValidation(request.absoluteMobileNumber)
-            ?: return OTPSentResponse(
-                countryCode = request.countryCode,
-                absoluteMobileNumber = request.absoluteMobileNumber,
-                sent = false,
+        // Verify if the OTP is same as what we saved earlier
+
+        val otpValidation = otpValidationProvider.getOtpValidation(request.absoluteMobileNumber)
+            ?: return LoginResponseV2(
+                authenticated = false,
+                errorMessage = "Invalid login attempt. Please enter your phone number again and try."
             )
 
-        // Step 2
-        // Send SMS
+        if (DateUtils.getEpochNow() > otpValidation.expireAt) {
+            return LoginResponseV2(
+                authenticated = false,
+                errorMessage = "OTP Expired. Please enter your phone number again and try."
+            )
+        }
 
-        communicationProvider.sendSMS(
-            phoneNumber = otpValidation.absoluteMobile,
-            messageStr = "<#> Unbox login OTP is: ${otpValidation.otp}\nFUQvhHBBP7x"
-        )
+        if (request.loginSequenceId != otpValidation.loginSequenceId) {
+            return LoginResponseV2(
+                authenticated = false,
+                errorMessage = "Invalid login attempt. Please enter your phone number again and try."
+            )
+        }
 
-        // Step 3
-        // Save the OTP in the cache/database to verify later with timeout of 10 minutes
+        if (request.otp != otpValidation.otp) {
+            return LoginResponseV2(
+                authenticated = false,
+                errorMessage = "Invalid OTP. Please enter your OTP again and try."
+            )
+        }
 
-        // Step 4
-        // Send Login sequence Id along with response to be used for validation
+        val userV2ByMobileNumber = userV2ByMobileNumberProvider.getOrSaveUserV2ByMobileNumber(request.absoluteMobileNumber) ?: error("Error while generating id for mobile number: ${request.absoluteMobileNumber}")
 
-        return OTPSentResponse(
-            countryCode = request.countryCode,
-            absoluteMobileNumber = otpValidation.absoluteMobile,
-            sent = true,
-            loginSequenceId = otpValidation.loginSequenceId,
+        val firebaseCustomToken = authProvider.getAuthTokenForFirebaseUserId(userV2ByMobileNumber.userId) ?: error("Error while generating auth token for user id: ${userV2ByMobileNumber.userId}")
+
+        return LoginResponseV2(
+            authenticated = true,
+            firebaseCustomToken = firebaseCustomToken,
+            userId = userV2ByMobileNumber.userId,
+            loginSequenceId = request.loginSequenceId,
+            absoluteMobileNumber = request.absoluteMobileNumber,
         )
     }
 

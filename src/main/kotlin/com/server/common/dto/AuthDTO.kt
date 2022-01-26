@@ -43,6 +43,16 @@ data class LoginResponse(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class LoginResponseV2(
+    val authenticated: Boolean,
+    val errorMessage: String? = null, // In case authentication failed
+    val firebaseCustomToken: String? = null,
+    val userId: String? = null,
+    val loginSequenceId: String? = null,
+    val absoluteMobileNumber: String? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class RefreshTokenRequest(
     val loginSequenceId: String, // This is the id that was used during the sign in
     val token: String, // This is the old expired token

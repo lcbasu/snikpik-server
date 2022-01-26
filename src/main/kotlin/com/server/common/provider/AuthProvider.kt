@@ -1,5 +1,7 @@
 package com.server.common.provider
 
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserRecord
 import com.server.common.dao.UserRepository
 import com.server.common.entities.User
 import com.server.common.enums.NotificationTokenProvider
@@ -308,5 +310,26 @@ class AuthProvider {
                 valid = false
             )
         }
+    }
+
+    fun saveNewUserToFirebase (absoluteMobileNumber: String): String {
+        val request = UserRecord.CreateRequest()
+            .setPhoneNumber(absoluteMobileNumber)
+        val userRecord: UserRecord = FirebaseAuth.getInstance().createUser(request)
+        return "${ReadableIdPrefix.USR.name}${userRecord.uid}"
+    }
+
+    fun getAuthTokenForFirebaseUserId (userId: String): String? {
+        return try {
+            val firebaseUserId = userId.substring(ReadableIdPrefix.USR.name.length)
+            // Check if the user has already been saved, only then generate the token
+            val firebaseUser = FirebaseAuth.getInstance().getUser(firebaseUserId)
+            FirebaseAuth.getInstance().createCustomToken(firebaseUser.uid)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            logger.error("Error while generating token for user $userId")
+            null
+        }
+
     }
 }
