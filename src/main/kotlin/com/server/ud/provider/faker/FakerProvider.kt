@@ -2,6 +2,7 @@ package com.server.ud.provider.faker
 
 import com.algolia.search.SearchClient
 import com.github.javafaker.Faker
+import com.server.common.client.RedisClient
 import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.dto.convertToString
 import com.server.common.dto.toProfileTypeResponse
@@ -411,7 +412,7 @@ class FakerProvider {
     private lateinit var communicationProvider: CommunicationProvider
 
     @Autowired
-    private lateinit var jedisPool: JedisPool
+    private lateinit var redisClient: RedisClient
 
     fun doSomething(): Any {
 //        recoverDeletedData()
@@ -424,9 +425,10 @@ class FakerProvider {
 
 //        tryoutCache("SomeKey")
 
-//        jedisPool.resource?.set("SomeKey111", "SomeValue222")
+        redisClient.set("SomeKey111", "SomeValue777")
+        redisClient.set("SomeKey333", "SomeValue444")
 
-        return "Something was done... ${jedisPool.resource?.get("SomeKey111")}"
+        return "Something was done... ${redisClient.get("SomeKey111")} - ${redisClient.get("SomeKey333")}"
     }
 
 //    private fun recoverDeletedData() {

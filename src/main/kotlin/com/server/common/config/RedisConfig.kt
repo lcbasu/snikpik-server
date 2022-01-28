@@ -3,13 +3,9 @@ package com.server.common.config
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import redis.clients.jedis.JedisPool
-import java.net.URI
 
 @Configuration
 class RedisConfig {
-
-    private val redisHostName = "localhost"
-    private val redisPort = 6379
 
     @Bean
     fun jedisPool(): JedisPool {
