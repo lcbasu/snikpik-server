@@ -24,23 +24,23 @@ class AuthController {
         return authService.sendOTP(request)
     }
 
-    @RequestMapping(value = ["/login"], method = [RequestMethod.POST])
-    fun login(@RequestBody request: LoginRequest): LoginResponse {
-        return authService.login(request)
-    }
+//    @RequestMapping(value = ["/login"], method = [RequestMethod.POST])
+//    fun login(@RequestBody request: LoginRequest): LoginResponse {
+//        return authService.login(request)
+//    }
 
     @RequestMapping(value = ["/loginV2"], method = [RequestMethod.POST])
     fun loginV2(@RequestBody request: LoginRequest): LoginResponseV2 {
         return authService.loginV2(request)
     }
 
-    @RequestMapping(value = ["/refreshToken"], method = [RequestMethod.POST])
-    fun refreshToken(@RequestBody request: RefreshTokenRequest): TokenRefreshResponse {
-        return authService.refreshToken(request)
-    }
-
-    @RequestMapping(value = ["/logout"], method = [RequestMethod.POST])
-    fun logout(@RequestBody request: LogoutRequest): LogoutResponse {
-        return authService.logout(request)
-    }
+//    @RequestMapping(value = ["/refreshToken"], method = [RequestMethod.POST])
+//    fun refreshToken(@RequestBody request: RefreshTokenRequest): TokenRefreshResponse {
+//        return authService.refreshToken(request)
+//    }
+//
+//    @RequestMapping(value = ["/logout"], method = [RequestMethod.POST])
+//    fun logout(@RequestBody request: LogoutRequest): LogoutResponse {
+//        return authService.logout(request)
+//    }
 }

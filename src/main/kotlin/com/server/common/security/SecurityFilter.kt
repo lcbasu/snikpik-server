@@ -11,7 +11,6 @@ import com.server.common.model.UserDetailsFromToken
 import com.server.common.model.UserDetailsFromUDTokens
 import com.server.common.properties.AwsProperties
 import com.server.common.properties.SecurityProperties
-import com.server.common.provider.JwtProvider
 import com.server.common.service.SecurityService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -41,8 +40,8 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
     @Autowired
     private lateinit var securityProps: SecurityProperties
 
-    @Autowired
-    private lateinit var jwtProvider: JwtProvider
+//    @Autowired
+//    private lateinit var jwtProvider: JwtProvider
 
     @Throws(ServletException::class, IOException::class)
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
@@ -81,49 +80,49 @@ class SecurityFilter(val processor: ConfigurableJWTProcessor<SecurityContext>) :
 //                        logger.info("Token is not from Firebase Auth. Trying Cognito Auth.")
                     }
 
-                    // Option 2: Try Our own token verification
-                    if (decodedToken == null || type == null) {
-                        try {
-                            decodedToken = jwtProvider.validateToken(token)
-                            type = CredentialType.ID_TOKEN_UNBOX
-                        } catch (e: Exception) {
-                            logger.error("Token is not from Unbox Auth. Try Cognito Auth.")
-                        }
-                    } else {
-                        logger.info("Token is from Firebase Auth.")
-                    }
-
-                    // Option 3: Try Cognito
-                    if (decodedToken == null || type == null) {
-                        // Not handling it under Try catch as the Option 2 should always result in
-                        // valid token otherwise it should fail
-
-                        val claimsSet = processor.process(token, null)
-
-                        /**To verify JWT claims:
-                        1.Verify that the token is not expired.
-                        2.The audience (aud) claim should match the app client ID created in the Amazon Cognito user pool.
-                        3.The issuer (iss) claim should match your user pool. For example, a user pool created in the us-east-1 region will have an iss value of: https://cognito-idp.us-east-1.amazonaws.com/<userpoolID>.
-                        4.Check the token_use claim.
-                        5.If you are only accepting the access token in your web APIs, its value must be access.
-                        6.If you are only using the ID token, its value must be id.
-                        7.If you are using both ID and access tokens, the token_use claim must be either id or access.
-                        8.You can now trust the claims inside the token.
-                         */
-
-//                        if (!isIssuedCorrectly(claimsSet)) {
-//                            error("Issuer ${claimsSet.issuer} in JWT token doesn't match cognito idp ${awsProperties.amplify.wellKnownIssuer}")
+//                    // Option 2: Try Our own token verification
+//                    if (decodedToken == null || type == null) {
+//                        try {
+//                            decodedToken = jwtProvider.validateToken(token)
+//                            type = CredentialType.ID_TOKEN_UNBOX
+//                        } catch (e: Exception) {
+//                            logger.error("Token is not from Unbox Auth. Try Cognito Auth.")
 //                        }
+//                    } else {
+//                        logger.info("Token is from Firebase Auth.")
+//                    }
 //
-//                        if (!isIdToken(claimsSet)) {
-//                            error("JWT Token doesn't seem to be an ID Token")
+//                    // Option 3: Try Cognito
+//                    if (decodedToken == null || type == null) {
+//                        // Not handling it under Try catch as the Option 2 should always result in
+//                        // valid token otherwise it should fail
+//
+//                        val claimsSet = processor.process(token, null)
+//
+//                        /**To verify JWT claims:
+//                        1.Verify that the token is not expired.
+//                        2.The audience (aud) claim should match the app client ID created in the Amazon Cognito user pool.
+//                        3.The issuer (iss) claim should match your user pool. For example, a user pool created in the us-east-1 region will have an iss value of: https://cognito-idp.us-east-1.amazonaws.com/<userpoolID>.
+//                        4.Check the token_use claim.
+//                        5.If you are only accepting the access token in your web APIs, its value must be access.
+//                        6.If you are only using the ID token, its value must be id.
+//                        7.If you are using both ID and access tokens, the token_use claim must be either id or access.
+//                        8.You can now trust the claims inside the token.
+//                         */
+//
+////                        if (!isIssuedCorrectly(claimsSet)) {
+////                            error("Issuer ${claimsSet.issuer} in JWT token doesn't match cognito idp ${awsProperties.amplify.wellKnownIssuer}")
+////                        }
+////
+////                        if (!isIdToken(claimsSet)) {
+////                            error("JWT Token doesn't seem to be an ID Token")
+////                        }
+//
+//                        if (isIssuedCorrectly(claimsSet) && isIdToken(claimsSet)) {
+//                            decodedToken = claimsSet
+//                            type = CredentialType.ID_TOKEN_COGNITO
 //                        }
-
-                        if (isIssuedCorrectly(claimsSet) && isIdToken(claimsSet)) {
-                            decodedToken = claimsSet
-                            type = CredentialType.ID_TOKEN_COGNITO
-                        }
-                    }
+//                    }
                 }
             }
         } catch (e: Exception) {
