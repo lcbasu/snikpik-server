@@ -424,9 +424,9 @@ class FakerProvider {
 
 //        tryoutCache("SomeKey")
 
-        jedisPool.resource?.set("SomeKey111", "SomeValue222")
+//        jedisPool.resource?.set("SomeKey111", "SomeValue222")
 
-        return "Something was done..."
+        return "Something was done... ${jedisPool.resource?.get("SomeKey111")}"
     }
 
 //    private fun recoverDeletedData() {
