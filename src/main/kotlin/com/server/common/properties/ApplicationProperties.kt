@@ -100,3 +100,11 @@ data class BugsnagProperties(val unboxServerApiKey: String)
 @ConstructorBinding
 @ConfigurationProperties("ably")
 data class AblyProperties(val apiKey: String)
+
+@ConstructorBinding
+@ConfigurationProperties("msg91")
+data class Msg91Properties(
+    val flowId: String,
+    val senderId: String,
+    val apiKey: String,
+)

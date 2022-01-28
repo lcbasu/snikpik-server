@@ -43,6 +43,9 @@ dependencies {
 	implementation("com.messagebird:messagebird-api:3.2.0")
 	// MessageBird - End
 
+	// Rest API Calls - Start
+	implementation("com.mashape.unirest:unirest-java:1.4.9")
+	// Rest API Calls - End
 
 	// JWT
 	implementation("javax.xml.bind:jaxb-api:2.3.1")

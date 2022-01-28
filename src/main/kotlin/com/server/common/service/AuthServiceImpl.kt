@@ -67,12 +67,26 @@ class AuthServiceImpl : AuthService() {
             )
 
         // Step 2
-        // Send SMS
+        // Send OTP SMS/Whatsapp/Any Other channel
 
-        communicationProvider.sendSMS(
+        val sent = communicationProvider.sendOTP(
             phoneNumber = otpValidation.absoluteMobile,
-            messageStr = "<#> Unbox login OTP is: ${otpValidation.otp}\nFUQvhHBBP7x"
+            otp = otpValidation.otp,
         )
+        if (!sent) {
+            return OTPSentResponse(
+                countryCode = request.countryCode,
+                absoluteMobileNumber = request.absoluteMobileNumber,
+                sent = false,
+            )
+        }
+
+        // UNCOMMENT IN CASE MSG91 Screws up
+//        // Send SMS
+//        communicationProvider.sendSMS(
+//            phoneNumber = otpValidation.absoluteMobile,
+//            messageStr = "<#> Unbox login OTP is: ${otpValidation.otp}\nFUQvhHBBP7x"
+//        )
 
         // Step 3
         // Save the OTP in the cache/database to verify later with timeout of 10 minutes
