@@ -39,6 +39,10 @@ dependencies {
 	implementation("io.ably:ably-java:1.2.3")
 	// Ably - End
 
+	// Redis - Start
+	implementation("redis.clients:jedis:3.5.1")
+	// Redis - End
+
 	// MessageBird - Start
 	implementation("com.messagebird:messagebird-api:3.2.0")
 	// MessageBird - End

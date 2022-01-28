@@ -60,6 +60,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import redis.clients.jedis.JedisPool
 import kotlin.random.Random
 
 @Component
@@ -409,6 +410,9 @@ class FakerProvider {
     @Autowired
     private lateinit var communicationProvider: CommunicationProvider
 
+    @Autowired
+    private lateinit var jedisPool: JedisPool
+
     fun doSomething(): Any {
 //        recoverDeletedData()
 //        cassandraTableModificationProvider.addNewColumns()
@@ -416,7 +420,12 @@ class FakerProvider {
 //       oneOffIndexUsersToAlgolia.saveUsersToAlgolia()
 //        oneOffSaveChatsV2ToFirestore.saveChatsV2ToFirestore()
 //        communicationProvider.sendSMS("+919742097429", "This is a test message")
-        userV2Provider.saveAllForAuthV2()
+//        userV2Provider.saveAllForAuthV2()
+
+//        tryoutCache("SomeKey")
+
+        jedisPool.resource?.set("SomeKey111", "SomeValue222")
+
         return "Something was done..."
     }
 
