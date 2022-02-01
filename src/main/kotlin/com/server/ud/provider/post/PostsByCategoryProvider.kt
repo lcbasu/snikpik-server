@@ -84,13 +84,17 @@ class PostsByCategoryProvider {
 
     fun getExploreTabViewResponse(request: ExploreFeedRequest): ExploreTabViewResponse {
         return try {
-            exploreTabViewResponseCache.get(PostsByCategoryCacheKeyBuilder.getKey(request)).get() ?:
-            ExploreTabViewResponse(
-                posts = emptyList(),
-                count = 0,
-                hasNext = true,
-                pagingState = request.pagingState
-            )
+            getExploreTabViewResponseFromDB(request)
+            // Figure out how to invalidate the cache when the post is deleted and then uncomment the below lines
+
+
+//            exploreTabViewResponseCache.get(PostsByCategoryCacheKeyBuilder.getKey(request)).get() ?:
+//            ExploreTabViewResponse(
+//                posts = emptyList(),
+//                count = 0,
+//                hasNext = true,
+//                pagingState = request.pagingState
+//            )
         } catch (e: Exception) {
             logger.error("Error while getting getExploreTabViewResponse data from cache.")
             e.printStackTrace()
