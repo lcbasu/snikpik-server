@@ -8,6 +8,7 @@ import com.server.dk.dto.*
 import com.server.ud.provider.auth.OtpValidationProvider
 import com.server.ud.provider.auth.RefreshTokenProvider
 import com.server.ud.provider.user.UserV2ByMobileNumberProvider
+import com.server.ud.utils.UDCommonUtils.fixedLoginOTPMap
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -63,16 +64,19 @@ class AuthServiceImpl : AuthService() {
         // Step 2
         // Send OTP SMS/Whatsapp/Any Other channel
 
-        val sent = communicationProvider.sendOTP(
-            phoneNumber = otpValidation.absoluteMobile,
-            otp = otpValidation.otp,
-        )
-        if (!sent) {
-            return OTPSentResponse(
-                countryCode = request.countryCode,
-                absoluteMobileNumber = request.absoluteMobileNumber,
-                sent = false,
+        val isLoginOtpFixed = fixedLoginOTPMap.containsKey(request.absoluteMobileNumber)
+        if (!isLoginOtpFixed) {
+            val sent = communicationProvider.sendOTP(
+                phoneNumber = otpValidation.absoluteMobile,
+                otp = otpValidation.otp,
             )
+            if (!sent) {
+                return OTPSentResponse(
+                    countryCode = request.countryCode,
+                    absoluteMobileNumber = request.absoluteMobileNumber,
+                    sent = false,
+                )
+            }
         }
 
         // UNCOMMENT IN CASE MSG91 Screws up

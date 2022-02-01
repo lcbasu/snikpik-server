@@ -6,6 +6,7 @@ import com.server.common.utils.DateUtils
 import com.server.ud.dao.auth.OtpValidationRepository
 import com.server.ud.entities.auth.OtpValidation
 import com.server.ud.utils.UDCommonUtils
+import com.server.ud.utils.UDCommonUtils.fixedLoginOTPMap
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -46,11 +47,12 @@ class OtpValidationProvider {
                 return existing
             }
             // Not sent yet or already expired, so create a new one
+            val otp = fixedLoginOTPMap.getOrDefault(absoluteMobileNumber, UDCommonUtils.getOtp(6))
             return otpValidationRepository.save(OtpValidation(
                 absoluteMobile = absoluteMobileNumber,
                 createdAt = DateUtils.getEpochNow(),
                 expireAt = DateUtils.getEpoch(DateUtils.getInstantNow().plusSeconds(10 * 60)), // After 10 minutes
-                otp = UDCommonUtils.getOtp(6),
+                otp = otp,
                 loginSequenceId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.OTP.name),
             ))
         } catch (e: Exception) {

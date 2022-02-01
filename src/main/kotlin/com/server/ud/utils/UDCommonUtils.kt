@@ -13,6 +13,25 @@ object UDCommonUtils {
     const val randomLocationName = "Global"
     const val DEFAULT_PAGING_STATE_VALUE = "NOT_SET"
 
+    val fixedLoginOTPMap = mapOf(
+        // Team Numbers
+        "+919037023737" to "523978",
+        "+919742097429" to "111111",
+        "+917012096369" to "111111",
+
+        // Dummy Numbers
+        "+911234567890" to "867343",
+        "+911234567891" to "989843",
+        "+911234567892" to "343663",
+        "+911234567893" to "776323",
+        "+911234567894" to "964232",
+        "+911234567895" to "977423",
+        "+911234567896" to "242343",
+        "+911234567897" to "634534",
+        "+911234567898" to "834532",
+        "+911234567899" to "135232",
+    )
+
     val admins = listOf(
         "USR6JAUjEQIJBTtuQdnkmmpcdQhVfz2", // Basith
         "USREg7UVXtfVeZ4aFQSBwKmvuFa46A3", // Lokesh
