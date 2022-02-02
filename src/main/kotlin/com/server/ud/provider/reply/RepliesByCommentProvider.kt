@@ -47,7 +47,7 @@ class RepliesByCommentProvider {
         return CassandraPageV2(comments)
     }
 
-    fun deletePost(postId: String) {
+    fun deletePostExpandedData(postId: String) {
         TODO("Add steps to delete post and related information")
     }
 }

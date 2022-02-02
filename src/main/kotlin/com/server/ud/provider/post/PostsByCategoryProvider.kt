@@ -15,10 +15,8 @@ import com.server.ud.enums.PostType
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.utils.UDCommonUtils.DEFAULT_PAGING_STATE_VALUE
 import com.server.ud.utils.pagination.PaginationRequestUtil
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.future.future
-import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -123,8 +121,10 @@ class PostsByCategoryProvider {
         return CassandraPageV2(posts)
     }
 
-    fun deletePost(postId: String) {
-        TODO("Add steps to delete post and related information")
+    fun deletePostExpandedData(postId: String) {
+        GlobalScope.launch {
+            postsByCategoryRepository.deleteAll(postsByCategoryRepository.findAllByPostId(postId))
+        }
     }
 
 }

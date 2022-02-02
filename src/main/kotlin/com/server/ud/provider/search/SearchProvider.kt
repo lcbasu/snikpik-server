@@ -117,7 +117,7 @@ class SearchProvider {
         }
     }
 
-    fun deletePost(postId: String) {
+    fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
             val index = searchClient.initIndex(algoliaProperties.postIndex, AlgoliaPost::class.java)
             index.deleteObject(postId)

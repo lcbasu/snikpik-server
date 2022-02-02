@@ -46,7 +46,7 @@ class ReplyForCommentByUserProvider {
         save(commentId, userId, true)
     }
 
-    fun deletePost(postId: String) {
+    fun deletePostExpandedData(postId: String) {
         TODO("Add steps to delete post and related information")
     }
 

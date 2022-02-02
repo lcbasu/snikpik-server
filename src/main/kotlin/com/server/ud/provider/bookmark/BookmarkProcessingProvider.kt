@@ -102,7 +102,7 @@ class BookmarkProcessingProvider {
         }
     }
 
-    fun deletePost(postId: String) {
+    fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
             val allUsersBookmarks = bookmarksByUserRepository.findAllByResourceId(postId)
             val bookmarksGroupedByUser = allUsersBookmarks.groupBy { it.userId }

@@ -105,7 +105,7 @@ class LikeProcessingProvider {
         }
     }
 
-    fun deletePost(postId: String) {
+    fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
             likeForResourceByUserRepository.deleteAll(likeForResourceByUserRepository.findAllByResourceId(postId))
             likeRepository.deleteAll(likeRepository.findAllByResourceId(postId))

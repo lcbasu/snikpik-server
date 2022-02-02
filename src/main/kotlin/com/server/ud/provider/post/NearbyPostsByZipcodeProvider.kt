@@ -7,10 +7,13 @@ import com.server.ud.dto.NearbyFeedRequest
 import com.server.ud.entities.location.NearbyZipcodesByZipcode
 import com.server.ud.entities.post.NearbyPostsByZipcode
 import com.server.ud.entities.post.Post
+import com.server.ud.entities.post.toNearbyVideoPostsByZipcode
 import com.server.ud.enums.PostType
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
 import com.server.ud.utils.pagination.PaginationRequestUtil
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -110,8 +113,17 @@ class NearbyPostsByZipcodeProvider {
         return CassandraPageV2(posts)
     }
 
-    fun deletePost(postId: String) {
-        TODO("Add steps to delete post and related information")
+    fun deletePostExpandedData(postId: String) {
+        GlobalScope.launch {
+            val maxDeleteSize = 5
+            val posts = nearbyPostsByZipcodeRepository.findAllByPostId(postId)
+            logger.info("Deleting post $postId from NearbyPostsByZipcode. Total ${posts.size} zipcode x posts entries needs to be deleted.")
+            posts.chunked(maxDeleteSize).map {
+                nearbyPostsByZipcodeRepository.deleteAll(posts)
+                logger.info("Deleted maxDeleteSize: $maxDeleteSize zipcode x posts entries.")
+            }
+            logger.info("Deleted all entries for zipcode x posts for post $postId from NearbyPostsByZipcode.")
+        }
     }
 
 }

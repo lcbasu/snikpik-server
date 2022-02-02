@@ -1,7 +1,8 @@
 package com.server.ud.provider.post
 
 import com.server.common.provider.MediaHandlerProvider
-import com.server.ud.dao.post.*
+import com.server.ud.dao.post.PostRepository
+import com.server.ud.dao.post.PostsByCategoryRepository
 import com.server.ud.dto.GetFollowersRequest
 import com.server.ud.entities.location.Location
 import com.server.ud.entities.post.*
@@ -52,12 +53,6 @@ class PostProcessingProvider {
     @Autowired
     private lateinit var postsByHashTagProvider: PostsByHashTagProvider
 
-//    @Autowired
-//    private lateinit var esPostProvider: ESPostProvider
-
-//    @Autowired
-//    private lateinit var esPostAutoSuggestProvider: ESPostAutoSuggestProvider
-
     @Autowired
     private lateinit var esLocationProvider: ESLocationProvider
 
@@ -86,37 +81,13 @@ class PostProcessingProvider {
     private lateinit var udJobProvider: UDJobProvider
 
     @Autowired
-    private lateinit var bookmarkedPostsByUserRepository: BookmarkedPostsByUserRepository
+    private lateinit var bookmarkedPostsByUserProvider: BookmarkedPostsByUserProvider
 
     @Autowired
-    private lateinit var likedPostsByUserRepository: LikedPostsByUserRepository
-
-    @Autowired
-    private lateinit var nearbyPostsByZipcodeRepository: NearbyPostsByZipcodeRepository
-
-    @Autowired
-    private lateinit var nearbyVideoPostsByZipcodeRepository: NearbyVideoPostsByZipcodeRepository
+    private lateinit var likedPostsByUserProvider: LikedPostsByUserProvider
 
     @Autowired
     private lateinit var postRepository: PostRepository
-
-    @Autowired
-    private lateinit var postsByCategoryRepository: PostsByCategoryRepository
-
-    @Autowired
-    private lateinit var postsByFollowingRepository: PostsByFollowingRepository
-
-    @Autowired
-    private lateinit var postsByHashTagRepository: PostsByHashTagRepository
-
-    @Autowired
-    private lateinit var postsByUserRepository: PostsByUserRepository
-
-    @Autowired
-    private lateinit var postsByZipcodeRepository: PostsByZipcodeRepository
-
-    @Autowired
-    private lateinit var postsCountByUserRepository: PostsCountByUserRepository
 
     fun postProcessPost(postId: String) {
         // Update
@@ -290,7 +261,7 @@ class PostProcessingProvider {
                 followersResponse = followersByUserProvider.getFeedForFollowersResponse(
                     GetFollowersRequest(
                         userId = userId,
-                        limit = 10,
+                        limit = 5,
                         pagingState = followersResponse.pagingState,
                     )
                 )
@@ -304,26 +275,24 @@ class PostProcessingProvider {
         }
     }
 
-    fun deletePost(postId: String, userId: String) {
+    fun deletePostExpandedData(postId: String, userId: String) {
         GlobalScope.launch {
             logger.info("Start: Delete post and other dependent information for postId: $postId")
 
-            bookmarkedPostsByUserRepository.deleteAll(bookmarkedPostsByUserRepository.findAllByPostId(postId))
-            likedPostsByUserRepository.deleteAll(likedPostsByUserRepository.findAllByPostId(postId))
-            nearbyPostsByZipcodeRepository.deleteAll(nearbyPostsByZipcodeRepository.findAllByPostId(postId))
-            nearbyVideoPostsByZipcodeRepository.deleteAll(nearbyVideoPostsByZipcodeRepository.findAllByPostId(postId))
-            postsByCategoryRepository.deleteAll(postsByCategoryRepository.findAllByPostId(postId))
-            postsByFollowingRepository.deleteAll(postsByFollowingRepository.findAllByPostId(postId))
-            postsByHashTagRepository.deleteAll(postsByHashTagRepository.findAllByPostId(postId))
-            postsByUserRepository.deleteAll(postsByUserRepository.findAllByPostId(postId))
-            postsByZipcodeRepository.deleteAll(postsByZipcodeRepository.findAllByPostId(postId))
+            bookmarkedPostsByUserProvider.deletePostExpandedData(postId)
+            likedPostsByUserProvider.deletePostExpandedData(postId)
+            postsByCategoryProvider.deletePostExpandedData(postId)
+            postsByFollowingProvider.deletePostExpandedData(postId)
+            postsByHashTagProvider.deletePostExpandedData(postId)
+            postsByUserProvider.deletePostExpandedData(postId)
+            postsByZipcodeProvider.deletePostExpandedData(postId)
+            nearbyPostsByZipcodeProvider.deletePostExpandedData(postId)
+            nearbyVideoPostsByZipcodeProvider.deletePostExpandedData(postId)
 
             // Only one count has to be decreases as the one post is created by
             // only one user and adds only one count
 //            postsCountByUserRepository.decrementPostCount(userId)
             postsCountByUserProvider.decrementPostCount(userId)
-
-            postRepository.deleteAll(postRepository.findAllByPostId(postId))
 
             logger.info("End: Delete post and other dependent information for postId: $postId")
         }
@@ -331,9 +300,7 @@ class PostProcessingProvider {
 
     // This is a synchronous call
     fun deletePostFromExplore(postId: String) {
-        logger.info("Start: Delete post from explore feed for postId: $postId")
-        postsByCategoryRepository.deleteAll(postsByCategoryRepository.findAllByPostId(postId))
-        logger.info("End: Delete post from explore feed for postId: $postId")
+        postsByCategoryProvider.deletePostExpandedData(postId)
     }
 
 }

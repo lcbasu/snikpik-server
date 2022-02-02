@@ -26,7 +26,6 @@ import com.server.ud.model.AllHashTags
 import com.server.ud.model.MediaInputDetail
 import com.server.ud.model.convertToString
 import com.server.ud.pagination.CassandraPageV2
-import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.location.LocationProvider
 import com.server.ud.provider.user.UserV2Provider
@@ -258,9 +257,14 @@ class PostProvider {
         }
         GlobalScope.launch {
             logger.info("Start: Delete post and other dependent information for postId: $postId")
-            deletePostProvider.deletePost(postId, loggedInUserId)
+            deleteSinglePost(postId)
+            deletePostProvider.deletePostExpandedData(postId, loggedInUserId)
             logger.info("End: Delete post and other dependent information for postId: $postId")
         }
+    }
+
+    private fun deleteSinglePost(postId: String) {
+        postRepository.deleteAll(postRepository.findAllByPostId(postId))
     }
 
     fun deletePostFromExplore(postId: String) {

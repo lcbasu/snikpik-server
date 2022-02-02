@@ -8,6 +8,8 @@ import com.server.ud.entities.post.PostsByUser
 import com.server.ud.enums.PostType
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.utils.pagination.PaginationRequestUtil
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -86,7 +88,9 @@ class PostsByUserProvider {
         )
     }
 
-    fun deletePost(postId: String) {
-        TODO("Add steps to delete post and related information")
+    fun deletePostExpandedData(postId: String) {
+        GlobalScope.launch {
+            postsByUserRepository.deleteAll(postsByUserRepository.findAllByPostId(postId))
+        }
     }
 }

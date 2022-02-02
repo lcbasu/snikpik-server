@@ -12,6 +12,8 @@ import com.server.ud.enums.PostType
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
 import com.server.ud.utils.pagination.PaginationRequestUtil
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -39,7 +41,7 @@ class NearbyVideoPostsByZipcodeProvider {
             }
             return nearbyVideoPostsByZipcodeRepository.saveAll(posts)
         } catch (e: Exception) {
-            logger.error("Saving NearbyPostsByZipcode failed forNearbyZipcode $forNearbyZipcode.")
+            logger.error("Saving NearbyVideoPostsByZipcode failed forNearbyZipcode $forNearbyZipcode.")
             e.printStackTrace()
             return emptyList()
         }
@@ -112,7 +114,16 @@ class NearbyVideoPostsByZipcodeProvider {
         return CassandraPageV2(posts)
     }
 
-    fun deletePost(postId: String) {
-        TODO("Add steps to delete post and related information")
+    fun deletePostExpandedData(postId: String) {
+        GlobalScope.launch {
+            val maxDeleteSize = 5
+            val posts = nearbyVideoPostsByZipcodeRepository.findAllByPostId(postId)
+            logger.info("Deleting post $postId from NearbyVideoPostsByZipcode. Total ${posts.size} zipcode x posts entries needs to be deleted.")
+            posts.chunked(maxDeleteSize).map {
+                nearbyVideoPostsByZipcodeRepository.deleteAll(posts)
+                logger.info("Deleted maxDeleteSize: $maxDeleteSize zipcode x posts entries.")
+            }
+            logger.info("Deleted all entries for zipcode x posts for post $postId from NearbyVideoPostsByZipcode.")
+        }
     }
 }

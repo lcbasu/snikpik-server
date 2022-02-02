@@ -4,6 +4,8 @@ import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostsByHashTagRepository
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.PostsByHashTag
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -52,8 +54,10 @@ class PostsByHashTagProvider {
         }
     }
 
-    fun deletePost(postId: String) {
-        TODO("Add steps to delete post and related information")
+    fun deletePostExpandedData(postId: String) {
+        GlobalScope.launch {
+            postsByHashTagRepository.deleteAll(postsByHashTagRepository.findAllByPostId(postId))
+        }
     }
 
 }

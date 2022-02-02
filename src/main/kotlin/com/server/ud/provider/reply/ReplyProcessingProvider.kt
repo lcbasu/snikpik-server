@@ -64,7 +64,7 @@ class ReplyProcessingProvider {
         }
     }
 
-    fun deletePost(postId: String) {
+    fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
             commentReplyRepository.deleteAll(commentReplyRepository.findAllByPostId(postId))
             repliesByCommentRepository.deleteAll(repliesByCommentRepository.findAllByPostId(postId))

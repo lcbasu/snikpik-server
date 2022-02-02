@@ -53,7 +53,7 @@ class PostsCountByUserProvider {
         savePostsCountByUserToFirestore(getPostsCountByUser(userId))
     }
 
-    fun deletePost(postId: String) {
+    fun deletePostExpandedData(postId: String) {
         TODO("Add steps to delete post and related information")
     }
 

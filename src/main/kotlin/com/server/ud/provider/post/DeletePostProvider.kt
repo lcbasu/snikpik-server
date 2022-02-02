@@ -35,15 +35,15 @@ class DeletePostProvider {
     @Autowired
     private lateinit var searchProvider: SearchProvider
 
-    fun deletePost(postId: String, userId: String) {
+    fun deletePostExpandedData(postId: String, userId: String) {
         GlobalScope.launch {
             logger.info("Start: Delete: $postId for $userId")
-            bookmarkProcessingProvider.deletePost(postId)
-            commentProcessingProvider.deletePost(postId)
-            likeProcessingProvider.deletePost(postId)
-            postProcessingProvider.deletePost(postId, userId)
-            replyProcessingProvider.deletePost(postId)
-            searchProvider.deletePost(postId)
+            bookmarkProcessingProvider.deletePostExpandedData(postId)
+            commentProcessingProvider.deletePostExpandedData(postId)
+            likeProcessingProvider.deletePostExpandedData(postId)
+            postProcessingProvider.deletePostExpandedData(postId, userId)
+            replyProcessingProvider.deletePostExpandedData(postId)
+            searchProvider.deletePostExpandedData(postId)
             logger.info("End: Delete: $postId for $userId")
         }
     }

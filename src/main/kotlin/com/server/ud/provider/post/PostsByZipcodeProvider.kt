@@ -4,6 +4,8 @@ import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostsByZipcodeRepository
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.PostsByZipcode
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -55,8 +57,10 @@ class PostsByZipcodeProvider {
         }
     }
 
-    fun deletePost(postId: String) {
-        TODO("Add steps to delete post and related information")
+    fun deletePostExpandedData(postId: String) {
+        GlobalScope.launch {
+            postsByZipcodeRepository.deleteAll(postsByZipcodeRepository.findAllByPostId(postId))
+        }
     }
 
 }

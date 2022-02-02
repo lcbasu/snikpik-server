@@ -71,7 +71,7 @@ class ReplyProvider {
         TODO("Not yet implemented")
     }
 
-    fun deletePost(postId: String) {
+    fun deletePostExpandedData(postId: String) {
         TODO("Add steps to delete post and related information")
     }
 }

@@ -77,7 +77,7 @@ class CommentProcessingProvider {
         }
     }
 
-    fun deletePost(postId: String) {
+    fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
             commentRepository.deleteAll(commentRepository.findAllByPostId(postId))
             commentForPostByUserRepository.deleteAll(commentForPostByUserRepository.findAllByPostId(postId))

@@ -4,6 +4,8 @@ import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostsByFollowingRepository
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.PostsByFollowing
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -54,7 +56,16 @@ class PostsByFollowingProvider {
         }
     }
 
-    fun deletePost(postId: String) {
-        TODO("Add steps to delete post and related information")
+    fun deletePostExpandedData(postId: String) {
+        GlobalScope.launch {
+            val maxDeleteSize = 5
+            val posts = postsByFollowingRepository.findAllByPostId(postId)
+            logger.info("Deleting post $postId from NearbyPostsByZipcode. Total ${posts.size} PostsByFollowing entries needs to be deleted.")
+            posts.chunked(maxDeleteSize).map {
+                postsByFollowingRepository.deleteAll(posts)
+                logger.info("Deleted maxDeleteSize: $maxDeleteSize PostsByFollowing entries.")
+            }
+            logger.info("Deleted all entries for PostsByFollowing for post $postId from PostsByFollowing.")
+        }
     }
 }
