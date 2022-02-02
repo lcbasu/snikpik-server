@@ -78,6 +78,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                 .antMatchers(*allowedPublicApis).permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers(
+                "/externalReposts/**",
                     "/seoData/**",
                     "/consumeAPI/**",
                     "/ud/openWeb/**",
@@ -90,6 +91,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                 "/swagger-ui/**",
                 "/webjars/**").permitAll()
                 .antMatchers(
+                    "/externalReposts/**",
                     "/seoData/**",
                     "/consumeAPI/**",
                     "/ud/openWeb/**",

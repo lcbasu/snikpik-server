@@ -105,6 +105,7 @@ security:
     - Connection
     - User-Agent
   allowed-public-apis:
+    - /externalReposts/*
     - /swagger-ui.html
     - /swagger-resources/*
     - /webjars/*
