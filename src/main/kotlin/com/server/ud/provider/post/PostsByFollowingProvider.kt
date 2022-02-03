@@ -62,8 +62,8 @@ class PostsByFollowingProvider {
             val posts = postsByFollowingRepository.findAllByPostId(postId)
             logger.info("Deleting post $postId from NearbyPostsByZipcode. Total ${posts.size} PostsByFollowing entries needs to be deleted.")
             posts.chunked(maxDeleteSize).map {
-                postsByFollowingRepository.deleteAll(posts)
-                logger.info("Deleted maxDeleteSize: $maxDeleteSize PostsByFollowing entries.")
+                postsByFollowingRepository.deleteAll(it)
+                logger.info("Deleted maxDeleteSize: ${it.size} PostsByFollowing entries.")
             }
             logger.info("Deleted all entries for PostsByFollowing for post $postId from PostsByFollowing.")
         }
