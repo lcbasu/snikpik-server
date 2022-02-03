@@ -13,8 +13,6 @@ import java.time.Instant
 interface NearbyPostsByZipcodeRepository : CassandraRepository<NearbyPostsByZipcode?, String?> {
 
     fun findAllByZipcodeAndPostType(zipcode: String, postType: PostType, pageable: Pageable): Slice<NearbyPostsByZipcode>
-
-    @AllowFiltering
-    fun findAllByPostId(postId: String): List<NearbyPostsByZipcode>
+    fun findAllByZipcodeAndPostTypeAndCreatedAtAndPostId(zipcode: String, postType: PostType, createdAt: Instant, postId: String): List<NearbyPostsByZipcode>
 
 }

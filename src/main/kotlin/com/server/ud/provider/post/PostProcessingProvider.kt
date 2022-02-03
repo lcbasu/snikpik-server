@@ -1,8 +1,6 @@
 package com.server.ud.provider.post
 
 import com.server.common.provider.MediaHandlerProvider
-import com.server.ud.dao.post.PostRepository
-import com.server.ud.dao.post.PostsByCategoryRepository
 import com.server.ud.dto.GetFollowersRequest
 import com.server.ud.entities.location.Location
 import com.server.ud.entities.post.*
@@ -87,7 +85,7 @@ class PostProcessingProvider {
     private lateinit var likedPostsByUserProvider: LikedPostsByUserProvider
 
     @Autowired
-    private lateinit var postRepository: PostRepository
+    private lateinit var zipcodeByPostProvider: ZipcodeByPostProvider
 
     fun postProcessPost(postId: String) {
         // Update
@@ -136,6 +134,7 @@ class PostProcessingProvider {
                     val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(it)
                     nearbyPostsByZipcodeProvider.save(updatedPost, nearbyZipcodes)
                     nearbyVideoPostsByZipcodeProvider.save(updatedPost, nearbyZipcodes)
+                    zipcodeByPostProvider.save(updatedPost.postId, nearbyZipcodes)
                 }
             }
 
@@ -275,32 +274,32 @@ class PostProcessingProvider {
         }
     }
 
-    fun deletePostExpandedData(postId: String, userId: String) {
+    fun deletePostExpandedData(post: Post, userId: String) {
         GlobalScope.launch {
-            logger.info("Start: Delete post and other dependent information for postId: $postId")
+            logger.info("Start: Delete post and other dependent information for postId: ${post.postId}")
 
-            bookmarkedPostsByUserProvider.deletePostExpandedData(postId)
-            likedPostsByUserProvider.deletePostExpandedData(postId)
-            postsByCategoryProvider.deletePostExpandedData(postId)
-            postsByFollowingProvider.deletePostExpandedData(postId)
-            postsByHashTagProvider.deletePostExpandedData(postId)
-            postsByUserProvider.deletePostExpandedData(postId)
-            postsByZipcodeProvider.deletePostExpandedData(postId)
-            nearbyPostsByZipcodeProvider.deletePostExpandedData(postId)
-            nearbyVideoPostsByZipcodeProvider.deletePostExpandedData(postId)
+            bookmarkedPostsByUserProvider.deletePostExpandedData(post.postId)
+            likedPostsByUserProvider.deletePostExpandedData(post.postId)
+            postsByCategoryProvider.deletePostExpandedData(post)
+            postsByFollowingProvider.deletePostExpandedData(post.postId)
+            postsByHashTagProvider.deletePostExpandedData(post.postId)
+            postsByUserProvider.deletePostExpandedData(post.postId)
+            postsByZipcodeProvider.deletePostExpandedData(post.postId)
+            nearbyPostsByZipcodeProvider.deletePostExpandedData(post)
+            nearbyVideoPostsByZipcodeProvider.deletePostExpandedData(post)
 
             // Only one count has to be decreases as the one post is created by
             // only one user and adds only one count
 //            postsCountByUserRepository.decrementPostCount(userId)
             postsCountByUserProvider.decrementPostCount(userId)
 
-            logger.info("End: Delete post and other dependent information for postId: $postId")
+            logger.info("End: Delete post and other dependent information for postId: ${post.postId}")
         }
     }
 
     // This is a synchronous call
-    fun deletePostFromExplore(postId: String) {
-        postsByCategoryProvider.deletePostExpandedData(postId)
+    fun deletePostFromExplore(post: Post) {
+        postsByCategoryProvider.deletePostExpandedData(post)
     }
 
 }

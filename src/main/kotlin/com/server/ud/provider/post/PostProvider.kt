@@ -257,24 +257,25 @@ class PostProvider {
         }
         GlobalScope.launch {
             logger.info("Start: Delete post and other dependent information for postId: $postId")
-            deleteSinglePost(postId)
-            deletePostProvider.deletePostExpandedData(postId, loggedInUserId)
+            deletePostProvider.deletePostExpandedData(post, loggedInUserId)
+            deleteSinglePost(post)
             logger.info("End: Delete post and other dependent information for postId: $postId")
         }
     }
 
-    private fun deleteSinglePost(postId: String) {
-        postRepository.deleteAll(postRepository.findAllByPostId(postId))
+    private fun deleteSinglePost(post: Post) {
+        postRepository.deleteAll(postRepository.findAllByPostId(post.postId))
     }
 
     fun deletePostFromExplore(postId: String) {
         val loggedInUserId = securityProvider.validateRequest().getUserIdToUse()
         val isAdmin = UDCommonUtils.isAdmin(loggedInUserId)
+        val post = getPost(postId) ?: error("No post found for postId: $postId")
         if (isAdmin.not()) {
             error("User $loggedInUserId is not authorized to delete post: $postId. Only admins can delete the post from explore.")
         }
         logger.info("Start: Delete post from explore feed for postId: $postId")
-        deletePostProvider.deletePostFromExplore(postId)
+        deletePostProvider.deletePostFromExplore(post)
         logger.info("End: Delete post from explore feed for postId: $postId")
     }
 

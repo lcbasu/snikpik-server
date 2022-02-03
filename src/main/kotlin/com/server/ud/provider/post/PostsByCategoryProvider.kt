@@ -10,6 +10,7 @@ import com.server.ud.dto.ExploreTabViewResponse
 import com.server.ud.dto.toSavedPostResponse
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.PostsByCategory
+import com.server.ud.entities.post.getCategories
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
 import com.server.ud.pagination.CassandraPageV2
@@ -121,9 +122,18 @@ class PostsByCategoryProvider {
         return CassandraPageV2(posts)
     }
 
-    fun deletePostExpandedData(postId: String) {
+    fun deletePostExpandedData(post: Post) {
         GlobalScope.launch {
-            postsByCategoryRepository.deleteAll(postsByCategoryRepository.findAllByPostId(postId))
+            val categories = (post.getCategories().categories.map { it.id } + CategoryV2.ALL).toSet()
+            val posts = mutableListOf<PostsByCategory>()
+            categories.map {
+                val categoryV2 = it
+                val postType = post.postType
+                val createdAt = post.createdAt
+                val postId = post.postId
+                posts.addAll(postsByCategoryRepository.findAllByCategoryIdAndPostTypeAndCreatedAtAndPostId(categoryV2, postType, createdAt, postId))
+            }
+            postsByCategoryRepository.deleteAll(posts)
         }
     }
 

@@ -2,7 +2,6 @@ package com.server.ud.dao.post
 
 import com.server.ud.entities.post.NearbyVideoPostsByZipcode
 import com.server.ud.enums.PostType
-import org.springframework.data.cassandra.repository.AllowFiltering
 import org.springframework.data.cassandra.repository.CassandraRepository
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
@@ -13,8 +12,5 @@ import java.time.Instant
 interface NearbyVideoPostsByZipcodeRepository : CassandraRepository<NearbyVideoPostsByZipcode?, String?> {
 
     fun findAllByZipcodeAndPostType(zipcode: String, postType: PostType, pageable: Pageable): Slice<NearbyVideoPostsByZipcode>
-
-    @AllowFiltering
-    fun findAllByPostId(postId: String): List<NearbyVideoPostsByZipcode>
-
+    fun findAllByZipcodeAndPostTypeAndCreatedAtAndPostId(zipcode: String, postType: PostType, createdAt: Instant, postId: String): List<NearbyVideoPostsByZipcode>
 }

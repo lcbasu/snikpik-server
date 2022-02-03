@@ -31,6 +31,9 @@ class NearbyPostsByZipcodeProvider {
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
 
+    @Autowired
+    private lateinit var zipcodeByPostProvider: ZipcodeByPostProvider
+
     fun save(nearbyPosts: List<NearbyPostsByZipcode>, forNearbyZipcode: String): List<NearbyPostsByZipcode> {
         try {
             val posts = nearbyPosts.map { post ->
@@ -113,16 +116,33 @@ class NearbyPostsByZipcodeProvider {
         return CassandraPageV2(posts)
     }
 
-    fun deletePostExpandedData(postId: String) {
+    fun deletePostExpandedData(post: Post) {
         GlobalScope.launch {
-            val maxDeleteSize = 5
-            val posts = nearbyPostsByZipcodeRepository.findAllByPostId(postId)
-            logger.info("Deleting post $postId from NearbyPostsByZipcode. Total ${posts.size} zipcode x posts entries needs to be deleted.")
-            posts.chunked(maxDeleteSize).map {
-                nearbyPostsByZipcodeRepository.deleteAll(posts)
-                logger.info("Deleted maxDeleteSize: $maxDeleteSize zipcode x posts entries.")
+
+            val zipcodesByPost = zipcodeByPostProvider.getZipcodesByPost(post.postId)
+
+            val posts = mutableListOf<NearbyPostsByZipcode>()
+            zipcodesByPost.map {
+                val zipcode = it.zipcode
+                val postType = post.postType
+                val createdAt = post.createdAt
+                val postId = post.postId
+                posts.addAll(
+                    nearbyPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndCreatedAtAndPostId(
+                        zipcode,
+                        postType,
+                        createdAt,
+                        postId
+                    )
+                )
             }
-            logger.info("Deleted all entries for zipcode x posts for post $postId from NearbyPostsByZipcode.")
+            val maxDeleteSize = 5
+            logger.info("Deleting post ${post.postId} from NearbyPostsByZipcode. Total ${posts.size} zipcode x posts entries needs to be deleted.")
+            posts.chunked(maxDeleteSize).map {
+                nearbyPostsByZipcodeRepository.deleteAll(it)
+                logger.info("Deleted maxDeleteSize: ${it.size} zipcode x posts entries.")
+            }
+            logger.info("Deleted all entries for zipcode x posts for post ${post.postId} from NearbyPostsByZipcode.")
         }
     }
 
