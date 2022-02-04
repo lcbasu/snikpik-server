@@ -2,6 +2,7 @@ package com.server.ud.entities.reply
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.model.MediaDetailsV2
+import com.server.common.model.getMediaDetailsFromJsonString
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
@@ -36,10 +37,6 @@ class RepliesByComment (
 
 fun RepliesByComment.getMediaDetails(): MediaDetailsV2? {
     this.apply {
-        return try {
-            jacksonObjectMapper().readValue(media, MediaDetailsV2::class.java)
-        } catch (e: Exception) {
-            MediaDetailsV2(emptyList())
-        }
+        return getMediaDetailsFromJsonString(media)
     }
 }

@@ -3,6 +3,7 @@ package com.server.ud.entities.reply
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.utils.DateUtils
 import com.server.common.model.MediaDetailsV2
+import com.server.common.model.getMediaDetailsFromJsonString
 import com.server.ud.enums.PostType
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.CassandraType
@@ -42,10 +43,6 @@ class Reply (
 
 fun Reply.getMediaDetails(): MediaDetailsV2? {
     this.apply {
-        return try {
-            jacksonObjectMapper().readValue(media, MediaDetailsV2::class.java)
-        } catch (e: Exception) {
-            MediaDetailsV2(emptyList())
-        }
+        return getMediaDetailsFromJsonString(media)
     }
 }

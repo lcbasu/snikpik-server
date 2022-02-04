@@ -10,6 +10,7 @@ const val ALL_MEDIA_SOURCE_BUCKET = "unboxed-video-ingestion-to-deliver-source71
 const val ALL_MEDIA_SOURCE_CLOUDFRONT_URL = "https://d2qrqijxy3rkcj.cloudfront.net";
 const val PROCESSED_IMAGE_CLOUDFRONT_URL = "https://d1fna9whmio5ul.cloudfront.net";
 const val SAMPLE_COVER_IMAGE_URL = "${ALL_MEDIA_SOURCE_CLOUDFRONT_URL}/assets01/AppData/SampleImages/sample-cover-image.jpeg"
+const val BEST_M3U8_FILE_SUFFIX = "_Ott_Hls_Ts_Avc_Aac_16x9_1920x1080p_8.5Mbps_qvbr"
 
 data class MediaDetail(
     val mediaUrl: String,
@@ -41,16 +42,47 @@ data class MediaDetailsV2(
     val media: List<SingleMediaDetail> = emptyList()
 )
 
-fun getMediaDetails(mediaStr: String?): MediaDetailsV2 {
+fun getMediaDetailsFromJsonString(mediaStr: String?): MediaDetailsV2 {
     return try {
-        jacksonObjectMapper().readValue(mediaStr, MediaDetailsV2::class.java)
+        val mediaDetails = jacksonObjectMapper().readValue(mediaStr, MediaDetailsV2::class.java)
+        val listOfSingleMediaDetail = mutableListOf<SingleMediaDetail>()
+        mediaDetails.media.map { singleMediaDetail ->
+            if (singleMediaDetail.mediaType == MediaType.VIDEO && singleMediaDetail.mediaUrl.endsWith(".m3u8")) {
+                // Replace the m3u8 url with the best version of m3u8 url
+                listOfSingleMediaDetail.add(singleMediaDetail.copy(mediaUrl = getBestM3u8Url(singleMediaDetail.mediaUrl)))
+            } else {
+                // else let it be as is
+                listOfSingleMediaDetail.add(singleMediaDetail)
+            }
+        }
+        MediaDetailsV2(listOfSingleMediaDetail)
     } catch (e: Exception) {
         MediaDetailsV2(emptyList())
     }
 }
 
+fun getBestM3u8Url(mediaUrl: String): String {
+    val m3u8Url = mediaUrl.replace(".m3u8", "")
+
+    //    val m3u8UrlWithBestQualityExists = try {
+//        val url = URL(m3u8UrlWithBestQuality)
+//        url.openConnection().getInputStream().close()
+//        true
+//    } catch (e: Exception) {
+//        false
+//    }
+//
+//    return if (m3u8UrlWithBestQualityExists) {
+//        m3u8UrlWithBestQuality
+//    } else {
+//        m3u8Url
+//    }
+
+    return "${m3u8Url}${BEST_M3U8_FILE_SUFFIX}.m3u8"
+}
+
 fun getMediaUrlForNotification(mediaStr: String?): String {
-    val singleMediaDetail = getMediaDetails(mediaStr).media.firstOrNull() ?: return ""
+    val singleMediaDetail = getMediaDetailsFromJsonString(mediaStr).media.firstOrNull() ?: return ""
     if (singleMediaDetail.mediaType == MediaType.VIDEO && singleMediaDetail.mediaUrl.endsWith(".m3u8")) {
         return try {
             // Send the thumbnail URL for processed video media

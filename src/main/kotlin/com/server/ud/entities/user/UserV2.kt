@@ -5,6 +5,7 @@ import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.utils.DateUtils
 import com.server.common.model.MediaDetailsV2
+import com.server.common.model.getMediaDetailsFromJsonString
 import com.server.ud.dto.AllCategoryV2Response
 import com.server.ud.dto.SaveLocationRequest
 import com.server.ud.enums.LocationFor
@@ -184,21 +185,13 @@ fun UserV2.getPreferredCategories(): AllCategoryV2Response {
 
 fun UserV2.getMediaDetailsForDP(): MediaDetailsV2 {
     this.apply {
-        return try {
-            jacksonObjectMapper().readValue(dp, MediaDetailsV2::class.java)
-        } catch (e: Exception) {
-            MediaDetailsV2(emptyList())
-        }
+        return getMediaDetailsFromJsonString(dp)
     }
 }
 
 fun UserV2.getMediaDetailsForCoverImage(): MediaDetailsV2 {
     this.apply {
-        return try {
-            jacksonObjectMapper().readValue(coverImage, MediaDetailsV2::class.java)
-        } catch (e: Exception) {
-            MediaDetailsV2(emptyList())
-        }
+        return getMediaDetailsFromJsonString(coverImage)
     }
 }
 

@@ -5,6 +5,7 @@ import com.server.common.dto.AllLabelsResponse
 import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.utils.DateUtils
 import com.server.common.model.MediaDetailsV2
+import com.server.common.model.getMediaDetailsFromJsonString
 import com.server.ud.dto.AllCategoryV2Response
 import com.server.ud.enums.PostType
 import com.server.ud.model.AllHashTags
@@ -145,21 +146,13 @@ fun Post.getUserProfiles(): AllProfileTypeResponse {
 
 fun Post.getMediaDetails(): MediaDetailsV2 {
     this.apply {
-        return try {
-            jacksonObjectMapper().readValue(media, MediaDetailsV2::class.java)
-        } catch (e: Exception) {
-            MediaDetailsV2(emptyList())
-        }
+        return getMediaDetailsFromJsonString(media)
     }
 }
 
 fun Post.getSourceMediaDetails(): MediaDetailsV2 {
     this.apply {
-        return try {
-            jacksonObjectMapper().readValue(sourceMedia, MediaDetailsV2::class.java)
-        } catch (e: Exception) {
-            MediaDetailsV2(emptyList())
-        }
+        return getMediaDetailsFromJsonString(sourceMedia)
     }
 }
 

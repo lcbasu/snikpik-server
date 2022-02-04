@@ -2,6 +2,7 @@ package com.server.ud.entities.post
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.model.MediaDetailsV2
+import com.server.common.model.getMediaDetailsFromJsonString
 import com.server.common.utils.DateUtils
 import com.server.ud.dto.AllCategoryV2Response
 import com.server.ud.enums.PostType
@@ -88,21 +89,13 @@ class PostsByUser (
 
 fun PostsByUser.getMediaDetails(): MediaDetailsV2? {
     this.apply {
-        return try {
-            jacksonObjectMapper().readValue(media, MediaDetailsV2::class.java)
-        } catch (e: Exception) {
-            null
-        }
+        return getMediaDetailsFromJsonString(media)
     }
 }
 
 fun PostsByUser.getSourceMediaDetails(): MediaDetailsV2? {
     this.apply {
-        return try {
-            jacksonObjectMapper().readValue(sourceMedia, MediaDetailsV2::class.java)
-        } catch (e: Exception) {
-            MediaDetailsV2(emptyList())
-        }
+        return getMediaDetailsFromJsonString(sourceMedia)
     }
 }
 

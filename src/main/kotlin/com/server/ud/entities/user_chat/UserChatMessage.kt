@@ -2,6 +2,7 @@ package com.server.ud.entities.user_activity
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.model.MediaDetailsV2
+import com.server.common.model.getMediaDetailsFromJsonString
 import com.server.common.utils.DateUtils
 import com.server.ud.dto.AllCategoryV2Response
 import org.springframework.data.cassandra.core.cql.Ordering
@@ -93,10 +94,6 @@ fun UserChatMessage.getCategories(): AllCategoryV2Response {
 
 fun UserChatMessage.getMediaDetails(): MediaDetailsV2 {
     this.apply {
-        return try {
-            jacksonObjectMapper().readValue(media, MediaDetailsV2::class.java)
-        } catch (e: Exception) {
-            MediaDetailsV2(emptyList())
-        }
+        return getMediaDetailsFromJsonString(media)
     }
 }

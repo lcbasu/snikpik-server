@@ -1,7 +1,7 @@
 package com.server.ud.dto
 
 import com.server.common.model.MediaDetailsV2
-import com.server.common.model.getMediaDetails
+import com.server.common.model.getMediaDetailsFromJsonString
 import com.server.common.utils.DateUtils
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getMediaDetailsForDP
@@ -92,17 +92,17 @@ fun UserActivityForUser.toUserActivityResponse(): UserActivityResponse? {
                 replyId = replyId,
                 replyUserId = replyUserId,
                 replyText = replyText,
-                replyMediaDetails = getMediaDetails(replyMediaDetails),
+                replyMediaDetails = getMediaDetailsFromJsonString(replyMediaDetails),
 
                 commentId = commentId,
                 commentUserId = commentUserId,
                 commentText = commentText,
-                commentMediaDetails = getMediaDetails(commentMediaDetails),
+                commentMediaDetails = getMediaDetailsFromJsonString(commentMediaDetails),
 
                 postId = postId,
                 postType = postType,
                 postUserId = postUserId,
-                postMediaDetails = getMediaDetails(postMediaDetails),
+                postMediaDetails = getMediaDetailsFromJsonString(postMediaDetails),
                 postTitle = postTitle,
                 postDescription = postDescription,
 
@@ -111,7 +111,7 @@ fun UserActivityForUser.toUserActivityResponse(): UserActivityResponse? {
                 chatSenderUserId = chatSenderUserId,
                 chatReceiverUserId = chatReceiverUserId,
                 chatText = chatText,
-                chatMedia = getMediaDetails(chatMedia),
+                chatMedia = getMediaDetailsFromJsonString(chatMedia),
                 chatCategories = getCategories(chatCategories),
                 chatMessageLocationId = chatMessageLocationId,
             )
@@ -137,17 +137,17 @@ fun UserActivityByUser.toUserActivityResponse(): UserActivityResponse? {
                 replyId = replyId,
                 replyUserId = replyUserId,
                 replyText = replyText,
-                replyMediaDetails = getMediaDetails(replyMediaDetails),
+                replyMediaDetails = getMediaDetailsFromJsonString(replyMediaDetails),
 
                 commentId = commentId,
                 commentUserId = commentUserId,
                 commentText = commentText,
-                commentMediaDetails = getMediaDetails(commentMediaDetails),
+                commentMediaDetails = getMediaDetailsFromJsonString(commentMediaDetails),
 
                 postId = postId,
                 postType = postType,
                 postUserId = postUserId,
-                postMediaDetails = getMediaDetails(postMediaDetails),
+                postMediaDetails = getMediaDetailsFromJsonString(postMediaDetails),
                 postTitle = postTitle,
                 postDescription = postDescription,
 
@@ -156,7 +156,7 @@ fun UserActivityByUser.toUserActivityResponse(): UserActivityResponse? {
                 chatSenderUserId = chatSenderUserId,
                 chatReceiverUserId = chatReceiverUserId,
                 chatText = chatText,
-                chatMedia = getMediaDetails(chatMedia),
+                chatMedia = getMediaDetailsFromJsonString(chatMedia),
                 chatCategories = getCategories(chatCategories),
                 chatMessageLocationId = chatMessageLocationId,
             )
