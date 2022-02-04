@@ -118,14 +118,24 @@ class NearbyVideoPostsByZipcodeProvider {
         GlobalScope.launch {
             val zipcodesByPost = zipcodeByPostProvider.getZipcodesByPost(post.postId)
             val posts = mutableListOf<NearbyVideoPostsByZipcode>()
+            val postType = post.postType
+            val createdAt = post.createdAt
+            val postId = post.postId
             zipcodesByPost.map {
                 val zipcode = it.zipcode
-                val postType = post.postType
-                val createdAt = post.createdAt
-                val postId = post.postId
                 posts.addAll(
                     nearbyVideoPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndCreatedAtAndPostId(
                         zipcode,
+                        postType,
+                        createdAt,
+                        postId
+                    )
+                )
+            }
+            post.zipcode?.let {
+                posts.addAll(
+                    nearbyVideoPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndCreatedAtAndPostId(
+                        it,
                         postType,
                         createdAt,
                         postId

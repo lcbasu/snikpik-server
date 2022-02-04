@@ -122,14 +122,24 @@ class NearbyPostsByZipcodeProvider {
             val zipcodesByPost = zipcodeByPostProvider.getZipcodesByPost(post.postId)
 
             val posts = mutableListOf<NearbyPostsByZipcode>()
+            val postType = post.postType
+            val createdAt = post.createdAt
+            val postId = post.postId
             zipcodesByPost.map {
                 val zipcode = it.zipcode
-                val postType = post.postType
-                val createdAt = post.createdAt
-                val postId = post.postId
                 posts.addAll(
                     nearbyPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndCreatedAtAndPostId(
                         zipcode,
+                        postType,
+                        createdAt,
+                        postId
+                    )
+                )
+            }
+            post.zipcode?.let {
+                posts.addAll(
+                    nearbyPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndCreatedAtAndPostId(
+                        it,
                         postType,
                         createdAt,
                         postId
