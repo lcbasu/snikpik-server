@@ -44,6 +44,9 @@ class BookmarkedPostsByUser (
     @Column
     var media: String? = null, // MediaDetailsV2
 
+    @Column("source_media")
+    var sourceMedia: String? = null, // MediaDetailsV2
+
     @Column
     var tags: String? = null, // List of AllHashTags
 
@@ -94,6 +97,16 @@ fun BookmarkedPostsByUser.getMediaDetails(): MediaDetailsV2? {
     this.apply {
         return try {
             jacksonObjectMapper().readValue(media, MediaDetailsV2::class.java)
+        } catch (e: Exception) {
+            MediaDetailsV2(emptyList())
+        }
+    }
+}
+
+fun BookmarkedPostsByUser.getSourceMediaDetails(): MediaDetailsV2? {
+    this.apply {
+        return try {
+            jacksonObjectMapper().readValue(sourceMedia, MediaDetailsV2::class.java)
         } catch (e: Exception) {
             MediaDetailsV2(emptyList())
         }

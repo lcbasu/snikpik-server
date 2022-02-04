@@ -425,10 +425,11 @@ class FakerProvider {
 
 //        tryoutCache("SomeKey")
 
-        redisClient.set("SomeKey111", "SomeValue777")
-        redisClient.set("SomeKey333", "SomeValue444")
+//        redisClient.set("SomeKey111", "SomeValue777")
+//        redisClient.set("SomeKey333", "SomeValue444")
+//        return "Something was done... ${redisClient.get("SomeKey111")} - ${redisClient.get("SomeKey333")}"
 
-        return "Something was done... ${redisClient.get("SomeKey111")} - ${redisClient.get("SomeKey333")}"
+        return "Something was done..."
     }
 
 //    private fun recoverDeletedData() {

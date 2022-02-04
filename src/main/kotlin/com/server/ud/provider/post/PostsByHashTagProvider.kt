@@ -35,6 +35,7 @@ class PostsByHashTagProvider {
                 title = post.title,
                 description = post.description,
                 media = post.media,
+                sourceMedia = post.sourceMedia,
                 tags = post.tags,
                 categories = post.categories,
                 locality = post.locality,

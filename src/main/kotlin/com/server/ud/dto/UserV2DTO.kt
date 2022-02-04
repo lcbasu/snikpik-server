@@ -538,6 +538,7 @@ fun PostsByUser.toSavedPostResponse(): SavedPostResponse {
             categories = getCategories(),
             mediaDetails = getMediaDetails(),
             media = getMediaDetails(),
+            sourceMediaDetails = getSourceMediaDetails(),
         )
     }
 }
@@ -569,6 +570,7 @@ fun BookmarkedPostsByUser.toSavedPostResponse(): SavedPostResponse {
             categories = getCategories(),
             mediaDetails = getMediaDetails(),
             media = getMediaDetails(),
+            sourceMediaDetails = getSourceMediaDetails(),
         )
     }
 }

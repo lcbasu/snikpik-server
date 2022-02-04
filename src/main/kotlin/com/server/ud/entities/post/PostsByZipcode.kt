@@ -79,6 +79,9 @@ class PostsByZipcode (
     @Column
     var media: String? = null, // MediaDetailsV2
 
+    @Column("source_media")
+    var sourceMedia: String? = null, // MediaDetailsV2
+
     @Column
     var tags: String? = null, // List of AllHashTags
 

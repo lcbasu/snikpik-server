@@ -2,10 +2,7 @@ package com.server.ud.dto
 
 import com.server.common.model.MediaDetailsV2
 import com.server.common.utils.DateUtils
-import com.server.ud.entities.post.PostsByCategory
-import com.server.ud.entities.post.getCategories
-import com.server.ud.entities.post.getHashTags
-import com.server.ud.entities.post.getMediaDetails
+import com.server.ud.entities.post.*
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getMediaDetailsForDP
 import com.server.ud.enums.CategoryV2
@@ -51,6 +48,7 @@ fun PostsByCategory.toSavedPostResponse(): SavedPostResponse {
             userId = userId,
             createdAt = DateUtils.getEpoch(createdAt),
             media = getMediaDetails(),
+            sourceMediaDetails = getSourceMediaDetails(),
             title = title,
             description = description,
             postType = postType,

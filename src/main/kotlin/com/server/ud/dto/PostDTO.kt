@@ -3,10 +3,7 @@ package com.server.ud.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.server.common.model.MediaDetailsV2
 import com.server.common.utils.DateUtils
-import com.server.ud.entities.post.Post
-import com.server.ud.entities.post.getCategories
-import com.server.ud.entities.post.getHashTags
-import com.server.ud.entities.post.getMediaDetails
+import com.server.ud.entities.post.*
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
 import com.server.ud.model.AllHashTags
@@ -86,6 +83,9 @@ data class SavedPostResponse(
 
     // For backward compatibility
     val media: MediaDetailsV2? = null,
+
+    // To use the actual media urls wherever required
+    val sourceMediaDetails: MediaDetailsV2? = null,
 )
 
 fun Post.toSavedPostResponse(): SavedPostResponse {
@@ -115,6 +115,7 @@ fun Post.toSavedPostResponse(): SavedPostResponse {
             categories = getCategories(),
             mediaDetails = getMediaDetails(),
             media = getMediaDetails(),
+            sourceMediaDetails = getSourceMediaDetails(),
         )
     }
 }

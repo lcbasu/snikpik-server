@@ -37,6 +37,9 @@ class PostsByUser (
     @Column
     var media: String? = null, // MediaDetailsV2
 
+    @Column("source_media")
+    var sourceMedia: String? = null, // MediaDetailsV2
+
     @Column
     var tags: String? = null, // List of HashTagList
 
@@ -57,7 +60,6 @@ class PostsByUser (
 
     @Column("location_lng")
     val locationLng: Double? = null,
-
 
     @Column
     val locality: String? = null,
@@ -90,6 +92,16 @@ fun PostsByUser.getMediaDetails(): MediaDetailsV2? {
             jacksonObjectMapper().readValue(media, MediaDetailsV2::class.java)
         } catch (e: Exception) {
             null
+        }
+    }
+}
+
+fun PostsByUser.getSourceMediaDetails(): MediaDetailsV2? {
+    this.apply {
+        return try {
+            jacksonObjectMapper().readValue(sourceMedia, MediaDetailsV2::class.java)
+        } catch (e: Exception) {
+            MediaDetailsV2(emptyList())
         }
     }
 }

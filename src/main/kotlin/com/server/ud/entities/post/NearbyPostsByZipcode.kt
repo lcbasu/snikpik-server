@@ -104,6 +104,9 @@ data class NearbyPostsByZipcode (
     @Column
     var media: String? = null, // MediaDetailsV2
 
+    @Column("source_media")
+    var sourceMedia: String? = null, // MediaDetailsV2
+
     @Column
     var tags: String? = null, // List of HashTagList
 
@@ -130,6 +133,7 @@ fun NearbyPostsByZipcode.toNearbyVideoPostsByZipcode(): NearbyVideoPostsByZipcod
                 title = title,
                 description = description,
                 media = media,
+                sourceMedia = sourceMedia,
                 tags = tags,
                 categories = categories,
                 locality = locality,
@@ -151,6 +155,16 @@ fun NearbyPostsByZipcode.getMediaDetails(): MediaDetailsV2 {
     this.apply {
         return try {
             jacksonObjectMapper().readValue(media, MediaDetailsV2::class.java)
+        } catch (e: Exception) {
+            MediaDetailsV2(emptyList())
+        }
+    }
+}
+
+fun NearbyPostsByZipcode.getSourceMediaDetails(): MediaDetailsV2 {
+    this.apply {
+        return try {
+            jacksonObjectMapper().readValue(sourceMedia, MediaDetailsV2::class.java)
         } catch (e: Exception) {
             MediaDetailsV2(emptyList())
         }

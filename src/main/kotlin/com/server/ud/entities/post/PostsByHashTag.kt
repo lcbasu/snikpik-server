@@ -48,7 +48,6 @@ class PostsByHashTag (
     @Column("location_lng")
     val locationLng: Double? = null,
 
-
     @Column
     val locality: String? = null,
 
@@ -81,6 +80,9 @@ class PostsByHashTag (
 
     @Column
     var media: String? = null, // MediaDetailsV2
+
+    @Column("source_media")
+    var sourceMedia: String? = null, // MediaDetailsV2
 
     @Column
     var tags: String? = null, // List of AllHashTags

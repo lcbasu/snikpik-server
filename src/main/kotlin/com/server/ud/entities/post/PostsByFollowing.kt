@@ -48,6 +48,9 @@ class PostsByFollowing (
     @Column
     var media: String? = null, // MediaDetailsV2
 
+    @Column("source_media")
+    var sourceMedia: String? = null, // MediaDetailsV2
+
     @Column
     var tags: String? = null, // List of HashTagList
 
@@ -68,7 +71,6 @@ class PostsByFollowing (
 
     @Column("location_lng")
     val locationLng: Double? = null,
-
 
     @Column
     val locality: String? = null,
