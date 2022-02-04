@@ -44,18 +44,19 @@ data class MediaDetailsV2(
 
 fun getMediaDetailsFromJsonString(mediaStr: String?): MediaDetailsV2 {
     return try {
-        val mediaDetails = jacksonObjectMapper().readValue(mediaStr, MediaDetailsV2::class.java)
-        val listOfSingleMediaDetail = mutableListOf<SingleMediaDetail>()
-        mediaDetails.media.map { singleMediaDetail ->
-            if (singleMediaDetail.mediaType == MediaType.VIDEO && singleMediaDetail.mediaUrl.endsWith(".m3u8")) {
-                // Replace the m3u8 url with the best version of m3u8 url
-                listOfSingleMediaDetail.add(singleMediaDetail.copy(mediaUrl = getBestM3u8Url(singleMediaDetail.mediaUrl)))
-            } else {
-                // else let it be as is
-                listOfSingleMediaDetail.add(singleMediaDetail)
-            }
-        }
-        MediaDetailsV2(listOfSingleMediaDetail)
+        jacksonObjectMapper().readValue(mediaStr, MediaDetailsV2::class.java)
+//        val mediaDetails = jacksonObjectMapper().readValue(mediaStr, MediaDetailsV2::class.java)
+//        val listOfSingleMediaDetail = mutableListOf<SingleMediaDetail>()
+//        mediaDetails.media.map { singleMediaDetail ->
+//            if (singleMediaDetail.mediaType == MediaType.VIDEO && singleMediaDetail.mediaUrl.endsWith(".m3u8")) {
+//                // Replace the m3u8 url with the best version of m3u8 url
+//                listOfSingleMediaDetail.add(singleMediaDetail.copy(mediaUrl = getBestM3u8Url(singleMediaDetail.mediaUrl)))
+//            } else {
+//                // else let it be as is
+//                listOfSingleMediaDetail.add(singleMediaDetail)
+//            }
+//        }
+//        MediaDetailsV2(listOfSingleMediaDetail)
     } catch (e: Exception) {
         MediaDetailsV2(emptyList())
     }
