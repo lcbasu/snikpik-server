@@ -33,10 +33,10 @@ class UsersByHandleProvider {
         }
 
     fun isHandleAvailable(handle: String): Boolean {
-        val onlyCharAndNumberHandle = CommonUtils.getLowercaseStringWithOnlyCharOrDigit(handle)
-        logger.info("onlyCharAndNumberHandle: $onlyCharAndNumberHandle")
-        if ((handle == onlyCharAndNumberHandle).not()) {
-            logger.error("Only alphabets and numbers in lowercase is allowed for the username. handle: $handle")
+        val username = CommonUtils.getLowercaseUsername(handle)
+        logger.info("username: $username")
+        if ((handle == username).not()) {
+            logger.error("Username not allowed. valid username: $username but input handle is: $handle")
             return false
         }
         if (handle.length < MIN_HANDLE_LENGTH) {

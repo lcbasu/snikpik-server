@@ -10,8 +10,16 @@ object CommonUtils {
         return str.replace("[^A-Za-z0-9]".toRegex(), "");
     }
 
+    private fun convertToValidUsernameCharacters(str: String): String {
+        return str.replace("[^A-Za-z0-9_.]".toRegex(), "");
+    }
+
     fun getLowercaseStringWithOnlyCharOrDigit(str: String): String {
         return (convertToAlphaNumeric(str)).toLowerCase().filter { it.isLetterOrDigit() }
+    }
+
+    fun getLowercaseUsername(str: String): String {
+        return (convertToValidUsernameCharacters(str)).toLowerCase().filter { it.isLetterOrDigit() || it == '_' || it == '.' }
     }
 
     fun getSanitizePhoneNumber(absoluteMobile: String?): String? {
