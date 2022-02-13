@@ -34,3 +34,55 @@ Video Upload and Delivery
 4. We save the only 2 feeds -> post and posts_by_user
 5. Once the media processing is done, we reprocess the above 2 feed along with all the dependent feeds.
 
+
+
+## Reading Instagram Media
+
+#### Get list of all media for a user
+
+```
+https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,username&access_token=IGQVJVU0FGZAHVjbG42eUZAWZAXkyd2VqOVZAxR0JuMlNQLWhibHpiMHA3cXVnU3ptSlRPOTNCWUctTEJUUm1wSjd0ZAGp3LTRDNUY1eV9BSldjNjNLa2xiZAnJ0T2piRzdod0JRTWZAkNGxqb2d3SEVOY1ZAnZAwZDZD
+```
+
+![readme_instagram_api.png](readme_instagram_api.png)
+
+#### Media Types
+1. Image (IMAGE) -> Directly available without any extra processing
+2. Video (VIDEO) -> Directly available without any extra processing
+3. Carousel (CAROUSEL_ALBUM) -> Needs extra processing
+
+
+#### Get Media Details for CAROUSEL_ALBUM
+
+1. Get the id of the Post
+2. Get all the media children IDs using this API.
+   1. https://graph.instagram.com/17994656425421820/children?access_token=IGQVJVU0FGZAHVjbG42eUZAWZAXkyd2VqOVZAxR0JuMlNQLWhibHpiMHA3cXVnU3ptSlRPOTNCWUctTEJUUm1wSjd0ZAGp3LTRDNUY1eV9BSldjNjNLa2xiZAnJ0T2piRzdod0JRTWZAkNGxqb2d3SEVOY1ZAnZAwZDZD
+3. Run a loop through the media children IDs and get the media details for each child.
+   1. https://graph.instagram.com/18046861537311623?fields=id,media_type,media_url,username,timestamp&access_token=IGQVJVU0FGZAHVjbG42eUZAWZAXkyd2VqOVZAxR0JuMlNQLWhibHpiMHA3cXVnU3ptSlRPOTNCWUctTEJUUm1wSjd0ZAGp3LTRDNUY1eV9BSldjNjNLa2xiZAnJ0T2piRzdod0JRTWZAkNGxqb2d3SEVOY1ZAnZAwZDZD
+
+#### Fields for Media
+
+`caption`
+The Media's caption text. Not returnable for Media in albums.
+
+`id`
+The Media's ID.
+
+`media_type`
+The Media's type. Can be IMAGE, VIDEO, or CAROUSEL_ALBUM.
+
+`media_url`
+The Media's URL.
+
+`permalink`
+The Media's permanent URL. Will be omitted if the Media contains copyrighted material, or has been flagged for a copyright violation.
+
+`thumbnail_url`
+The Media's thumbnail image URL. Only available on VIDEO Media.
+
+`timestamp`
+The Media's publish date in ISO 8601 format.
+
+`username`
+The Media owner's username.
+
