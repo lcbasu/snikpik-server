@@ -30,6 +30,9 @@ object UDCommonUtils {
         "+911234567897" to "523978",
         "+911234567898" to "523978",
         "+911234567899" to "523978",
+
+        // External Users
+        "+917222878888" to "235412", // -> Encasa Unbox
     )
 
     val admins = listOf(
