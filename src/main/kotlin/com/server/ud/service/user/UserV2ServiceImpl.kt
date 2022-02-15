@@ -152,6 +152,10 @@ class UserV2ServiceImpl : UserV2Service() {
         return userV2Provider.getUser(userId)?.toUserV2PublicMiniDataResponse()
     }
 
+    override fun removeUserV2Handle(): SavedUserV2Response? {
+        return userV2Provider.removeUserV2Handle()?.toSavedUserV2Response()
+    }
+
     override fun getProfileTypesByProfileCategory(profileCategory: ProfileCategory): AllProfileTypeResponse? {
         return userV2Provider.getProfileTypesByProfileCategory(profileCategory)
     }

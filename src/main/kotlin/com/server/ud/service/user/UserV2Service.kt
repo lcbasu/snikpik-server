@@ -35,4 +35,5 @@ abstract class UserV2Service {
     abstract fun updateUserV2CoverImage(request: UpdateUserV2CoverImageRequest): SavedUserV2Response?
     abstract fun updateNotificationToken(request: UpdateNotificationTokenRequest): SavedUserV2Response?
     abstract fun getUserPublicData(userId: String): UserV2PublicMiniDataResponse?
+    abstract fun removeUserV2Handle(): SavedUserV2Response?
 }

@@ -20,6 +20,7 @@ import com.server.ud.enums.UserLocationUpdateType
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.location.LocationProvider
 import com.server.ud.provider.search.SearchProvider
+import com.server.ud.utils.UDCommonUtils
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
@@ -486,6 +487,18 @@ class UserV2Provider {
                 searchProvider.saveUserToAlgolia(it)
             }
         }
+    }
+
+    fun removeUserV2Handle(): UserV2? {
+        val firebaseAuthUser = securityProvider.validateRequest()
+        val loggedInUserId = firebaseAuthUser.getUserIdToUse()
+        val user = getUser(loggedInUserId) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
+        val isAdmin = UDCommonUtils.isAdmin(loggedInUserId)
+        if (isAdmin.not()) {
+            error("User $loggedInUserId is not authorized to remove username. Only admins can remove the username.")
+        }
+        val newUserToBeSaved = user.copy(handle = null, fullName = null)
+        return saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING)
     }
 
 }

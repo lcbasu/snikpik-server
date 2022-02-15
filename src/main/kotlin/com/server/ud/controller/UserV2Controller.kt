@@ -146,6 +146,12 @@ class UserV2Controller {
         return userV2Service.removeUserV2DP()
     }
 
+    @RequestMapping(value = ["/removeUserV2Handle"], method = [RequestMethod.POST])
+    fun removeUserV2Handle(): SavedUserV2Response? {
+        securityProvider.validateRequest()
+        return userV2Service.removeUserV2Handle()
+    }
+
     @RequestMapping(value = ["/isUserHandleAvailable"], method = [RequestMethod.GET])
     fun isUserHandleAvailable(@RequestParam handle: String): UserHandleAvailabilityResponse {
         securityProvider.validateRequest()
