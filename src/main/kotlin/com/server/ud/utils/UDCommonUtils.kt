@@ -40,6 +40,7 @@ object UDCommonUtils {
         "USREg7UVXtfVeZ4aFQSBwKmvuFa46A3", // Lokesh
         "USRX8WhrKwlfDTfhcRnsjpndxjOhFj1", // Akshay
         "USR2S45nqK6GyUCKvgyBTM8J2NkMtC2", // Ibrahim
+        "USRtGL01YytxhfPMpuS6apUwnXMjoi1", // Shamil
         )
 
     fun isAdmin(userId: String): Boolean {
