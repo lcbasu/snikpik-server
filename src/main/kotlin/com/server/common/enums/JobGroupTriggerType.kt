@@ -24,4 +24,8 @@ enum class JobGroupTriggerType {
     ReProcessUserV2_JobGroupTrigger,
 
     FakeDataGeneration_JobGroupTrigger,
+
+
+    RefreshingInstagramLongLivedToken_JobGroupTrigger,
+    InstagramPostIngestion_JobGroupTrigger,
 }

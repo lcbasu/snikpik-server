@@ -37,6 +37,7 @@ import com.server.ud.provider.bookmark.BookmarksByResourceProvider
 import com.server.ud.provider.bookmark.BookmarksByUserProvider
 import com.server.ud.provider.cache.UDCacheProvider
 import com.server.ud.provider.comment.CommentProvider
+import com.server.ud.provider.integration.IntegrationProvider
 import com.server.ud.provider.like.LikeProvider
 import com.server.ud.provider.like.LikesByResourceProvider
 import com.server.ud.provider.like.LikesByUserProvider
@@ -414,7 +415,19 @@ class FakerProvider {
     @Autowired
     private lateinit var redisClient: RedisClient
 
+
+    @Autowired
+    private lateinit var integrationProvider: IntegrationProvider
+
     fun doSomething(): Any {
+
+        val data = integrationProvider.getIntegrationAccountInfoByUserId("USREg7UVXtfVeZ4aFQSBwKmvuFa46A3", IntegrationPlatform.INSTAGRAM, "17841412235410524") ?: error("No data")
+
+
+        integrationProvider.scheduleJobs(data)
+
+
+
 //        recoverDeletedData()
 //        cassandraTableModificationProvider.addNewColumns()
 //        oneOffSaveDataToFirestore.saveMetadataToFirestore()

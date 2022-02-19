@@ -4,7 +4,9 @@ import com.server.common.enums.JobGroupKeyType
 import com.server.common.enums.JobGroupTriggerType
 import com.server.common.service.scheduler.GenericSchedulerService
 import com.server.common.service.scheduler.JobRequest
+import com.server.ud.entities.integration.common.IntegrationAccountInfoByUserId
 import com.server.ud.jobs.*
+import com.server.ud.utils.UDKeyBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -159,6 +161,54 @@ class UDJobProvider {
             groupTypeForJob = JobGroupKeyType.ProcessPostForFollowers_JobGroupKey,
             groupTypeForTrigger = JobGroupTriggerType.ProcessPostForFollowers_JobGroupTrigger,
             scheduleAfterSeconds = 10, // Give it plenty of time to process other stuff before starting this job
+        ))
+    }
+
+    fun scheduleRefreshingInstagramLongLivedToken(integrationAccountInfoByUserId: IntegrationAccountInfoByUserId, refreshTokenSeconds: Long) {
+        val key = UDKeyBuilder.getJobKeyForIntegrationAccountInfoByUserId(integrationAccountInfoByUserId)
+        logger.info("scheduleRefreshingInstagramLongLivedToken: $key.")
+        genericSchedulerService.scheduleJob(JobRequest(
+            genericId = key,
+            job = RefreshingInstagramLongLivedTokenJob::class.java,
+            description = "Refresh Instagram Long-Lived Token",
+            groupTypeForJob = JobGroupKeyType.RefreshingInstagramLongLivedToken_JobGroupKey,
+            groupTypeForTrigger = JobGroupTriggerType.RefreshingInstagramLongLivedToken_JobGroupTrigger,
+            scheduleAfterSeconds = 0,
+            repeatAfterSeconds = refreshTokenSeconds,
+        ))
+    }
+
+    fun unScheduleRefreshingInstagramLongLivedToken(integrationAccountInfoByUserId: IntegrationAccountInfoByUserId) {
+        val key = UDKeyBuilder.getJobKeyForIntegrationAccountInfoByUserId(integrationAccountInfoByUserId)
+        logger.info("unScheduleRefreshingInstagramLongLivedToken: $key.")
+        genericSchedulerService.deleteExistingJob(JobRequest(
+            genericId = key,
+            groupTypeForJob = JobGroupKeyType.RefreshingInstagramLongLivedToken_JobGroupKey,
+            groupTypeForTrigger = JobGroupTriggerType.RefreshingInstagramLongLivedToken_JobGroupTrigger,
+        ))
+    }
+
+    fun scheduleInstagramPostIngestion(integrationAccountInfoByUserId: IntegrationAccountInfoByUserId, repeatAfterSeconds: Long) {
+        val key = UDKeyBuilder.getJobKeyForIntegrationAccountInfoByUserId(integrationAccountInfoByUserId)
+        logger.info("scheduleInstagramPostIngestion: $key.")
+        genericSchedulerService.scheduleJob(JobRequest(
+            genericId = key,
+            job = InstagramPostIngestionJob::class.java,
+            description = "Ingest data from instagram into Unbox",
+            groupTypeForJob = JobGroupKeyType.InstagramPostIngestion_JobGroupKey,
+            groupTypeForTrigger = JobGroupTriggerType.InstagramPostIngestion_JobGroupTrigger,
+            scheduleAfterSeconds = 0,
+            repeatAfterSeconds = repeatAfterSeconds,
+        ))
+    }
+
+    fun unScheduleInstagramPostIngestion(integrationAccountInfoByUserId: IntegrationAccountInfoByUserId) {
+        val key = UDKeyBuilder.getJobKeyForIntegrationAccountInfoByUserId(integrationAccountInfoByUserId)
+        logger.info("unScheduleInstagramPostIngestion: $key.")
+        genericSchedulerService.scheduleJob(JobRequest(
+            genericId = key,
+            groupTypeForJob = JobGroupKeyType.InstagramPostIngestion_JobGroupKey,
+            groupTypeForTrigger = JobGroupTriggerType.InstagramPostIngestion_JobGroupTrigger,
         ))
     }
 

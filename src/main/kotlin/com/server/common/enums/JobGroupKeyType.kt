@@ -24,4 +24,8 @@ enum class JobGroupKeyType {
     ReProcessUserV2_JobGroupKey,
 
     FakeDataGeneration_JobGroupKey,
+
+
+    RefreshingInstagramLongLivedToken_JobGroupKey,
+    InstagramPostIngestion_JobGroupKey,
 }

@@ -13,9 +13,29 @@ object DateUtils {
     private const val standardForMonthFormatter = "yyyy-MM"
     private const val standardTimeZoneId = "UTC"
     private val standardZoneOffset = ZoneOffset.UTC
+    private val HOURS_IN_DAY = 24
+    private val MINUTES_IN_HOUR = 60
+    private val SECONDS_IN_MINUTE = 60
+    private val MILLI_SECONDS_IN_SECOND = 1000
 
     fun parseStandardDate(forDate: String): LocalDateTime =
         LocalDate.parse(forDate, DateTimeFormatter.ofPattern(standardForDateFormatter)).atStartOfDay()
+
+    fun parseISODateTime(dateTime: String): Instant {
+//        val timeFormatter = DateTimeFormatter.ISO_DATE_TIME
+        val trimmed = dateTime.substring(0, dateTime.indexOf("+"))
+        val date = trimmed.split("T")[0].split("-")
+        val time = trimmed.split("T")[1].split(":")
+
+        return getInstantFromLocalDateTime(LocalDateTime.of(
+            date[0].toInt(),
+            date[1].toInt(),
+            date[2].toInt(),
+            time[0].toInt(),
+            time[1].toInt(),
+            time[2].toInt()
+        ))
+    }
 
     fun parseEpochInMilliseconds(epochInMilliSeconds: Long): LocalDateTime =
         LocalDateTime.ofInstant(Instant.ofEpochSecond(epochInMilliSeconds / 1000), ZoneId.of(standardTimeZoneId))
@@ -143,5 +163,13 @@ object DateUtils {
 
     fun getDateInPast(daysInPast: Long) : LocalDateTime {
         return dateTimeNow().minusDays(daysInPast)
+    }
+
+    fun convertDaysToSeconds(days: Long): Long {
+        return days * HOURS_IN_DAY * MINUTES_IN_HOUR * SECONDS_IN_MINUTE
+    }
+
+    fun convertHoursToSeconds(hours: Long): Long {
+        return hours * MINUTES_IN_HOUR * SECONDS_IN_MINUTE
     }
 }

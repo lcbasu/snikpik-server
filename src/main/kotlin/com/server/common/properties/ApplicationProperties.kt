@@ -108,3 +108,11 @@ data class Msg91Properties(
     val senderId: String,
     val apiKey: String,
 )
+
+@ConstructorBinding
+@ConfigurationProperties("integration")
+data class IntegrationProperties(
+    val instagram: InstagramProperties,
+) {
+    data class InstagramProperties(var appId: String, var appSecret: String, var redirectUri: String, var refreshTokenDays: Long)
+}

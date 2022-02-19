@@ -14,11 +14,13 @@ import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostRepository
 import com.server.ud.dto.*
 import com.server.ud.entities.MediaProcessingDetail
+import com.server.ud.entities.post.InstagramPost
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.entities.user.getProfiles
 import com.server.ud.entities.user.getSaveLocationRequestFromCurrentLocation
 import com.server.ud.entities.user.getSaveLocationRequestFromPermanentLocation
+import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.LocationFor
 import com.server.ud.enums.PostType
 import com.server.ud.enums.ResourceType
@@ -39,6 +41,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.cassandra.core.query.CassandraPageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
+import java.util.regex.Pattern
+import kotlin.random.Random
 
 @Component
 class PostProvider {
@@ -122,7 +126,7 @@ class PostProvider {
             val post = Post(
                 postId = postId,
                 userId = user.userId,
-                createdAt = DateUtils.getInstantNow(),
+                createdAt = request.createdAt ?: DateUtils.getInstantNow(),
                 postType = request.postType,
                 title = request.title,
                 description = request.description,
@@ -278,6 +282,50 @@ class PostProvider {
         logger.info("Start: Delete post from explore feed for postId: $postId")
         deletePostProvider.deletePostFromExplore(post)
         logger.info("End: Delete post from explore feed for postId: $postId")
+    }
+
+    fun createPost(instagramPost: InstagramPost): Post? {
+
+        val user = userV2Provider.getUser(instagramPost.userId) ?: error("Missing user for userId: ${instagramPost.userId}")
+        val location = SaveLocationRequest(
+            locationFor = LocationFor.GENERIC_POST,
+            zipcode = user.permanentLocationZipcode,
+            googlePlaceId = user.permanentGooglePlaceId,
+            name = user.permanentLocationName,
+            lat = user.permanentLocationLat,
+            lng = user.permanentLocationLng,
+            locality = user.currentLocationLocality,
+            subLocality = user.currentLocationSubLocality,
+            route = user.permanentLocationRoute,
+            city = user.permanentLocationCity,
+            state = user.permanentLocationState,
+            country = user.permanentLocationCountry,
+            countryCode = user.permanentLocationCountryCode,
+        )
+
+        val matches = Pattern.compile("#(\\S+)").matcher(instagramPost.caption ?: "")
+        val tags = mutableSetOf<String>()
+        while (matches.find()) {
+            tags.add(matches.group(1))
+        }
+
+        val finalCaption = Pattern
+            .compile("/#\\w+\\s*/")
+            .matcher(instagramPost.caption ?: "")
+            .replaceAll("")
+
+        val req = SavePostRequest(
+            postType = PostType.GENERIC_POST,
+            title = finalCaption,
+            description = instagramPost.caption,
+            tags = tags,
+            // Figure out a way to get categories using caption and images/videos
+            categories = setOf(CategoryV2.ALL),
+            locationRequest = location,
+            mediaDetails = instagramPost.getMediaDetails(),
+            createdAt = instagramPost.createdAt
+        )
+        return save(instagramPost.userId, req)
     }
 
 }

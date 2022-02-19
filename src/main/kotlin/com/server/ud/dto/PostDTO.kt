@@ -1,12 +1,16 @@
 package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.model.MediaDetailsV2
 import com.server.common.utils.DateUtils
 import com.server.ud.entities.post.*
 import com.server.ud.enums.CategoryV2
+import com.server.ud.enums.InstagramMediaType
 import com.server.ud.enums.PostType
 import com.server.ud.model.AllHashTags
+import java.time.Instant
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class FakePostRequest(
@@ -27,7 +31,63 @@ data class SavePostRequest(
     val categories: Set<CategoryV2> = emptySet(),
     val locationRequest: SaveLocationRequest? = null,
     val mediaDetails: MediaDetailsV2? = null,
+
+    // Just in case it is passed, use it
+    var createdAt: Instant? = null,
 )
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class InstagramPagingCursor(
+    val before: String,
+    val after: String,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class InstagramPaging(
+    val cursors: InstagramPagingCursor? = null,
+    val next: String? = null,
+    val previous: String? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class InstagramPostsPaginatedResponse(
+    val data: List<InstagramPostResponse> = emptyList(),
+    val paging: InstagramPaging? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class InstagramPostChildrenResponse(
+    val data: List<InstagramPostResponse> = emptyList(),
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class InstagramPostResponse(
+    val id: String,
+    @JsonProperty("media_type")
+    var mediaType: InstagramMediaType,
+
+    var caption: String? = null,
+    @JsonProperty("media_url")
+    var mediaUrl: String,
+
+    @JsonProperty("thumbnail_url")
+    var thumbnailUrl: String? = null,
+    var permalink: String? = null,
+
+    // "2022-02-13T11:56:15+0000"
+    var timestamp: String? = null,
+    var username: String? = null,
+)
+
+fun InstagramPostChildrenResponse?.convertToString(): String {
+    this.apply {
+        return try {
+            jacksonObjectMapper().writeValueAsString(this)
+        } catch (e: Exception) {
+            ""
+        }
+    }
+}
 
 //@JsonIgnoreProperties(ignoreUnknown = true)
 //data class PostCommonDetail (

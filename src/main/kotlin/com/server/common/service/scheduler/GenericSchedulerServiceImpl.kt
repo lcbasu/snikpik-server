@@ -36,7 +36,7 @@ class GenericSchedulerServiceImpl : GenericSchedulerService() {
         }
     }
 
-    private fun deleteExistingJob(jobRequest: JobRequest) {
+    override fun deleteExistingJob(jobRequest: JobRequest) {
         try {
             val jobKey = getJobKey(jobRequest)
             val triggerKey = getTriggerKey(jobRequest)
@@ -89,7 +89,44 @@ class GenericSchedulerServiceImpl : GenericSchedulerService() {
     }
 
     private fun createNewTrigger(jobRequest: JobRequest, jobDetail: JobDetail): Trigger {
-        if (jobRequest.scheduleAfterSeconds <= 0) {
+        return if (jobRequest.repeatAfterSeconds == null || jobRequest.repeatAfterSeconds <= 0) {
+            createOneTimeTrigger(jobRequest, jobDetail)
+        } else {
+            createRepeatableTrigger(jobRequest, jobDetail)
+        }
+    }
+
+    private fun createRepeatableTrigger(jobRequest: JobRequest, jobDetail: JobDetail): Trigger {
+        if (jobRequest.repeatAfterSeconds == null || jobRequest.repeatAfterSeconds <= 0) {
+            error("Repeat after seconds cannot be null or zero")
+        }
+        if (jobRequest.scheduleAfterSeconds!! <= 0) {
+            return TriggerBuilder
+                .newTrigger()
+                .forJob(jobDetail.key)
+                .withIdentity(getTriggerKey(jobRequest))
+                .withDescription(jobRequest.description)
+                .startNow()
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                    .withIntervalInSeconds(jobRequest.repeatAfterSeconds.toInt())
+                    .repeatForever())
+                .build()
+        } else {
+            return TriggerBuilder
+                .newTrigger()
+                .forJob(jobDetail.key)
+                .withIdentity(getTriggerKey(jobRequest))
+                .withDescription(jobRequest.description)
+                .startAt(getStartDateForJob(jobRequest))
+                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
+                    .withIntervalInSeconds(jobRequest.repeatAfterSeconds.toInt())
+                    .repeatForever())
+                .build()
+        }
+    }
+
+    private fun createOneTimeTrigger(jobRequest: JobRequest, jobDetail: JobDetail): Trigger {
+        if (jobRequest.scheduleAfterSeconds!! <= 0) {
             return TriggerBuilder
                 .newTrigger()
                 .forJob(jobDetail.key)
@@ -113,7 +150,7 @@ class GenericSchedulerServiceImpl : GenericSchedulerService() {
     }
 
     private fun getStartDateForJob(jobRequest: JobRequest): Date {
-        val startTime = DateUtils.dateTimeNow().plusSeconds(jobRequest.scheduleAfterSeconds)
+        val startTime = DateUtils.dateTimeNow().plusSeconds(jobRequest.scheduleAfterSeconds!!)
         return Date(DateUtils.getEpoch(startTime) * 1000)
     }
 }

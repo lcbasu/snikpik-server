@@ -10,6 +10,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 @SpringBootApplication
 @EnableScheduling
 @EnableConfigurationProperties(
+	IntegrationProperties::class,
 	Msg91Properties::class,
 	AblyProperties::class,
 	BugsnagProperties::class,

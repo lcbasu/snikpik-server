@@ -199,3 +199,9 @@ msg91:
   flow-id: ${MSG91_FLOW_ID}
   sender-id: ${MSG91_SENDER_ID}
   api-key: ${MSG91_API_KEY}
+integration:
+  instagram:
+    app-id: ${INSTAGRAM_APP_ID}
+    app-secret: ${INSTAGRAM_APP_SECRET}
+    redirect-uri: ${INSTAGRAM_REDIRECT_URI}
+    refresh-token-days: ${INSTAGRAM_REFRESH_TOKEN_DAYS}
