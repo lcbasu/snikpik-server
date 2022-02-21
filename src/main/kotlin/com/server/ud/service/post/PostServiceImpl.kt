@@ -5,7 +5,6 @@ import com.server.ud.dto.*
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.user.PostsCountByUser
 import com.server.ud.pagination.CassandraPageV2
-import com.server.ud.provider.post.DeletePostProvider
 import com.server.ud.provider.post.PostProvider
 import com.server.ud.provider.post.PostsCountByUserProvider
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,9 +18,6 @@ class PostServiceImpl : PostService() {
 
     @Autowired
     private lateinit var postProvider: PostProvider
-
-    @Autowired
-    private lateinit var deletePostProvider: DeletePostProvider
 
     @Autowired
     private lateinit var postsCountByUserProvider: PostsCountByUserProvider

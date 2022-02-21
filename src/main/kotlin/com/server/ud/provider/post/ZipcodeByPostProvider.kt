@@ -2,6 +2,7 @@ package com.server.ud.provider.post
 
 import com.server.ud.dao.post.ZipcodeByPostRepository
 import com.server.ud.entities.location.NearbyZipcodesByZipcode
+import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.ZipcodeByPost
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -49,4 +50,9 @@ class ZipcodeByPostProvider {
         }
     }
 
+    fun updatePostExpandedData(post: Post) {
+        GlobalScope.launch {
+
+        }
+    }
 }

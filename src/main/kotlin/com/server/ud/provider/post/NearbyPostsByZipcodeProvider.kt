@@ -157,4 +157,9 @@ class NearbyPostsByZipcodeProvider {
         }
     }
 
+    fun updatePostExpandedData(post: Post) {
+        GlobalScope.launch {
+
+        }
+    }
 }

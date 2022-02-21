@@ -1,7 +1,7 @@
 package com.server.ud.provider.location
 
 import com.server.ud.entities.location.Location
-import com.server.ud.provider.post.PostProcessingProvider
+import com.server.ud.provider.post.PostProvider
 import com.server.ud.provider.user.UserV2ProcessingProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -32,7 +32,7 @@ class LocationProcessingProvider {
     private lateinit var nearbyZipcodesByZipcodeProvider: NearbyZipcodesByZipcodeProvider
 
     @Autowired
-    private lateinit var postProcessingProvider: PostProcessingProvider
+    private lateinit var postProvider: PostProvider
 
     @Autowired
     private lateinit var userV2ProcessingProvider: UserV2ProcessingProvider
@@ -50,12 +50,12 @@ class LocationProcessingProvider {
                 return@launch
             }
             val location = locationProvider.getLocation(locationId) ?: error("No location found for $locationId while processing.")
-            val nearbyLocationLevelProcessingFuture = async { nearbyLocationLevelProcessing(location) }
+            // Heavy Job. So let it process on its own
+            nearbyLocationLevelProcessing(location)
             val locationsByUserFuture = async { locationsByUserProvider.save(location) }
             val locationsByZipcodeFuture = async { locationsByZipcodeProvider.save(location) }
             locationsByUserFuture.await()
             locationsByZipcodeFuture.await()
-            nearbyLocationLevelProcessingFuture.await()
             logger.info("End: location processing for locationId: $locationId")
         }
     }
@@ -93,7 +93,7 @@ class LocationProcessingProvider {
     ) {
         // Get all the posts that are near to this location
         // and save them for this zipcode
-        postProcessingProvider.processPostForNewNearbyLocation(
+        postProvider.processPostForNewNearbyLocation(
             originalLocation = location,
             nearbyZipcodes = nearbyZipcodes
         )

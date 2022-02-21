@@ -64,4 +64,9 @@ class PostsByZipcodeProvider {
         }
     }
 
+    fun updatePostExpandedData(post: Post) {
+        GlobalScope.launch {
+
+        }
+    }
 }

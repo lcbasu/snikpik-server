@@ -138,6 +138,11 @@ class PostsByCategoryProvider {
         }
     }
 
+    fun updatePostExpandedData(post: Post) {
+        GlobalScope.launch {
+
+        }
+    }
 }
 
 // Cache

@@ -14,9 +14,8 @@ import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostRepository
 import com.server.ud.dto.*
 import com.server.ud.entities.MediaProcessingDetail
-import com.server.ud.entities.post.InstagramPost
-import com.server.ud.entities.post.Post
-import com.server.ud.entities.post.getMediaDetails
+import com.server.ud.entities.location.Location
+import com.server.ud.entities.post.*
 import com.server.ud.entities.user.getProfiles
 import com.server.ud.entities.user.getSaveLocationRequestFromCurrentLocation
 import com.server.ud.entities.user.getSaveLocationRequestFromPermanentLocation
@@ -28,13 +27,22 @@ import com.server.ud.model.AllHashTags
 import com.server.ud.model.MediaInputDetail
 import com.server.ud.model.convertToString
 import com.server.ud.pagination.CassandraPageV2
+import com.server.ud.provider.bookmark.BookmarkProcessingProvider
+import com.server.ud.provider.comment.CommentProcessingProvider
 import com.server.ud.provider.job.UDJobProvider
+import com.server.ud.provider.like.LikeProcessingProvider
+import com.server.ud.provider.location.ESLocationProvider
+import com.server.ud.provider.location.LocationProcessingProvider
 import com.server.ud.provider.location.LocationProvider
+import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
+import com.server.ud.provider.reply.ReplyProcessingProvider
+import com.server.ud.provider.search.SearchProvider
+import com.server.ud.provider.social.FollowersByUserProvider
 import com.server.ud.provider.user.UserV2Provider
+import com.server.ud.provider.user_activity.UserActivitiesProvider
 import com.server.ud.utils.UDCommonUtils
 import com.server.ud.utils.pagination.PaginationRequestUtil
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -70,13 +78,71 @@ class PostProvider {
     private lateinit var userV2Provider: UserV2Provider
 
     @Autowired
-    private lateinit var postsByUserProvider: PostsByUserProvider
-
-    @Autowired
     private lateinit var securityProvider: SecurityProvider
 
     @Autowired
-    private lateinit var deletePostProvider: DeletePostProvider
+    private lateinit var bookmarkProcessingProvider: BookmarkProcessingProvider
+
+    @Autowired
+    private lateinit var commentProcessingProvider: CommentProcessingProvider
+
+    @Autowired
+    private lateinit var likeProcessingProvider: LikeProcessingProvider
+
+    @Autowired
+    private lateinit var replyProcessingProvider: ReplyProcessingProvider
+
+    @Autowired
+    private lateinit var searchProvider: SearchProvider
+
+    @Autowired
+    private lateinit var postsByZipcodeProvider: PostsByZipcodeProvider
+
+    @Autowired
+    private lateinit var postsByUserProvider: PostsByUserProvider
+
+    @Autowired
+    private lateinit var postsCountByUserProvider: PostsCountByUserProvider
+
+    @Autowired
+    private lateinit var followersByUserProvider: FollowersByUserProvider
+
+    @Autowired
+    private lateinit var postsByFollowingProvider: PostsByFollowingProvider
+
+    @Autowired
+    private lateinit var postsByCategoryProvider: PostsByCategoryProvider
+
+    @Autowired
+    private lateinit var postsByHashTagProvider: PostsByHashTagProvider
+
+    @Autowired
+    private lateinit var esLocationProvider: ESLocationProvider
+
+    @Autowired
+    private lateinit var locationProcessingProvider: LocationProcessingProvider
+
+    @Autowired
+    private lateinit var nearbyZipcodesByZipcodeProvider: NearbyZipcodesByZipcodeProvider
+
+    @Autowired
+    private lateinit var nearbyPostsByZipcodeProvider: NearbyPostsByZipcodeProvider
+
+    @Autowired
+    private lateinit var nearbyVideoPostsByZipcodeProvider: NearbyVideoPostsByZipcodeProvider
+
+    @Autowired
+    private lateinit var userActivityProvider: UserActivitiesProvider
+
+    @Autowired
+    private lateinit var bookmarkedPostsByUserProvider: BookmarkedPostsByUserProvider
+
+    @Autowired
+    private lateinit var likedPostsByUserProvider: LikedPostsByUserProvider
+
+    @Autowired
+    private lateinit var zipcodeByPostProvider: ZipcodeByPostProvider
+
 
     fun getPost(postId: String): Post? =
         try {
@@ -158,7 +224,7 @@ class PostProvider {
             val savedPost = postRepository.save(post)
             // Saving this temporarily with whatever media url is in the source
             // so that user can see all his posts immediately
-            postsByUserProvider.save(savedPost)
+            postProcessPostAfterFirstTimeCreationForUser(savedPost)
             handlePostSaved(savedPost)
             return savedPost
         } catch (e: Exception) {
@@ -166,6 +232,15 @@ class PostProvider {
             return null
         }
     }
+//
+//    fun saveUpdatedPost(post: Post) {
+//        try {
+//            postRepository.save(post)
+//            // Re-process all the post related expanded data
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
+//    }
 
     fun updateMedia(post: Post, media: MediaDetailsV2) {
         try {
@@ -175,14 +250,16 @@ class PostProvider {
         }
     }
 
-    fun updateLabels(post: Post, labels: Set<String>) {
-        try {
+    fun updateLabels(post: Post, labels: Set<String>): Post {
+        return try {
             val labelsStr = AllLabelsResponse(labels).convertToString()
-            postRepository.save(post.copy(labels = labelsStr))
+            val updatedPost = postRepository.save(post.copy(labels = labelsStr))
             logger.info("Labels updated for postId: ${post.postId} with labels: $labelsStr")
+            updatedPost
         } catch (e: Exception) {
             e.printStackTrace()
             logger.error("Error while updating the for postId: ${post.postId}")
+            post
         }
     }
 
@@ -261,9 +338,20 @@ class PostProvider {
         }
         GlobalScope.launch {
             logger.info("Start: Delete post and other dependent information for postId: $postId")
-            deletePostProvider.deletePostExpandedData(post, loggedInUserId)
+            bookmarkProcessingProvider.deletePostExpandedData(post.postId)
+            commentProcessingProvider.deletePostExpandedData(post.postId)
+            likeProcessingProvider.deletePostExpandedData(post.postId)
+            deletePostExpandedData(post)
+            replyProcessingProvider.deletePostExpandedData(post.postId)
+            searchProvider.deletePostExpandedData(post.postId)
             deleteSinglePost(post)
             logger.info("End: Delete post and other dependent information for postId: $postId")
+        }
+    }
+
+    fun updatePost(post: Post) {
+        GlobalScope.launch {
+
         }
     }
 
@@ -279,7 +367,7 @@ class PostProvider {
             error("User $loggedInUserId is not authorized to delete post: $postId. Only admins can delete the post from explore.")
         }
         logger.info("Start: Delete post from explore feed for postId: $postId")
-        deletePostProvider.deletePostFromExplore(post)
+        deletePostFromExplore(post)
         logger.info("End: Delete post from explore feed for postId: $postId")
     }
 
@@ -325,6 +413,231 @@ class PostProvider {
             createdAt = instagramPost.createdAt
         )
         return save(instagramPost.userId, req)
+    }
+
+
+    // This is to make sure that the new post is immediately available in user posts section
+    fun postProcessPostAfterFirstTimeCreationForUser(post: Post) {
+        runBlocking {
+            val postsByUserFuture = async {
+                postsByUserProvider.save(post)
+            }
+
+            // Call this ONLY once as calling this multiple times would increase the count of posts for the user
+            val postsCountByUserFuture = async {
+                postsCountByUserProvider.increasePostCount(post.userId)
+            }
+            postsByUserFuture.await()
+            postsCountByUserFuture.await()
+        }
+    }
+
+    fun postProcessPostAfterFirstTimeCreation(postId: String) {
+        // Update
+        // Post By User
+        // Post By Zipcode (Nearby Feed)
+        // Follower Feed
+        // Category Feed
+        // Tags Feed
+        GlobalScope.launch {
+            logger.info("Start postProcessPostAfterFirstTimeCreation: post processing for postId: $postId")
+            val post = getPost(postId) ?: error("No post found for $postId while doing post processing.")
+
+            val userActivityFuture = async {
+                userActivityProvider.savePostCreationActivity(post)
+            }
+
+            val labels = mediaHandlerProvider.getLabelsForMedia(post.getMediaDetails())
+            val updatedPost = if (labels.isNotEmpty()) {
+                updateLabels(post, labels)
+            } else {
+                post
+            }
+            val esLocation = updatedPost.locationId?.let { esLocationProvider.getLocation(it) }
+            if (esLocation == null) {
+                // Location not processed.
+                // Process the location
+                locationProcessingProvider.processLocation(updatedPost.locationId!!)
+            }
+
+            val postsByUserFuture = async {
+                postsByUserProvider.save(updatedPost)
+            }
+
+            val postsByZipcodeFuture = async {
+                postsByZipcodeProvider.save(updatedPost)
+            }
+
+            val saveForNearbyPosts = async {
+                updatedPost.zipcode?.let {
+                    val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(it)
+                    nearbyPostsByZipcodeProvider.save(updatedPost, nearbyZipcodes)
+                    nearbyVideoPostsByZipcodeProvider.save(updatedPost, nearbyZipcodes)
+                    zipcodeByPostProvider.save(updatedPost.postId, nearbyZipcodes)
+                }
+            }
+
+            val categoriesFeedFuture = async {
+                updatedPost.getCategories().categories
+                    .map { async { postsByCategoryProvider.save(updatedPost, it.id) } }
+                    .map { it.await() }
+            }
+
+            val allCategoryFeedFuture = async {
+                postsByCategoryProvider.save(updatedPost, CategoryV2.ALL)
+            }
+
+            val hashTagsFeedFuture = async {
+                updatedPost.getHashTags().tags
+                    .map { async { postsByHashTagProvider.save(updatedPost, it) } }
+                    .map { it.await() }
+            }
+
+//            val savePostToESFuture = async {
+//                esPostProvider.save(updatedPost)
+//            }
+
+//            val savePostAutoSuggestToESFuture = async {
+//                esPostAutoSuggestProvider.save(updatedPost)
+//            }
+
+            val algoliaIndexingFuture = async {
+                searchProvider.doSearchProcessingForPost(updatedPost)
+            }
+
+            userActivityFuture.await()
+            postsByUserFuture.await()
+            postsByZipcodeFuture.await()
+            saveForNearbyPosts.await()
+            categoriesFeedFuture.await()
+            allCategoryFeedFuture.await()
+            hashTagsFeedFuture.await()
+//            savePostToESFuture.await()
+//            savePostAutoSuggestToESFuture.await()
+            algoliaIndexingFuture.await()
+
+            // Schedule Heavy job to be done in isolation
+            udJobProvider.scheduleProcessingForPostForFollowers(updatedPost.postId)
+
+            logger.info("Done postProcessPostAfterFirstTimeCreation: post processing for postId: $postId")
+        }
+    }
+
+    fun processPostForNewNearbyLocation(originalLocation: Location, nearbyZipcodes: Set<String>) {
+        GlobalScope.launch {
+            logger.info("Start: processPostForNearbyLocation for locationId: ${originalLocation.locationId}")
+            if (originalLocation.zipcode == null) {
+                logger.error("Location ${originalLocation.name} does not have zipcode. Hence skipping processPostForNearbyLocation")
+                return@launch
+            }
+
+            val daysToGoInPast = 30L
+            val postsPerDayToUse = 50
+            val maxSaveListSize = 10
+
+            val nearbyPosts = mutableListOf<NearbyPostsByZipcode>()
+            nearbyZipcodes.map { zipcode ->
+                PostType.values().map { postType ->
+                    // 50 Posts from each date
+                    nearbyPosts.addAll(
+                        nearbyPostsByZipcodeProvider.getPaginatedFeed(
+                            zipCode = zipcode,
+                            postType = postType,
+                            limit = postsPerDayToUse,
+                        ).content?.filterNotNull() ?: emptyList()
+                    )
+                }
+            }
+            logger.info("Total ${nearbyPosts.size} nearby post found for the current location ${originalLocation.name}. Save in batches of $maxSaveListSize")
+            nearbyPosts.chunked(maxSaveListSize).map {
+                nearbyPostsByZipcodeProvider.save(it, originalLocation.zipcode!!)
+                val videoPosts = it.mapNotNull { it.toNearbyVideoPostsByZipcode() }
+                nearbyVideoPostsByZipcodeProvider.saveWhileProcessing(videoPosts, originalLocation.zipcode!!)
+            }
+            logger.info("Done: processPostForNearbyLocation for locationId: ${originalLocation.locationId}")
+        }
+    }
+
+    fun processPostForFollowers(postId: String) {
+        // Update
+        // Post By User
+        // Post By Zipcode (Nearby Feed)
+        // Follower Feed
+        // Category Feed
+        // Tags Feed
+        GlobalScope.launch {
+            logger.info("Do post processing for postId: $postId for followers of the original poster.")
+            val post = getPost(postId) ?: error("No post found for $postId while doing post processing.")
+            val userId = post.userId
+
+            var followersResponse = followersByUserProvider.getFeedForFollowersResponse(
+                GetFollowersRequest(
+                    userId = userId,
+                    limit = 5,
+                    pagingState = "NOT_SET",
+                )
+            )
+            logger.info("followersResponse: ${followersResponse.followers.size}")
+            logger.info(followersResponse.followers.toString())
+
+            val followersFeedFuture: MutableList<Deferred<List<PostsByFollowing?>>> = mutableListOf()
+
+            followersFeedFuture.add(async {
+                followersResponse.followers.map {
+                    postsByFollowingProvider.save(post, it.followerUserId)
+                }
+            })
+
+            while (followersResponse.hasNext != null && followersResponse.hasNext == true) {
+                followersFeedFuture.add(async {
+                    followersResponse.followers.map {
+                        postsByFollowingProvider.save(post, it.followerUserId)
+                    }
+                })
+
+                followersResponse = followersByUserProvider.getFeedForFollowersResponse(
+                    GetFollowersRequest(
+                        userId = userId,
+                        limit = 5,
+                        pagingState = followersResponse.pagingState,
+                    )
+                )
+
+                logger.info("followersResponse: ${followersResponse.followers.size}")
+                logger.info(followersResponse.followers.toString())
+            }
+
+            followersFeedFuture.map { it.await() }
+            logger.info("Followers Post processing completed for postId: $postId for followers of the original poster with userId: $userId.")
+        }
+    }
+
+    fun deletePostExpandedData(post: Post) {
+        GlobalScope.launch {
+            logger.info("Start: Delete post and other dependent information for postId: ${post.postId}")
+
+            bookmarkedPostsByUserProvider.deletePostExpandedData(post.postId)
+            likedPostsByUserProvider.deletePostExpandedData(post.postId)
+            postsByCategoryProvider.deletePostExpandedData(post)
+            postsByFollowingProvider.deletePostExpandedData(post.postId)
+            postsByHashTagProvider.deletePostExpandedData(post.postId)
+            postsByUserProvider.deletePostExpandedData(post.postId)
+            postsByZipcodeProvider.deletePostExpandedData(post.postId)
+            nearbyPostsByZipcodeProvider.deletePostExpandedData(post)
+            nearbyVideoPostsByZipcodeProvider.deletePostExpandedData(post)
+
+            // Only one count has to be decreases as the one post is created by
+            // only one user and adds only one count
+//            postsCountByUserRepository.decrementPostCount(userId)
+            postsCountByUserProvider.decrementPostCount(post.userId)
+
+            logger.info("End: Delete post and other dependent information for postId: ${post.postId}")
+        }
+    }
+
+    // This is a synchronous call
+    fun deletePostFromExplore(post: Post) {
+        postsByCategoryProvider.deletePostExpandedData(post)
     }
 
 }

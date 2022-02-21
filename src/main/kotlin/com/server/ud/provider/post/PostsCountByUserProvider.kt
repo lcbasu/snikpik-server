@@ -2,6 +2,7 @@ package com.server.ud.provider.post
 
 import com.google.firebase.cloud.FirestoreClient
 import com.server.ud.dao.post.PostsCountByUserRepository
+import com.server.ud.entities.post.Post
 import com.server.ud.entities.user.PostsCountByUser
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -75,6 +76,12 @@ class PostsCountByUserProvider {
     fun saveAllToFirestore() {
         postsCountByUserRepository.findAll().forEach {
             savePostsCountByUserToFirestore(it)
+        }
+    }
+
+    fun updatePostExpandedData(post: Post) {
+        GlobalScope.launch {
+
         }
     }
 }

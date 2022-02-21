@@ -104,6 +104,12 @@ class BookmarkedPostsByUserProvider {
         }
     }
 
+    fun updatePostExpandedData(post: Post) {
+        GlobalScope.launch {
+
+        }
+    }
+
     fun getBookmarkedPostsByUserResponse(request: BookmarkedPostsByUserRequest): BookmarkedPostsByUserResponse {
         val result = getBookmarkedPostsByUser(request)
         return BookmarkedPostsByUserResponse(

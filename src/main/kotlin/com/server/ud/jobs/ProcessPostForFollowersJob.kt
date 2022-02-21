@@ -1,6 +1,6 @@
 package com.server.ud.jobs
 
-import com.server.ud.provider.post.PostProcessingProvider
+import com.server.ud.provider.post.PostProvider
 import org.quartz.JobDataMap
 import org.quartz.JobExecutionContext
 import org.slf4j.Logger
@@ -13,7 +13,7 @@ class ProcessPostForFollowersJob: QuartzJobBean() {
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     @Autowired
-    private lateinit var postProcessingProvider: PostProcessingProvider
+    private lateinit var postProvider: PostProvider
 
     override fun executeInternal(context: JobExecutionContext) {
         processPostForFollowers(context.mergedJobDataMap)
@@ -22,6 +22,6 @@ class ProcessPostForFollowersJob: QuartzJobBean() {
     private fun processPostForFollowers(jobDataMap: JobDataMap) {
         val postId = jobDataMap.getString("id")
         logger.info("Process post for followers for postId: $postId")
-        postProcessingProvider.processPostForFollowers(postId)
+        postProvider.processPostForFollowers(postId)
     }
 }

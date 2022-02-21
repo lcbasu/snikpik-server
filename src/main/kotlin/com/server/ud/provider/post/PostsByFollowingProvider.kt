@@ -69,4 +69,10 @@ class PostsByFollowingProvider {
             logger.info("Deleted all entries for PostsByFollowing for post $postId from PostsByFollowing.")
         }
     }
+
+    fun updatePostExpandedData(post: Post) {
+        GlobalScope.launch {
+
+        }
+    }
 }

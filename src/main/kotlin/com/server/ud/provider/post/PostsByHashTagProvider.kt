@@ -61,4 +61,9 @@ class PostsByHashTagProvider {
         }
     }
 
+    fun updatePostExpandedData(post: Post) {
+        GlobalScope.launch {
+
+        }
+    }
 }

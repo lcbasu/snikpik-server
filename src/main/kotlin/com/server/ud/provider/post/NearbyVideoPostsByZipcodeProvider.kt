@@ -152,4 +152,10 @@ class NearbyVideoPostsByZipcodeProvider {
             logger.info("Deleted all entries for zipcode x posts for post ${post.postId} from NearbyVideoPostsByZipcode.")
         }
     }
+
+    fun updatePostExpandedData(post: Post) {
+        GlobalScope.launch {
+
+        }
+    }
 }

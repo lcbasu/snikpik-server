@@ -94,4 +94,10 @@ class PostsByUserProvider {
             postsByUserRepository.deleteAll(postsByUserRepository.findAllByPostId(postId))
         }
     }
+
+    fun updatePostExpandedData(post: Post) {
+        GlobalScope.launch {
+
+        }
+    }
 }

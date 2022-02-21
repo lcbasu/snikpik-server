@@ -90,4 +90,10 @@ class LikedPostsByUserProvider {
         }
     }
 
+    fun updatePostExpandedData(post: Post) {
+        GlobalScope.launch {
+
+        }
+    }
+
 }
