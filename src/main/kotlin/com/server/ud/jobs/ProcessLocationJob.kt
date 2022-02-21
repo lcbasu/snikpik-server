@@ -1,6 +1,6 @@
 package com.server.ud.jobs
 
-import com.server.ud.provider.location.LocationProcessingProvider
+import com.server.ud.provider.location.LocationProvider
 import org.quartz.JobDataMap
 import org.quartz.JobExecutionContext
 import org.slf4j.Logger
@@ -13,7 +13,7 @@ class ProcessLocationJob: QuartzJobBean() {
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     @Autowired
-    private lateinit var locationProcessingProvider: LocationProcessingProvider
+    private lateinit var locationProvider: LocationProvider
 
     override fun executeInternal(context: JobExecutionContext) {
         processLocation(context.mergedJobDataMap)
@@ -22,6 +22,6 @@ class ProcessLocationJob: QuartzJobBean() {
     private fun processLocation(jobDataMap: JobDataMap) {
         val locationId = jobDataMap.getString("id")
         logger.info("Do location processing for locationId: $locationId")
-        locationProcessingProvider.processLocation(locationId)
+        locationProvider.processLocation(locationId)
     }
 }

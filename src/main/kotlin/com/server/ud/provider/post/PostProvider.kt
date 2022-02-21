@@ -27,15 +27,14 @@ import com.server.ud.model.AllHashTags
 import com.server.ud.model.MediaInputDetail
 import com.server.ud.model.convertToString
 import com.server.ud.pagination.CassandraPageV2
-import com.server.ud.provider.bookmark.BookmarkProcessingProvider
-import com.server.ud.provider.comment.CommentProcessingProvider
+import com.server.ud.provider.bookmark.BookmarkProvider
+import com.server.ud.provider.comment.CommentProvider
 import com.server.ud.provider.job.UDJobProvider
-import com.server.ud.provider.like.LikeProcessingProvider
+import com.server.ud.provider.like.LikeProvider
 import com.server.ud.provider.location.ESLocationProvider
-import com.server.ud.provider.location.LocationProcessingProvider
 import com.server.ud.provider.location.LocationProvider
 import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
-import com.server.ud.provider.reply.ReplyProcessingProvider
+import com.server.ud.provider.reply.ReplyProvider
 import com.server.ud.provider.search.SearchProvider
 import com.server.ud.provider.social.FollowersByUserProvider
 import com.server.ud.provider.user.UserV2Provider
@@ -81,16 +80,16 @@ class PostProvider {
     private lateinit var securityProvider: SecurityProvider
 
     @Autowired
-    private lateinit var bookmarkProcessingProvider: BookmarkProcessingProvider
+    private lateinit var bookmarkProvider: BookmarkProvider
 
     @Autowired
-    private lateinit var commentProcessingProvider: CommentProcessingProvider
+    private lateinit var commentProvider: CommentProvider
 
     @Autowired
-    private lateinit var likeProcessingProvider: LikeProcessingProvider
+    private lateinit var likeProvider: LikeProvider
 
     @Autowired
-    private lateinit var replyProcessingProvider: ReplyProcessingProvider
+    private lateinit var replyProvider: ReplyProvider
 
     @Autowired
     private lateinit var searchProvider: SearchProvider
@@ -118,9 +117,6 @@ class PostProvider {
 
     @Autowired
     private lateinit var esLocationProvider: ESLocationProvider
-
-    @Autowired
-    private lateinit var locationProcessingProvider: LocationProcessingProvider
 
     @Autowired
     private lateinit var nearbyZipcodesByZipcodeProvider: NearbyZipcodesByZipcodeProvider
@@ -338,11 +334,11 @@ class PostProvider {
         }
         GlobalScope.launch {
             logger.info("Start: Delete post and other dependent information for postId: $postId")
-            bookmarkProcessingProvider.deletePostExpandedData(post.postId)
-            commentProcessingProvider.deletePostExpandedData(post.postId)
-            likeProcessingProvider.deletePostExpandedData(post.postId)
+            bookmarkProvider.deletePostExpandedData(post.postId)
+            commentProvider.deletePostExpandedData(post.postId)
+            likeProvider.deletePostExpandedData(post.postId)
             deletePostExpandedData(post)
-            replyProcessingProvider.deletePostExpandedData(post.postId)
+            replyProvider.deletePostExpandedData(post.postId)
             searchProvider.deletePostExpandedData(post.postId)
             deleteSinglePost(post)
             logger.info("End: Delete post and other dependent information for postId: $postId")
@@ -457,7 +453,7 @@ class PostProvider {
             if (esLocation == null) {
                 // Location not processed.
                 // Process the location
-                locationProcessingProvider.processLocation(updatedPost.locationId!!)
+                locationProvider.processLocation(updatedPost.locationId!!)
             }
 
             val postsByUserFuture = async {

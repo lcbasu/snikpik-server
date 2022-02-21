@@ -1,6 +1,6 @@
 package com.server.ud.jobs
 
-import com.server.ud.provider.bookmark.BookmarkProcessingProvider
+import com.server.ud.provider.bookmark.BookmarkProvider
 import org.quartz.JobDataMap
 import org.quartz.JobExecutionContext
 import org.slf4j.Logger
@@ -13,7 +13,7 @@ class ProcessBookmarkJob: QuartzJobBean() {
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     @Autowired
-    private lateinit var bookmarkProcessingProvider: BookmarkProcessingProvider
+    private lateinit var bookmarkProvider: BookmarkProvider
 
     override fun executeInternal(context: JobExecutionContext) {
         postProcessBookmark(context.mergedJobDataMap)
@@ -22,6 +22,6 @@ class ProcessBookmarkJob: QuartzJobBean() {
     private fun postProcessBookmark(jobDataMap: JobDataMap) {
         val bookmarkId = jobDataMap.getString("id")
         logger.info("Do bookmark processing for bookmarkId: $bookmarkId")
-        bookmarkProcessingProvider.processBookmark(bookmarkId)
+        bookmarkProvider.processBookmark(bookmarkId)
     }
 }

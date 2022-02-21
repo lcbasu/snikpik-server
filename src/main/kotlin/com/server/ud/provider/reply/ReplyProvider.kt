@@ -5,10 +5,16 @@ import com.server.common.model.convertToString
 import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.reply.CommentReplyRepository
+import com.server.ud.dao.reply.RepliesByCommentRepository
 import com.server.ud.dto.SaveCommentReplyRequest
 import com.server.ud.entities.MediaProcessingDetail
 import com.server.ud.entities.reply.Reply
 import com.server.ud.provider.job.UDJobProvider
+import com.server.ud.provider.user_activity.UserActivitiesProvider
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -26,10 +32,22 @@ class ReplyProvider {
     private lateinit var udJobProvider: UDJobProvider
 
     @Autowired
-    private lateinit var replyProcessingProvider: ReplyProcessingProvider
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
-    private lateinit var uniqueIdProvider: UniqueIdProvider
+    private lateinit var repliesByCommentProvider: RepliesByCommentProvider
+
+    @Autowired
+    private lateinit var repliesCountByCommentProvider: RepliesCountByCommentProvider
+
+    @Autowired
+    private lateinit var replyForCommentByUserProvider: ReplyForCommentByUserProvider
+
+    @Autowired
+    private lateinit var repliesByCommentRepository: RepliesByCommentRepository
+
+    @Autowired
+    private lateinit var userActivitiesProvider: UserActivitiesProvider
 
     fun getCommentReply(replyId: String): Reply? =
         try {
@@ -57,7 +75,7 @@ class ReplyProvider {
                 media = request.mediaDetails?.convertToString(),
             )
             val savedReply = commentReplyRepository.save(reply)
-            replyProcessingProvider.processReplyNow(savedReply)
+            processReplyNow(savedReply)
             udJobProvider.scheduleProcessingForReply(savedReply.replyId)
             return savedReply
         } catch (e: Exception) {
@@ -70,7 +88,35 @@ class ReplyProvider {
         TODO("Not yet implemented")
     }
 
+    fun processReply(replyId: String) {
+        GlobalScope.launch {
+            logger.info("Start: reply processing for replyId: $replyId")
+            val reply = getCommentReply(replyId) ?: error("Failed to get reply for replyId: $replyId")
+            val replyForCommentByUserFuture = async { replyForCommentByUserProvider.setReplied(reply.commentId, reply.userId) }
+            val userActivityFuture = async {
+                userActivitiesProvider.saveReplyCreationActivity(reply)
+            }
+            replyForCommentByUserFuture.await()
+            userActivityFuture.await()
+            logger.info("Done: reply processing for replyId: $replyId")
+        }
+    }
+
+    fun processReplyNow(reply: Reply) {
+        runBlocking {
+            logger.info("StartNow: reply processing for replyId: ${reply.replyId}")
+            val repliesByCommentFuture = async { repliesByCommentProvider.save(reply) }
+            val repliesCountByCommentFuture = async { repliesCountByCommentProvider.increaseRepliesCount(reply.commentId) }
+            repliesByCommentFuture.await()
+            repliesCountByCommentFuture.await()
+            logger.info("DoneNow: reply processing for replyId: ${reply.replyId}")
+        }
+    }
+
     fun deletePostExpandedData(postId: String) {
-        TODO("Add steps to delete post and related information")
+        GlobalScope.launch {
+            commentReplyRepository.deleteAll(commentReplyRepository.findAllByPostId(postId))
+            repliesByCommentRepository.deleteAll(repliesByCommentRepository.findAllByPostId(postId))
+        }
     }
 }

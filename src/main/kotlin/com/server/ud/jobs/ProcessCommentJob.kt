@@ -1,6 +1,6 @@
 package com.server.ud.jobs
 
-import com.server.ud.provider.comment.CommentProcessingProvider
+import com.server.ud.provider.comment.CommentProvider
 import org.quartz.JobDataMap
 import org.quartz.JobExecutionContext
 import org.slf4j.Logger
@@ -13,7 +13,7 @@ class ProcessCommentJob: QuartzJobBean() {
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     @Autowired
-    private lateinit var commentProcessingProvider: CommentProcessingProvider
+    private lateinit var commentProvider: CommentProvider
 
     override fun executeInternal(context: JobExecutionContext) {
         postProcessComment(context.mergedJobDataMap)
@@ -22,6 +22,6 @@ class ProcessCommentJob: QuartzJobBean() {
     private fun postProcessComment(jobDataMap: JobDataMap) {
         val commentId = jobDataMap.getString("id")
         logger.info("Do comment processing for commentId: $commentId")
-        commentProcessingProvider.processComment(commentId)
+        commentProvider.processComment(commentId)
     }
 }

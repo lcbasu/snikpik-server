@@ -3,7 +3,6 @@ package com.server.ud.service.faker
 import com.server.common.provider.SecurityProvider
 import com.server.ud.dto.FakerRequest
 import com.server.ud.dto.FakerResponse
-import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.faker.FakerProvider
 import com.server.ud.provider.job.UDJobProvider
 import org.springframework.beans.factory.annotation.Autowired

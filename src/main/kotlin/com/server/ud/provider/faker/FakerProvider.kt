@@ -52,7 +52,6 @@ import com.server.ud.provider.post.*
 import com.server.ud.provider.reply.ReplyProvider
 import com.server.ud.provider.social.FollowersByUserProvider
 import com.server.ud.provider.social.FollowingsByUserProvider
-import com.server.ud.provider.social.SocialRelationProcessingProvider
 import com.server.ud.provider.social.SocialRelationProvider
 import com.server.ud.provider.user.UserV2Provider
 import com.server.ud.provider.user.UsersByProfileCategoryProvider
@@ -101,9 +100,6 @@ class FakerProvider {
 
     @Autowired
     private lateinit var socialRelationProvider: SocialRelationProvider
-
-    @Autowired
-    private lateinit var socialRelationProcessingProvider: SocialRelationProcessingProvider
 
     @Autowired
     private lateinit var searchClient: SearchClient
@@ -196,7 +192,7 @@ class FakerProvider {
         result.addAll(socialRelations)
 
         socialRelations.filterNotNull().map {
-            socialRelationProcessingProvider.processSocialRelation(
+            socialRelationProvider.processSocialRelation(
                 fromUserId = it.fromUserId,
                 toUserId = it.toUserId,
             )

@@ -94,7 +94,7 @@ private fun getThumbnailUrl(singleMediaDetail: SingleMediaDetail): String {
             val key = "assets01/userUploads/${userId}/${fileName}_thumbnail.0000000.jpg"
             "${ALL_MEDIA_SOURCE_CLOUDFRONT_URL}/${key}"
         } catch (e: Exception) {
-            e.printStackTrace()
+            //e.printStackTrace()
             ""
         }
     }
