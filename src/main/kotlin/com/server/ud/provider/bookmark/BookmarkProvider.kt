@@ -1,15 +1,12 @@
 package com.server.ud.provider.bookmark
 
 import com.server.common.enums.ReadableIdPrefix
-import com.server.common.provider.RandomIdProvider
+import com.server.common.provider.UniqueIdProvider
 import com.server.ud.dao.bookmark.BookmarkRepository
 import com.server.ud.dto.SaveBookmarkRequest
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.enums.BookmarkUpdateAction
-import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.job.UDJobProvider
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,7 +21,7 @@ class BookmarkProvider {
     private lateinit var bookmarkRepository: BookmarkRepository
 
     @Autowired
-    private lateinit var randomIdProvider: RandomIdProvider
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
     private lateinit var udJobProvider: UDJobProvider
@@ -48,7 +45,7 @@ class BookmarkProvider {
     fun save(userId: String, request: SaveBookmarkRequest) : Bookmark? {
         try {
             val bookmark = Bookmark(
-                bookmarkId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.BMK),
+                bookmarkId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.BMK.name),
                 userId = userId,
                 resourceId = request.resourceId,
                 resourceType = request.resourceType,

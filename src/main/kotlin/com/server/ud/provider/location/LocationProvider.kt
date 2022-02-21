@@ -1,7 +1,7 @@
 package com.server.ud.provider.location
 
 import com.server.common.enums.ReadableIdPrefix
-import com.server.common.provider.RandomIdProvider
+import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.location.LocationRepository
 import com.server.ud.dto.CitiesLocationResponse
@@ -11,7 +11,6 @@ import com.server.ud.dto.toSaveLocationRequest
 import com.server.ud.entities.location.Location
 import com.server.ud.enums.LocationFor
 import com.server.ud.provider.cache.UDCacheProvider
-import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.es.ESProvider
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.utils.UDCommonUtils
@@ -39,7 +38,7 @@ class LocationProvider {
     private lateinit var locationRepository: LocationRepository
 
     @Autowired
-    private lateinit var randomIdProvider: RandomIdProvider
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
     private lateinit var udJobProvider: UDJobProvider
@@ -66,7 +65,7 @@ class LocationProvider {
     fun save(userId: String, request: SaveLocationRequest) : Location? {
         try {
             val location = Location(
-                locationId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.LOC),
+                locationId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.LOC.name),
                 locationFor = request.locationFor,
                 userId = userId,
                 createdAt = DateUtils.getInstantNow(),

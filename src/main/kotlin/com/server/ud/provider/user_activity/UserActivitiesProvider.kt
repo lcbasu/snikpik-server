@@ -1,7 +1,7 @@
 package com.server.ud.provider.user_activity
 
 import com.server.common.enums.ReadableIdPrefix
-import com.server.common.provider.RandomIdProvider
+import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.user_activity.*
 import com.server.ud.dto.ByUserActivitiesFeedRequest
@@ -50,7 +50,7 @@ class UserActivitiesProvider {
     private lateinit var userActivitiesByUserAndAggregateRepository: UserActivitiesByUserAndAggregateRepository
 
     @Autowired
-    private lateinit var randomIdProvider: RandomIdProvider
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
     private lateinit var postProvider: PostProvider
@@ -99,7 +99,7 @@ class UserActivitiesProvider {
         GlobalScope.launch {
             try {
                 asyncSaveUserActivity(UserActivity(
-                    userActivityId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.UAT),
+                    userActivityId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.UAT.name),
                     createdAt = DateUtils.getInstantNow(),
                     userAggregateActivityType = UserAggregateActivityType.MESSAGE_SENT_OR_RECEIVED,
                     userActivityType = UserActivityType.USER_SENT_CHAT_MESSAGE,
@@ -127,7 +127,7 @@ class UserActivitiesProvider {
                 UserActivityType.USER_FOLLOWED,
                 UserActivityType.USER_CLICKED_CONNECT,
                 UserActivityType.USER_PROFILE_SHARED -> UserActivity(
-                    userActivityId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.UAT),
+                    userActivityId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.UAT.name),
                     createdAt = DateUtils.getInstantNow(),
                     userAggregateActivityType = userActivityType.toUserAggregateActivityType(),
                     userActivityType = userActivityType,
@@ -569,7 +569,7 @@ class UserActivitiesProvider {
                 UserActivityType.WALL_LIKED,
                 UserActivityType.WALL_SAVED,
                 UserActivityType.WALL_SHARED -> UserActivity(
-                    userActivityId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.UAT),
+                    userActivityId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.UAT.name),
                     createdAt = DateUtils.getInstantNow(),
                     userAggregateActivityType = userActivityType.toUserAggregateActivityType(),
                     userActivityType = userActivityType,
@@ -598,7 +598,7 @@ class UserActivitiesProvider {
                 UserActivityType.POST_COMMENT_REPLY_LIKED,
                 UserActivityType.REPLIED_TO_WALL_COMMENT,
                 UserActivityType.WALL_COMMENT_REPLY_LIKED -> UserActivity(
-                    userActivityId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.UAT),
+                    userActivityId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.UAT.name),
                     createdAt = DateUtils.getInstantNow(),
                     userAggregateActivityType = userActivityType.toUserAggregateActivityType(),
                     userActivityType = userActivityType,
@@ -638,7 +638,7 @@ class UserActivitiesProvider {
                 UserActivityType.POST_COMMENT_LIKED,
                 UserActivityType.COMMENTED_ON_WALL,
                 UserActivityType.WALL_COMMENT_LIKED -> UserActivity(
-                    userActivityId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.UAT),
+                    userActivityId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.UAT.name),
                     createdAt = DateUtils.getInstantNow(),
                     userAggregateActivityType = userActivityType.toUserAggregateActivityType(),
                     userActivityType = userActivityType,

@@ -1,14 +1,13 @@
 package com.server.ud.provider.like
 
 import com.server.common.enums.ReadableIdPrefix
-import com.server.common.provider.RandomIdProvider
+import com.server.common.provider.UniqueIdProvider
 import com.server.ud.dao.like.LikeRepository
 import com.server.ud.dto.ResourceLikesReportDetail
 import com.server.ud.dto.ResourceLikesReportDetailForUser
 import com.server.ud.dto.SaveLikeRequest
 import com.server.ud.entities.like.Like
 import com.server.ud.enums.LikeUpdateAction
-import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.job.UDJobProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -24,7 +23,7 @@ class LikeProvider {
     private lateinit var likeRepository: LikeRepository
 
     @Autowired
-    private lateinit var randomIdProvider: RandomIdProvider
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
     private lateinit var udJobProvider: UDJobProvider
@@ -59,7 +58,7 @@ class LikeProvider {
             // As like is very high frequency call
             // So checking uniqueness will increase the latency
             val like = Like(
-                likeId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.LIK),
+                likeId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.LIK.name),
                 userId = userId,
                 resourceId = request.resourceId,
                 resourceType = request.resourceType,

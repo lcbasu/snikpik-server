@@ -8,8 +8,8 @@ import com.server.common.model.MediaDetailsV2
 import com.server.common.model.convertToString
 import com.server.common.model.getSanitizedMediaDetails
 import com.server.common.provider.MediaHandlerProvider
-import com.server.common.provider.RandomIdProvider
 import com.server.common.provider.SecurityProvider
+import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostRepository
 import com.server.ud.dto.*
@@ -42,7 +42,6 @@ import org.springframework.data.cassandra.core.query.CassandraPageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 import java.util.regex.Pattern
-import kotlin.random.Random
 
 @Component
 class PostProvider {
@@ -53,7 +52,7 @@ class PostProvider {
     private lateinit var postRepository: PostRepository
 
     @Autowired
-    private lateinit var randomIdProvider: RandomIdProvider
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
     private lateinit var locationProvider: LocationProvider
@@ -116,11 +115,11 @@ class PostProvider {
                 location = locationProvider.getOrSaveRandomLocation(userId = user.userId, locationFor = if (request.postType == PostType.GENERIC_POST) LocationFor.GENERIC_POST else LocationFor.COMMUNITY_WALL_POST)
             }
 
-            var postId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.PST)
+            var postId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.PST.name)
 
             getPost(postId) ?.let {
-                postId += randomIdProvider.getRandomId()
                 logger.error("Post already exists for postId: $postId so generating a new Id: $postId")
+                postId += uniqueIdProvider.getUniqueId(ReadableIdPrefix.PST.name)
             }
 
             val post = Post(

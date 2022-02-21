@@ -2,13 +2,12 @@ package com.server.ud.provider.comment
 
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.convertToString
-import com.server.common.provider.RandomIdProvider
+import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.comment.CommentRepository
 import com.server.ud.dto.SaveCommentRequest
 import com.server.ud.entities.MediaProcessingDetail
 import com.server.ud.entities.comment.Comment
-import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.job.UDJobProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -30,7 +29,7 @@ class CommentProvider {
     private lateinit var commentProcessingProvider: CommentProcessingProvider
 
     @Autowired
-    private lateinit var randomIdProvider: RandomIdProvider
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     fun getComment(commentId: String): Comment? =
         try {
@@ -48,7 +47,7 @@ class CommentProvider {
     fun save(userId: String, request: SaveCommentRequest) : Comment? {
         try {
             val comment = Comment(
-                commentId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.CMT),
+                commentId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.CMT.name),
                 userId = userId,
                 createdAt = DateUtils.getInstantNow(),
                 postType = request.postType,

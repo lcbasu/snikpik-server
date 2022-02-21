@@ -2,13 +2,12 @@ package com.server.ud.provider.reply
 
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.convertToString
-import com.server.common.provider.RandomIdProvider
+import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.reply.CommentReplyRepository
 import com.server.ud.dto.SaveCommentReplyRequest
 import com.server.ud.entities.MediaProcessingDetail
 import com.server.ud.entities.reply.Reply
-import com.server.ud.provider.deferred.DeferredProcessingProvider
 import com.server.ud.provider.job.UDJobProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -30,7 +29,7 @@ class ReplyProvider {
     private lateinit var replyProcessingProvider: ReplyProcessingProvider
 
     @Autowired
-    private lateinit var randomIdProvider: RandomIdProvider
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     fun getCommentReply(replyId: String): Reply? =
         try {
@@ -48,7 +47,7 @@ class ReplyProvider {
     fun save(userId: String, request: SaveCommentReplyRequest) : Reply? {
         try {
             val reply = Reply(
-                replyId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.RPL),
+                replyId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.RPL.name),
                 commentId = request.commentId,
                 userId = userId,
                 createdAt = DateUtils.getInstantNow(),

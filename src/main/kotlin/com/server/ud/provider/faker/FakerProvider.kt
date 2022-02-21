@@ -12,8 +12,8 @@ import com.server.common.model.SingleMediaDetail
 import com.server.common.model.convertToString
 import com.server.common.model.sampleMedia
 import com.server.common.provider.CassandraTableModificationProvider
-import com.server.common.provider.RandomIdProvider
 import com.server.common.provider.SecurityProvider
+import com.server.common.provider.UniqueIdProvider
 import com.server.common.provider.communication.CommunicationProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.bookmark.BookmarkRepository
@@ -62,7 +62,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import redis.clients.jedis.JedisPool
 import kotlin.random.Random
 
 @Component
@@ -83,7 +82,7 @@ class FakerProvider {
     private lateinit var userV2Provider: UserV2Provider
 
     @Autowired
-    private lateinit var randomIdProvider: RandomIdProvider
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
     private lateinit var postProvider: PostProvider
@@ -142,7 +141,7 @@ class FakerProvider {
         for (i in 1..usersToCreate) {
             val profiles = ProfileType.values().toList().shuffled().take(Random.nextInt(1, ProfileType.values().size))
             val location = userLocations.shuffled().first()
-            val id = randomIdProvider.getRandomIdFor(ReadableIdPrefix.FKE)
+            val id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.FKE.name)
             val userV2 = userV2Provider.saveUserV2(UserV2 (
                 userId = "${ReadableIdPrefix.USR}$id",
                 createdAt = DateUtils.getInstantNow(),

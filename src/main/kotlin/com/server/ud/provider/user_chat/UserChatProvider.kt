@@ -1,12 +1,9 @@
 package com.server.ud.provider.user_chat
 
-import com.google.api.core.ApiFuture
-import com.google.cloud.firestore.Firestore
-import com.google.cloud.firestore.WriteResult
 import com.google.firebase.cloud.FirestoreClient
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.convertToString
-import com.server.common.provider.RandomIdProvider
+import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.CommonUtils
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.user_chat.*
@@ -56,7 +53,7 @@ class UserChatProvider {
     private lateinit var paginationRequestUtil: PaginationRequestUtil
 
     @Autowired
-    private lateinit var randomIdProvider: RandomIdProvider
+    private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
     private lateinit var userActivitiesProvider: UserActivitiesProvider
@@ -108,7 +105,7 @@ class UserChatProvider {
             userChatIdResponse.userId1
         }
         val chatMessage = userChatMessageRepository.save(UserChatMessage(
-            messageId = randomIdProvider.getRandomIdFor(ReadableIdPrefix.UCT),
+            messageId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.UCT.name),
             createdAt = DateUtils.getInstantNow(),
             chatId = request.chatId,
             senderUserId = loggedInUserId,
