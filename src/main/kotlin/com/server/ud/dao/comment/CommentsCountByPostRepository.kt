@@ -13,4 +13,6 @@ interface CommentsCountByPostRepository : CassandraRepository<CommentsCountByPos
 
     @Query("UPDATE comments_count_by_post SET comments_count = comments_count + 1 WHERE post_id = ?0")
     fun incrementCommentCount(postId: String)
+
+    fun deleteAllByPostId(postId: String)
 }

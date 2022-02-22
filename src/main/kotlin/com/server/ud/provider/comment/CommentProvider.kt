@@ -129,11 +129,27 @@ class CommentProvider {
 
     fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
-            commentRepository.deleteAll(commentRepository.findAllByPostId(postId))
-            commentForPostByUserRepository.deleteAll(commentForPostByUserRepository.findAllByPostId(postId))
-            commentsByPostRepository.deleteAll(commentsByPostRepository.findAllByPostId_V2(postId))
-            commentsByUserRepository.deleteAll(commentsByUserRepository.findAllByPostId(postId))
-            commentsCountByPostRepository.deleteAll(commentsCountByPostRepository.findAllByPostId(postId))
+            val commentsByPost = commentsByPostRepository.findAllByPostId_V2(postId)
+            val commentIds = commentsByPost.map { it.commentId }.toSet()
+            val userIds = commentsByPost.map { it.userId }.toSet()
+            userIds.map {
+                async {
+                    // TODO: Optimize this as there could be millions of comments
+                    val allCommentsOfThisUserForAnyPost =  commentsByUserProvider.getAllComments(it)
+                    val allCommentsOfThisUserForTHISPost =  allCommentsOfThisUserForAnyPost.filter { it.postId == postId }
+                    commentsByUserRepository.deleteAll(allCommentsOfThisUserForTHISPost)
+                    commentForPostByUserRepository.deleteAllByPostIdAndUserId(postId, it)
+                }
+            }.map { it.await() }
+
+            commentIds.map {
+                async {
+                    commentRepository.deleteByCommentId(it)
+                }
+            }.map { it.await() }
+
+            commentsCountByPostRepository.deleteAllByPostId(postId)
+            commentsByPostRepository.deleteAllByPostId(postId)
         }
     }
 

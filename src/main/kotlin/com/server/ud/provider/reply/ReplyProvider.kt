@@ -9,8 +9,11 @@ import com.server.ud.dao.reply.RepliesByCommentRepository
 import com.server.ud.dto.SaveCommentReplyRequest
 import com.server.ud.entities.MediaProcessingDetail
 import com.server.ud.entities.reply.Reply
+import com.server.ud.enums.PostTrackerType
 import com.server.ud.provider.job.UDJobProvider
+import com.server.ud.provider.post.PostProvider
 import com.server.ud.provider.user_activity.UserActivitiesProvider
+import com.server.ud.utils.PostTrackerKeyBuilder
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -49,6 +52,9 @@ class ReplyProvider {
     @Autowired
     private lateinit var userActivitiesProvider: UserActivitiesProvider
 
+    @Autowired
+    private lateinit var postProvider: PostProvider
+
     fun getCommentReply(replyId: String): Reply? =
         try {
             val replies = commentReplyRepository.findAllByReplyId(replyId)
@@ -75,6 +81,7 @@ class ReplyProvider {
                 media = request.mediaDetails?.convertToString(),
             )
             val savedReply = commentReplyRepository.save(reply)
+            postProvider.trackPost(request.postId, PostTrackerType.POST_COMMENT_REPLY, PostTrackerKeyBuilder.getPostTrackerKeyForReply(savedReply))
             processReplyNow(savedReply)
             udJobProvider.scheduleProcessingForReply(savedReply.replyId)
             return savedReply

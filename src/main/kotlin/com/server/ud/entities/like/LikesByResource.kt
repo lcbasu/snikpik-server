@@ -4,6 +4,7 @@ import com.server.common.utils.DateUtils
 import com.server.ud.enums.ResourceType
 import org.springframework.data.cassandra.core.cql.Ordering
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
+import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn
 import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
@@ -26,6 +27,9 @@ class LikesByResource (
 
     @PrimaryKeyColumn(name = "user_id", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
     var userId: String? = null,
+
+    @Column("like_id")
+    var likeId: String? = null, // TODO: Remove this null check once processAllLikes() is called
 
     // True or false based on like or unlike(remove like after liking)
     var liked: Boolean,

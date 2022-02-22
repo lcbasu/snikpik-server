@@ -73,4 +73,10 @@ class BookmarksCountByUserProvider {
         }
     }
 
+    fun deletePostExpandedData(postId: String) {
+        GlobalScope.launch {
+
+        }
+    }
+
 }

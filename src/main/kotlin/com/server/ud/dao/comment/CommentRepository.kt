@@ -12,4 +12,6 @@ interface CommentRepository : CassandraRepository<Comment?, String?> {
 
     @AllowFiltering
     fun findAllByPostId(postId: String): List<Comment>
+
+    fun deleteByCommentId(commentId: String)
 }

@@ -38,4 +38,10 @@ class BookmarksByResourceProvider {
             return null
         }
     }
+
+    fun deletePostExpandedData(postId: String) {
+        GlobalScope.launch {
+
+        }
+    }
 }

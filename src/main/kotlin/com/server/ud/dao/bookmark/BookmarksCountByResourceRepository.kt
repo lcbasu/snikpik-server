@@ -18,4 +18,6 @@ interface BookmarksCountByResourceRepository : CassandraRepository<BookmarksCoun
 
     @Query("UPDATE bookmarks_count_by_resource SET bookmarks_count = bookmarks_count - 1 WHERE resource_id = ?0")
     fun decrementBookmarkCount(resourceId: String)
+
+    fun deleteAllByResourceId(resourceId: String)
 }

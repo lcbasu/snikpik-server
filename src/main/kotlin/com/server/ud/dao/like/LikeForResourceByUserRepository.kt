@@ -13,4 +13,6 @@ interface LikeForResourceByUserRepository : CassandraRepository<LikeForResourceB
 
     @AllowFiltering
     fun findAllByResourceId(resourceId: String): List<LikeForResourceByUser>
+
+    fun deleteAllByResourceIdAndUserId(resourceId: String, userId: String)
 }

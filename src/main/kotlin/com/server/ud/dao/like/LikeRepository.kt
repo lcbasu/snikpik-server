@@ -14,6 +14,8 @@ interface LikeRepository : CassandraRepository<Like?, String?> {
     @AllowFiltering
     fun findAllByResourceId(resourceId: String): List<Like>
 
+    fun deleteByLikeId(likeId: String)
+
 
 //    @AllowFiltering
 //    @Query("SELECT * FROM likes")

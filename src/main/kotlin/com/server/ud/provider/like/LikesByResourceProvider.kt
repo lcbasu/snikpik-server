@@ -24,6 +24,7 @@ class LikesByResourceProvider {
                 resourceType = like.resourceType,
                 createdAt = like.createdAt,
                 userId = like.userId,
+                likeId = like.likeId,
                 liked = like.liked,
             )
             val savedLikesByResource = likesByResourceRepository.save(likesByResource)

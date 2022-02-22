@@ -12,4 +12,6 @@ interface CommentForPostByUserRepository : CassandraRepository<CommentForPostByU
 
     @AllowFiltering
     fun findAllByPostId(postId: String): List<CommentForPostByUser>
+
+    fun deleteAllByPostIdAndUserId(postId: String, userId: String)
 }

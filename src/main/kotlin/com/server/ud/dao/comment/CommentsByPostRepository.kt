@@ -12,7 +12,8 @@ import org.springframework.stereotype.Repository
 interface CommentsByPostRepository : CassandraRepository<CommentsByPost?, String?> {
     fun findAllByPostId(postId: String, pageable: Pageable): Slice<CommentsByPost>
 
-    @AllowFiltering
     @Query("select * from comments_by_post where post_id = ?0")
     fun findAllByPostId_V2(postId: String): List<CommentsByPost>
+
+    fun deleteAllByPostId(postId: String)
 }

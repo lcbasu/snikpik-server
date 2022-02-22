@@ -12,6 +12,7 @@ import com.server.common.provider.SecurityProvider
 import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostRepository
+import com.server.ud.dao.post.TrackingByPostRepository
 import com.server.ud.dto.*
 import com.server.ud.entities.MediaProcessingDetail
 import com.server.ud.entities.location.Location
@@ -19,10 +20,7 @@ import com.server.ud.entities.post.*
 import com.server.ud.entities.user.getProfiles
 import com.server.ud.entities.user.getSaveLocationRequestFromCurrentLocation
 import com.server.ud.entities.user.getSaveLocationRequestFromPermanentLocation
-import com.server.ud.enums.CategoryV2
-import com.server.ud.enums.LocationFor
-import com.server.ud.enums.PostType
-import com.server.ud.enums.ResourceType
+import com.server.ud.enums.*
 import com.server.ud.model.AllHashTags
 import com.server.ud.model.MediaInputDetail
 import com.server.ud.model.convertToString
@@ -139,6 +137,8 @@ class PostProvider {
     @Autowired
     private lateinit var zipcodeByPostProvider: ZipcodeByPostProvider
 
+    @Autowired
+    private lateinit var trackingByPostRepository: TrackingByPostRepository
 
     fun getPost(postId: String): Post? =
         try {
@@ -259,40 +259,6 @@ class PostProvider {
         }
     }
 
-    private fun handlePostSaved(savedPost: Post) {
-        val videoMedia = savedPost.getMediaDetails()?.media?.filter { it.mediaType == MediaType.VIDEO } ?: emptyList()
-        // Only one video has to be present for processing
-        // Otherwise the flow breaks for now
-        // Figure out a better way in future
-        if (videoMedia.size == 1) {
-            try {
-                // Do media processing
-                // CRITICAL:
-                // Assumption 1: Right now we are assuming only one VIDEO asset being uploaded
-                // Assumption 2: Media files are always with USERID/USERID_-_RANDOMID.EXTENSION -> File Unique ID: USERID/RANDOMID
-
-                // Ideally there should be only one video
-                val mediaAsset = videoMedia.first()
-                val fileInfo = mediaHandlerProvider.getFileInfoFromFilePath(mediaAsset.mediaUrl)
-                mediaHandlerProvider.saveOrUpdateMediaDetailsAfterSavingResource(
-                    MediaInputDetail(
-                        fileUniqueId = fileInfo.fileUniqueId,
-                        forUser = fileInfo.userId,
-                        inputFilePath = mediaAsset.mediaUrl,
-                        resourceType = ResourceType.POST,
-                        resourceId = savedPost.postId,
-                    )
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
-                // Fallback to normal processing
-                udJobProvider.scheduleProcessingForPost(savedPost.postId)
-            }
-        } else {
-            udJobProvider.scheduleProcessingForPost(savedPost.postId)
-        }
-    }
-
     // Right now only for video
     fun handleProcessedMedia(updatedMediaDetail: MediaProcessingDetail) {
         val post = getPost(updatedMediaDetail.resourceId ?: error("Missing resource Id for file: ${updatedMediaDetail.fileUniqueId}")) ?: error("No post found for ${updatedMediaDetail.resourceId} while doing post processing.")
@@ -349,10 +315,6 @@ class PostProvider {
         GlobalScope.launch {
 
         }
-    }
-
-    private fun deleteSinglePost(post: Post) {
-        postRepository.deleteAll(postRepository.findAllByPostId(post.postId))
     }
 
     fun deletePostFromExplore(postId: String) {
@@ -635,5 +597,67 @@ class PostProvider {
     fun deletePostFromExplore(post: Post) {
         postsByCategoryProvider.deletePostExpandedData(post)
     }
+
+    fun trackPost(postId: String, postTrackerType: PostTrackerType, trackingId: String) {
+        GlobalScope.launch {
+//            when (postTrackerType) {
+//                PostTrackerType.POST_COMMENT_REPLY -> TODO()
+//                PostTrackerType.POST_COMMENT -> TODO()
+//                PostTrackerType.POST_BOOKMARK -> TODO()
+//                PostTrackerType.POST_LIKE -> TODO()
+//                PostTrackerType.POST_ZIPCODE -> TODO()
+//                PostTrackerType.POST_CATEGORY -> TODO()
+//                PostTrackerType.POST_USER_FOLLOWER -> TODO()
+//                PostTrackerType.POST_USER_FOLLOWING -> TODO()
+//                PostTrackerType.POST_HASH_TAG -> TODO()
+//            }
+
+            val savedTracking = trackingByPostRepository.save(TrackingByPost(
+                postId = postId,
+                trackingId = trackingId,
+                postTrackerType = postTrackerType,
+            ))
+            logger.info("Saved tracking: ${savedTracking.postId} ${savedTracking.postTrackerType} ${savedTracking.trackingId}")
+        }
+    }
+
+    private fun handlePostSaved(savedPost: Post) {
+        val videoMedia = savedPost.getMediaDetails()?.media?.filter { it.mediaType == MediaType.VIDEO } ?: emptyList()
+        // Only one video has to be present for processing
+        // Otherwise the flow breaks for now
+        // Figure out a better way in future
+        if (videoMedia.size == 1) {
+            try {
+                // Do media processing
+                // CRITICAL:
+                // Assumption 1: Right now we are assuming only one VIDEO asset being uploaded
+                // Assumption 2: Media files are always with USERID/USERID_-_RANDOMID.EXTENSION -> File Unique ID: USERID/RANDOMID
+
+                // Ideally there should be only one video
+                val mediaAsset = videoMedia.first()
+                val fileInfo = mediaHandlerProvider.getFileInfoFromFilePath(mediaAsset.mediaUrl)
+                mediaHandlerProvider.saveOrUpdateMediaDetailsAfterSavingResource(
+                    MediaInputDetail(
+                        fileUniqueId = fileInfo.fileUniqueId,
+                        forUser = fileInfo.userId,
+                        inputFilePath = mediaAsset.mediaUrl,
+                        resourceType = ResourceType.POST,
+                        resourceId = savedPost.postId,
+                    )
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // Fallback to normal processing
+                udJobProvider.scheduleProcessingForPost(savedPost.postId)
+            }
+        } else {
+            udJobProvider.scheduleProcessingForPost(savedPost.postId)
+        }
+    }
+
+    private fun deleteSinglePost(post: Post) {
+        postRepository.deleteAll(postRepository.findAllByPostId(post.postId))
+    }
+
 
 }

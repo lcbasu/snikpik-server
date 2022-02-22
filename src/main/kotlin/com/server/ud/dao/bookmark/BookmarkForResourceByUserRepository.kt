@@ -12,4 +12,6 @@ interface BookmarkForResourceByUserRepository : CassandraRepository<BookmarkForR
 
     @AllowFiltering
     fun findAllByResourceId(resourceId: String): List<BookmarkForResourceByUser>
+
+    fun deleteAllByResourceIdAndUserId(resourceId: String, userId: String)
 }

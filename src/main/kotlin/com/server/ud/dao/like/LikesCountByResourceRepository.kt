@@ -19,4 +19,6 @@ interface LikesCountByResourceRepository : CassandraRepository<LikesCountByResou
 
     @Query("UPDATE likes_count_by_resource SET likes_count = likes_count - 1 WHERE resource_id = ?0")
     fun decrementLikes(resourceId: String)
+
+    fun deleteAllByResourceId(resourceId: String)
 }

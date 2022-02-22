@@ -148,23 +148,38 @@ class BookmarkProvider {
 
     fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
-            val allUsersBookmarks = bookmarksByUserRepository.findAllByResourceId(postId)
-            val bookmarksGroupedByUser = allUsersBookmarks.groupBy { it.userId }
-            bookmarksGroupedByUser.map {
-                val userId = it.key
-                val userBookmarks = it.value
-                val bookmarkedRows = userBookmarks.filter { it.bookmarked }
-                val unBookmarkedRows = userBookmarks.filter { !it.bookmarked }
-                // Decrease like only if the post has been bookmarked in the end
-                if (bookmarkedRows.size > unBookmarkedRows.size) {
-                    bookmarksCountByUserRepository.decrementBookmarkCount(userId)
-                }
+            val bookmarksByResource = bookmarksByResourceRepository.findAllByResourceId(postId)
+            val userIds = bookmarksByResource.map { it.userId }.toSet()
+            val bookmarkIds = bookmarksByResource.map { it.bookmarkId }.toSet()
+            bookmarkIds.map {
+                async { bookmarkRepository.deleteByBookmarkId(it) }
+            }.map {
+                it.await()
             }
-            bookmarksForResourceByUserRepository.deleteAll(bookmarksForResourceByUserRepository.findAllByResourceId(postId))
-            bookmarkRepository.deleteAll(bookmarkRepository.findAllByResourceId(postId))
-            bookmarksByResourceRepository.deleteAll(bookmarksByResourceRepository.findAllByResourceId(postId))
-            bookmarksCountByResourceRepository.deleteAll(bookmarksCountByResourceRepository.findAllByResourceId(postId))
-            bookmarksByUserRepository.deleteAll(allUsersBookmarks)
+
+            userIds.map {
+                async {
+                    val bookmarked = bookmarkForResourceByUserProvider.getBookmarkForResourceByUser(
+                        resourceId = postId,
+                        userId = it
+                    )?.bookmarked ?: false
+
+                    if (bookmarked) {
+                        bookmarksCountByUserRepository.decrementBookmarkCount(it)
+                    }
+                    bookmarksForResourceByUserRepository.deleteAllByResourceIdAndUserId(postId, it)
+
+                    // TODO: Optimize this
+                    val allBookmarksByThisUserForAllPosts = bookmarksByUserRepository.findAllByUserId(it)
+                    val allBookmarksByThisUserForTHISPosts = allBookmarksByThisUserForAllPosts.filter { it.resourceId == postId }
+                    bookmarksByUserRepository.deleteAll(allBookmarksByThisUserForTHISPosts)
+                }
+            }.map {
+                it.await()
+            }
+
+            bookmarksByResourceRepository.deleteAllByResourceId(postId)
+            bookmarksCountByResourceRepository.deleteAllByResourceId(postId)
         }
     }
 

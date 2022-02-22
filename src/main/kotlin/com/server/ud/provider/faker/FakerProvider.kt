@@ -416,10 +416,18 @@ class FakerProvider {
 
     fun doSomething(): Any {
 
-        val data = integrationProvider.getIntegrationAccountInfoByUserId("USREg7UVXtfVeZ4aFQSBwKmvuFa46A3", IntegrationPlatform.INSTAGRAM, "17841412235410524") ?: error("No data")
+//        bookmarkProvider.deletePostExpandedData("PSTf2dd423b-3e15-461e-b92f-3c0d485af7dc")
+//        commentProvider.deletePostExpandedData("PST5e15e8f0-a3e3-46b8-8658-4c140c1dc65b")
 
+        cassandraTableModificationProvider.addNewColumns()
+        likeProvider.processAllLikes();
 
-        integrationProvider.scheduleJobs(data)
+//        likeProvider.deletePostExpandedData("PST79e7bb68-e612-416e-aff2-ef120b42fd4c")
+
+//        val data = integrationProvider.getIntegrationAccountInfoByUserId("USREg7UVXtfVeZ4aFQSBwKmvuFa46A3", IntegrationPlatform.INSTAGRAM, "17841412235410524") ?: error("No data")
+//
+//
+//        integrationProvider.scheduleJobs(data)
 
 
 

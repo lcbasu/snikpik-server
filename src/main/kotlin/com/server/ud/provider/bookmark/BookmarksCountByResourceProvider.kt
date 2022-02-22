@@ -70,4 +70,11 @@ class BookmarksCountByResourceProvider {
             saveBookmarksCountByResourceToFirestore(it)
         }
     }
+
+
+    fun deletePostExpandedData(postId: String) {
+        GlobalScope.launch {
+
+        }
+    }
 }

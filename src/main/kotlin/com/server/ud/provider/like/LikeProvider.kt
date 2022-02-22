@@ -8,6 +8,7 @@ import com.server.ud.dto.ResourceLikesReportDetailForUser
 import com.server.ud.dto.SaveLikeRequest
 import com.server.ud.entities.like.Like
 import com.server.ud.enums.LikeUpdateAction
+import com.server.ud.enums.ResourceType
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.post.LikedPostsByUserProvider
 import com.server.ud.provider.user_activity.UserActivitiesProvider
@@ -144,6 +145,17 @@ class LikeProvider {
         }
     }
 
+    fun processAllLikes() {
+        GlobalScope.launch {
+            logger.info("Start processAllLikes")
+            val likes = likeRepository.findAll()
+            likes.filterNotNull().forEach {
+                likesByResourceProvider.save(it)
+            }
+            logger.info("Done processAllLikes")
+        }
+    }
+
     fun thingsToDoForLikeProcessingNow(like: Like) {
         runBlocking {
             logger.info("Now:Start: like processing for likeId: ${like.likeId}")
@@ -169,25 +181,38 @@ class LikeProvider {
 
     fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
-            likeForResourceByUserRepository.deleteAll(likeForResourceByUserRepository.findAllByResourceId(postId))
-            likeRepository.deleteAll(likeRepository.findAllByResourceId(postId))
-            likesByResourceRepository.deleteAll(likesByResourceRepository.findAllByResourceId(postId))
-            likesCountByResourceRepository.deleteAll(likesCountByResourceRepository.findAllByResourceId(postId))
-
-            val allUserLikes = likesByUserRepository.findAllByResourceId(postId)
-            val likedGroupedByUser = allUserLikes.groupBy { it.userId }
-            likedGroupedByUser.map {
-                val userId = it.key
-                val userLikes = it.value
-                val likedRows = userLikes.filter { it.liked }
-                val unLikedRows = userLikes.filter { !it.liked }
-                // Decrease like only if the post has been liked in the end
-                if (likedRows.size > unLikedRows.size) {
-                    likesCountByUserRepository.decrementLikes(userId)
-                }
+            val likesByResource = likesByResourceRepository.findAllByResourceId(postId)
+            val firstValue = likesByResource.firstOrNull()
+            val userIds = likesByResource.map { it.userId }.toSet()
+            val likeIds = likesByResource.mapNotNull { it.likeId }.toSet()
+            likeIds.map {
+                async { likeRepository.deleteByLikeId(it) }
+            }.map {
+                it.await()
             }
+            userIds.filterNotNull().map {
+                async {
+                    val liked = likeForResourceByUserProvider.getLikeForResourceByUser(
+                        resourceId = postId,
+                        userId = it
+                    )?.liked ?: false
 
-            likesByUserRepository.deleteAll(allUserLikes)
+                    if (liked) {
+                        likesCountByUserRepository.decrementLikes(it)
+                    }
+                    likeForResourceByUserRepository.deleteAllByResourceIdAndUserId(postId, it)
+
+                    // TODO: Optimize this
+                    val allUserLikes = likesByUserRepository.findAllByResourceId(postId)
+                    likesByUserRepository.deleteAll(allUserLikes)
+                }
+            }.map {
+                it.await()
+            }
+            likesCountByResourceRepository.deleteAllByResourceId(postId)
+            firstValue?.let {
+                likesByResourceRepository.deleteAllByResourceIdAndResourceType(postId, it.resourceType)
+            }
         }
     }
 }
