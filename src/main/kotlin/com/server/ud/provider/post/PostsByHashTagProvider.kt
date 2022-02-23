@@ -57,7 +57,10 @@ class PostsByHashTagProvider {
 
     fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
-            postsByHashTagRepository.deleteAll(postsByHashTagRepository.findAllByPostId(postId))
+            val all = postsByHashTagRepository.findAllByPostId(postId)
+            all.chunked(5).forEach {
+                postsByHashTagRepository.deleteAll(it)
+            }
         }
     }
 

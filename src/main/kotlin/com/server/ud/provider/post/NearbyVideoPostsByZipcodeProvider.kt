@@ -29,7 +29,7 @@ class NearbyVideoPostsByZipcodeProvider {
     private lateinit var nearbyVideoPostsByZipcodeRepository: NearbyVideoPostsByZipcodeRepository
 
     @Autowired
-    private lateinit var zipcodeByPostProvider: ZipcodeByPostProvider
+    private lateinit var nearbyZipcodesByZipcodeProvider: NearbyZipcodesByZipcodeProvider
 
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
@@ -117,16 +117,21 @@ class NearbyVideoPostsByZipcodeProvider {
 
     fun deletePostExpandedData(post: Post) {
         GlobalScope.launch {
-            val zipcodesByPost = zipcodeByPostProvider.getZipcodesByPost(post.postId)
+            val zipcode = post.zipcode
+            if (zipcode == null) {
+                logger.error("Post does not have location zipcode. Hence unable to delete from NearbyPostsByZipcode for postId: ${post.postId}.")
+                return@launch
+            }
+            // Doing this as the post might have been reprocessed for newer locations multiple times
+            val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(zipcode)
             val posts = mutableListOf<NearbyVideoPostsByZipcode>()
             val postType = post.postType
             val createdAt = post.createdAt
             val postId = post.postId
-            zipcodesByPost.map {
-                val zipcode = it.zipcode
+            nearbyZipcodes.map {
                 posts.addAll(
                     nearbyVideoPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndCreatedAtAndPostId(
-                        zipcode,
+                        it.zipcode,
                         postType,
                         createdAt,
                         postId

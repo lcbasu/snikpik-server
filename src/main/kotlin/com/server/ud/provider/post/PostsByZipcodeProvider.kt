@@ -60,7 +60,10 @@ class PostsByZipcodeProvider {
 
     fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
-            postsByZipcodeRepository.deleteAll(postsByZipcodeRepository.findAllByPostId(postId))
+            val all = postsByZipcodeRepository.findAllByPostId(postId)
+            all.chunked(5).forEach {
+                postsByZipcodeRepository.deleteAll(it)
+            }
         }
     }
 

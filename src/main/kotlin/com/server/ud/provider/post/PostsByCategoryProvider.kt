@@ -134,7 +134,9 @@ class PostsByCategoryProvider {
                 val postId = post.postId
                 posts.addAll(postsByCategoryRepository.findAllByCategoryIdAndPostTypeAndCreatedAtAndPostId(categoryV2, postType, createdAt, postId))
             }
-            postsByCategoryRepository.deleteAll(posts)
+            posts.chunked(5).forEach {
+                postsByCategoryRepository.deleteAll(it)
+            }
         }
     }
 

@@ -91,7 +91,10 @@ class PostsByUserProvider {
 
     fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
-            postsByUserRepository.deleteAll(postsByUserRepository.findAllByPostId(postId))
+            val all = postsByUserRepository.findAllByPostId(postId)
+            all.chunked(5).forEach {
+                postsByUserRepository.deleteAll(it)
+            }
         }
     }
 

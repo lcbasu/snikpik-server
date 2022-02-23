@@ -100,7 +100,10 @@ class BookmarkedPostsByUserProvider {
 
     fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
-            bookmarkedPostsByUserRepository.deleteAll(bookmarkedPostsByUserRepository.findAllByPostId(postId))
+            val all = bookmarkedPostsByUserRepository.findAllByPostId(postId)
+            all.chunked(5).forEach {
+                bookmarkedPostsByUserRepository.deleteAll(it)
+            }
         }
     }
 

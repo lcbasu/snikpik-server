@@ -20,6 +20,7 @@ import com.server.ud.dao.bookmark.BookmarkRepository
 import com.server.ud.dao.like.LikeRepository
 import com.server.ud.dao.location.LocationRepository
 import com.server.ud.dao.post.PostRepository
+import com.server.ud.dao.reply.CommentReplyRepository
 import com.server.ud.dao.social.SocialRelationRepository
 import com.server.ud.dao.user.UserV2Repository
 import com.server.ud.dto.*
@@ -49,6 +50,7 @@ import com.server.ud.provider.one_off.OneOffIndexUsersToAlgolia
 import com.server.ud.provider.one_off.OneOffSaveChatsV2ToFirestore
 import com.server.ud.provider.one_off.OneOffSaveDataToFirestore
 import com.server.ud.provider.post.*
+import com.server.ud.provider.reply.RepliesByPostProvider
 import com.server.ud.provider.reply.ReplyProvider
 import com.server.ud.provider.social.FollowersByUserProvider
 import com.server.ud.provider.social.FollowingsByUserProvider
@@ -414,13 +416,25 @@ class FakerProvider {
     @Autowired
     private lateinit var integrationProvider: IntegrationProvider
 
+    @Autowired
+    private lateinit var commentReplyRepository: CommentReplyRepository
+
+    @Autowired
+    private lateinit var repliesByPostProvider: RepliesByPostProvider
+
     fun doSomething(): Any {
 
 //        bookmarkProvider.deletePostExpandedData("PSTf2dd423b-3e15-461e-b92f-3c0d485af7dc")
 //        commentProvider.deletePostExpandedData("PST5e15e8f0-a3e3-46b8-8658-4c140c1dc65b")
 
-        cassandraTableModificationProvider.addNewColumns()
-        likeProvider.processAllLikes();
+//        cassandraTableModificationProvider.addNewColumns()
+//        likeProvider.processAllLikes();
+
+        commentReplyRepository.findAll().filterNotNull().map {
+            repliesByPostProvider.save(it)
+        }
+
+//        replyProvider.deletePostExpandedData("PSTee53124b-314f-4e19-9fb8-2e3b3322e7e2")
 
 //        likeProvider.deletePostExpandedData("PST79e7bb68-e612-416e-aff2-ef120b42fd4c")
 

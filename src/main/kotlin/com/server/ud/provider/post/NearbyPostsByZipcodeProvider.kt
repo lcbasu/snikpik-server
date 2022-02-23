@@ -1,13 +1,11 @@
 package com.server.ud.provider.post
 
-import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.NearbyPostsByZipcodeRepository
 import com.server.ud.dto.CommunityWallFeedRequest
 import com.server.ud.dto.NearbyFeedRequest
 import com.server.ud.entities.location.NearbyZipcodesByZipcode
 import com.server.ud.entities.post.NearbyPostsByZipcode
 import com.server.ud.entities.post.Post
-import com.server.ud.entities.post.toNearbyVideoPostsByZipcode
 import com.server.ud.enums.PostType
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
@@ -32,7 +30,7 @@ class NearbyPostsByZipcodeProvider {
     private lateinit var paginationRequestUtil: PaginationRequestUtil
 
     @Autowired
-    private lateinit var zipcodeByPostProvider: ZipcodeByPostProvider
+    private lateinit var nearbyZipcodesByZipcodeProvider: NearbyZipcodesByZipcodeProvider
 
     fun save(nearbyPosts: List<NearbyPostsByZipcode>, forNearbyZipcode: String): List<NearbyPostsByZipcode> {
         try {
@@ -119,18 +117,23 @@ class NearbyPostsByZipcodeProvider {
 
     fun deletePostExpandedData(post: Post) {
         GlobalScope.launch {
+            val zipcode = post.zipcode
+            if (zipcode == null) {
+                logger.error("Post does not have location zipcode. Hence unable to delete from NearbyPostsByZipcode for postId: ${post.postId}.")
+                return@launch
+            }
 
-            val zipcodesByPost = zipcodeByPostProvider.getZipcodesByPost(post.postId)
+            // Doing this as the post might have been reprocessed for newer locations multiple times
+            val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(zipcode)
 
             val posts = mutableListOf<NearbyPostsByZipcode>()
             val postType = post.postType
             val createdAt = post.createdAt
             val postId = post.postId
-            zipcodesByPost.map {
-                val zipcode = it.zipcode
+            nearbyZipcodes.map {
                 posts.addAll(
                     nearbyPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndCreatedAtAndPostId(
-                        zipcode,
+                        it.zipcode,
                         postType,
                         createdAt,
                         postId

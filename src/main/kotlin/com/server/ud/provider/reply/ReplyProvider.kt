@@ -4,10 +4,10 @@ import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.convertToString
 import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.DateUtils
-import com.server.ud.dao.reply.CommentReplyRepository
-import com.server.ud.dao.reply.RepliesByCommentRepository
+import com.server.ud.dao.reply.*
 import com.server.ud.dto.SaveCommentReplyRequest
 import com.server.ud.entities.MediaProcessingDetail
+import com.server.ud.entities.reply.RepliesByComment
 import com.server.ud.entities.reply.Reply
 import com.server.ud.enums.PostTrackerType
 import com.server.ud.provider.job.UDJobProvider
@@ -54,6 +54,18 @@ class ReplyProvider {
 
     @Autowired
     private lateinit var postProvider: PostProvider
+
+    @Autowired
+    private lateinit var repliesByPostProvider: RepliesByPostProvider
+
+    @Autowired
+    private lateinit var repliesByPostRepository: RepliesByPostRepository
+
+    @Autowired
+    private lateinit var repliesCountByCommentRepository: RepliesCountByCommentRepository
+
+    @Autowired
+    private lateinit var replyForCommentByUserRepository: ReplyForCommentByUserRepository
 
     fun getCommentReply(replyId: String): Reply? =
         try {
@@ -103,8 +115,10 @@ class ReplyProvider {
             val userActivityFuture = async {
                 userActivitiesProvider.saveReplyCreationActivity(reply)
             }
+            val repliesByPostFuture = async { repliesByPostProvider.save(reply) }
             replyForCommentByUserFuture.await()
             userActivityFuture.await()
+            repliesByPostFuture.await()
             logger.info("Done: reply processing for replyId: $replyId")
         }
     }
@@ -122,8 +136,19 @@ class ReplyProvider {
 
     fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
-            commentReplyRepository.deleteAll(commentReplyRepository.findAllByPostId(postId))
-            repliesByCommentRepository.deleteAll(repliesByCommentRepository.findAllByPostId(postId))
+            val repliesByPost = repliesByPostProvider.getReplies(postId)
+            val replyIds = repliesByPost.map { it.replyId }
+            repliesByPost.map {
+                val all = repliesByCommentRepository.findAllByCommentId_V2(it.commentId)
+                val valid = all.filter { replyIds.contains(it.replyId) }
+                repliesByCommentRepository.deleteAll(valid)
+                repliesCountByCommentRepository.deleteByCommentId(it.commentId)
+                replyForCommentByUserRepository.deleteByCommentIdAndUserId(it.commentId, it.userId)
+            }
+            replyIds.map {
+                commentReplyRepository.deleteByReplyId(it)
+            }
+            repliesByPostRepository.deleteAll(repliesByPost)
         }
     }
 }

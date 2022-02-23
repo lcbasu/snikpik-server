@@ -11,8 +11,7 @@ import com.server.common.provider.MediaHandlerProvider
 import com.server.common.provider.SecurityProvider
 import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.DateUtils
-import com.server.ud.dao.post.PostRepository
-import com.server.ud.dao.post.TrackingByPostRepository
+import com.server.ud.dao.post.*
 import com.server.ud.dto.*
 import com.server.ud.entities.MediaProcessingDetail
 import com.server.ud.entities.location.Location
@@ -300,13 +299,23 @@ class PostProvider {
         }
         GlobalScope.launch {
             logger.info("Start: Delete post and other dependent information for postId: $postId")
-            bookmarkProvider.deletePostExpandedData(post.postId)
-            commentProvider.deletePostExpandedData(post.postId)
-            likeProvider.deletePostExpandedData(post.postId)
+
+            bookmarkedPostsByUserProvider.deletePostExpandedData(post.postId)
+            likedPostsByUserProvider.deletePostExpandedData(post.postId)
+            postsByCategoryProvider.deletePostExpandedData(post)
+            postsByFollowingProvider.deletePostExpandedData(post.postId)
+            postsByHashTagProvider.deletePostExpandedData(post.postId)
+            postsByUserProvider.deletePostExpandedData(post.postId)
+            postsByZipcodeProvider.deletePostExpandedData(post.postId)
+            nearbyPostsByZipcodeProvider.deletePostExpandedData(post)
+            nearbyVideoPostsByZipcodeProvider.deletePostExpandedData(post)
+
+            // Only one count has to be decreases as the one post is created by
+            // only one user and adds only one count
+//            postsCountByUserRepository.decrementPostCount(userId)
             deletePostExpandedData(post)
-            replyProvider.deletePostExpandedData(post.postId)
-            searchProvider.deletePostExpandedData(post.postId)
-            deleteSinglePost(post)
+            deleteSinglePost(postId)
+            postsCountByUserProvider.decrementPostCount(post.userId)
             logger.info("End: Delete post and other dependent information for postId: $postId")
         }
     }
@@ -572,24 +581,13 @@ class PostProvider {
 
     fun deletePostExpandedData(post: Post) {
         GlobalScope.launch {
-            logger.info("Start: Delete post and other dependent information for postId: ${post.postId}")
-
-            bookmarkedPostsByUserProvider.deletePostExpandedData(post.postId)
-            likedPostsByUserProvider.deletePostExpandedData(post.postId)
-            postsByCategoryProvider.deletePostExpandedData(post)
-            postsByFollowingProvider.deletePostExpandedData(post.postId)
-            postsByHashTagProvider.deletePostExpandedData(post.postId)
-            postsByUserProvider.deletePostExpandedData(post.postId)
-            postsByZipcodeProvider.deletePostExpandedData(post.postId)
-            nearbyPostsByZipcodeProvider.deletePostExpandedData(post)
-            nearbyVideoPostsByZipcodeProvider.deletePostExpandedData(post)
-
-            // Only one count has to be decreases as the one post is created by
-            // only one user and adds only one count
-//            postsCountByUserRepository.decrementPostCount(userId)
-            postsCountByUserProvider.decrementPostCount(post.userId)
-
-            logger.info("End: Delete post and other dependent information for postId: ${post.postId}")
+            logger.info("Start deletePostExpandedData: Delete post and other dependent information for postId: ${post.postId}")
+            bookmarkProvider.deletePostExpandedData(post.postId)
+            commentProvider.deletePostExpandedData(post.postId)
+            likeProvider.deletePostExpandedData(post.postId)
+            replyProvider.deletePostExpandedData(post.postId)
+            searchProvider.deletePostExpandedData(post.postId)
+            logger.info("End deletePostExpandedData: Delete post and other dependent information for postId: ${post.postId}")
         }
     }
 
@@ -655,8 +653,8 @@ class PostProvider {
         }
     }
 
-    private fun deleteSinglePost(post: Post) {
-        postRepository.deleteAll(postRepository.findAllByPostId(post.postId))
+    private fun deleteSinglePost(postId: String) {
+        postRepository.deleteByPostId(postId)
     }
 
 

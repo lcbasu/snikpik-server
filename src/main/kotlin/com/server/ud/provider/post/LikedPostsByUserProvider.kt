@@ -86,7 +86,10 @@ class LikedPostsByUserProvider {
 
     fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
-            likedPostsByUserRepository.deleteAll(likedPostsByUserRepository.findAllByPostId(postId))
+            val all = likedPostsByUserRepository.findAllByPostId(postId)
+            all.chunked(5).forEach {
+                likedPostsByUserRepository.deleteAll(it)
+            }
         }
     }
 
