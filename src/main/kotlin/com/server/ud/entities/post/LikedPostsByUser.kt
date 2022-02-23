@@ -14,7 +14,7 @@ import java.time.Instant
 
 // For Profile Page integration
 @Table("liked_posts_by_user")
-class LikedPostsByUser (
+data class LikedPostsByUser (
 
     // A single post could have millions of saves. Hence, partitioning that date wise
     @PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)

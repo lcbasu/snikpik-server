@@ -15,7 +15,7 @@ import java.time.Instant
 
 // For Profile Page integration
 @Table("bookmarked_posts_by_user")
-class BookmarkedPostsByUser (
+data class BookmarkedPostsByUser (
 
     // A single post could have millions of saves. Hence, partitioning that date wise
     @PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)

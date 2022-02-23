@@ -7,8 +7,10 @@ import com.server.ud.dto.NearbyFeedRequest
 import com.server.ud.entities.location.NearbyZipcodesByZipcode
 import com.server.ud.entities.post.NearbyVideoPostsByZipcode
 import com.server.ud.entities.post.Post
+import com.server.ud.entities.post.PostUpdate
 import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.enums.PostType
+import com.server.ud.enums.ProcessingType
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
 import com.server.ud.utils.pagination.PaginationRequestUtil
@@ -117,40 +119,41 @@ class NearbyVideoPostsByZipcodeProvider {
 
     fun deletePostExpandedData(post: Post) {
         GlobalScope.launch {
-            val zipcode = post.zipcode
-            if (zipcode == null) {
-                logger.error("Post does not have location zipcode. Hence unable to delete from NearbyPostsByZipcode for postId: ${post.postId}.")
-                return@launch
-            }
-            // Doing this as the post might have been reprocessed for newer locations multiple times
-            val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(zipcode)
-            val posts = mutableListOf<NearbyVideoPostsByZipcode>()
-            val postType = post.postType
-            val createdAt = post.createdAt
-            val postId = post.postId
-            nearbyZipcodes.map {
-                posts.addAll(
-                    nearbyVideoPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndCreatedAtAndPostId(
-                        it.zipcode,
-                        postType,
-                        createdAt,
-                        postId
-                    )
-                )
-            }
-            post.zipcode?.let {
-                posts.addAll(
-                    nearbyVideoPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndCreatedAtAndPostId(
-                        it,
-                        postType,
-                        createdAt,
-                        postId
-                    )
-                )
-            }
+            val nearbyVideoPostsByZipcode = nearbyVideoPostsByZipcodeRepository.findAllByPostId(post.postId)
+//            val zipcode = post.zipcode
+//            if (zipcode == null) {
+//                logger.error("Post does not have location zipcode. Hence unable to delete from NearbyPostsByZipcode for postId: ${post.postId}.")
+//                return@launch
+//            }
+//            // Doing this as the post might have been reprocessed for newer locations multiple times
+//            val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(zipcode)
+//            val posts = mutableListOf<NearbyVideoPostsByZipcode>()
+//            val postType = post.postType
+//            val createdAt = post.createdAt
+//            val postId = post.postId
+//            nearbyZipcodes.map {
+//                posts.addAll(
+//                    nearbyVideoPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndCreatedAtAndPostId(
+//                        it.zipcode,
+//                        postType,
+//                        createdAt,
+//                        postId
+//                    )
+//                )
+//            }
+//            post.zipcode?.let {
+//                posts.addAll(
+//                    nearbyVideoPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndCreatedAtAndPostId(
+//                        it,
+//                        postType,
+//                        createdAt,
+//                        postId
+//                    )
+//                )
+//            }
             val maxDeleteSize = 5
-            logger.info("Deleting post ${post.postId} from NearbyVideoPostsByZipcode. Total ${posts.size} zipcode x posts entries needs to be deleted.")
-            posts.chunked(maxDeleteSize).map {
+            logger.info("Deleting post ${post.postId} from NearbyVideoPostsByZipcode. Total ${nearbyVideoPostsByZipcode.size} zipcode x posts entries needs to be deleted.")
+            nearbyVideoPostsByZipcode.chunked(maxDeleteSize).map {
                 nearbyVideoPostsByZipcodeRepository.deleteAll(it)
                 logger.info("Deleted maxDeleteSize: ${it.size} zipcode x posts entries.")
             }
@@ -158,9 +161,28 @@ class NearbyVideoPostsByZipcodeProvider {
         }
     }
 
-    fun updatePostExpandedData(post: Post) {
+    fun processPostExpandedData(post: Post) {
         GlobalScope.launch {
+            val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(post.zipcode!!)
+            save(post, nearbyZipcodes)
+        }
+    }
 
+    fun updatePostExpandedData(postUpdate: PostUpdate, processingType: ProcessingType) {
+        GlobalScope.launch {
+            when (processingType) {
+                ProcessingType.NO_PROCESSING -> logger.error("This should not happen. Updating the zipcode without processing should never happen.")
+                ProcessingType.DELETE_AND_REFRESH -> {
+                    // Delete old data
+                    deletePostExpandedData(postUpdate.oldPost)
+                    // Index the new data
+                    processPostExpandedData(postUpdate.newPost!!)
+                }
+                ProcessingType.REFRESH -> {
+                    // Index the new data
+                    processPostExpandedData(postUpdate.newPost!!)
+                }
+            }
         }
     }
 }

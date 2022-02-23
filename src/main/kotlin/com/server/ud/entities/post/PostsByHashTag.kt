@@ -10,7 +10,7 @@ import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
 
 @Table("posts_by_hash_tag")
-class PostsByHashTag (
+data class PostsByHashTag (
 
     @PrimaryKeyColumn(name = "hash_tag_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var hashTagId: String,

@@ -3,7 +3,9 @@ package com.server.ud.provider.post
 import com.google.firebase.cloud.FirestoreClient
 import com.server.ud.dao.post.PostsCountByUserRepository
 import com.server.ud.entities.post.Post
+import com.server.ud.entities.post.PostUpdate
 import com.server.ud.entities.user.PostsCountByUser
+import com.server.ud.enums.ProcessingType
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
@@ -79,7 +81,7 @@ class PostsCountByUserProvider {
         }
     }
 
-    fun updatePostExpandedData(post: Post) {
+    fun updatePostExpandedData(postUpdate: PostUpdate, processingType: ProcessingType) {
         GlobalScope.launch {
 
         }

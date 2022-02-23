@@ -8,6 +8,7 @@ import com.server.common.model.MediaDetailsV2
 import com.server.common.model.getMediaDetailsFromJsonString
 import com.server.ud.dto.AllCategoryV2Response
 import com.server.ud.enums.PostType
+import com.server.ud.enums.PostUpdateType
 import com.server.ud.model.AllHashTags
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.CassandraType
@@ -112,6 +113,12 @@ data class Post (
 
     @Column("complete_address")
     val completeAddress: String? = null,
+)
+
+data class PostUpdate (
+    val updateTypes: List<PostUpdateType>,
+    val oldPost: Post,
+    val newPost: Post? = null,
 )
 
 fun Post.getLabels(): AllLabelsResponse {

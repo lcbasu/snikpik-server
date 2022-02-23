@@ -7,6 +7,15 @@ enum class PostType {
     COMMUNITY_WALL_POST,
 }
 
+enum class PostUpdateType {
+    TITLE,
+    DESCRIPTION,
+    MEDIA,
+    CATEGORIES,
+    TAGS,
+    LABELS,
+}
+
 enum class InstagramToUnboxPostType {
     CAROUSEL_ALBUM_IMAGE,
     CAROUSEL_ALBUM_VIDEO,

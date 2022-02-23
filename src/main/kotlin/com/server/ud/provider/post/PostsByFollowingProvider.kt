@@ -3,8 +3,11 @@ package com.server.ud.provider.post
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostsByFollowingRepository
 import com.server.ud.entities.post.Post
+import com.server.ud.entities.post.PostUpdate
 import com.server.ud.entities.post.PostsByFollowing
+import com.server.ud.enums.ProcessingType
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -57,10 +60,49 @@ class PostsByFollowingProvider {
         }
     }
 
+
+    fun update(postsByFollowing: PostsByFollowing, updatedPost: Post): PostsByFollowing? {
+        try {
+            val saved = postsByFollowingRepository.save(postsByFollowing.copy(
+                followingUserId = updatedPost.userId,
+                createdAt = updatedPost.createdAt,
+                postId = updatedPost.postId,
+                postType = updatedPost.postType,
+                title = updatedPost.title,
+                description = updatedPost.description,
+                media = updatedPost.media,
+                sourceMedia = updatedPost.sourceMedia,
+                tags = updatedPost.tags,
+                categories = updatedPost.categories,
+                locationId = updatedPost.locationId,
+                zipcode = updatedPost.zipcode!!,
+                locationName = updatedPost.locationName,
+                locationLat = updatedPost.locationLat,
+                locationLng = updatedPost.locationLng,
+                locality = updatedPost.locality,
+                subLocality = updatedPost.subLocality,
+                route = updatedPost.route,
+                city = updatedPost.city,
+                state = updatedPost.state,
+                country = updatedPost.country,
+                countryCode = updatedPost.countryCode,
+                completeAddress = updatedPost.completeAddress,
+            ))
+            logger.info("Updated PostsByFollowing for postId:${saved.postId}, followingUserId: ${saved.followingUserId} and followingUserId: ${saved.followingUserId}.")
+            return saved
+        } catch (e: Exception) {
+            logger.error("Updating PostsByFollowing failed for ${postsByFollowing.postId}.")
+            e.printStackTrace()
+            return null
+        }
+    }
+
+    fun getAllByPostId(postId: String) = postsByFollowingRepository.findAllByPostId(postId)
+
     fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
             val maxDeleteSize = 5
-            val posts = postsByFollowingRepository.findAllByPostId(postId)
+            val posts = getAllByPostId(postId)
             logger.info("Deleting post $postId from NearbyPostsByZipcode. Total ${posts.size} PostsByFollowing entries needs to be deleted.")
             posts.chunked(maxDeleteSize).map {
                 postsByFollowingRepository.deleteAll(it)
@@ -70,9 +112,15 @@ class PostsByFollowingProvider {
         }
     }
 
-    fun updatePostExpandedData(post: Post) {
+    fun updatePostExpandedData(postUpdate: PostUpdate, processingType: ProcessingType) {
         GlobalScope.launch {
-
+            val updatedPost = postUpdate.newPost!!
+            val all = getAllByPostId(updatedPost.postId)
+            all.chunked(5).map {
+                async { it.map { update(it, updatedPost) } }
+            }.map {
+                it.await()
+            }
         }
     }
 }

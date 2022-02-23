@@ -9,10 +9,12 @@ import com.server.ud.dto.ExploreFeedRequest
 import com.server.ud.dto.ExploreTabViewResponse
 import com.server.ud.dto.toSavedPostResponse
 import com.server.ud.entities.post.Post
+import com.server.ud.entities.post.PostUpdate
 import com.server.ud.entities.post.PostsByCategory
 import com.server.ud.entities.post.getCategories
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
+import com.server.ud.enums.ProcessingType
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.utils.UDCommonUtils.DEFAULT_PAGING_STATE_VALUE
 import com.server.ud.utils.pagination.PaginationRequestUtil
@@ -140,9 +142,38 @@ class PostsByCategoryProvider {
         }
     }
 
-    fun updatePostExpandedData(post: Post) {
+    fun processPostExpandedData(post: Post) {
         GlobalScope.launch {
+            val categoriesFeedFuture = async {
+                post.getCategories().categories
+                    .map { async { save(post, it.id) } }
+                    .map { it.await() }
+            }
 
+            val allCategoryFeedFuture = async {
+                save(post, CategoryV2.ALL)
+            }
+
+            categoriesFeedFuture.await()
+            allCategoryFeedFuture.await()
+        }
+    }
+
+    fun updatePostExpandedData(postUpdate: PostUpdate, processingType: ProcessingType) {
+        GlobalScope.launch {
+            when (processingType) {
+                ProcessingType.NO_PROCESSING -> logger.error("This should not happen. Updating a category without processing should never happen.")
+                ProcessingType.DELETE_AND_REFRESH -> {
+                    // Delete old data
+                    deletePostExpandedData(postUpdate.oldPost)
+                    // Index the new data
+                    processPostExpandedData(postUpdate.newPost!!)
+                }
+                ProcessingType.REFRESH -> {
+                    // Index the new data
+                    processPostExpandedData(postUpdate.newPost!!)
+                }
+            }
         }
     }
 }

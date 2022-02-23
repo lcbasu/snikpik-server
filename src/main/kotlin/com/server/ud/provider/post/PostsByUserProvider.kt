@@ -4,11 +4,14 @@ import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostsByUserRepository
 import com.server.ud.dto.*
 import com.server.ud.entities.post.Post
+import com.server.ud.entities.post.PostUpdate
 import com.server.ud.entities.post.PostsByUser
 import com.server.ud.enums.PostType
+import com.server.ud.enums.ProcessingType
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.utils.pagination.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -63,6 +66,40 @@ class PostsByUserProvider {
         }
     }
 
+    fun update(postsByUser: PostsByUser, updatedPost: Post): PostsByUser? {
+        try {
+            return postsByUserRepository.save(postsByUser.copy(
+                userId = updatedPost.userId,
+                createdAt = updatedPost.createdAt,
+                postId = updatedPost.postId,
+                postType = updatedPost.postType,
+                title = updatedPost.title,
+                description = updatedPost.description,
+                media = updatedPost.media,
+                sourceMedia = updatedPost.sourceMedia,
+                tags = updatedPost.tags,
+                categories = updatedPost.categories,
+                locationId = updatedPost.locationId,
+                zipcode = updatedPost.zipcode!!,
+                locationName = updatedPost.locationName,
+                locationLat = updatedPost.locationLat,
+                locationLng = updatedPost.locationLng,
+                locality = updatedPost.locality,
+                subLocality = updatedPost.subLocality,
+                route = updatedPost.route,
+                city = updatedPost.city,
+                state = updatedPost.state,
+                country = updatedPost.country,
+                countryCode = updatedPost.countryCode,
+                completeAddress = updatedPost.completeAddress,
+            ))
+        } catch (e: Exception) {
+            logger.error("Saving PostsByUser filed for postId: ${updatedPost.postId}.")
+            e.printStackTrace()
+            return null
+        }
+    }
+
     fun getPostsByUser(request: PostsByUserRequest): CassandraPageV2<PostsByUser> {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
         val posts = postsByUserRepository.findAllByUserIdAndPostType(request.userId, PostType.GENERIC_POST, pageRequest as Pageable)
@@ -89,18 +126,26 @@ class PostsByUserProvider {
         )
     }
 
+    fun getAllByPostId(postId: String) = postsByUserRepository.findAllByPostId(postId)
+
     fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
-            val all = postsByUserRepository.findAllByPostId(postId)
+            val all = getAllByPostId(postId)
             all.chunked(5).forEach {
                 postsByUserRepository.deleteAll(it)
             }
         }
     }
 
-    fun updatePostExpandedData(post: Post) {
+    fun updatePostExpandedData(postUpdate: PostUpdate, processingType: ProcessingType) {
         GlobalScope.launch {
-
+            val updatedPost = postUpdate.newPost!!
+            val all = getAllByPostId(updatedPost.postId)
+            all.chunked(5).map {
+                async { it.map { update(it, updatedPost) } }
+            }.map {
+                it.await()
+            }
         }
     }
 }

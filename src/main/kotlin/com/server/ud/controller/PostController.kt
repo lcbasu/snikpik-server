@@ -27,6 +27,12 @@ class PostController {
         return postService.deletePost(request)
     }
 
+
+    @RequestMapping(value = ["/update"], method = [RequestMethod.POST])
+    fun update(@RequestBody request: UpdatePostRequest): SavedPostResponse? {
+        return postService.update(request)
+    }
+
     @RequestMapping(value = ["/deletePostFromExplore"], method = [RequestMethod.POST])
     fun deletePostFromExplore(@RequestBody request: DeletePostRequest): Boolean {
         return postService.deletePostFromExplore(request)

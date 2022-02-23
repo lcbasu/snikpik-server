@@ -5,10 +5,13 @@ import com.server.ud.dto.*
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.entities.post.BookmarkedPostsByUser
 import com.server.ud.entities.post.Post
+import com.server.ud.entities.post.PostUpdate
+import com.server.ud.enums.ProcessingType
 import com.server.ud.enums.ResourceType
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.utils.pagination.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -92,24 +95,67 @@ class BookmarkedPostsByUserProvider {
         }
     }
 
+    fun update(bookmarkedPostsByUser: BookmarkedPostsByUser, updatedPost: Post): BookmarkedPostsByUser? {
+        try {
+            return bookmarkedPostsByUserRepository.save(bookmarkedPostsByUser.copy(
+                postCreatedAt = updatedPost.createdAt,
+                postedByUserId = updatedPost.userId,
+                postId = updatedPost.postId,
+                postType = updatedPost.postType,
+                title = updatedPost.title,
+                description = updatedPost.description,
+                media = updatedPost.media,
+                sourceMedia = updatedPost.sourceMedia,
+                tags = updatedPost.tags,
+                categories = updatedPost.categories,
+
+                locationId = updatedPost.locationId,
+                zipcode = updatedPost.zipcode!!,
+                locationName = updatedPost.locationName,
+                locationLat = updatedPost.locationLat,
+                locationLng = updatedPost.locationLng,
+                locality = updatedPost.locality,
+                subLocality = updatedPost.subLocality,
+                route = updatedPost.route,
+                city = updatedPost.city,
+                state = updatedPost.state,
+                country = updatedPost.country,
+                countryCode = updatedPost.countryCode,
+                completeAddress = updatedPost.completeAddress,
+            ))
+        } catch (e: Exception) {
+            logger.error("Updating BookmarkedPostsByUser failed for userId: ${bookmarkedPostsByUser.userId}.")
+            e.printStackTrace()
+            return null
+        }
+    }
+
     fun getBookmarkedPostsByUser(request: BookmarkedPostsByUserRequest): CassandraPageV2<BookmarkedPostsByUser> {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
          val posts = bookmarkedPostsByUserRepository.findAllByUserId(request.userId, pageRequest as Pageable)
         return CassandraPageV2(posts)
     }
 
+    fun getAllByPostId(postId: String) = bookmarkedPostsByUserRepository.findAllByPostId(postId)
+
     fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
-            val all = bookmarkedPostsByUserRepository.findAllByPostId(postId)
+            val all = getAllByPostId(postId)
             all.chunked(5).forEach {
                 bookmarkedPostsByUserRepository.deleteAll(it)
             }
         }
     }
 
-    fun updatePostExpandedData(post: Post) {
+    fun updatePostExpandedData(postUpdate: PostUpdate, processingType: ProcessingType) {
         GlobalScope.launch {
-
+            val updatedPost = postUpdate.newPost!!
+            val all = getAllByPostId(updatedPost.postId)
+            all.chunked(5).map {
+                async { it.map { update(it, updatedPost) } }
+            }.map {
+                it.await()
+            }
         }
     }
 

@@ -5,10 +5,13 @@ import com.server.ud.dto.LikedPostsByUserRequest
 import com.server.ud.entities.like.Like
 import com.server.ud.entities.post.LikedPostsByUser
 import com.server.ud.entities.post.Post
+import com.server.ud.entities.post.PostUpdate
+import com.server.ud.enums.ProcessingType
 import com.server.ud.enums.ResourceType
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.utils.pagination.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -78,6 +81,27 @@ class LikedPostsByUserProvider {
         }
     }
 
+    fun update(likedPostsByUser: LikedPostsByUser, updatedPost: Post): LikedPostsByUser? {
+        try {
+            return likedPostsByUserRepository.save(likedPostsByUser.copy(
+                postCreatedAt = updatedPost.createdAt,
+                postedByUserId = updatedPost.userId,
+                postId = updatedPost.postId,
+                postType = updatedPost.postType,
+                title = updatedPost.title,
+                description = updatedPost.description,
+                media = updatedPost.media,
+                sourceMedia = updatedPost.sourceMedia,
+                tags = updatedPost.tags,
+                categories = updatedPost.categories,
+            ))
+        } catch (e: Exception) {
+            logger.error("Saving LikedPostsByUser failed for userId: ${updatedPost.userId}.")
+            e.printStackTrace()
+            return null
+        }
+    }
+
     fun getLikedPostsByUser(request: LikedPostsByUserRequest): CassandraPageV2<LikedPostsByUser> {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
          val posts = likedPostsByUserRepository.findAllByUserId(request.userId, pageRequest as Pageable)
@@ -86,16 +110,24 @@ class LikedPostsByUserProvider {
 
     fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
-            val all = likedPostsByUserRepository.findAllByPostId(postId)
+            val all = getAllByPostId(postId)
             all.chunked(5).forEach {
                 likedPostsByUserRepository.deleteAll(it)
             }
         }
     }
 
-    fun updatePostExpandedData(post: Post) {
-        GlobalScope.launch {
+    fun getAllByPostId(postId: String) = likedPostsByUserRepository.findAllByPostId(postId)
 
+    fun updatePostExpandedData(postUpdate: PostUpdate, processingType: ProcessingType) {
+        GlobalScope.launch {
+            val updatedPost = postUpdate.newPost!!
+            val all = getAllByPostId(updatedPost.postId)
+            all.chunked(5).map {
+                async { it.map { update(it, updatedPost) } }
+            }.map {
+                it.await()
+            }
         }
     }
 

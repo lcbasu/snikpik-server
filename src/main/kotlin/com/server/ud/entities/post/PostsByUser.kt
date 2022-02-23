@@ -15,7 +15,7 @@ import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
 
 @Table("posts_by_user")
-class PostsByUser (
+data class PostsByUser (
 
     @PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var userId: String,

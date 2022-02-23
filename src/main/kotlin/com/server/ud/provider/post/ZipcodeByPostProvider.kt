@@ -3,7 +3,10 @@ package com.server.ud.provider.post
 import com.server.ud.dao.post.ZipcodeByPostRepository
 import com.server.ud.entities.location.NearbyZipcodesByZipcode
 import com.server.ud.entities.post.Post
+import com.server.ud.entities.post.PostUpdate
 import com.server.ud.entities.post.ZipcodeByPost
+import com.server.ud.enums.ProcessingType
+import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
@@ -19,6 +22,9 @@ class ZipcodeByPostProvider {
     @Autowired
     private lateinit var zipcodeByPostRepository: ZipcodeByPostRepository
 
+    @Autowired
+    private lateinit var nearbyZipcodesByZipcodeProvider: NearbyZipcodesByZipcodeProvider
+
     fun getZipcodesByPost(postId: String): List<ZipcodeByPost> =
         try {
             zipcodeByPostRepository.findAllByPostId(postId)
@@ -28,7 +34,7 @@ class ZipcodeByPostProvider {
             emptyList()
         }
 
-    fun save(postId: String, nearbyZipcodes: List<NearbyZipcodesByZipcode>): List<ZipcodeByPost> {
+    private fun save(postId: String, nearbyZipcodes: List<NearbyZipcodesByZipcode>): List<ZipcodeByPost> {
         return try {
             val zipcodeByPosts = nearbyZipcodes.map {
                 ZipcodeByPost(
@@ -50,9 +56,10 @@ class ZipcodeByPostProvider {
         }
     }
 
-    fun updatePostExpandedData(post: Post) {
+    fun processPostExpandedData(post: Post) {
         GlobalScope.launch {
-
+            val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(post.zipcode!!)
+            save(post.postId, nearbyZipcodes)
         }
     }
 }

@@ -2,9 +2,11 @@ package com.server.ud.provider.post
 
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostsByHashTagRepository
-import com.server.ud.entities.post.Post
-import com.server.ud.entities.post.PostsByHashTag
+import com.server.ud.entities.post.*
+import com.server.ud.enums.CategoryV2
+import com.server.ud.enums.ProcessingType
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -64,9 +66,29 @@ class PostsByHashTagProvider {
         }
     }
 
-    fun updatePostExpandedData(post: Post) {
+    fun processPostExpandedData(post: Post) {
         GlobalScope.launch {
+            post.getHashTags().tags
+                .map { async { save(post, it) } }
+                .map { it.await() }
+        }
+    }
 
+    fun updatePostExpandedData(postUpdate: PostUpdate, processingType: ProcessingType) {
+        GlobalScope.launch {
+            when (processingType) {
+                ProcessingType.NO_PROCESSING -> logger.error("This should not happen. Updating the hash-tags without processing should never happen.")
+                ProcessingType.DELETE_AND_REFRESH -> {
+                    // Delete old data
+                    deletePostExpandedData(postUpdate.oldPost.postId)
+                    // Index the new data
+                    processPostExpandedData(postUpdate.newPost!!)
+                }
+                ProcessingType.REFRESH -> {
+                    // Index the new data
+                    processPostExpandedData(postUpdate.newPost!!)
+                }
+            }
         }
     }
 }

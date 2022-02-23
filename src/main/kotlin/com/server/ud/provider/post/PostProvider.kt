@@ -11,7 +11,8 @@ import com.server.common.provider.MediaHandlerProvider
 import com.server.common.provider.SecurityProvider
 import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.DateUtils
-import com.server.ud.dao.post.*
+import com.server.ud.dao.post.PostRepository
+import com.server.ud.dao.post.TrackingByPostRepository
 import com.server.ud.dto.*
 import com.server.ud.entities.MediaProcessingDetail
 import com.server.ud.entities.location.Location
@@ -237,27 +238,6 @@ class PostProvider {
 //        }
 //    }
 
-    fun updateMedia(post: Post, media: MediaDetailsV2) {
-        try {
-            postRepository.save(post.copy(media = media.convertToString()))
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    fun updateLabels(post: Post, labels: Set<String>): Post {
-        return try {
-            val labelsStr = AllLabelsResponse(labels).convertToString()
-            val updatedPost = postRepository.save(post.copy(labels = labelsStr))
-            logger.info("Labels updated for postId: ${post.postId} with labels: $labelsStr")
-            updatedPost
-        } catch (e: Exception) {
-            e.printStackTrace()
-            logger.error("Error while updating the for postId: ${post.postId}")
-            post
-        }
-    }
-
     // Right now only for video
     fun handleProcessedMedia(updatedMediaDetail: MediaProcessingDetail) {
         val post = getPost(updatedMediaDetail.resourceId ?: error("Missing resource Id for file: ${updatedMediaDetail.fileUniqueId}")) ?: error("No post found for ${updatedMediaDetail.resourceId} while doing post processing.")
@@ -317,12 +297,6 @@ class PostProvider {
             deleteSinglePost(postId)
             postsCountByUserProvider.decrementPostCount(post.userId)
             logger.info("End: Delete post and other dependent information for postId: $postId")
-        }
-    }
-
-    fun updatePost(post: Post) {
-        GlobalScope.launch {
-
         }
     }
 
@@ -416,7 +390,8 @@ class PostProvider {
 
             val labels = mediaHandlerProvider.getLabelsForMedia(post.getMediaDetails())
             val updatedPost = if (labels.isNotEmpty()) {
-                updateLabels(post, labels)
+                val update = updateLabels(post, labels, ProcessingType.NO_PROCESSING)
+                update.newPost ?: update.oldPost
             } else {
                 post
             }
@@ -431,34 +406,15 @@ class PostProvider {
                 postsByUserProvider.save(updatedPost)
             }
 
-            val postsByZipcodeFuture = async {
-                postsByZipcodeProvider.save(updatedPost)
-            }
+            postsByZipcodeProvider.processPostExpandedData(updatedPost)
 
-            val saveForNearbyPosts = async {
-                updatedPost.zipcode?.let {
-                    val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(it)
-                    nearbyPostsByZipcodeProvider.save(updatedPost, nearbyZipcodes)
-                    nearbyVideoPostsByZipcodeProvider.save(updatedPost, nearbyZipcodes)
-                    zipcodeByPostProvider.save(updatedPost.postId, nearbyZipcodes)
-                }
-            }
+            nearbyPostsByZipcodeProvider.processPostExpandedData(updatedPost)
+            nearbyVideoPostsByZipcodeProvider.processPostExpandedData(updatedPost)
+            zipcodeByPostProvider.processPostExpandedData(updatedPost)
 
-            val categoriesFeedFuture = async {
-                updatedPost.getCategories().categories
-                    .map { async { postsByCategoryProvider.save(updatedPost, it.id) } }
-                    .map { it.await() }
-            }
+            postsByCategoryProvider.processPostExpandedData(updatedPost)
 
-            val allCategoryFeedFuture = async {
-                postsByCategoryProvider.save(updatedPost, CategoryV2.ALL)
-            }
-
-            val hashTagsFeedFuture = async {
-                updatedPost.getHashTags().tags
-                    .map { async { postsByHashTagProvider.save(updatedPost, it) } }
-                    .map { it.await() }
-            }
+            postsByHashTagProvider.processPostExpandedData(updatedPost)
 
 //            val savePostToESFuture = async {
 //                esPostProvider.save(updatedPost)
@@ -474,11 +430,6 @@ class PostProvider {
 
             userActivityFuture.await()
             postsByUserFuture.await()
-            postsByZipcodeFuture.await()
-            saveForNearbyPosts.await()
-            categoriesFeedFuture.await()
-            allCategoryFeedFuture.await()
-            hashTagsFeedFuture.await()
 //            savePostToESFuture.await()
 //            savePostAutoSuggestToESFuture.await()
             algoliaIndexingFuture.await()
@@ -657,5 +608,182 @@ class PostProvider {
         postRepository.deleteByPostId(postId)
     }
 
+    fun updateMedia(post: Post, media: MediaDetailsV2, processingType: ProcessingType = ProcessingType.NO_PROCESSING): PostUpdate {
+        return try {
+            val updatedPost = postRepository.save(post.copy(media = media.convertToString()))
+            val result = PostUpdate(listOf(PostUpdateType.MEDIA), post, updatedPost)
+            updatePostProcessing(result, processingType)
+            result
+        } catch (e: Exception) {
+            e.printStackTrace()
+            PostUpdate(listOf(PostUpdateType.MEDIA), post, null)
+        }
+    }
 
+    fun updateLabels(post: Post, labels: Set<String>, processingType: ProcessingType = ProcessingType.REFRESH): PostUpdate {
+        return try {
+            val labelsStr = AllLabelsResponse(labels).convertToString()
+            val updatedPost = postRepository.save(post.copy(labels = labelsStr))
+            val result = PostUpdate(listOf(PostUpdateType.LABELS), post, updatedPost)
+            updatePostProcessing(result, processingType)
+            result
+        } catch (e: Exception) {
+            e.printStackTrace()
+            logger.error("Error while updating the for postId: ${post.postId}")
+            PostUpdate(listOf(PostUpdateType.LABELS), post, null)
+        }
+    }
+
+    fun updateTitle(post: Post, title: String): PostUpdate {
+        return try {
+            val updatedPost = postRepository.save(post.copy(title = title))
+            val result = PostUpdate(listOf(PostUpdateType.TITLE), post, updatedPost)
+            updatePostProcessing(result, ProcessingType.REFRESH)
+            result
+        } catch (e: Exception) {
+            e.printStackTrace()
+            logger.error("Error while updating the post for postId: ${post.postId}")
+            PostUpdate(listOf(PostUpdateType.TITLE), post, null)
+        }
+    }
+
+    fun updateDescription(post: Post, description: String): PostUpdate {
+        return try {
+            val updatedPost = postRepository.save(post.copy(description = description))
+            val result = PostUpdate(listOf(PostUpdateType.DESCRIPTION), post, updatedPost)
+            updatePostProcessing(result, ProcessingType.REFRESH)
+            result
+        } catch (e: Exception) {
+            e.printStackTrace()
+            logger.error("Error while updating the post for postId: ${post.postId}")
+            PostUpdate(listOf(PostUpdateType.DESCRIPTION), post, null)
+        }
+    }
+
+    fun updateTags(post: Post, tags: Set<String>): PostUpdate {
+        return try {
+            val updatedPost = postRepository.save(post.copy(tags = AllHashTags(tags).convertToString()))
+            val result = PostUpdate(listOf(PostUpdateType.TAGS), post, updatedPost)
+            updatePostProcessing(result, ProcessingType.DELETE_AND_REFRESH)
+            result
+        } catch (e: Exception) {
+            e.printStackTrace()
+            logger.error("Error while updating the post for postId: ${post.postId}")
+            PostUpdate(listOf(PostUpdateType.TAGS), post, null)
+        }
+    }
+
+    fun updateCategories(post: Post, categories: Set<CategoryV2>): PostUpdate {
+        return try {
+            val updatedPost = postRepository.save(post.copy(categories = AllCategoryV2Response(
+                categories.map { it.toCategoryV2Response() }
+            ).convertToString()))
+            val result = PostUpdate(listOf(PostUpdateType.CATEGORIES), post, updatedPost)
+            updatePostProcessing(result, ProcessingType.DELETE_AND_REFRESH)
+            result
+        } catch (e: Exception) {
+            e.printStackTrace()
+            logger.error("Error while updating the post for postId: ${post.postId}")
+            PostUpdate(listOf(PostUpdateType.CATEGORIES), post, null)
+        }
+    }
+
+    fun update(request: UpdatePostRequest): SavedPostResponse? {
+        val loggedInUserId = securityProvider.validateRequest().getUserIdToUse()
+        val post = getPost(request.postId) ?: error("No post found for postId: ${request.postId}")
+        if (post.userId != loggedInUserId) {
+            error("User $loggedInUserId is not authorized to update post: ${request.postId}. User can only update their own post.")
+        }
+        val oldPost = post
+        var tempPost = post
+        val updateTypes = mutableListOf<PostUpdateType>()
+
+        val titleIsUpdated = request.title != null && post.title != request.title
+        val descriptionIsUpdated = request.description != null && post.description != request.description
+        val isMediaUpdated = request.mediaDetails != null && request.mediaDetails.media.isNotEmpty()
+
+        var tagsAreUpdated = false
+        if (request.tags != null) {
+            val isTagsSizeSame = post.getHashTags().tags.size == request.tags.size
+            val areTagsSame = post.getHashTags().tags.containsAll(request.tags)
+            tagsAreUpdated = !isTagsSizeSame || !areTagsSame
+            if (tagsAreUpdated) {
+                tempPost = tempPost.copy(tags = AllHashTags(request.tags).convertToString())
+                updateTypes.add(PostUpdateType.TAGS)
+            }
+        }
+
+        var categoriesAreUpdated = false
+        if (request.categories != null) {
+            val postCategories = post.getCategories().categories.map { it.id }.toSet()
+            val requestCategories = request.categories.map { it }.toSet()
+            val isCategoriesSizeSame = postCategories.size == requestCategories.size
+            val areCategoriesSame = postCategories.containsAll(requestCategories)
+            categoriesAreUpdated = !isCategoriesSizeSame || !areCategoriesSame
+            if (categoriesAreUpdated) {
+                tempPost = tempPost.copy(categories = AllCategoryV2Response(
+                    request.categories.map { it.toCategoryV2Response() }
+                ).convertToString())
+                updateTypes.add(PostUpdateType.CATEGORIES)
+            }
+        }
+
+        if (titleIsUpdated) {
+            tempPost = tempPost.copy(title = request.title)
+            updateTypes.add(PostUpdateType.TITLE)
+        }
+
+        if (descriptionIsUpdated) {
+            tempPost = tempPost.copy(description = request.description)
+            updateTypes.add(PostUpdateType.DESCRIPTION)
+        }
+
+        if (isMediaUpdated) {
+            tempPost = tempPost.copy(media = request.mediaDetails?.convertToString())
+            updateTypes.add(PostUpdateType.MEDIA)
+        }
+
+        val processingType: ProcessingType = if (categoriesAreUpdated || tagsAreUpdated) {
+            ProcessingType.DELETE_AND_REFRESH
+        } else if (titleIsUpdated || descriptionIsUpdated || isMediaUpdated) {
+            ProcessingType.REFRESH
+        } else {
+            ProcessingType.NO_PROCESSING
+        }
+
+        val updatedPost = postRepository.save(tempPost)
+        val result = PostUpdate(updateTypes, oldPost, updatedPost)
+        updatePostProcessing(result, processingType)
+        return updatedPost.toSavedPostResponse()
+    }
+
+    fun updatePostProcessing(postUpdate: PostUpdate, processingType: ProcessingType) {
+        val updatedPost = postUpdate.newPost
+        logger.info("Post updated. old: ${postUpdate.oldPost} new: ${updatedPost} and processingType: $processingType")
+        if (updatedPost == null) {
+            logger.error("Post update does not have updated post data. So skipping the update expansion.")
+            return
+        }
+
+        if (processingType == ProcessingType.NO_PROCESSING) {
+            logger.info("Post update does not require any post processing. So skipping the update expansion.")
+            return
+        }
+        GlobalScope.launch {
+            logger.info("Start: Update post and other dependent information for postId: ${updatedPost.postId}")
+
+            bookmarkedPostsByUserProvider.updatePostExpandedData(postUpdate, processingType)
+            likedPostsByUserProvider.updatePostExpandedData(postUpdate, processingType)
+            postsByCategoryProvider.updatePostExpandedData(postUpdate, processingType)
+            postsByFollowingProvider.updatePostExpandedData(postUpdate, processingType)
+            postsByHashTagProvider.updatePostExpandedData(postUpdate, processingType)
+            postsByUserProvider.updatePostExpandedData(postUpdate, processingType)
+            postsByZipcodeProvider.updatePostExpandedData(postUpdate, processingType)
+            nearbyPostsByZipcodeProvider.updatePostExpandedData(postUpdate, processingType)
+            nearbyVideoPostsByZipcodeProvider.updatePostExpandedData(postUpdate, processingType)
+            searchProvider.doSearchProcessingForPost(updatedPost)
+
+            logger.info("End: Update post and other dependent information for postId: ${updatedPost.postId}")
+        }
+    }
 }

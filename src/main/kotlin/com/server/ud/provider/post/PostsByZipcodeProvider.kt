@@ -1,9 +1,10 @@
 package com.server.ud.provider.post
 
-import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostsByZipcodeRepository
 import com.server.ud.entities.post.Post
+import com.server.ud.entities.post.PostUpdate
 import com.server.ud.entities.post.PostsByZipcode
+import com.server.ud.enums.ProcessingType
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
@@ -67,9 +68,27 @@ class PostsByZipcodeProvider {
         }
     }
 
-    fun updatePostExpandedData(post: Post) {
+    fun processPostExpandedData(post: Post) {
         GlobalScope.launch {
+            save(post)
+        }
+    }
 
+    fun updatePostExpandedData(postUpdate: PostUpdate, processingType: ProcessingType) {
+        GlobalScope.launch {
+            when (processingType) {
+                ProcessingType.NO_PROCESSING -> logger.error("This should not happen. Updating the zipcode without processing should never happen.")
+                ProcessingType.DELETE_AND_REFRESH -> {
+                    // Delete old data
+                    deletePostExpandedData(postUpdate.oldPost.postId)
+                    // Index the new data
+                    processPostExpandedData(postUpdate.newPost!!)
+                }
+                ProcessingType.REFRESH -> {
+                    // Index the new data
+                    processPostExpandedData(postUpdate.newPost!!)
+                }
+            }
         }
     }
 }

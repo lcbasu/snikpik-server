@@ -49,4 +49,8 @@ class PostServiceImpl : PostService() {
         postProvider.deletePostFromExplore(request.postId)
         return true;
     }
+
+    override fun update(request: UpdatePostRequest): SavedPostResponse? {
+        return postProvider.update(request)
+    }
 }

@@ -22,7 +22,7 @@ import java.time.Instant
  * */
 
 @Table("posts_by_following")
-class PostsByFollowing (
+data class PostsByFollowing (
 
     @PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var userId: String,

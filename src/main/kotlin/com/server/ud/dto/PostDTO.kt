@@ -37,6 +37,16 @@ data class SavePostRequest(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class UpdatePostRequest(
+    val postId: String,
+    val title: String? = null,
+    val description: String? = null,
+    val tags: Set<String>? = null,
+    val categories: Set<CategoryV2>? = null,
+    val mediaDetails: MediaDetailsV2? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class InstagramPagingCursor(
     val before: String,
     val after: String,
