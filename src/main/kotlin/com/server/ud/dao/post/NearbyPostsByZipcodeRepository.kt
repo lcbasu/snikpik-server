@@ -4,6 +4,7 @@ import com.server.ud.entities.post.NearbyPostsByZipcode
 import com.server.ud.enums.PostType
 import org.springframework.data.cassandra.repository.AllowFiltering
 import org.springframework.data.cassandra.repository.CassandraRepository
+import org.springframework.data.cassandra.repository.Query
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
 import org.springframework.stereotype.Repository
@@ -11,8 +12,8 @@ import java.time.Instant
 
 @Repository
 interface NearbyPostsByZipcodeRepository : CassandraRepository<NearbyPostsByZipcode?, String?> {
-    @AllowFiltering
-    fun findAllByPostId(postId: String): List<NearbyPostsByZipcode>
+    @Query("SELECT * FROM nearby_posts_by_zipcode where post_id = ?0 allow filtering")
+    fun findAllByPostId_V2(postId: String): List<NearbyPostsByZipcode>
     fun findAllByZipcodeAndPostType(zipcode: String, postType: PostType, pageable: Pageable): Slice<NearbyPostsByZipcode>
     fun findAllByZipcodeAndPostTypeAndCreatedAtAndPostId(zipcode: String, postType: PostType, createdAt: Instant, postId: String): List<NearbyPostsByZipcode>
 

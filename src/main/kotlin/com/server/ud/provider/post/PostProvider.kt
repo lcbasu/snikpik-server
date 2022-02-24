@@ -280,15 +280,15 @@ class PostProvider {
         GlobalScope.launch {
             logger.info("Start: Delete post and other dependent information for postId: $postId")
 
-            bookmarkedPostsByUserProvider.deletePostExpandedData(post.postId)
-            likedPostsByUserProvider.deletePostExpandedData(post.postId)
+            bookmarkedPostsByUserProvider.deletePostExpandedData(postId)
+            likedPostsByUserProvider.deletePostExpandedData(postId)
             postsByCategoryProvider.deletePostExpandedData(post)
-            postsByFollowingProvider.deletePostExpandedData(post.postId)
-            postsByHashTagProvider.deletePostExpandedData(post.postId)
-            postsByUserProvider.deletePostExpandedData(post.postId)
-            postsByZipcodeProvider.deletePostExpandedData(post.postId)
-            nearbyPostsByZipcodeProvider.deletePostExpandedData(post)
-            nearbyVideoPostsByZipcodeProvider.deletePostExpandedData(post)
+            postsByFollowingProvider.deletePostExpandedData(postId)
+            postsByHashTagProvider.deletePostExpandedData(postId)
+            postsByUserProvider.deletePostExpandedData(postId)
+            postsByZipcodeProvider.deletePostExpandedData(postId)
+            nearbyPostsByZipcodeProvider.deletePostExpandedData(postId)
+            nearbyVideoPostsByZipcodeProvider.deletePostExpandedData(postId)
 
             // Only one count has to be decreases as the one post is created by
             // only one user and adds only one count
@@ -308,7 +308,7 @@ class PostProvider {
             error("User $loggedInUserId is not authorized to delete post: $postId. Only admins can delete the post from explore.")
         }
         logger.info("Start: Delete post from explore feed for postId: $postId")
-        deletePostFromExplore(post)
+        deletePostFromExplore(post.postId)
         logger.info("End: Delete post from explore feed for postId: $postId")
     }
 
@@ -406,15 +406,16 @@ class PostProvider {
                 postsByUserProvider.save(updatedPost)
             }
 
-            postsByZipcodeProvider.processPostExpandedData(updatedPost)
+            val postsByZipcodeFuture = async { postsByZipcodeProvider.processPostExpandedData(updatedPost) }
 
-            nearbyPostsByZipcodeProvider.processPostExpandedData(updatedPost)
-            nearbyVideoPostsByZipcodeProvider.processPostExpandedData(updatedPost)
+            val nearbyPostsByZipcodeFuture = async { nearbyPostsByZipcodeProvider.processPostExpandedData(updatedPost) }
+            val nearbyVideoPostsByZipcodeFuture =
+                async { nearbyVideoPostsByZipcodeProvider.processPostExpandedData(updatedPost) }
             zipcodeByPostProvider.processPostExpandedData(updatedPost)
 
-            postsByCategoryProvider.processPostExpandedData(updatedPost)
+            val postsByCategoryFuture = async { postsByCategoryProvider.processPostExpandedData(updatedPost) }
 
-            postsByHashTagProvider.processPostExpandedData(updatedPost)
+            val postsByHashTagFuture = async { postsByHashTagProvider.processPostExpandedData(updatedPost) }
 
 //            val savePostToESFuture = async {
 //                esPostProvider.save(updatedPost)
@@ -430,6 +431,11 @@ class PostProvider {
 
             userActivityFuture.await()
             postsByUserFuture.await()
+            postsByCategoryFuture.await()
+            postsByHashTagFuture.await()
+            postsByZipcodeFuture.await()
+            nearbyPostsByZipcodeFuture.await()
+            nearbyVideoPostsByZipcodeFuture.await()
 //            savePostToESFuture.await()
 //            savePostAutoSuggestToESFuture.await()
             algoliaIndexingFuture.await()

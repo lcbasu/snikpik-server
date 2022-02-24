@@ -16,6 +16,7 @@ import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
 import com.server.ud.utils.pagination.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -117,9 +118,8 @@ class NearbyVideoPostsByZipcodeProvider {
         return CassandraPageV2(posts)
     }
 
-    fun deletePostExpandedData(post: Post) {
-        GlobalScope.launch {
-            val nearbyVideoPostsByZipcode = nearbyVideoPostsByZipcodeRepository.findAllByPostId(post.postId)
+    fun deletePostExpandedData(postId: String) {
+        val nearbyVideoPostsByZipcode = nearbyVideoPostsByZipcodeRepository.findAllByPostId_V2(postId)
 //            val zipcode = post.zipcode
 //            if (zipcode == null) {
 //                logger.error("Post does not have location zipcode. Hence unable to delete from NearbyPostsByZipcode for postId: ${post.postId}.")
@@ -151,18 +151,14 @@ class NearbyVideoPostsByZipcodeProvider {
 //                    )
 //                )
 //            }
-            val maxDeleteSize = 5
-            logger.info("Deleting post ${post.postId} from NearbyVideoPostsByZipcode. Total ${nearbyVideoPostsByZipcode.size} zipcode x posts entries needs to be deleted.")
-            nearbyVideoPostsByZipcode.chunked(maxDeleteSize).map {
-                nearbyVideoPostsByZipcodeRepository.deleteAll(it)
-                logger.info("Deleted maxDeleteSize: ${it.size} zipcode x posts entries.")
-            }
-            logger.info("Deleted all entries for zipcode x posts for post ${post.postId} from NearbyVideoPostsByZipcode.")
-        }
+        val maxDeleteSize = 5
+        logger.info("Deleting post $postId from NearbyVideoPostsByZipcode. Total ${nearbyVideoPostsByZipcode.size} zipcode x posts entries needs to be deleted.")
+        nearbyVideoPostsByZipcodeRepository.deleteAll(nearbyVideoPostsByZipcode)
+        logger.info("Deleted all entries for zipcode x posts for post $postId from NearbyVideoPostsByZipcode.")
     }
 
     fun processPostExpandedData(post: Post) {
-        GlobalScope.launch {
+        runBlocking {
             val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(post.zipcode!!)
             save(post, nearbyZipcodes)
         }
@@ -174,7 +170,7 @@ class NearbyVideoPostsByZipcodeProvider {
                 ProcessingType.NO_PROCESSING -> logger.error("This should not happen. Updating the zipcode without processing should never happen.")
                 ProcessingType.DELETE_AND_REFRESH -> {
                     // Delete old data
-                    deletePostExpandedData(postUpdate.oldPost)
+                    deletePostExpandedData(postUpdate.oldPost.postId)
                     // Index the new data
                     processPostExpandedData(postUpdate.newPost!!)
                 }

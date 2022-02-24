@@ -428,11 +428,13 @@ class FakerProvider {
 //        commentProvider.deletePostExpandedData("PST5e15e8f0-a3e3-46b8-8658-4c140c1dc65b")
 
 //        cassandraTableModificationProvider.addNewColumns()
-        likeProvider.processAllLikes();
+//        likeProvider.processAllLikes();
 
 //        commentReplyRepository.findAll().filterNotNull().map {
 //            repliesByPostProvider.save(it)
 //        }
+
+        postProvider.deletePost("PST1B8C05789")
 
 //        replyProvider.deletePostExpandedData("PSTee53124b-314f-4e19-9fb8-2e3b3322e7e2")
 

@@ -18,7 +18,12 @@ interface PostsByCategoryRepository : CassandraRepository<PostsByCategory?, Stri
     fun findAllByCategoryIdAndPostType(categoryV2: CategoryV2, postType: PostType, pageable: Pageable): Slice<PostsByCategory>
     fun findAllByCategoryIdAndPostTypeAndCreatedAtAndPostId(categoryV2: CategoryV2, postType: PostType, createdAt: Instant, postId: String): List<PostsByCategory>
 
+    fun deleteAllByCategoryIdAndPostTypeAndCreatedAtAndPostId(categoryV2: CategoryV2, postType: PostType, createdAt: Instant, postId: String)
+
 
     @AllowFiltering
     fun findAllByPostId(postId: String): List<PostsByCategory>
+
+    @AllowFiltering
+    fun deleteAllByPostId(postId: String)
 }

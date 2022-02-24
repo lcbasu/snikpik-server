@@ -126,15 +126,11 @@ class PostsByUserProvider {
         )
     }
 
-    fun getAllByPostId(postId: String) = postsByUserRepository.findAllByPostId(postId)
+    fun getAllByPostId(postId: String) = postsByUserRepository.findAllByPostId_V2(postId)
 
     fun deletePostExpandedData(postId: String) {
-        GlobalScope.launch {
-            val all = getAllByPostId(postId)
-            all.chunked(5).forEach {
-                postsByUserRepository.deleteAll(it)
-            }
-        }
+        val all = getAllByPostId(postId)
+        postsByUserRepository.deleteAll(all)
     }
 
     fun updatePostExpandedData(postUpdate: PostUpdate, processingType: ProcessingType) {

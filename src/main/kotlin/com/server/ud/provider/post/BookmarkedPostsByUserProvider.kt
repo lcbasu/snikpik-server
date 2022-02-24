@@ -136,15 +136,11 @@ class BookmarkedPostsByUserProvider {
         return CassandraPageV2(posts)
     }
 
-    fun getAllByPostId(postId: String) = bookmarkedPostsByUserRepository.findAllByPostId(postId)
+    fun getAllByPostId(postId: String) = bookmarkedPostsByUserRepository.findAllByPostId_V2(postId)
 
     fun deletePostExpandedData(postId: String) {
-        GlobalScope.launch {
-            val all = getAllByPostId(postId)
-            all.chunked(5).forEach {
-                bookmarkedPostsByUserRepository.deleteAll(it)
-            }
-        }
+        val all = getAllByPostId(postId)
+        bookmarkedPostsByUserRepository.deleteAll(all)
     }
 
     fun updatePostExpandedData(postUpdate: PostUpdate, processingType: ProcessingType) {

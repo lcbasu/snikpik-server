@@ -8,6 +8,7 @@ import com.server.ud.enums.ProcessingType
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -58,16 +59,12 @@ class PostsByHashTagProvider {
     }
 
     fun deletePostExpandedData(postId: String) {
-        GlobalScope.launch {
-            val all = postsByHashTagRepository.findAllByPostId(postId)
-            all.chunked(5).forEach {
-                postsByHashTagRepository.deleteAll(it)
-            }
-        }
+        val all = postsByHashTagRepository.findAllByPostId_V2(postId)
+        postsByHashTagRepository.deleteAll(all)
     }
 
     fun processPostExpandedData(post: Post) {
-        GlobalScope.launch {
+        runBlocking {
             post.getHashTags().tags
                 .map { async { save(post, it) } }
                 .map { it.await() }
@@ -79,6 +76,7 @@ class PostsByHashTagProvider {
             when (processingType) {
                 ProcessingType.NO_PROCESSING -> logger.error("This should not happen. Updating the hash-tags without processing should never happen.")
                 ProcessingType.DELETE_AND_REFRESH -> {
+                    // Do not run delete and update in parallel
                     // Delete old data
                     deletePostExpandedData(postUpdate.oldPost.postId)
                     // Index the new data

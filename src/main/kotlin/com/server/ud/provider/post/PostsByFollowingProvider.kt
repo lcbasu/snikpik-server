@@ -97,19 +97,14 @@ class PostsByFollowingProvider {
         }
     }
 
-    fun getAllByPostId(postId: String) = postsByFollowingRepository.findAllByPostId(postId)
+    fun getAllByPostId(postId: String) = postsByFollowingRepository.findAllByPostId_V2(postId)
 
     fun deletePostExpandedData(postId: String) {
-        GlobalScope.launch {
-            val maxDeleteSize = 5
-            val posts = getAllByPostId(postId)
-            logger.info("Deleting post $postId from NearbyPostsByZipcode. Total ${posts.size} PostsByFollowing entries needs to be deleted.")
-            posts.chunked(maxDeleteSize).map {
-                postsByFollowingRepository.deleteAll(it)
-                logger.info("Deleted maxDeleteSize: ${it.size} PostsByFollowing entries.")
-            }
-            logger.info("Deleted all entries for PostsByFollowing for post $postId from PostsByFollowing.")
-        }
+        val maxDeleteSize = 5
+        val posts = getAllByPostId(postId)
+        logger.info("Deleting post $postId from PostsByFollowing. Total ${posts.size} PostsByFollowing entries needs to be deleted.")
+        postsByFollowingRepository.deleteAll(posts)
+        logger.info("Deleted all entries for PostsByFollowing for post $postId from PostsByFollowing.")
     }
 
     fun updatePostExpandedData(postUpdate: PostUpdate, processingType: ProcessingType) {

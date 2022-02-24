@@ -3,7 +3,6 @@ package com.server.ud.provider.post
 import com.github.benmanes.caffeine.cache.CacheLoader
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.server.common.utils.CommonUtils.STRING_SEPARATOR
-import com.server.dk.cache.CitiesDataCacheLoader
 import com.server.ud.dao.post.PostsByCategoryRepository
 import com.server.ud.dto.ExploreFeedRequest
 import com.server.ud.dto.ExploreTabViewResponse
@@ -126,24 +125,20 @@ class PostsByCategoryProvider {
     }
 
     fun deletePostExpandedData(post: Post) {
-        GlobalScope.launch {
-            val categories = (post.getCategories().categories.map { it.id } + CategoryV2.ALL).toSet()
-            val posts = mutableListOf<PostsByCategory>()
-            categories.map {
-                val categoryV2 = it
-                val postType = post.postType
-                val createdAt = post.createdAt
-                val postId = post.postId
-                posts.addAll(postsByCategoryRepository.findAllByCategoryIdAndPostTypeAndCreatedAtAndPostId(categoryV2, postType, createdAt, postId))
-            }
-            posts.chunked(5).forEach {
-                postsByCategoryRepository.deleteAll(it)
-            }
+        val categories = (post.getCategories().categories.map { it.id } + CategoryV2.ALL).toSet()
+        val posts = mutableListOf<PostsByCategory>()
+        categories.map {
+            val categoryV2 = it
+            val postType = post.postType
+            val createdAt = post.createdAt
+            val postId = post.postId
+            posts.addAll(postsByCategoryRepository.findAllByCategoryIdAndPostTypeAndCreatedAtAndPostId(categoryV2, postType, createdAt, postId))
         }
+        postsByCategoryRepository.deleteAll(posts)
     }
 
     fun processPostExpandedData(post: Post) {
-        GlobalScope.launch {
+        runBlocking {
             val categoriesFeedFuture = async {
                 post.getCategories().categories
                     .map { async { save(post, it.id) } }

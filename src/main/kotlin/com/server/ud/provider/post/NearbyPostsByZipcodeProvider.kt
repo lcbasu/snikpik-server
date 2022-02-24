@@ -14,6 +14,7 @@ import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
 import com.server.ud.utils.pagination.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -117,9 +118,8 @@ class NearbyPostsByZipcodeProvider {
         return CassandraPageV2(posts)
     }
 
-    fun deletePostExpandedData(post: Post) {
-        GlobalScope.launch {
-            val nearbyPostsByZipcode = nearbyPostsByZipcodeRepository.findAllByPostId(post.postId)
+    fun deletePostExpandedData(postId: String) {
+        val nearbyPostsByZipcode = nearbyPostsByZipcodeRepository.findAllByPostId_V2(postId)
 
 //            val posts = mutableListOf<NearbyPostsByZipcode>()
 //            val postType = post.postType
@@ -145,18 +145,14 @@ class NearbyPostsByZipcodeProvider {
 //                    )
 //                )
 //            }
-            val maxDeleteSize = 5
-            logger.info("Deleting post ${post.postId} from NearbyPostsByZipcode. Total ${nearbyPostsByZipcode.size} zipcode x posts entries needs to be deleted.")
-            nearbyPostsByZipcode.chunked(maxDeleteSize).map {
-                nearbyPostsByZipcodeRepository.deleteAll(it)
-                logger.info("Deleted maxDeleteSize: ${it.size} zipcode x posts entries.")
-            }
-            logger.info("Deleted all entries for zipcode x posts for post ${post.postId} from NearbyPostsByZipcode.")
-        }
+        val maxDeleteSize = 5
+        logger.info("Deleting post ${postId} from NearbyPostsByZipcode. Total ${nearbyPostsByZipcode.size} zipcode x posts entries needs to be deleted.")
+        nearbyPostsByZipcodeRepository.deleteAll(nearbyPostsByZipcode)
+        logger.info("Deleted all entries for zipcode x posts for post ${postId} from NearbyPostsByZipcode.")
     }
 
     fun processPostExpandedData(post: Post) {
-        GlobalScope.launch {
+        runBlocking {
             val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(post.zipcode!!)
             save(post, nearbyZipcodes)
         }
@@ -168,7 +164,7 @@ class NearbyPostsByZipcodeProvider {
                 ProcessingType.NO_PROCESSING -> logger.error("This should not happen. Updating the zipcode without processing should never happen.")
                 ProcessingType.DELETE_AND_REFRESH -> {
                     // Delete old data
-                    deletePostExpandedData(postUpdate.oldPost)
+                    deletePostExpandedData(postUpdate.oldPost.postId)
                     // Index the new data
                     processPostExpandedData(postUpdate.newPost!!)
                 }
