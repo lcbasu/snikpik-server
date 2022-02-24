@@ -10,7 +10,9 @@ import com.server.ud.entities.MediaProcessingDetail
 import com.server.ud.entities.reply.RepliesByComment
 import com.server.ud.entities.reply.Reply
 import com.server.ud.enums.PostTrackerType
+import com.server.ud.provider.bookmark.BookmarkProvider
 import com.server.ud.provider.job.UDJobProvider
+import com.server.ud.provider.like.LikeProvider
 import com.server.ud.provider.post.PostProvider
 import com.server.ud.provider.user_activity.UserActivitiesProvider
 import com.server.ud.utils.PostTrackerKeyBuilder
@@ -30,6 +32,12 @@ class ReplyProvider {
 
     @Autowired
     private lateinit var commentReplyRepository: CommentReplyRepository
+
+    @Autowired
+    private lateinit var bookmarkProvider: BookmarkProvider
+
+    @Autowired
+    private lateinit var likeProvider: LikeProvider
 
     @Autowired
     private lateinit var udJobProvider: UDJobProvider
@@ -147,6 +155,9 @@ class ReplyProvider {
             }
             replyIds.map {
                 commentReplyRepository.deleteByReplyId(it)
+                bookmarkProvider.deleteResourceExpandedData(it)
+                likeProvider.deleteResourceExpandedData(it)
+                userActivitiesProvider.deleteReplyExpandedData(it)
             }
             repliesByPostRepository.deleteAll(repliesByPost)
         }

@@ -539,11 +539,12 @@ class PostProvider {
     fun deletePostExpandedData(post: Post) {
         GlobalScope.launch {
             logger.info("Start deletePostExpandedData: Delete post and other dependent information for postId: ${post.postId}")
-            bookmarkProvider.deletePostExpandedData(post.postId)
+            bookmarkProvider.deleteResourceExpandedData(post.postId)
             commentProvider.deletePostExpandedData(post.postId)
-            likeProvider.deletePostExpandedData(post.postId)
+            likeProvider.deleteResourceExpandedData(post.postId)
             replyProvider.deletePostExpandedData(post.postId)
             searchProvider.deletePostExpandedData(post.postId)
+            userActivityProvider.deletePostExpandedData(post.postId)
             logger.info("End deletePostExpandedData: Delete post and other dependent information for postId: ${post.postId}")
         }
     }

@@ -146,9 +146,9 @@ class BookmarkProvider {
         }
     }
 
-    fun deletePostExpandedData(postId: String) {
+    fun deleteResourceExpandedData(resourceId: String) {
         GlobalScope.launch {
-            val bookmarksByResource = bookmarksByResourceRepository.findAllByResourceId(postId)
+            val bookmarksByResource = bookmarksByResourceRepository.findAllByResourceId(resourceId)
             val userIds = bookmarksByResource.map { it.userId }.toSet()
             val bookmarkIds = bookmarksByResource.map { it.bookmarkId }.toSet()
             bookmarkIds.map {
@@ -160,26 +160,26 @@ class BookmarkProvider {
             userIds.map {
                 async {
                     val bookmarked = bookmarkForResourceByUserProvider.getBookmarkForResourceByUser(
-                        resourceId = postId,
+                        resourceId = resourceId,
                         userId = it
                     )?.bookmarked ?: false
 
                     if (bookmarked) {
                         bookmarksCountByUserRepository.decrementBookmarkCount(it)
                     }
-                    bookmarksForResourceByUserRepository.deleteAllByResourceIdAndUserId(postId, it)
+                    bookmarksForResourceByUserRepository.deleteAllByResourceIdAndUserId(resourceId, it)
 
                     // TODO: Optimize this
                     val allBookmarksByThisUserForAllPosts = bookmarksByUserRepository.findAllByUserId(it)
-                    val allBookmarksByThisUserForTHISPosts = allBookmarksByThisUserForAllPosts.filter { it.resourceId == postId }
+                    val allBookmarksByThisUserForTHISPosts = allBookmarksByThisUserForAllPosts.filter { it.resourceId == resourceId }
                     bookmarksByUserRepository.deleteAll(allBookmarksByThisUserForTHISPosts)
                 }
             }.map {
                 it.await()
             }
 
-            bookmarksByResourceRepository.deleteAllByResourceId(postId)
-            bookmarksCountByResourceRepository.deleteAllByResourceId(postId)
+            bookmarksByResourceRepository.deleteAllByResourceId(resourceId)
+            bookmarksCountByResourceRepository.deleteAllByResourceId(resourceId)
         }
     }
 

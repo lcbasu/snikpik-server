@@ -666,4 +666,34 @@ class UserActivitiesProvider {
         }
     }
 
+    fun deletePostExpandedData(postId: String) {
+        GlobalScope.launch {
+            userActivitiesRepository.deleteAll(userActivitiesRepository.getAllByPostId(postId))
+            userActivitiesForUserRepository.deleteAll(userActivitiesForUserRepository.getAllByPostId(postId))
+            userActivitiesForUserAndAggregateRepository.deleteAll(userActivitiesForUserAndAggregateRepository.getAllByPostId(postId))
+            userActivitiesByUserRepository.deleteAll(userActivitiesByUserRepository.getAllByPostId(postId))
+            userActivitiesByUserAndAggregateRepository.deleteAll(userActivitiesByUserAndAggregateRepository.getAllByPostId(postId))
+        }
+    }
+
+    fun deleteCommentExpandedData(commentId: String) {
+        GlobalScope.launch {
+            userActivitiesRepository.deleteAll(userActivitiesRepository.getAllByCommentId(commentId))
+            userActivitiesForUserRepository.deleteAll(userActivitiesForUserRepository.getAllByCommentId(commentId))
+            userActivitiesForUserAndAggregateRepository.deleteAll(userActivitiesForUserAndAggregateRepository.getAllByCommentId(commentId))
+            userActivitiesByUserRepository.deleteAll(userActivitiesByUserRepository.getAllByCommentId(commentId))
+            userActivitiesByUserAndAggregateRepository.deleteAll(userActivitiesByUserAndAggregateRepository.getAllByCommentId(commentId))
+        }
+    }
+
+    fun deleteReplyExpandedData(replyId: String) {
+        GlobalScope.launch {
+            userActivitiesRepository.deleteAll(userActivitiesRepository.getAllByReplyId(replyId))
+            userActivitiesForUserRepository.deleteAll(userActivitiesForUserRepository.getAllByReplyId(replyId))
+            userActivitiesForUserAndAggregateRepository.deleteAll(userActivitiesForUserAndAggregateRepository.getAllByReplyId(replyId))
+            userActivitiesByUserRepository.deleteAll(userActivitiesByUserRepository.getAllByReplyId(replyId))
+            userActivitiesByUserAndAggregateRepository.deleteAll(userActivitiesByUserAndAggregateRepository.getAllByReplyId(replyId))
+        }
+    }
+
 }

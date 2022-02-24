@@ -8,7 +8,9 @@ import com.server.ud.dao.comment.*
 import com.server.ud.dto.SaveCommentRequest
 import com.server.ud.entities.MediaProcessingDetail
 import com.server.ud.entities.comment.Comment
+import com.server.ud.provider.bookmark.BookmarkProvider
 import com.server.ud.provider.job.UDJobProvider
+import com.server.ud.provider.like.LikeProvider
 import com.server.ud.provider.user_activity.UserActivitiesProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -26,6 +28,12 @@ class CommentProvider {
 
     @Autowired
     private lateinit var commentRepository: CommentRepository
+
+    @Autowired
+    private lateinit var bookmarkProvider: BookmarkProvider
+
+    @Autowired
+    private lateinit var likeProvider: LikeProvider
 
     @Autowired
     private lateinit var udJobProvider: UDJobProvider
@@ -145,6 +153,9 @@ class CommentProvider {
             commentIds.map {
                 async {
                     commentRepository.deleteByCommentId(it)
+                    bookmarkProvider.deleteResourceExpandedData(it)
+                    likeProvider.deleteResourceExpandedData(it)
+                    userActivitiesProvider.deleteCommentExpandedData(it)
                 }
             }.map { it.await() }
 

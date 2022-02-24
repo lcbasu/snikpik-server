@@ -179,9 +179,9 @@ class LikeProvider {
         }
     }
 
-    fun deletePostExpandedData(postId: String) {
+    fun deleteResourceExpandedData(resourceId: String) {
         GlobalScope.launch {
-            val likesByResource = likesByResourceRepository.findAllByResourceId(postId)
+            val likesByResource = likesByResourceRepository.findAllByResourceId(resourceId)
             val firstValue = likesByResource.firstOrNull()
             val userIds = likesByResource.map { it.userId }.toSet()
             val likeIds = likesByResource.mapNotNull { it.likeId }.toSet()
@@ -193,25 +193,25 @@ class LikeProvider {
             userIds.filterNotNull().map {
                 async {
                     val liked = likeForResourceByUserProvider.getLikeForResourceByUser(
-                        resourceId = postId,
+                        resourceId = resourceId,
                         userId = it
                     )?.liked ?: false
 
                     if (liked) {
                         likesCountByUserRepository.decrementLikes(it)
                     }
-                    likeForResourceByUserRepository.deleteAllByResourceIdAndUserId(postId, it)
+                    likeForResourceByUserRepository.deleteAllByResourceIdAndUserId(resourceId, it)
 
                     // TODO: Optimize this
-                    val allUserLikes = likesByUserRepository.findAllByResourceId(postId)
+                    val allUserLikes = likesByUserRepository.findAllByResourceId(resourceId)
                     likesByUserRepository.deleteAll(allUserLikes)
                 }
             }.map {
                 it.await()
             }
-            likesCountByResourceRepository.deleteAllByResourceId(postId)
+            likesCountByResourceRepository.deleteAllByResourceId(resourceId)
             firstValue?.let {
-                likesByResourceRepository.deleteAllByResourceIdAndResourceType(postId, it.resourceType)
+                likesByResourceRepository.deleteAllByResourceIdAndResourceType(resourceId, it.resourceType)
             }
         }
     }

@@ -434,7 +434,7 @@ class FakerProvider {
 //            repliesByPostProvider.save(it)
 //        }
 
-        postProvider.deletePost("PST1B8C05789")
+//        postProvider.deletePost("PST3766ABFFB")
 
 //        replyProvider.deletePostExpandedData("PSTee53124b-314f-4e19-9fb8-2e3b3322e7e2")
 
