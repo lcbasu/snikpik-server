@@ -77,7 +77,7 @@ class AutomationProvider {
         GlobalScope.launch {
             try {
                 val message = "[DO NOT SHARE WITH ANYONE]. OTP for ${otpValidation.absoluteMobile} is ${otpValidation.otp}"
-                val payload = Payload.builder().text("Test message").build()
+                val payload = Payload.builder().text(message).build()
                 Slack.getInstance().send(automationProperties.slack.webhook.otpDelivery, payload)
             } catch (e: Exception) {
                 e.printStackTrace()
