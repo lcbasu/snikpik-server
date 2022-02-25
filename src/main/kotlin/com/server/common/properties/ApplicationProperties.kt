@@ -116,3 +116,18 @@ data class IntegrationProperties(
 ) {
     data class InstagramProperties(var appId: String, var appSecret: String, var redirectUri: String, var refreshTokenDays: Long)
 }
+
+
+@ConstructorBinding
+@ConfigurationProperties("automation")
+data class AutomationProperties(
+    val slack: SlackProperties,
+) {
+    data class SlackProperties(var webhook: ChannelWebhookProperties) {
+        data class ChannelWebhookProperties(
+            var newUser: String,
+            var newPost: String,
+            var otpDelivery: String,
+        )
+    }
+}

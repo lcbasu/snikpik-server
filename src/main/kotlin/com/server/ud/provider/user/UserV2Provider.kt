@@ -17,6 +17,7 @@ import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.LocationFor
 import com.server.ud.enums.ProcessingType
 import com.server.ud.enums.UserLocationUpdateType
+import com.server.ud.provider.automation.AutomationProvider
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.location.LocationProvider
 import com.server.ud.provider.search.SearchProvider
@@ -53,6 +54,9 @@ class UserV2Provider {
 
     @Autowired
     private lateinit var userV2ByMobileNumberProvider: UserV2ByMobileNumberProvider
+
+    @Autowired
+    private lateinit var automationProvider: AutomationProvider
 
     fun getUser(userId: String): UserV2? =
         try {
@@ -255,7 +259,9 @@ class UserV2Provider {
         if (existing != null) {
             return existing
         }
-        return saveUserV2(getUserV2ObjectFromFirebaseObject(firebaseAuthUser))
+        val user = saveUserV2(getUserV2ObjectFromFirebaseObject(firebaseAuthUser))
+        user?.let { automationProvider.sendSlackMessageForNewUser(user) }
+        return user
     }
 
     fun getAWSLambdaAuthDetails(): AWSLambdaAuthResponse? {
@@ -345,7 +351,9 @@ class UserV2Provider {
                 userToBeSavedWithCurrentAddress
             }
 
-            return saveUserV2(userToBeSaved) ?: error("Error while saving user with ip address for userId: $userId")
+            val user = saveUserV2(userToBeSaved)
+            user?.let { automationProvider.sendSlackMessageForNewUser(user) }
+            return user
         } else {
             saveUserV2WhoJustLoggedIn()
         }

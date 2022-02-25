@@ -33,6 +33,7 @@ import com.server.ud.entities.social.SocialRelation
 import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.*
 import com.server.ud.model.sampleHashTagsIds
+import com.server.ud.provider.automation.AutomationProvider
 import com.server.ud.provider.bookmark.BookmarkProvider
 import com.server.ud.provider.bookmark.BookmarksByResourceProvider
 import com.server.ud.provider.bookmark.BookmarksByUserProvider
@@ -173,6 +174,7 @@ class FakerProvider {
                 name = location.name,
                 googlePlaceId = location.googlePlaceId,
             ), userV2.userId)
+            automationProvider.sendSlackMessageForNewUser(userV2)
             usersV2.add(userV2)
         }
 
@@ -422,7 +424,12 @@ class FakerProvider {
     @Autowired
     private lateinit var repliesByPostProvider: RepliesByPostProvider
 
+    @Autowired
+    private lateinit var automationProvider: AutomationProvider
+
     fun doSomething(): Any {
+
+        automationProvider.sendTestSlackMessage()
 
 //        bookmarkProvider.deletePostExpandedData("PSTf2dd423b-3e15-461e-b92f-3c0d485af7dc")
 //        commentProvider.deletePostExpandedData("PST5e15e8f0-a3e3-46b8-8658-4c140c1dc65b")

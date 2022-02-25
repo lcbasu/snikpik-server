@@ -2,8 +2,10 @@ package com.server.common.controller
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.server.ud.provider.automation.AutomationProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.ResponseBody
@@ -19,6 +21,11 @@ import javax.servlet.http.HttpServletResponse
 class ExternalReportsController {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
+
+
+    @Autowired
+    private lateinit var automationProvider: AutomationProvider
+
 
     @RequestMapping(value = ["/otpDelivery"], method = [RequestMethod.POST])
     @ResponseBody
@@ -39,6 +46,8 @@ class ExternalReportsController {
             // Parse the JSON message
             val stream: InputStream = ByteArrayInputStream(msgStr.toString().toByteArray())
             val message = jacksonObjectMapper().readValue(stream, Msg91SMSDeliveryObject::class.java)
+
+            automationProvider.sendSlackMessageForOTPDelivery(message)
 
             logger.info("message: ${message.toString()}")
         } catch (e: java.lang.Exception) {

@@ -25,6 +25,7 @@ import com.server.ud.model.AllHashTags
 import com.server.ud.model.MediaInputDetail
 import com.server.ud.model.convertToString
 import com.server.ud.pagination.CassandraPageV2
+import com.server.ud.provider.automation.AutomationProvider
 import com.server.ud.provider.bookmark.BookmarkProvider
 import com.server.ud.provider.comment.CommentProvider
 import com.server.ud.provider.job.UDJobProvider
@@ -140,6 +141,9 @@ class PostProvider {
     @Autowired
     private lateinit var trackingByPostRepository: TrackingByPostRepository
 
+    @Autowired
+    private lateinit var automationProvider: AutomationProvider
+
     fun getPost(postId: String): Post? =
         try {
             val posts = postRepository.findAllByPostId(postId)
@@ -218,16 +222,24 @@ class PostProvider {
                 completeAddress = location?.completeAddress,
             )
             val savedPost = postRepository.save(post)
-            // Saving this temporarily with whatever media url is in the source
-            // so that user can see all his posts immediately
-            postProcessPostAfterFirstTimeCreationForUser(savedPost)
-            handlePostSaved(savedPost)
+            processJustAfterCreation(savedPost)
             return savedPost
         } catch (e: Exception) {
             e.printStackTrace()
             return null
         }
     }
+
+    fun processJustAfterCreation(savedPost: Post) {
+        GlobalScope.launch {
+            automationProvider.sendSlackMessageForNewPost(savedPost)
+            // Saving this temporarily with whatever media url is in the source
+            // so that user can see all his posts immediately
+            postProcessPostAfterFirstTimeCreationForUser(savedPost)
+            handlePostSaved(savedPost)
+        }
+    }
+
 //
 //    fun saveUpdatedPost(post: Post) {
 //        try {

@@ -7,6 +7,7 @@ import com.server.common.utils.DateUtils
 import com.server.dk.dto.*
 import com.server.ud.provider.auth.OtpValidationProvider
 import com.server.ud.provider.auth.RefreshTokenProvider
+import com.server.ud.provider.automation.AutomationProvider
 import com.server.ud.provider.user.UserV2ByMobileNumberProvider
 import com.server.ud.utils.UDCommonUtils.fixedLoginOTPMap
 import org.springframework.beans.factory.annotation.Autowired
@@ -45,6 +46,9 @@ class AuthServiceImpl : AuthService() {
 //    @Autowired
 //    private lateinit var jwtUtil: JwtUtil
 
+    @Autowired
+    private lateinit var automationProvider: AutomationProvider
+
     override fun getAuthContext(): RequestContextResponse {
         val requestContext = authProvider.validateRequest()
         return requestContext.toRequestContextResponse()
@@ -60,6 +64,8 @@ class AuthServiceImpl : AuthService() {
                 absoluteMobileNumber = request.absoluteMobileNumber,
                 sent = false,
             )
+
+        automationProvider.sendSlackMessageForOTP(otpValidation)
 
         // Step 2
         // Send OTP SMS/Whatsapp/Any Other channel

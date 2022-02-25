@@ -35,6 +35,11 @@ dependencies {
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools:2.3.8.RELEASE")
 
+	// Slack - START
+	implementation("com.github.seratch:jslack:3.4.2")
+	implementation("org.apache.httpcomponents:httpmime:4.5.13")
+	// Slack - END
+
 	// Ably - Start
 	implementation("io.ably:ably-java:1.2.3")
 	// Ably - End
