@@ -40,7 +40,7 @@ class AutomationProvider {
     fun sendSlackMessageForNewUser(user: UserV2) {
         GlobalScope.launch {
             try {
-                val message = "${if (user.anonymous) "Guest User" else "User with Phone Number"}. Details: ${user.absoluteMobile}, ${user.userId}, ${user.fullName}, ${user.fullName}, ${user.handle}, ${user.permanentLocationName}, ${user.permanentLocationZipcode}, ${user.countryCode}, dp: ${user.getMediaDetailsForDP().media.firstOrNull()?.mediaUrl}. Link: https://www.letsunbox.in/users/${user.handle ?: user.userId}"
+                val message = "${if (user.anonymous) "Guest User" else "User with Phone Number"}. Details: ${user.absoluteMobile}, ${user.userId}, ${user.fullName}, ${user.fullName}, ${user.handle}, ${user.permanentLocationName}, ${user.permanentLocationZipcode}, ${user.countryCode}"
                 val payload = Payload
                     .builder()
                     .text(message)
