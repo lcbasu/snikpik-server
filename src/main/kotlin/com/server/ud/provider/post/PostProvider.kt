@@ -2,9 +2,11 @@ package com.server.ud.provider.post
 
 import com.server.common.dto.AllLabelsResponse
 import com.server.common.dto.convertToString
+import com.server.common.enums.MediaQualityType
 import com.server.common.enums.MediaType
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.MediaDetailsV2
+import com.server.common.model.SingleMediaDetail
 import com.server.common.model.convertToString
 import com.server.common.model.getSanitizedMediaDetails
 import com.server.common.provider.MediaHandlerProvider
@@ -625,6 +627,57 @@ class PostProvider {
 
     private fun deleteSinglePost(postId: String) {
         postRepository.deleteByPostId(postId)
+    }
+
+    fun updateSourceMediaForAll() {
+        postRepository.findAll().filterNotNull().filter { it.sourceMedia == null }.map {
+            logger.info("Updating source media for postId: ${it.postId}")
+            val media = it.getMediaDetails()
+            val videoMediaList = it.getMediaDetails().media.filter { it.mediaType == MediaType.VIDEO }
+            if (videoMediaList.size == 1) {
+                val videoMedia = videoMediaList.first()
+                val fileInfo = mediaHandlerProvider.getFileInfoFromFilePath(videoMedia.mediaUrl)
+                val existing = mediaHandlerProvider.getMediaProcessingDetail(fileInfo.fileUniqueId)
+                if (existing != null &&
+                    existing.inputFilePresent == true &&
+                    existing.inputFilePath != null &&
+                    existing.outputFilePresent == true &&
+                    existing.outputFilePath == videoMedia.mediaUrl) {
+                    val sourceMedia = MediaDetailsV2(
+                        media = listOf(
+                            SingleMediaDetail(
+                                mediaUrl = existing.inputFilePath!!,
+                                mimeType = "video",
+                                mediaType = MediaType.VIDEO,
+                                width = videoMedia.width,
+                                height = videoMedia.height,
+                                mediaQualityType = videoMedia.mediaQualityType,
+                            )
+                        )
+                    )
+                    updateSourceMedia(it, sourceMedia)
+                    logger.info("Updated source media for postId: ${it.postId}")
+                } else {
+                    logger.error("Input file path not found for post: ${it.postId}")
+                }
+            } else {
+                updateSourceMedia(it, media)
+                logger.info("Updated source media for postId: ${it.postId}")
+            }
+        }
+    }
+
+    // Only one time thing to process old data
+    private fun updateSourceMedia(post: Post, sourceMedia: MediaDetailsV2): PostUpdate {
+        return try {
+            val updatedPost = postRepository.save(post.copy(sourceMedia = sourceMedia.convertToString()))
+            val result = PostUpdate(listOf(PostUpdateType.MEDIA), post, updatedPost)
+            updatePostProcessing(result, ProcessingType.REFRESH)
+            result
+        } catch (e: Exception) {
+            e.printStackTrace()
+            PostUpdate(listOf(PostUpdateType.MEDIA), post, null)
+        }
     }
 
     fun updateMedia(post: Post, media: MediaDetailsV2, processingType: ProcessingType = ProcessingType.NO_PROCESSING): PostUpdate {

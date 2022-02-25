@@ -428,7 +428,9 @@ class FakerProvider {
 
     fun doSomething(): Any {
 
-        automationProvider.sendTestSlackMessage()
+        postProvider.updateSourceMediaForAll()
+
+//        automationProvider.sendTestSlackMessage()
 
 //        bookmarkProvider.deletePostExpandedData("PSTf2dd423b-3e15-461e-b92f-3c0d485af7dc")
 //        commentProvider.deletePostExpandedData("PST5e15e8f0-a3e3-46b8-8658-4c140c1dc65b")
