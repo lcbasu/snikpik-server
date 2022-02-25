@@ -40,7 +40,7 @@ class AutomationProvider {
     fun sendSlackMessageForNewUser(user: UserV2) {
         GlobalScope.launch {
             try {
-                val message = "${if (user.anonymous) "Guest User" else "User with Phone Number."}. Details: ${user.userId}, ${user.fullName}, ${user.handle}, ${user.permanentLocationName}, ${user.permanentLocationZipcode}, ${user.countryCode}, dp: ${user.getMediaDetailsForDP().media.firstOrNull()?.mediaUrl}. Link: https://www.letsunbox.in/users/${user.handle ?: user.userId}"
+                val message = "${if (user.anonymous) "Guest User" else "User with Phone Number"}. Details: ${user.absoluteMobile}, ${user.userId}, ${user.fullName}, ${user.fullName}, ${user.handle}, ${user.permanentLocationName}, ${user.permanentLocationZipcode}, ${user.countryCode}, dp: ${user.getMediaDetailsForDP().media.firstOrNull()?.mediaUrl}. Link: https://www.letsunbox.in/users/${user.handle ?: user.userId}"
                 val payload = Payload
                     .builder()
                     .text(message)
@@ -91,7 +91,7 @@ class AutomationProvider {
             try {
                 val number = msg91SMSDeliveryObject.report?.firstOrNull()?.number
                 val status = msg91SMSDeliveryObject.report?.firstOrNull()?.status
-                val message = "SenderId: ${msg91SMSDeliveryObject.senderId}, requestId: ${msg91SMSDeliveryObject.requestId}, userId: ${msg91SMSDeliveryObject.userId}, campaignName: ${msg91SMSDeliveryObject.campaignName}. OTP Delivery for $number ${status?.toUpperCase()}"
+                val message = "SenderId: ${msg91SMSDeliveryObject.senderId}, requestId: ${msg91SMSDeliveryObject.requestId}, userId: ${msg91SMSDeliveryObject.userId}, campaignName: ${msg91SMSDeliveryObject.campaignName}. OTP Delivery for $number with status: $status"
                 val payload = Payload.builder().text(message).build()
                 Slack.getInstance().send(automationProperties.slack.webhook.otpDelivery, payload)
             } catch (e: Exception) {
