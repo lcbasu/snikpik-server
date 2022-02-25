@@ -83,7 +83,12 @@ class UserV2Provider {
 
     fun saveUserV2(userV2: UserV2, processingType: ProcessingType = ProcessingType.REFRESH) : UserV2? {
         try {
+            val oldUser = getUser(userV2.userId)
             val savedUser = userV2Repository.save(userV2)
+            if (oldUser == null) {
+                logger.info("User ${userV2.userId} is new.")
+                automationProvider.sendSlackMessageForNewUser(savedUser)
+            }
             logger.info("UserV2 saved with userId: ${savedUser.userId}.")
             if (processingType == ProcessingType.REFRESH) {
                 udJobProvider.scheduleProcessingForUserV2(savedUser.userId)
@@ -259,9 +264,7 @@ class UserV2Provider {
         if (existing != null) {
             return existing
         }
-        val user = saveUserV2(getUserV2ObjectFromFirebaseObject(firebaseAuthUser))
-        user?.let { automationProvider.sendSlackMessageForNewUser(user) }
-        return user
+        return saveUserV2(getUserV2ObjectFromFirebaseObject(firebaseAuthUser))
     }
 
     fun getAWSLambdaAuthDetails(): AWSLambdaAuthResponse? {
@@ -351,9 +354,7 @@ class UserV2Provider {
                 userToBeSavedWithCurrentAddress
             }
 
-            val user = saveUserV2(userToBeSaved)
-            user?.let { automationProvider.sendSlackMessageForNewUser(user) }
-            return user
+            return saveUserV2(userToBeSaved)
         } else {
             saveUserV2WhoJustLoggedIn()
         }

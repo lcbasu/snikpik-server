@@ -174,7 +174,6 @@ class FakerProvider {
                 name = location.name,
                 googlePlaceId = location.googlePlaceId,
             ), userV2.userId)
-            automationProvider.sendSlackMessageForNewUser(userV2)
             usersV2.add(userV2)
         }
 
