@@ -105,7 +105,9 @@ class AutomationProvider {
     fun sendSlackMessageForUserReport(request: UserReportRequest, reportedBy: UserV2, reportedFor: UserV2) {
         GlobalScope.launch {
             try {
-                val message = "${reportedBy.userId} reported ${reportedFor.userId} for ${request.reason}."
+                val message = "ReportedBy: ${reportedBy.absoluteMobile}, ${reportedBy.userId}, ${reportedBy.permanentLocationName}, ${reportedBy.permanentLocationZipcode}\n\n" +
+                        "ReportedFor: ${reportedFor.absoluteMobile}, ${reportedFor.userId}, ${reportedFor.permanentLocationName}, ${reportedFor.permanentLocationZipcode}\n\n" +
+                        "Reason: ${request.reason}."
                 val payload = Payload.builder().text(message).build()
                 Slack.getInstance().send(automationProperties.slack.webhook.userReport, payload)
             } catch (e: Exception) {
@@ -118,12 +120,13 @@ class AutomationProvider {
     fun sendSlackMessageForPostReport(request: PostReportRequest, reportedBy: UserV2, post: Post) {
         GlobalScope.launch {
             try {
-                val message = "${reportedBy.userId} reported ${request.postId} for ${request.reason}. Post Details: (${post.postType}) title: ${post.description ?: post.title} in categories: ${
-                    post.getCategories().categories.joinToString(
-                        ","
-                    ) { it.displayName }
-                } by ${post.userName}, ${post.userHandle}. Link: https://www.letsunbox.in/posts/${post.postId}"
-
+                val message = "ReportedBy: ${reportedBy.absoluteMobile}, ${reportedBy.userId}, ${reportedBy.permanentLocationName}, ${reportedBy.permanentLocationZipcode}\n\n" +
+                        "Reason: ${request.reason}\n\n" +
+                        "Post (${post.postType}) Title: ${post.description ?: post.title} in categories: ${
+                            post.getCategories().categories.joinToString(
+                                ","
+                            ) { it.displayName }
+                        } by ${post.userName}, ${post.userHandle}. Link: https://www.letsunbox.in/posts/${post.postId}"
 
                 val payload = Payload.builder().text(message).build()
                 Slack.getInstance().send(automationProperties.slack.webhook.postReport, payload)
