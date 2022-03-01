@@ -13,4 +13,6 @@ abstract class PostService {
     abstract fun deletePost(request: DeletePostRequest): Boolean
     abstract fun deletePostFromExplore(request: DeletePostRequest): Boolean
     abstract fun update(request: UpdatePostRequest): SavedPostResponse?
+    abstract fun report(request: PostReportRequest): PostReportResponse?
+    abstract fun getAllReport(userId: String): AllPostReportResponse?
 }

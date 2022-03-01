@@ -2,7 +2,6 @@ package com.server.ud.provider.post
 
 import com.server.common.dto.AllLabelsResponse
 import com.server.common.dto.convertToString
-import com.server.common.enums.MediaQualityType
 import com.server.common.enums.MediaType
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.MediaDetailsV2
@@ -13,6 +12,7 @@ import com.server.common.provider.MediaHandlerProvider
 import com.server.common.provider.SecurityProvider
 import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.DateUtils
+import com.server.ud.dao.post.PostReportByUserRepository
 import com.server.ud.dao.post.PostRepository
 import com.server.ud.dao.post.TrackingByPostRepository
 import com.server.ud.dto.*
@@ -145,6 +145,9 @@ class PostProvider {
 
     @Autowired
     private lateinit var automationProvider: AutomationProvider
+
+    @Autowired
+    private lateinit var postReportByUserRepository: PostReportByUserRepository
 
     fun getPost(postId: String): Post? =
         try {
@@ -858,4 +861,49 @@ class PostProvider {
             logger.info("End: Update post and other dependent information for postId: ${updatedPost.postId}")
         }
     }
+
+    fun report(request: PostReportRequest): PostReportResponse? {
+        takeReportAction(request)
+        return  PostReportResponse(
+            reportedByUserId = request.reportedByUserId,
+            postId = request.postId,
+            reason = request.reason,
+            action = request.action,
+            actionDetails = "We have registered your complaint and we will take an action within 24 hours. Thank you for helping us make Unbox a better place for everyone.",
+        )
+    }
+
+    fun takeReportAction(request: PostReportRequest) {
+        GlobalScope.launch {
+            postReportByUserRepository.save(
+                PostReportByUser(
+                    postId = request.postId,
+                    reportedByUserId = request.reportedByUserId,
+                    reason = request.reason,
+                    action = request.action,
+                )
+            )
+
+            val post = getPost(request.postId) ?: error("Post not found for postId: ${request.postId}")
+            val user = userV2Provider.getUser(request.reportedByUserId) ?: error("User not found for reportedByUserId: ${request.reportedByUserId}")
+
+            automationProvider.sendSlackMessageForPostReport(request, user, post)
+        }
+    }
+
+    fun getAllReport(userId: String): AllPostReportResponse? {
+        val reports = postReportByUserRepository.findAllByReportedByUserId(userId)
+        return AllPostReportResponse(
+            reports = reports.map {
+                PostReportResponse(
+                    reportedByUserId = it.reportedByUserId,
+                    postId = it.postId,
+                    reason = it.reason,
+                    action = it.action,
+                    actionDetails = "Reported",
+                )
+            }
+        )
+    }
+
 }

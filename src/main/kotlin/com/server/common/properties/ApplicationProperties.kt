@@ -128,6 +128,8 @@ data class AutomationProperties(
             var newUser: String,
             var newPost: String,
             var otpDelivery: String,
+            var userReport: String,
+            var postReport: String,
         )
     }
 }

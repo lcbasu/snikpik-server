@@ -211,3 +211,5 @@ automation:
       new-user: ${SLACK_NEW_USER_WEBHOOK}
       new-post: ${SLACK_NEW_POST_WEBHOOK}
       otp-delivery: ${SLACK_OTP_DELIVERY_WEBHOOK}
+      user-report: ${SLACK_USER_REPORT_WEBHOOK}
+      post-report: ${SLACK_POST_REPORT_WEBHOOK}

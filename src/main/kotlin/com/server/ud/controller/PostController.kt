@@ -57,4 +57,14 @@ class PostController {
     fun getPostsCountByUser(@RequestParam userId: String): PostsCountByUser? {
         return postService.getPostsCountByUser(userId)
     }
+
+    @RequestMapping(value = ["/report"], method = [RequestMethod.POST])
+    fun report(@RequestBody request: PostReportRequest): PostReportResponse? {
+        return postService.report(request)
+    }
+
+    @RequestMapping(value = ["/getAllReport"], method = [RequestMethod.GET])
+    fun getAllReport(@RequestParam userId: String): AllPostReportResponse? {
+        return postService.getAllReport(userId)
+    }
 }

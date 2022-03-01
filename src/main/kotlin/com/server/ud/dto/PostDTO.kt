@@ -8,9 +8,31 @@ import com.server.common.utils.DateUtils
 import com.server.ud.entities.post.*
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.InstagramMediaType
+import com.server.ud.enums.PostReportActionType
 import com.server.ud.enums.PostType
 import com.server.ud.model.AllHashTags
 import java.time.Instant
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class PostReportRequest (
+    val reportedByUserId: String,
+    val postId: String,
+    val reason: String?,
+    val action: PostReportActionType,
+)
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class PostReportResponse (
+    val reportedByUserId: String,
+    val postId: String,
+    val actionDetails: String,
+    val reason: String?,
+    val action: PostReportActionType,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AllPostReportResponse (
+    val reports: List<PostReportResponse>
+)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class FakePostRequest(

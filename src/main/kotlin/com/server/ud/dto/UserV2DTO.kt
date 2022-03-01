@@ -8,11 +8,33 @@ import com.server.common.enums.ProfileCategory
 import com.server.common.enums.ProfileType
 import com.server.common.model.MediaDetailsV2
 import com.server.common.utils.DateUtils
-import com.server.ud.dto.getCategories
 import com.server.ud.entities.post.*
 import com.server.ud.entities.user.*
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.UserLocationUpdateType
+import com.server.ud.enums.UserReportActionType
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class UserReportRequest (
+    val reportedByUserId: String,
+    val forUserId: String,
+    val reason: String?,
+    val action: UserReportActionType,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class UserReportResponse (
+    val reportedByUserId: String,
+    val forUserId: String,
+    val actionDetails: String,
+    val reason: String?,
+    val action: UserReportActionType,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AllUserReportResponse (
+    val reports: List<UserReportResponse>
+)
 
 data class LikedPostsByUserPostDetail(
     val likedByUserId: String,

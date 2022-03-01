@@ -156,6 +156,14 @@ class UserV2ServiceImpl : UserV2Service() {
         return userV2Provider.removeUserV2Handle()?.toSavedUserV2Response()
     }
 
+    override fun report(request: UserReportRequest): UserReportResponse? {
+        return userV2Provider.report(request)
+    }
+
+    override fun getAllReport(userId: String): AllUserReportResponse? {
+        return userV2Provider.getAllReport(userId)
+    }
+
     override fun getProfileTypesByProfileCategory(profileCategory: ProfileCategory): AllProfileTypeResponse? {
         return userV2Provider.getProfileTypesByProfileCategory(profileCategory)
     }

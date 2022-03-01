@@ -217,4 +217,14 @@ class UserV2Controller {
         securityProvider.validateRequest()
         return userV2Service.getAllProfileTypes()
     }
+
+    @RequestMapping(value = ["/report"], method = [RequestMethod.POST])
+    fun report(@RequestBody request: UserReportRequest): UserReportResponse? {
+        return userV2Service.report(request)
+    }
+
+    @RequestMapping(value = ["/getAllReport"], method = [RequestMethod.GET])
+    fun getAllReport(@RequestParam userId: String): AllUserReportResponse? {
+        return userV2Service.getAllReport(userId)
+    }
 }

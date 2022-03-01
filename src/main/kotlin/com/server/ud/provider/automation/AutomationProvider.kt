@@ -4,11 +4,12 @@ import com.github.seratch.jslack.Slack
 import com.github.seratch.jslack.api.webhook.Payload
 import com.server.common.controller.Msg91SMSDeliveryObject
 import com.server.common.properties.AutomationProperties
+import com.server.ud.dto.PostReportRequest
+import com.server.ud.dto.UserReportRequest
 import com.server.ud.entities.auth.OtpValidation
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.getCategories
 import com.server.ud.entities.user.UserV2
-import com.server.ud.entities.user.getMediaDetailsForDP
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
@@ -97,6 +98,38 @@ class AutomationProvider {
             } catch (e: Exception) {
                 e.printStackTrace()
                 logger.error("sendSlackMessageForOTPDelivery Error while sending test slack message", e)
+            }
+        }
+    }
+
+    fun sendSlackMessageForUserReport(request: UserReportRequest, reportedBy: UserV2, reportedFor: UserV2) {
+        GlobalScope.launch {
+            try {
+                val message = "${reportedBy.userId} reported ${reportedFor.userId} for ${request.reason}."
+                val payload = Payload.builder().text(message).build()
+                Slack.getInstance().send(automationProperties.slack.webhook.userReport, payload)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                logger.error("sendSlackMessageForUserReport Error while sending test slack message", e)
+            }
+        }
+    }
+
+    fun sendSlackMessageForPostReport(request: PostReportRequest, reportedBy: UserV2, post: Post) {
+        GlobalScope.launch {
+            try {
+                val message = "${reportedBy.userId} reported ${request.postId} for ${request.reason}. Post Details: (${post.postType}) title: ${post.description ?: post.title} in categories: ${
+                    post.getCategories().categories.joinToString(
+                        ","
+                    ) { it.displayName }
+                } by ${post.userName}, ${post.userHandle}. Link: https://www.letsunbox.in/posts/${post.postId}"
+
+
+                val payload = Payload.builder().text(message).build()
+                Slack.getInstance().send(automationProperties.slack.webhook.postReport, payload)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                logger.error("sendSlackMessageForUserReport Error while sending test slack message", e)
             }
         }
     }

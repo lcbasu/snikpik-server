@@ -53,4 +53,12 @@ class PostServiceImpl : PostService() {
     override fun update(request: UpdatePostRequest): SavedPostResponse? {
         return postProvider.update(request)
     }
+
+    override fun report(request: PostReportRequest): PostReportResponse? {
+        return postProvider.report(request)
+    }
+
+    override fun getAllReport(userId: String): AllPostReportResponse? {
+        return postProvider.getAllReport(userId)
+    }
 }

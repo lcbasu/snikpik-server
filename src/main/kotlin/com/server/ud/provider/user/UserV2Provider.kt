@@ -11,8 +11,11 @@ import com.server.common.model.UserDetailsFromToken
 import com.server.common.model.convertToString
 import com.server.common.provider.SecurityProvider
 import com.server.common.utils.DateUtils
+import com.server.ud.dao.user.UserReportByUserRepository
 import com.server.ud.dao.user.UserV2Repository
 import com.server.ud.dto.*
+import com.server.ud.entities.post.PostReportByUser
+import com.server.ud.entities.user.UserReportByUser
 import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.LocationFor
 import com.server.ud.enums.ProcessingType
@@ -28,6 +31,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import kotlin.math.acosh
 
 @Component
 class UserV2Provider {
@@ -57,6 +61,9 @@ class UserV2Provider {
 
     @Autowired
     private lateinit var automationProvider: AutomationProvider
+
+    @Autowired
+    private lateinit var userReportByUserRepository: UserReportByUserRepository
 
     fun getUser(userId: String): UserV2? =
         try {
@@ -508,6 +515,52 @@ class UserV2Provider {
         }
         val newUserToBeSaved = user.copy(handle = null, fullName = null)
         return saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING)
+    }
+
+    fun report(request: UserReportRequest): UserReportResponse? {
+        takeReportAction(request)
+        return  UserReportResponse(
+            reportedByUserId = request.reportedByUserId,
+            forUserId = request.forUserId,
+            reason = request.reason,
+            action = request.action,
+            actionDetails = "We have registered your complaint and we will take an action within 24 hours. Thank you for helping us make Unbox a better place for everyone.",
+        )
+    }
+
+    fun takeReportAction(request: UserReportRequest) {
+        GlobalScope.launch {
+
+            userReportByUserRepository.save(
+                UserReportByUser(
+                    reportedByUserId = request.reportedByUserId,
+                    reportedForUserId = request.forUserId,
+                    reason = request.reason,
+                    action = request.action,
+                )
+            )
+
+            val reportedByUser = getUser(request.reportedByUserId) ?: error("User not found for reportedByUserId: ${request.reportedByUserId}")
+            val reportedForUser = getUser(request.forUserId) ?: error("User not found for forUserId: ${request.forUserId}")
+
+            automationProvider.sendSlackMessageForUserReport(request, reportedBy = reportedByUser, reportedFor = reportedForUser)
+
+        }
+    }
+
+    fun getAllReport(userId: String): AllUserReportResponse? {
+        val reports = userReportByUserRepository.findAllByReportedByUserId(userId)
+        return AllUserReportResponse(
+            reports = reports.map {
+                UserReportResponse(
+                    reportedByUserId = it.reportedByUserId,
+                    forUserId = it.reportedForUserId,
+                    reason = it.reason,
+                    action = it.action,
+                    actionDetails = "Reported",
+                )
+            }
+        )
     }
 
 }
