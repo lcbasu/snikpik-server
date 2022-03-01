@@ -19,6 +19,7 @@ import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.LocationFor
 import com.server.ud.enums.ProcessingType
 import com.server.ud.enums.UserLocationUpdateType
+import com.server.ud.enums.UserReportActionType
 import com.server.ud.provider.automation.AutomationProvider
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.location.LocationProvider
@@ -558,6 +559,19 @@ class UserV2Provider {
                     actionDetails = "Reported",
                 )
             }
+        )
+    }
+
+    fun unblockUser(request: UnblockUserRequest): UnblockUserResponse? {
+        userReportByUserRepository.deleteByReportedByUserIdAndActionAndReportedForUserId(
+            reportedByUserId = request.reportedByUserId,
+            action = UserReportActionType.BLOCK,
+            reportedForUserId = request.toUnblockUserId,
+        )
+        return UnblockUserResponse(
+            reportedByUserId = request.reportedByUserId,
+            toUnblockUserId = request.toUnblockUserId,
+            unblocked = true
         )
     }
 

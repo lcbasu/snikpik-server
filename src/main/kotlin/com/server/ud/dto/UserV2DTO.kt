@@ -15,6 +15,19 @@ import com.server.ud.enums.UserLocationUpdateType
 import com.server.ud.enums.UserReportActionType
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class UnblockUserRequest (
+    val reportedByUserId: String, // Logged in user Id
+    val toUnblockUserId: String,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class UnblockUserResponse (
+    val reportedByUserId: String, // Logged in user Id
+    val toUnblockUserId: String,
+    val unblocked: Boolean,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class UserReportRequest (
     val reportedByUserId: String,
     val forUserId: String,

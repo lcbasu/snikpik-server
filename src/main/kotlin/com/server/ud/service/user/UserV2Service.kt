@@ -38,4 +38,5 @@ abstract class UserV2Service {
     abstract fun removeUserV2Handle(): SavedUserV2Response?
     abstract fun report(request: UserReportRequest): UserReportResponse?
     abstract fun getAllReport(userId: String): AllUserReportResponse?
+    abstract fun unblockUser(request: UnblockUserRequest): UnblockUserResponse?
 }

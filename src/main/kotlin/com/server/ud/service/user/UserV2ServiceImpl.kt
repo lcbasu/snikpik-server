@@ -164,6 +164,10 @@ class UserV2ServiceImpl : UserV2Service() {
         return userV2Provider.getAllReport(userId)
     }
 
+    override fun unblockUser(request: UnblockUserRequest): UnblockUserResponse? {
+        return userV2Provider.unblockUser(request)
+    }
+
     override fun getProfileTypesByProfileCategory(profileCategory: ProfileCategory): AllProfileTypeResponse? {
         return userV2Provider.getProfileTypesByProfileCategory(profileCategory)
     }

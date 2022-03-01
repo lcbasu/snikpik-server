@@ -223,6 +223,11 @@ class UserV2Controller {
         return userV2Service.report(request)
     }
 
+    @RequestMapping(value = ["/unblockUser"], method = [RequestMethod.POST])
+    fun unblockUser(@RequestBody request: UnblockUserRequest): UnblockUserResponse? {
+        return userV2Service.unblockUser(request)
+    }
+
     @RequestMapping(value = ["/getAllReport"], method = [RequestMethod.GET])
     fun getAllReport(@RequestParam userId: String): AllUserReportResponse? {
         return userV2Service.getAllReport(userId)
