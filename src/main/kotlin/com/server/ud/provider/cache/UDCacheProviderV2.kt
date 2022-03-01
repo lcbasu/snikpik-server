@@ -25,20 +25,35 @@ class UDCacheProviderV2 {
     fun getBlockedIds(userId: String): BlockedIDs {
         return BlockedIDs(
             postIds = getBlockedPostIds(userId),
-            userIds = getBlockedUserIds(userId)
+            userIds = getBlockedUserIds(userId),
+            mutedUserIds = getMutedUserIds(userId)
         )
     }
 
-    fun getBlockedPostIds(userId: String): Set<String> {
+    private fun getBlockedPostIds(userId: String): Set<String> {
         val postReports: List<PostReportResponse> = userId?.let {
             getPostReports(userId)?.reports?.filter { it.action == PostReportActionType.SPAM } ?: emptyList()
         } ?: emptyList()
         return postReports.map { it.postId }.toSet()
     }
 
-    fun getBlockedUserIds(userId: String): Set<String> {
+    fun getMutedUserIds(userId: String): Set<String> {
+        val userReports: List<UserReportResponse> = userId?.let {
+            getUserReports(userId)?.reports?.filter { it.action == UserReportActionType.MUTE_FEED } ?: emptyList()
+        }
+        return userReports.map { it.forUserId }.toSet()
+    }
+
+    private fun getBlockedUserIds(userId: String): Set<String> {
         val userReports: List<UserReportResponse> = userId?.let {
             getUserReports(userId)?.reports?.filter { it.action == UserReportActionType.BLOCK } ?: emptyList()
+        }
+        return userReports.map { it.forUserId }.toSet()
+    }
+
+    fun getBlockedOrMutedUserIds(userId: String): Set<String> {
+        val userReports: List<UserReportResponse> = userId?.let {
+            getUserReports(userId)?.reports?.filter { it.action == UserReportActionType.BLOCK || it.action == UserReportActionType.MUTE_FEED } ?: emptyList()
         }
         return userReports.map { it.forUserId }.toSet()
     }
@@ -48,4 +63,5 @@ class UDCacheProviderV2 {
 data class BlockedIDs (
     val postIds: Set<String> = emptySet(),
     val userIds: Set<String> = emptySet(),
+    val mutedUserIds: Set<String> = emptySet(),
 )

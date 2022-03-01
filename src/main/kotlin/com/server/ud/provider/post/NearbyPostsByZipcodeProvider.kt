@@ -195,7 +195,7 @@ class NearbyPostsByZipcodeProvider {
             udCacheProvider.getBlockedIds(userId) ?: BlockedIDs()
         } ?: BlockedIDs()
         val posts = result.content?.filterNotNull()?.filterNot {
-            it.postId in blockedIds.postIds || it.userId in blockedIds.userIds
+            it.postId in blockedIds.postIds || it.userId in blockedIds.userIds || it.userId in blockedIds.mutedUserIds
         }?.map { it.toSavedPostResponse() } ?: emptyList()
         return CommunityWallViewResponse(
             posts = posts,

@@ -715,7 +715,7 @@ class UserActivitiesProvider {
             udCacheProvider.getBlockedIds(userId)
         } ?: BlockedIDs()
         val activities = result.content?.filterNotNull()?.filterNot {
-            it.byUserId in blockedIds.userIds || it.postId in blockedIds.postIds
+            it.byUserId in blockedIds.userIds || it.postId in blockedIds.postIds || it.byUserId in blockedIds.mutedUserIds
         }?.mapNotNull { it.toUserActivityResponse() } ?: emptyList()
         return UserActivitiesFeedResponse(
             activities = activities,
@@ -732,7 +732,7 @@ class UserActivitiesProvider {
             udCacheProvider.getBlockedIds(userId)
         } ?: BlockedIDs()
         val activities = result.content?.filterNotNull()?.filterNot {
-            it.forUserId in blockedIds.userIds || it.postId in blockedIds.postIds
+            it.forUserId in blockedIds.userIds || it.postId in blockedIds.postIds || it.forUserId in blockedIds.mutedUserIds
         }?.mapNotNull { it.toUserActivityResponse() } ?: emptyList()
         return UserActivitiesFeedResponse(
             activities = activities,

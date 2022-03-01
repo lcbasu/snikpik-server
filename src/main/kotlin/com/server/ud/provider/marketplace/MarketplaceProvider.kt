@@ -45,7 +45,7 @@ class MarketplaceProvider {
         )
         val userId = securityProvider.getFirebaseAuthUser()?.getUserIdToUse()
         val blockedIds = userId?.let {
-            udCacheProvider.getBlockedUserIds(userId)
+            udCacheProvider.getBlockedOrMutedUserIds(userId)
         } ?: emptySet()
         val result = resultForProfileTypes.content?.filterNotNull()?.map {
             val users = usersByNearbyZipcodeAndProfileTypeProvider.getFeedForMarketplaceUsers(
@@ -82,7 +82,7 @@ class MarketplaceProvider {
         )
         val userId = securityProvider.getFirebaseAuthUser()?.getUserIdToUse()
         val blockedIds = userId?.let {
-            udCacheProvider.getBlockedUserIds(userId)
+            udCacheProvider.getBlockedOrMutedUserIds(userId)
         } ?: emptySet()
         val result = resultForProfileTypes.content?.filterNotNull()?.map {
             val users = usersByNearbyZipcodeAndProfileTypeProvider.getFeedForMarketplaceUsers(
