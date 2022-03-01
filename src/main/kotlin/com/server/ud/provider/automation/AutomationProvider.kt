@@ -105,8 +105,8 @@ class AutomationProvider {
     fun sendSlackMessageForUserReport(request: UserReportRequest, reportedBy: UserV2, reportedFor: UserV2) {
         GlobalScope.launch {
             try {
-                val message = "ReportedBy: ${reportedBy.absoluteMobile}, ${reportedBy.userId}, ${reportedBy.permanentLocationName}, ${reportedBy.permanentLocationZipcode}\n\n" +
-                        "ReportedFor: ${reportedFor.absoluteMobile}, ${reportedFor.userId}, ${reportedFor.permanentLocationName}, ${reportedFor.permanentLocationZipcode}\n\n" +
+                val message = "ReportedBy: ${reportedBy.fullName}, ${reportedBy.handle}, ${reportedBy.absoluteMobile}, ${reportedBy.userId}, ${reportedBy.permanentLocationName}, ${reportedBy.permanentLocationZipcode}\n\n" +
+                        "ReportedFor: ${reportedFor.fullName}, ${reportedFor.handle}, ${reportedFor.absoluteMobile}, ${reportedFor.userId}, ${reportedFor.permanentLocationName}, ${reportedFor.permanentLocationZipcode}\n\n" +
                         "Reason: ${request.reason}."
                 val payload = Payload.builder().text(message).build()
                 Slack.getInstance().send(automationProperties.slack.webhook.userReport, payload)
@@ -120,7 +120,7 @@ class AutomationProvider {
     fun sendSlackMessageForPostReport(request: PostReportRequest, reportedBy: UserV2, post: Post) {
         GlobalScope.launch {
             try {
-                val message = "ReportedBy: ${reportedBy.absoluteMobile}, ${reportedBy.userId}, ${reportedBy.permanentLocationName}, ${reportedBy.permanentLocationZipcode}\n\n" +
+                val message = "ReportedBy: ${reportedBy.fullName}, ${reportedBy.handle}, ${reportedBy.absoluteMobile}, ${reportedBy.userId}, ${reportedBy.permanentLocationName}, ${reportedBy.permanentLocationZipcode}\n\n" +
                         "Reason: ${request.reason}\n\n" +
                         "Post (${post.postType}) Title: ${post.description ?: post.title} in categories: ${
                             post.getCategories().categories.joinToString(
