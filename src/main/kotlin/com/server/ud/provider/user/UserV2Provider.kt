@@ -14,8 +14,7 @@ import com.server.common.utils.DateUtils
 import com.server.ud.dao.user.UserReportByUserRepository
 import com.server.ud.dao.user.UserV2Repository
 import com.server.ud.dto.*
-import com.server.ud.entities.post.PostReportByUser
-import com.server.ud.entities.user.UserReportByUser
+import com.server.ud.entities.user.UserReportV2ByUser
 import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.LocationFor
 import com.server.ud.enums.ProcessingType
@@ -31,7 +30,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import kotlin.math.acosh
 
 @Component
 class UserV2Provider {
@@ -532,7 +530,7 @@ class UserV2Provider {
         GlobalScope.launch {
 
             userReportByUserRepository.save(
-                UserReportByUser(
+                UserReportV2ByUser(
                     reportedByUserId = request.reportedByUserId,
                     reportedForUserId = request.forUserId,
                     reason = request.reason,

@@ -876,7 +876,7 @@ class PostProvider {
     fun takeReportAction(request: PostReportRequest) {
         GlobalScope.launch {
             postReportByUserRepository.save(
-                PostReportByUser(
+                PostReportV2ByUser(
                     postId = request.postId,
                     reportedByUserId = request.reportedByUserId,
                     reason = request.reason,

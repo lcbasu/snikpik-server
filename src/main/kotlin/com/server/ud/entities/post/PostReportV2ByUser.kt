@@ -11,18 +11,18 @@ import java.time.Instant
 import javax.persistence.EnumType
 import javax.persistence.Enumerated
 
-@Table("post_reported_by_user")
-class PostReportByUser (
+@Table("post_report_v2_by_user")
+class PostReportV2ByUser (
 
     @PrimaryKeyColumn(name = "reported_by_user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var reportedByUserId: String,
 
-    @PrimaryKeyColumn(name = "post_id", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
-    var postId: String,
-
-    @Column("action")
     @Enumerated(EnumType.STRING)
+    @PrimaryKeyColumn(name = "action", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
     val action: PostReportActionType = PostReportActionType.SPAM,
+
+    @PrimaryKeyColumn(name = "post_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
+    var postId: String,
 
     @Column("created_at")
     @CassandraType(type = CassandraType.Name.TIMESTAMP)
