@@ -3,7 +3,11 @@ package com.server.ud.provider.marketplace
 import com.server.common.dto.ProfileTypeWithUsersResponse
 import com.server.common.dto.ProfileTypeWithUsersResponseV3
 import com.server.common.dto.toProfileTypeResponse
+import com.server.common.provider.SecurityProvider
 import com.server.ud.dto.*
+import com.server.ud.enums.UserReportActionType
+import com.server.ud.provider.cache.UDCacheProvider
+import com.server.ud.provider.cache.UDCacheProviderV2
 import com.server.ud.provider.user.ProfileTypesByNearbyZipcodeProvider
 import com.server.ud.provider.user.UserV2Provider
 import com.server.ud.provider.user.UsersByNearbyZipcodeAndProfileTypeProvider
@@ -24,6 +28,12 @@ class MarketplaceProvider {
     @Autowired
     private lateinit var userV2Provider: UserV2Provider
 
+    @Autowired
+    private lateinit var udCacheProvider: UDCacheProviderV2
+
+    @Autowired
+    private lateinit var securityProvider: SecurityProvider
+
     fun getFeedForMarketplaceUsersV2(request: MarketplaceUsersFeedRequestV2): MarketplaceUsersFeedResponseV2 {
         val resultForProfileTypes = profileTypesByNearbyZipcodeProvider.getFeedForMarketplaceProfileTypes(
             MarketplaceProfileTypesFeedRequest(
@@ -33,6 +43,10 @@ class MarketplaceProvider {
                 request.pagingState
             )
         )
+        val userId = securityProvider.getFirebaseAuthUser()?.getUserIdToUse()
+        val blockedIds = userId?.let {
+            udCacheProvider.getBlockedUserIds(userId)
+        } ?: emptySet()
         val result = resultForProfileTypes.content?.filterNotNull()?.map {
             val users = usersByNearbyZipcodeAndProfileTypeProvider.getFeedForMarketplaceUsers(
                 MarketplaceUserFeedRequest(
@@ -44,7 +58,9 @@ class MarketplaceProvider {
             )
             ProfileTypeWithUsersResponse(
                 profileTypeToShow = it.profileType.toProfileTypeResponse(),
-                users = (users.content?.filterNotNull()?.mapNotNull { it.toMarketplaceUserDetail(userV2Provider) } ?: emptyList())
+                users = (users.content?.filterNotNull()?.filter {
+                    it.userId !in blockedIds
+                }?.mapNotNull { it.toMarketplaceUserDetail(userV2Provider) } ?: emptyList())
             )
         } ?: emptyList()
         return MarketplaceUsersFeedResponseV2(
@@ -64,6 +80,10 @@ class MarketplaceProvider {
                 request.pagingState
             )
         )
+        val userId = securityProvider.getFirebaseAuthUser()?.getUserIdToUse()
+        val blockedIds = userId?.let {
+            udCacheProvider.getBlockedUserIds(userId)
+        } ?: emptySet()
         val result = resultForProfileTypes.content?.filterNotNull()?.map {
             val users = usersByNearbyZipcodeAndProfileTypeProvider.getFeedForMarketplaceUsers(
                 MarketplaceUserFeedRequest(
@@ -75,7 +95,9 @@ class MarketplaceProvider {
             )
             ProfileTypeWithUsersResponseV3(
                 profileTypeToShow = it.profileType.toProfileTypeResponse(),
-                users = (users.content?.filterNotNull()?.mapNotNull { it.toUserV2PublicMiniDataResponse(userV2Provider) } ?: emptyList())
+                users = (users.content?.filterNotNull()?.filter {
+                    it.userId !in blockedIds
+                }?.mapNotNull { it.toUserV2PublicMiniDataResponse(userV2Provider) } ?: emptyList())
             )
         } ?: emptyList()
         return MarketplaceUsersFeedResponseV3(

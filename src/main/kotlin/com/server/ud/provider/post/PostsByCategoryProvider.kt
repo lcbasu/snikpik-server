@@ -2,6 +2,7 @@ package com.server.ud.provider.post
 
 import com.github.benmanes.caffeine.cache.CacheLoader
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.server.common.provider.SecurityProvider
 import com.server.common.utils.CommonUtils.STRING_SEPARATOR
 import com.server.ud.dao.post.PostsByCategoryRepository
 import com.server.ud.dto.ExploreFeedRequest
@@ -15,6 +16,9 @@ import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
 import com.server.ud.enums.ProcessingType
 import com.server.ud.pagination.CassandraPageV2
+import com.server.ud.provider.cache.BlockedIDs
+import com.server.ud.provider.cache.UDCacheProvider
+import com.server.ud.provider.cache.UDCacheProviderV2
 import com.server.ud.utils.UDCommonUtils.DEFAULT_PAGING_STATE_VALUE
 import com.server.ud.utils.pagination.PaginationRequestUtil
 import kotlinx.coroutines.*
@@ -38,6 +42,12 @@ class PostsByCategoryProvider {
 
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
+
+    @Autowired
+    private lateinit var udCacheProvider: UDCacheProviderV2
+
+    @Autowired
+    private lateinit var securityProvider: SecurityProvider
 
     private val exploreTabViewResponseCache by lazy {
         Caffeine
@@ -110,9 +120,16 @@ class PostsByCategoryProvider {
 
     fun getExploreTabViewResponseFromDB(request: ExploreFeedRequest): ExploreTabViewResponse {
         val result = getFeedForCategory(request)
+        val userId = securityProvider.getFirebaseAuthUser()?.getUserIdToUse()
+        val blockedIds = userId?.let {
+            udCacheProvider.getBlockedIds(userId) ?: BlockedIDs()
+        } ?: BlockedIDs()
+        val posts = result.content?.filterNotNull()?.filterNot {
+            it.postId in blockedIds.postIds || it.userId in blockedIds.userIds
+        }?.map { it.toSavedPostResponse() } ?: emptyList()
         return ExploreTabViewResponse(
-            posts = result.content?.filterNotNull()?.map { it.toSavedPostResponse() } ?: emptyList(),
-            count = result.count,
+            posts = posts,
+            count = posts.size,
             hasNext = result.hasNext,
             pagingState = result.pagingState
         )

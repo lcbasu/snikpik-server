@@ -15,22 +15,10 @@ class UserActivitiesServiceImpl: UserActivitiesService() {
     private lateinit var userActivitiesProvider: UserActivitiesProvider
 
     override fun getActivitiesFeedForUser(request: ForUserActivitiesFeedRequest): UserActivitiesFeedResponse? {
-        val result = userActivitiesProvider.getActivitiesFeedForUser(request)
-        return UserActivitiesFeedResponse(
-            activities = result.content?.filterNotNull()?.mapNotNull { it.toUserActivityResponse() } ?: emptyList(),
-            count = result.count,
-            hasNext = result.hasNext,
-            pagingState = result.pagingState
-        )
+        return userActivitiesProvider.getActivitiesFeedForUser_Internal(request)
     }
 
     override fun getActivitiesFeedByUser(request: ByUserActivitiesFeedRequest): UserActivitiesFeedResponse? {
-        val result = userActivitiesProvider.getActivitiesFeedByUser(request)
-        return UserActivitiesFeedResponse(
-            activities = result.content?.filterNotNull()?.mapNotNull { it.toUserActivityResponse() } ?: emptyList(),
-            count = result.count,
-            hasNext = result.hasNext,
-            pagingState = result.pagingState
-        )
+        return userActivitiesProvider.getActivitiesFeedByUser_Internal(request)
     }
 }

@@ -1,11 +1,14 @@
 package com.server.ud.provider.user_activity
 
 import com.server.common.enums.ReadableIdPrefix
+import com.server.common.provider.SecurityProvider
 import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.user_activity.*
 import com.server.ud.dto.ByUserActivitiesFeedRequest
 import com.server.ud.dto.ForUserActivitiesFeedRequest
+import com.server.ud.dto.UserActivitiesFeedResponse
+import com.server.ud.dto.toUserActivityResponse
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.entities.comment.Comment
 import com.server.ud.entities.like.Like
@@ -15,6 +18,9 @@ import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user_activity.*
 import com.server.ud.enums.*
 import com.server.ud.pagination.CassandraPageV2
+import com.server.ud.provider.cache.BlockedIDs
+import com.server.ud.provider.cache.UDCacheProvider
+import com.server.ud.provider.cache.UDCacheProviderV2
 import com.server.ud.provider.comment.CommentProvider
 import com.server.ud.provider.notification.DeviceNotificationProvider
 import com.server.ud.provider.post.PostProvider
@@ -66,6 +72,12 @@ class UserActivitiesProvider {
 
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
+
+    @Autowired
+    private lateinit var udCacheProvider: UDCacheProviderV2
+
+    @Autowired
+    private lateinit var securityProvider: SecurityProvider
 
     fun savePostCreationActivity(post: Post) {
         val userActivityType = if (post.postType == PostType.GENERIC_POST) UserActivityType.POST_CREATED else UserActivityType.WALL_CREATED
@@ -694,6 +706,40 @@ class UserActivitiesProvider {
             userActivitiesByUserRepository.deleteAll(userActivitiesByUserRepository.getAllByReplyId(replyId))
             userActivitiesByUserAndAggregateRepository.deleteAll(userActivitiesByUserAndAggregateRepository.getAllByReplyId(replyId))
         }
+    }
+
+    fun getActivitiesFeedForUser_Internal(request: ForUserActivitiesFeedRequest): UserActivitiesFeedResponse? {
+        val result = getActivitiesFeedForUser(request)
+        val userId = securityProvider.getFirebaseAuthUser()?.getUserIdToUse()
+        val blockedIds = userId?.let {
+            udCacheProvider.getBlockedIds(userId)
+        } ?: BlockedIDs()
+        val activities = result.content?.filterNotNull()?.filterNot {
+            it.byUserId in blockedIds.userIds || it.postId in blockedIds.postIds
+        }?.mapNotNull { it.toUserActivityResponse() } ?: emptyList()
+        return UserActivitiesFeedResponse(
+            activities = activities,
+            count = activities.size,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
+    }
+
+    fun getActivitiesFeedByUser_Internal(request: ByUserActivitiesFeedRequest): UserActivitiesFeedResponse? {
+        val result = getActivitiesFeedByUser(request)
+        val userId = securityProvider.getFirebaseAuthUser()?.getUserIdToUse()
+        val blockedIds = userId?.let {
+            udCacheProvider.getBlockedIds(userId)
+        } ?: BlockedIDs()
+        val activities = result.content?.filterNotNull()?.filterNot {
+            it.forUserId in blockedIds.userIds || it.postId in blockedIds.postIds
+        }?.mapNotNull { it.toUserActivityResponse() } ?: emptyList()
+        return UserActivitiesFeedResponse(
+            activities = activities,
+            count = activities.size,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
     }
 
 }

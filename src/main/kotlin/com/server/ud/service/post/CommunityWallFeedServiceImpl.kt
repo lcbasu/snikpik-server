@@ -16,13 +16,7 @@ class CommunityWallFeedServiceImpl : CommunityWallFeedService() {
     private lateinit var userV2Provider: UserV2Provider
 
     override fun getFeed(request: CommunityWallFeedRequest): CommunityWallViewResponse {
-        val result = nearbyPostsByZipcodeProvider.getCommunityWallFeed(request)
-        return CommunityWallViewResponse(
-            posts = result.content?.filterNotNull()?.map { it.toSavedPostResponse() } ?: emptyList(),
-            count = result.count,
-            hasNext = result.hasNext,
-            pagingState = result.pagingState
-        )
+        return nearbyPostsByZipcodeProvider.getFeed(request)
     }
 
     override fun getUserInfo(userId: String): CommunityWallViewUserDetail {

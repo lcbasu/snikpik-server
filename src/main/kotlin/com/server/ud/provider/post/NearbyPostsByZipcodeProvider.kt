@@ -1,8 +1,11 @@
 package com.server.ud.provider.post
 
+import com.server.common.provider.SecurityProvider
 import com.server.ud.dao.post.NearbyPostsByZipcodeRepository
 import com.server.ud.dto.CommunityWallFeedRequest
+import com.server.ud.dto.CommunityWallViewResponse
 import com.server.ud.dto.NearbyFeedRequest
+import com.server.ud.dto.toSavedPostResponse
 import com.server.ud.entities.location.NearbyZipcodesByZipcode
 import com.server.ud.entities.post.NearbyPostsByZipcode
 import com.server.ud.entities.post.Post
@@ -10,6 +13,9 @@ import com.server.ud.entities.post.PostUpdate
 import com.server.ud.enums.PostType
 import com.server.ud.enums.ProcessingType
 import com.server.ud.pagination.CassandraPageV2
+import com.server.ud.provider.cache.BlockedIDs
+import com.server.ud.provider.cache.UDCacheProvider
+import com.server.ud.provider.cache.UDCacheProviderV2
 import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
 import com.server.ud.utils.pagination.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
@@ -34,6 +40,12 @@ class NearbyPostsByZipcodeProvider {
 
     @Autowired
     private lateinit var nearbyZipcodesByZipcodeProvider: NearbyZipcodesByZipcodeProvider
+
+    @Autowired
+    private lateinit var udCacheProvider: UDCacheProviderV2
+
+    @Autowired
+    private lateinit var securityProvider: SecurityProvider
 
     fun save(nearbyPosts: List<NearbyPostsByZipcode>, forNearbyZipcode: String): List<NearbyPostsByZipcode> {
         try {
@@ -174,5 +186,22 @@ class NearbyPostsByZipcodeProvider {
                 }
             }
         }
+    }
+
+    fun getFeed(request: CommunityWallFeedRequest): CommunityWallViewResponse {
+        val result = getCommunityWallFeed(request)
+        val userId = securityProvider.getFirebaseAuthUser()?.getUserIdToUse()
+        val blockedIds = userId?.let {
+            udCacheProvider.getBlockedIds(userId) ?: BlockedIDs()
+        } ?: BlockedIDs()
+        val posts = result.content?.filterNotNull()?.filterNot {
+            it.postId in blockedIds.postIds || it.userId in blockedIds.userIds
+        }?.map { it.toSavedPostResponse() } ?: emptyList()
+        return CommunityWallViewResponse(
+            posts = posts,
+            count = posts.size,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
     }
 }

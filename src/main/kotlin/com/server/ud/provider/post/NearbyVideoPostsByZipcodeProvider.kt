@@ -1,9 +1,12 @@
 package com.server.ud.provider.post
 
 import com.server.common.enums.MediaType
+import com.server.common.provider.SecurityProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.NearbyVideoPostsByZipcodeRepository
 import com.server.ud.dto.NearbyFeedRequest
+import com.server.ud.dto.VideoFeedViewResultList
+import com.server.ud.dto.toSavedPostResponse
 import com.server.ud.entities.location.NearbyZipcodesByZipcode
 import com.server.ud.entities.post.NearbyVideoPostsByZipcode
 import com.server.ud.entities.post.Post
@@ -12,6 +15,9 @@ import com.server.ud.entities.post.getMediaDetails
 import com.server.ud.enums.PostType
 import com.server.ud.enums.ProcessingType
 import com.server.ud.pagination.CassandraPageV2
+import com.server.ud.provider.cache.BlockedIDs
+import com.server.ud.provider.cache.UDCacheProvider
+import com.server.ud.provider.cache.UDCacheProviderV2
 import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
 import com.server.ud.utils.pagination.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
@@ -36,6 +42,12 @@ class NearbyVideoPostsByZipcodeProvider {
 
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
+
+    @Autowired
+    private lateinit var udCacheProvider: UDCacheProviderV2
+
+    @Autowired
+    private lateinit var securityProvider: SecurityProvider
 
     fun saveWhileProcessing(nearbyPosts: List<NearbyVideoPostsByZipcode>, forNearbyZipcode: String): List<NearbyVideoPostsByZipcode> {
         try {
@@ -180,5 +192,22 @@ class NearbyVideoPostsByZipcodeProvider {
                 }
             }
         }
+    }
+
+    fun getNearbyFeed(request: NearbyFeedRequest): VideoFeedViewResultList {
+        val result = getNearbyVideoFeed(request)
+        val userId = securityProvider.getFirebaseAuthUser()?.getUserIdToUse()
+        val blockedIds = userId?.let {
+            udCacheProvider.getBlockedIds(userId) ?: BlockedIDs()
+        } ?: BlockedIDs()
+        val posts = result.content?.filterNotNull()?.filterNot {
+            it.postId in blockedIds.postIds || it.userId in blockedIds.userIds
+        }?.map { it.toSavedPostResponse() } ?: emptyList()
+        return VideoFeedViewResultList(
+            posts = posts,
+            count = posts.size,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
     }
 }
