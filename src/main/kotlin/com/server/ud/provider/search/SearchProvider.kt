@@ -10,6 +10,7 @@ import com.server.ud.entities.user.AlgoliaUser
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getProfiles
 import com.server.ud.entities.user.toAlgoliaUser
+import com.server.ud.enums.PostType
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -77,10 +78,14 @@ class SearchProvider {
 
     fun doSearchProcessingForPost(post: Post) {
         GlobalScope.launch {
-            val postSave = async { savePostToAlgolia(post) }
-            val postAutoSuggestSave = async { saveAutoSuggestForPostToAlgolia(post) }
-            postSave.await()
-            postAutoSuggestSave.await()
+            if (post.postType == PostType.GENERIC_POST) {
+                val postSave = async { savePostToAlgolia(post) }
+                val postAutoSuggestSave = async { saveAutoSuggestForPostToAlgolia(post) }
+                postSave.await()
+                postAutoSuggestSave.await()
+            } else {
+                logger.warn("Post is not a generic post, so not saving to Algolia")
+            }
         }
     }
 
