@@ -632,6 +632,13 @@ class PostProvider {
         postRepository.deleteByPostId(postId)
     }
 
+    fun updatePostAlgoliaData() {
+        postRepository.findAll().filterNotNull().filter { it.postType == PostType.GENERIC_POST }.map {
+            logger.info("Updating algolia for postId: ${it.postId}")
+            searchProvider.doSearchProcessingForPost(it)
+        }
+    }
+
     fun updateSourceMediaForAll() {
         postRepository.findAll().filterNotNull().filter { it.sourceMedia == null }.map {
             logger.info("Updating source media for postId: ${it.postId}")
