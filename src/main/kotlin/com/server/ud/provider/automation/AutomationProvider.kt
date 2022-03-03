@@ -87,6 +87,20 @@ class AutomationProvider {
         }
     }
 
+    fun sendSlackMessageForReSendingOfOTP(otpValidation: OtpValidation) {
+        GlobalScope.launch {
+            try {
+                val message = "[DO NOT SHARE WITH ANYONE] [RE-SENT USING MESSAGE-BIRD]. OTP for ${otpValidation.absoluteMobile} is ${otpValidation.otp}"
+                val payload = Payload.builder().text(message).build()
+                Slack.getInstance().send(automationProperties.slack.webhook.otpDelivery, payload)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                logger.error("sendSlackMessageForOTP Error while sending test slack message", e)
+            }
+        }
+    }
+
+
     fun sendSlackMessageForOTPDelivery(msg91SMSDeliveryObject: Msg91SMSDeliveryObject) {
         GlobalScope.launch {
             try {

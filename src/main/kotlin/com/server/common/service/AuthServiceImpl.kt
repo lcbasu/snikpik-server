@@ -65,7 +65,11 @@ class AuthServiceImpl : AuthService() {
                 sent = false,
             )
 
-        automationProvider.sendSlackMessageForOTP(otpValidationResult.otpValidation)
+        if (otpValidationResult.resendOtpIsEnable) {
+            automationProvider.sendSlackMessageForReSendingOfOTP(otpValidationResult.otpValidation)
+        } else {
+            automationProvider.sendSlackMessageForOTP(otpValidationResult.otpValidation)
+        }
 
         // Step 2
         // Send OTP SMS/Whatsapp/Any Other channel
