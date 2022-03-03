@@ -36,7 +36,7 @@ class OtpValidationProvider {
             null
         }
 
-    fun getOrSaveOtpValidation(absoluteMobileNumber: String) : OtpValidation? {
+    fun getOrSaveOtpValidation(absoluteMobileNumber: String) : OTPValidationResult? {
         try {
             if (absoluteMobileNumber.isBlank()) {
                 error("absoluteMobileNumber is blank.")
@@ -44,17 +44,24 @@ class OtpValidationProvider {
             val existing = getOtpValidation(absoluteMobileNumber)
             if (existing != null && existing.expireAt > DateUtils.getEpochNow()) {
                 // Not expired yet.So send the old one.
-                return existing
+                return OTPValidationResult (
+                    otpValidation = existing,
+                    resendOtpIsEnable = true
+                )
             }
             // Not sent yet or already expired, so create a new one
             val otp = fixedLoginOTPMap.getOrDefault(absoluteMobileNumber, UDCommonUtils.getOtp(6))
-            return otpValidationRepository.save(OtpValidation(
+            val otpValidation = otpValidationRepository.save(OtpValidation(
                 absoluteMobile = absoluteMobileNumber,
                 createdAt = DateUtils.getEpochNow(),
                 expireAt = DateUtils.getEpoch(DateUtils.getInstantNow().plusSeconds(10 * 60)), // After 10 minutes
                 otp = otp,
                 loginSequenceId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.OTP.name),
             ))
+            return OTPValidationResult (
+                otpValidation = otpValidation,
+                resendOtpIsEnable = false
+            )
         } catch (e: Exception) {
             logger.error("Saving OtpValidation for absoluteMobileNumber: $absoluteMobileNumber failed.")
             e.printStackTrace()
@@ -63,3 +70,8 @@ class OtpValidationProvider {
     }
 
 }
+
+data class OTPValidationResult (
+    val otpValidation: OtpValidation,
+    val resendOtpIsEnable: Boolean,
+)

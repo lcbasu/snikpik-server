@@ -34,7 +34,10 @@ class CommunicationProvider {
         logger.info("SMS sent successfully with response ${response.toString()}")
     }
 
-    fun sendOTP(phoneNumber: String, otp: String): Boolean {
+    fun sendOTP(phoneNumber: String, otp: String, resendOtpIsEnable: Boolean = false): Boolean {
+        if (resendOtpIsEnable) {
+            return resendOTPUsingMessageBird(phoneNumber, otp)
+        }
         logger.info("Sending OTP SMS to $phoneNumber with otp $otp")
         return try {
             val response: HttpResponse<String> = Unirest.post("https://api.msg91.com/api/v5/flow/")
@@ -45,7 +48,23 @@ class CommunicationProvider {
             logger.info("OTP SMS response: ${response.body}")
             response.status == 200
         } catch (e: Exception) {
+            e.printStackTrace()
             logger.error("Error while sending OTP SMS to $phoneNumber with otp $otp. Error: ${e.message}")
+            false
+        }
+    }
+
+    fun resendOTPUsingMessageBird(phoneNumber: String, otp: String): Boolean {
+        logger.info("Re-try sending OTP SMS to $phoneNumber with otp $otp using message bird.")
+        return try {
+            sendSMS(
+                phoneNumber = phoneNumber,
+                messageStr = "<#> Unbox login OTP is: $otp\nFUQvhHBBP7x"
+            )
+            return true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            logger.error("Error while retrying sending OTP SMS to $phoneNumber with otp $otp. Error: ${e.message}")
             false
         }
     }

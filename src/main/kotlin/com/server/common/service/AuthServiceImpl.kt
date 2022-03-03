@@ -58,14 +58,14 @@ class AuthServiceImpl : AuthService() {
         // Step 1
         // Verify if the phone number is valid
 
-        val otpValidation = otpValidationProvider.getOrSaveOtpValidation(request.absoluteMobileNumber)
+        val otpValidationResult = otpValidationProvider.getOrSaveOtpValidation(request.absoluteMobileNumber)
             ?: return OTPSentResponse(
                 countryCode = request.countryCode,
                 absoluteMobileNumber = request.absoluteMobileNumber,
                 sent = false,
             )
 
-        automationProvider.sendSlackMessageForOTP(otpValidation)
+        automationProvider.sendSlackMessageForOTP(otpValidationResult.otpValidation)
 
         // Step 2
         // Send OTP SMS/Whatsapp/Any Other channel
@@ -73,8 +73,9 @@ class AuthServiceImpl : AuthService() {
         val isLoginOtpFixed = fixedLoginOTPMap.containsKey(request.absoluteMobileNumber)
         if (!isLoginOtpFixed) {
             val sent = communicationProvider.sendOTP(
-                phoneNumber = otpValidation.absoluteMobile,
-                otp = otpValidation.otp,
+                phoneNumber = otpValidationResult.otpValidation.absoluteMobile,
+                otp = otpValidationResult.otpValidation.otp,
+                resendOtpIsEnable = otpValidationResult.resendOtpIsEnable
             )
             if (!sent) {
                 return OTPSentResponse(
@@ -100,9 +101,9 @@ class AuthServiceImpl : AuthService() {
 
         return OTPSentResponse(
             countryCode = request.countryCode,
-            absoluteMobileNumber = otpValidation.absoluteMobile,
+            absoluteMobileNumber = otpValidationResult.otpValidation.absoluteMobile,
             sent = true,
-            loginSequenceId = otpValidation.loginSequenceId,
+            loginSequenceId = otpValidationResult.otpValidation.loginSequenceId,
         )
     }
 
