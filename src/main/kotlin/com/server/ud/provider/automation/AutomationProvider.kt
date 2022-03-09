@@ -63,7 +63,7 @@ class AutomationProvider {
                     post.getCategories().categories.joinToString(
                         ","
                     ) { it.displayName }
-                } by ${post.userName}, ${post.userHandle}. Link: https://www.letsunbox.in/posts/${post.postId}"
+                } by ${post.userName}, ${post.userHandle} at ${post.locationName}, ${post.locality}, ${post.subLocality}, ${post.route}, ${post.city}, ${post.state}, ${post.country}, ${post.zipcode} . Link: https://www.letsunbox.in/posts/${post.postId}"
 
                 val payload = Payload.builder().text(message).build()
                 Slack.getInstance().send(automationProperties.slack.webhook.newPost, payload)
