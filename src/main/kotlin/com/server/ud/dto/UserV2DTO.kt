@@ -255,6 +255,7 @@ data class ProfilePageUserDetailsResponse(
     val coverImage: MediaDetailsV2?, // MediaDetailsV2
     val verified: Boolean?,
     val profileToShow: ProfileTypeResponse?,
+    val allProfileTypes: AllProfileTypeResponse?,
     val userCurrentLocationName: String?,
     val userCurrentLocationZipcode: String?,
     val userPermanentLocationName: String?,
@@ -303,6 +304,7 @@ data class UserV2PublicMiniDataResponse(
     val coverImage: MediaDetailsV2?, // MediaDetailsV2
     val verified: Boolean?,
     val profileToShow: ProfileTypeResponse?,
+    val allProfileTypes: AllProfileTypeResponse?,
 
     val clZipcode: String?,
     val clId: String?,
@@ -435,6 +437,7 @@ fun UserV2.toProfilePageUserDetailsResponse(): ProfilePageUserDetailsResponse {
             coverImage = getMediaDetailsForCoverImage(),
             verified = verified,
             profileToShow = profileToShow,
+            allProfileTypes = getProfiles(),
             userCurrentLocationName = currentLocationName,
             userCurrentLocationZipcode = currentLocationZipcode,
             userPermanentLocationName = permanentLocationName,
@@ -488,6 +491,7 @@ fun UserV2.toUserV2PublicMiniDataResponse(): UserV2PublicMiniDataResponse {
             coverImage = getMediaDetailsForCoverImage(),
             verified = verified,
             profileToShow = profileToShow,
+            allProfileTypes = getProfiles(),
 
             clId = currentLocationId,
             clZipcode = currentLocationZipcode,
