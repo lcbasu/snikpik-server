@@ -11,8 +11,8 @@ class RedisClient {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
-    @Autowired
-    private lateinit var jedisPool: JedisPool
+//    @Autowired
+//    private lateinit var jedisPool: JedisPool
 //
 //    fun lpush(key: String?, strings: Array<String?>): Long? {
 //        try {
@@ -111,26 +111,26 @@ class RedisClient {
 //        return HashSet()
 //    }
 
-    fun set(key: String, value: String?): String? {
-        try {
-            jedisPool.resource.use {
-                return it.set(key, value)
-            }
-        } catch (ex: Exception) {
-            logger.error("Exception caught in set", ex)
-            return null
-        }
-    }
-
-    fun get(key: String): String? {
-        try {
-            jedisPool.resource.use {
-                return it.get(key)
-            }
-        } catch (ex: Exception) {
-            logger.error("Exception caught in get", ex)
-            return null
-        }
-    }
+//    fun set(key: String, value: String?): String? {
+//        try {
+//            jedisPool.resource.use {
+//                return it.set(key, value)
+//            }
+//        } catch (ex: Exception) {
+//            logger.error("Exception caught in set", ex)
+//            return null
+//        }
+//    }
+//
+//    fun get(key: String): String? {
+//        try {
+//            jedisPool.resource.use {
+//                return it.get(key)
+//            }
+//        } catch (ex: Exception) {
+//            logger.error("Exception caught in get", ex)
+//            return null
+//        }
+//    }
 
 }
