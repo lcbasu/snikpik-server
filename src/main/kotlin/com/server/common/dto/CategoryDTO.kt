@@ -1,9 +1,15 @@
-package com.server.ud.dto
+package com.server.common.dto
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.model.MediaDetailsV2
 import com.server.ud.enums.CategoryGroupV2
 import com.server.ud.enums.CategoryV2
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class UpdateUserV2PreferredCategoriesRequest (
+    val categories: Set<CategoryV2>,
+)
 
 data class AllCategoryGroupV2Response(
     val groups: List<CategoryGroupV2Response>
@@ -32,16 +38,6 @@ fun getCategories(categories: String?): AllCategoryV2Response {
         jacksonObjectMapper().readValue(categories, AllCategoryV2Response::class.java)
     } catch (e: Exception) {
         AllCategoryV2Response(emptyList())
-    }
-}
-
-fun AllCategoryV2Response.convertToString(): String? {
-    this.apply {
-        return try {
-            jacksonObjectMapper().writeValueAsString(this)
-        } catch (e: Exception) {
-            null
-        }
     }
 }
 

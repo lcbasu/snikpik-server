@@ -3,9 +3,7 @@ package com.server.ud.provider.post
 import com.server.ud.dao.post.BookmarkedPostsByUserRepository
 import com.server.ud.dto.*
 import com.server.ud.entities.bookmark.Bookmark
-import com.server.ud.entities.post.BookmarkedPostsByUser
-import com.server.ud.entities.post.Post
-import com.server.ud.entities.post.PostUpdate
+import com.server.ud.entities.post.*
 import com.server.ud.enums.ProcessingType
 import com.server.ud.enums.ResourceType
 import com.server.ud.pagination.CassandraPageV2

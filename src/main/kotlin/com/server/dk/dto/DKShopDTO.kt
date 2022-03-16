@@ -1,6 +1,7 @@
 package com.server.dk.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.server.common.dto.SavedUserResponse
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SavedActiveDiscountsResponse(

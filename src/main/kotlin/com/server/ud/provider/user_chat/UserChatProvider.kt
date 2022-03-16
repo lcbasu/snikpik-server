@@ -1,6 +1,8 @@
 package com.server.ud.provider.user_chat
 
 import com.google.firebase.cloud.FirestoreClient
+import com.server.common.dto.AllCategoryV2Response
+import com.server.common.dto.toCategoryV2Response
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.convertToString
 import com.server.common.provider.UniqueIdProvider
@@ -105,16 +107,16 @@ class UserChatProvider {
             userChatIdResponse.userId1
         }
         val chatMessage = userChatMessageRepository.save(UserChatMessage(
-            messageId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.UCT.name),
+            messageId = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.UCT.name),
             createdAt = DateUtils.getInstantNow(),
             chatId = request.chatId,
             senderUserId = loggedInUserId,
             receiverUserId = receiverUserId,
             text = request.text,
             media = request.media?.convertToString(),
-            categories = AllCategoryV2Response(
+            categories = CommonUtils.convertToStringBlob(AllCategoryV2Response(
                 categories = request.categories?.map { it.toCategoryV2Response() } ?: emptyList()
-            ).convertToString(),
+            )),
             locationId = request.locationId,
             googlePlaceId = request.googlePlaceId,
             zipcode = request.zipcode,

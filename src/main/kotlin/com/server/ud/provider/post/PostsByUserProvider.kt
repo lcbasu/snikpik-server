@@ -3,9 +3,7 @@ package com.server.ud.provider.post
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostsByUserRepository
 import com.server.ud.dto.*
-import com.server.ud.entities.post.Post
-import com.server.ud.entities.post.PostUpdate
-import com.server.ud.entities.post.PostsByUser
+import com.server.ud.entities.post.*
 import com.server.ud.enums.PostType
 import com.server.ud.enums.ProcessingType
 import com.server.ud.pagination.CassandraPageV2

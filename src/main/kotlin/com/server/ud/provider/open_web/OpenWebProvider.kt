@@ -1,5 +1,6 @@
 package com.server.ud.provider.open_web
 
+import com.server.common.dto.UserV2PublicMiniDataResponse
 import com.server.ud.dto.*
 import com.server.ud.entities.bookmark.BookmarksCountByResource
 import com.server.ud.entities.comment.CommentsCountByPost
@@ -7,6 +8,7 @@ import com.server.ud.entities.like.LikesCountByResource
 import com.server.ud.entities.social.FollowersCountByUser
 import com.server.ud.entities.social.FollowingsCountByUser
 import com.server.ud.entities.user.PostsCountByUser
+import com.server.ud.entities.user.toUserV2PublicMiniDataResponse
 import com.server.ud.provider.bookmark.BookmarksCountByResourceProvider
 import com.server.ud.provider.comment.CommentsCountByPostProvider
 import com.server.ud.provider.like.LikesCountByResourceProvider

@@ -88,7 +88,7 @@ class LocationProvider {
     fun save(userId: String, request: SaveLocationRequest) : Location? {
         try {
             val location = Location(
-                locationId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.LOC.name),
+                locationId = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.LOC.name),
                 locationFor = request.locationFor,
                 userId = userId,
                 createdAt = DateUtils.getInstantNow(),

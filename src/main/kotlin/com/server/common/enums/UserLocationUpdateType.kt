@@ -1,4 +1,4 @@
-package com.server.ud.enums
+package com.server.common.enums
 
 enum class UserLocationUpdateType {
     CURRENT,

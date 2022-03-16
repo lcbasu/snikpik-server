@@ -76,7 +76,7 @@ class EmployeeProvider {
 
     fun saveEmployee(createdByUser: User, createdForUser: User, company: Company, saveEmployeeRequest: SaveEmployeeRequest) : Employee {
         val newEmployee = Employee()
-        newEmployee.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.EMP.name)
+        newEmployee.id = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.EMP.name)
         newEmployee.name = saveEmployeeRequest.name
         newEmployee.balanceInPaisaTillNow = 0
 //        newEmployee.openingBalanceInPaisa = saveEmployeeRequest.openingBalanceInPaisa

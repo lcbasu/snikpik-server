@@ -1,7 +1,7 @@
 package com.server.ud.provider.cache
 
+import com.server.dk.dto.UserReportResponse
 import com.server.ud.dto.PostReportResponse
-import com.server.ud.dto.UserReportResponse
 import com.server.ud.enums.PostReportActionType
 import com.server.ud.enums.UserReportActionType
 import com.server.ud.provider.post.PostProvider

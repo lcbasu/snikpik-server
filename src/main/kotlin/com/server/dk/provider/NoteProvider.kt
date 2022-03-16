@@ -23,7 +23,7 @@ class NoteProvider {
 
     fun saveNote(addedBy: User, company: Company, employee: Employee, saveNoteRequest: SaveNoteRequest): Note {
         val newNote = Note()
-        newNote.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.NTE.name)
+        newNote.id = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.NTE.name)
         newNote.forDate = saveNoteRequest.forDate
         newNote.addedBy = addedBy
         newNote.addedAt = DateUtils.dateTimeNow()

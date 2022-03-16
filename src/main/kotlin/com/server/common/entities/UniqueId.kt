@@ -8,5 +8,7 @@ import javax.persistence.Id
 class UniqueId(
     @Id
     @Column(unique = true)
-    var id: String = ""
+    var id: String = "",
+
+    var prefix: String? = null
 ) : Auditable()

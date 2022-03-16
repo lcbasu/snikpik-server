@@ -1,5 +1,6 @@
 package com.server.common.entities
 
+import com.server.common.dto.SavedUserResponse
 import com.server.common.enums.NotificationTokenProvider
 import javax.persistence.*
 
@@ -30,4 +31,20 @@ class User : Auditable() {
 
     @Enumerated(EnumType.STRING)
     var notificationTokenProvider: NotificationTokenProvider? = NotificationTokenProvider.FIREBASE
+}
+
+fun User.toSavedUserResponse(): SavedUserResponse {
+    this.apply {
+        return SavedUserResponse(
+            serverId = id ?: "",
+            name = fullName ?: "",
+            uid = uid ?: "",
+            anonymous = anonymous,
+            absoluteMobile = absoluteMobile ?: "",
+            countryCode = countryCode ?: "",
+            defaultAddressId = defaultAddressId ?: "",
+            notificationToken = notificationToken ?: "",
+            notificationTokenProvider = notificationTokenProvider ?: NotificationTokenProvider.FIREBASE
+        )
+    }
 }

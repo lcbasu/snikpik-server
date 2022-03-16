@@ -1,10 +1,11 @@
 package com.server.ud.provider.user
 
-import com.server.common.utils.CommonUtils
+import com.server.common.enums.ReadableIdPrefix
+import com.server.common.provider.CommonProvider
+import com.server.common.provider.UniqueIdProvider
 import com.server.ud.dao.user.UsersByHandleRepository
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.UsersByHandle
-import com.server.ud.utils.UDCommonUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,7 +16,11 @@ class UsersByHandleProvider {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
-    var MIN_HANDLE_LENGTH = 4
+    @Autowired
+    private lateinit var uniqueIdProvider: UniqueIdProvider
+
+    @Autowired
+    private lateinit var commonProvider: CommonProvider
 
     @Autowired
     private lateinit var usersByHandleRepository: UsersByHandleRepository
@@ -33,20 +38,7 @@ class UsersByHandleProvider {
         }
 
     fun isHandleAvailable(handle: String): Boolean {
-        val username = CommonUtils.getLowercaseUsername(handle)
-        logger.info("username: $username")
-        if ((handle == username).not()) {
-            logger.error("Username not allowed. valid username: $username but input handle is: $handle")
-            return false
-        }
-        if (handle.length < MIN_HANDLE_LENGTH) {
-            return false
-        }
-        // Blocked locked usernames
-        if (UDCommonUtils.lockedUsernames().map { it.toLowerCase() }.contains(handle.toLowerCase())) {
-            return false
-        }
-        return getUsersByHandle(handle) == null
+        return commonProvider.isUsernameHandleAvailable(handle) && getUsersByHandle(handle) == null
     }
 
     fun save(userV2: UserV2) : UsersByHandle? {
@@ -55,6 +47,8 @@ class UsersByHandleProvider {
                 handle = userV2.handle!!,
                 userId = userV2.userId
             ))
+            // All username have to be unique across all the tables
+            uniqueIdProvider.saveId(userV2.handle, ReadableIdPrefix.USR.name)
             logger.info("Saved UsersByHandle into cassandra for userId: ${savedUsersByHandle.userId}")
             return savedUsersByHandle
         } catch (e: Exception) {

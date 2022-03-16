@@ -88,3 +88,12 @@ fun Location.getGeoPointData(): GeoPoint? {
     }
 }
 
+fun Location.getCompleteAddress(): String {
+    this.apply {
+        if (completeAddress.isNullOrBlank()) {
+            return "${this.name}, ${this.route}, ${this.locality}, ${this.subLocality}, ${this.city} - ${this.zipcode}, ${this.state}, ${this.country}"
+        }
+        return completeAddress
+    }
+}
+

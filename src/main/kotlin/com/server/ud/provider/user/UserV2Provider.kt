@@ -1,9 +1,7 @@
 package com.server.ud.provider.user
 
 import com.google.firebase.cloud.FirestoreClient
-import com.server.common.dto.AllProfileTypeResponse
-import com.server.common.dto.convertToString
-import com.server.common.dto.toProfileTypeResponse
+import com.server.common.dto.*
 import com.server.common.enums.*
 import com.server.common.model.MediaDetailsV2
 import com.server.common.model.SingleMediaDetail
@@ -11,6 +9,7 @@ import com.server.common.model.UserDetailsFromToken
 import com.server.common.model.convertToString
 import com.server.common.provider.SecurityProvider
 import com.server.common.utils.DateUtils
+import com.server.shop.provider.UserV3Provider
 import com.server.ud.dao.user.UserReportByUserRepository
 import com.server.ud.dao.user.UserV2Repository
 import com.server.ud.dto.*
@@ -18,7 +17,13 @@ import com.server.ud.entities.user.UserReportV2ByUser
 import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.LocationFor
 import com.server.ud.enums.ProcessingType
-import com.server.ud.enums.UserLocationUpdateType
+import com.server.common.enums.UserLocationUpdateType
+import com.server.common.utils.CommonUtils
+import com.server.dk.dto.AllUserReportResponse
+import com.server.dk.dto.UserReportRequest
+import com.server.dk.dto.UserReportResponse
+import com.server.ud.entities.user.toSavedUserV2Response
+import com.server.ud.entities.user.toUserV2PublicMiniDataResponse
 import com.server.ud.enums.UserReportActionType
 import com.server.ud.provider.automation.AutomationProvider
 import com.server.ud.provider.job.UDJobProvider
@@ -64,6 +69,9 @@ class UserV2Provider {
     @Autowired
     private lateinit var userReportByUserRepository: UserReportByUserRepository
 
+    @Autowired
+    private lateinit var userV3Provider: UserV3Provider
+
     fun getUser(userId: String): UserV2? =
         try {
             val userIdToFind = if (userId.startsWith(ReadableIdPrefix.USR.name)) userId else "${ReadableIdPrefix.USR.name}$userId"
@@ -91,11 +99,33 @@ class UserV2Provider {
         try {
             val oldUser = getUser(userV2.userId)
             val savedUser = userV2Repository.save(userV2)
+            logger.info("UserV2 saved with userId: ${savedUser.userId}.")
+//            if (oldUser == null) {
+//                logger.info("User ${userV2.userId} is new.")
+//                automationProvider.sendSlackMessageForNewUser(savedUser)
+//            }
+//            if (processingType == ProcessingType.REFRESH) {
+//                udJobProvider.scheduleProcessingForUserV2(savedUser.userId)
+//            } else if (processingType == ProcessingType.DELETE_AND_REFRESH) {
+//                udJobProvider.scheduleReProcessingForUserV2(savedUser.userId)
+//            }
+//            saveUserV2ToFirestore(savedUser)
+//            saveForAuthV2(savedUser)
+            processJustAfterSaveUserV2(oldUser, savedUser, processingType)
+            return savedUser
+        } catch (e: Exception) {
+            logger.error("Saving UserV2 for ${userV2.userId} failed.")
+            e.printStackTrace()
+            return null
+        }
+    }
+
+    private fun processJustAfterSaveUserV2 (oldUser: UserV2?, savedUser: UserV2, processingType: ProcessingType = ProcessingType.REFRESH) {
+        GlobalScope.launch {
             if (oldUser == null) {
-                logger.info("User ${userV2.userId} is new.")
+                logger.info("User ${savedUser.userId} is new.")
                 automationProvider.sendSlackMessageForNewUser(savedUser)
             }
-            logger.info("UserV2 saved with userId: ${savedUser.userId}.")
             if (processingType == ProcessingType.REFRESH) {
                 udJobProvider.scheduleProcessingForUserV2(savedUser.userId)
             } else if (processingType == ProcessingType.DELETE_AND_REFRESH) {
@@ -103,11 +133,9 @@ class UserV2Provider {
             }
             saveUserV2ToFirestore(savedUser)
             saveForAuthV2(savedUser)
-            return savedUser
-        } catch (e: Exception) {
-            logger.error("Saving UserV2 for ${userV2.userId} failed.")
-            e.printStackTrace()
-            return null
+
+            // Save user V3
+            userV3Provider.save(savedUser)
         }
     }
 
@@ -431,9 +459,9 @@ class UserV2Provider {
     fun updateUserV2PreferredCategories(request: UpdateUserV2PreferredCategoriesRequest): UserV2? {
         val firebaseAuthUser = securityProvider.validateRequest()
         val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
-        val newUserToBeSaved = user.copy(preferredCategories = AllCategoryV2Response(
+        val newUserToBeSaved = user.copy(preferredCategories = CommonUtils.convertToStringBlob(AllCategoryV2Response(
             request.categories.map { it.toCategoryV2Response() }
-        ).convertToString(),)
+        )),)
         return saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING) ?: error("Error while updating categories for userId: ${firebaseAuthUser.getUserIdToUse()}")
     }
 

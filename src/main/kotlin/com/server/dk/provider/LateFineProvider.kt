@@ -38,7 +38,7 @@ class LateFineProvider {
         val hourlyLateFineWageInPaisa = 5L // TODO: Update based on salary
 
         val lateFine = LateFine()
-        lateFine.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.LFN.name)
+        lateFine.id = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.LFN.name)
         lateFine.company = company
         lateFine.employee = employee
         lateFine.addedBy = addedBy

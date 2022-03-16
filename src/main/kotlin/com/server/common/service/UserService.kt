@@ -1,5 +1,6 @@
 package com.server.common.service
 
+import com.server.common.dto.*
 import com.server.dk.dto.*
 
 abstract class UserService {

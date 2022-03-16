@@ -2,11 +2,15 @@ package com.server.ud.entities.user
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.dto.AllProfileTypeResponse
+import com.server.common.dto.ProfilePageUserDetailsResponse
+import com.server.common.dto.SavedUserV2Response
+import com.server.common.dto.UserV2PublicMiniDataResponse
 import com.server.common.enums.NotificationTokenProvider
+import com.server.common.enums.ProfileCategory
 import com.server.common.utils.DateUtils
 import com.server.common.model.MediaDetailsV2
 import com.server.common.model.getMediaDetailsFromJsonString
-import com.server.ud.dto.AllCategoryV2Response
+import com.server.common.dto.AllCategoryV2Response
 import com.server.ud.dto.SaveLocationRequest
 import com.server.ud.enums.LocationFor
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
@@ -237,5 +241,143 @@ fun UserV2.getSaveLocationRequestFromPermanentLocation(): SaveLocationRequest? {
         } else {
             null
         }
+    }
+}
+
+
+fun UserV2.toSavedUserV2Response(): SavedUserV2Response {
+    this.apply {
+        return SavedUserV2Response(
+            userId = userId,
+            fullName = fullName,
+            uid = uid,
+            anonymous = anonymous,
+            absoluteMobile = absoluteMobile,
+            email = email,
+            countryCode = countryCode,
+            notificationToken = notificationToken,
+            notificationTokenProvider = notificationTokenProvider,
+            createdAt = DateUtils.getEpoch(createdAt),
+            handle = handle,
+            dp = getMediaDetailsForDP(),
+            coverImage = getMediaDetailsForCoverImage(),
+            verified = verified,
+            profiles = getProfiles(),
+            preferredCategories = getPreferredCategories(),
+
+            currentLocationId = currentLocationId,
+            currentLocationLat = currentLocationLat,
+            currentLocationLng = currentLocationLng,
+            currentLocationZipcode = currentLocationZipcode,
+            currentLocationName = currentLocationName,
+            currentGooglePlaceId = currentGooglePlaceId,
+            currentLocationLocality = currentLocationLocality,
+            currentLocationSubLocality = currentLocationSubLocality,
+            currentLocationRoute = currentLocationRoute,
+            currentLocationCity = currentLocationCity,
+            currentLocationState = currentLocationState,
+            currentLocationCountry = currentLocationCountry,
+            currentLocationCountryCode = currentLocationCountryCode,
+            currentLocationCompleteAddress = currentLocationCompleteAddress,
+
+            permanentLocationId = permanentLocationId,
+            permanentLocationLat = permanentLocationLat,
+            permanentLocationLng = permanentLocationLng,
+            permanentLocationZipcode = permanentLocationZipcode,
+            permanentLocationName = permanentLocationName,
+            permanentGooglePlaceId = permanentGooglePlaceId,
+            permanentLocationLocality = permanentLocationLocality,
+            permanentLocationSubLocality = permanentLocationSubLocality,
+            permanentLocationRoute = permanentLocationRoute,
+            permanentLocationCity = permanentLocationCity,
+            permanentLocationState = permanentLocationState,
+            permanentLocationCountry = permanentLocationCountry,
+            permanentLocationCountryCode = permanentLocationCountryCode,
+            permanentLocationCompleteAddress = permanentLocationCompleteAddress,
+        )
+    }
+}
+
+fun UserV2.toProfilePageUserDetailsResponse(): ProfilePageUserDetailsResponse {
+    this.apply {
+        val profileToShow = getProfiles().profileTypes.firstOrNull()
+        return ProfilePageUserDetailsResponse(
+            userId = userId,
+            fullName = fullName,
+            uid = uid,
+            createdAt = DateUtils.getEpoch(createdAt),
+            handle = handle,
+            email = if (profileToShow?.category !== ProfileCategory.OWNER) email else "",
+            absoluteMobile = if (profileToShow?.category !== ProfileCategory.OWNER) absoluteMobile else "",
+            dp = getMediaDetailsForDP(),
+            coverImage = getMediaDetailsForCoverImage(),
+            verified = verified,
+            profileToShow = profileToShow,
+            allProfileTypes = getProfiles(),
+            userCurrentLocationName = currentLocationName,
+            userCurrentLocationZipcode = currentLocationZipcode,
+            userPermanentLocationName = permanentLocationName,
+            userPermanentLocationZipcode = permanentLocationZipcode,
+
+            currentLocationId = currentLocationId,
+            currentLocationLat = currentLocationLat,
+            currentLocationLng = currentLocationLng,
+            currentLocationZipcode = currentLocationZipcode,
+            currentLocationName = currentLocationName,
+            currentGooglePlaceId = currentGooglePlaceId,
+            currentLocationLocality = currentLocationLocality,
+            currentLocationSubLocality = currentLocationSubLocality,
+            currentLocationRoute = currentLocationRoute,
+            currentLocationCity = currentLocationCity,
+            currentLocationState = currentLocationState,
+            currentLocationCountry = currentLocationCountry,
+            currentLocationCountryCode = currentLocationCountryCode,
+            currentLocationCompleteAddress = currentLocationCompleteAddress,
+
+            permanentLocationId = permanentLocationId,
+            permanentLocationLat = permanentLocationLat,
+            permanentLocationLng = permanentLocationLng,
+            permanentLocationZipcode = permanentLocationZipcode,
+            permanentLocationName = permanentLocationName,
+            permanentGooglePlaceId = permanentGooglePlaceId,
+            permanentLocationLocality = permanentLocationLocality,
+            permanentLocationSubLocality = permanentLocationSubLocality,
+            permanentLocationRoute = permanentLocationRoute,
+            permanentLocationCity = permanentLocationCity,
+            permanentLocationState = permanentLocationState,
+            permanentLocationCountry = permanentLocationCountry,
+            permanentLocationCountryCode = permanentLocationCountryCode,
+            permanentLocationCompleteAddress = permanentLocationCompleteAddress,
+        )
+    }
+}
+
+fun UserV2.toUserV2PublicMiniDataResponse(): UserV2PublicMiniDataResponse {
+    this.apply {
+        val profileToShow = getProfiles().profileTypes.firstOrNull()
+        return UserV2PublicMiniDataResponse(
+            userId = userId,
+            fullName = fullName,
+            uid = uid,
+            createdAt = DateUtils.getEpoch(createdAt),
+            handle = handle,
+            email = if (profileToShow?.category !== ProfileCategory.OWNER) email else "",
+            absoluteMobile = if (profileToShow?.category !== ProfileCategory.OWNER) absoluteMobile else "",
+            dp = getMediaDetailsForDP(),
+            coverImage = getMediaDetailsForCoverImage(),
+            verified = verified,
+            profileToShow = profileToShow,
+            allProfileTypes = getProfiles(),
+
+            clId = currentLocationId,
+            clZipcode = currentLocationZipcode,
+            clName = currentLocationName,
+            clCity = currentLocationCity,
+
+            plId = permanentLocationId,
+            plZipcode = permanentLocationZipcode,
+            plName = permanentLocationName,
+            plCity = permanentLocationCity,
+        )
     }
 }

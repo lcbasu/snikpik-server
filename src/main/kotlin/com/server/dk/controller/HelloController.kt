@@ -25,7 +25,7 @@ class HelloController {
 
     @RequestMapping(value = ["/getUniqueId/{prefix}"], method = [RequestMethod.GET])
     fun getUniqueId(@PathVariable prefix: String?): String? {
-        return uniqueIdProvider.getUniqueId(prefix);
+        return uniqueIdProvider.getUniqueIdAfterSaving(prefix);
     }
 
 }

@@ -33,5 +33,10 @@ enum class ReadableIdPrefix {
 
     OTP, // OTP Validation
     RFT, // Refresh Token
+
+    BRD, // Brand
+
+    SFL, // Save For Later
+    PBK, // Product Bookmark
 }
 

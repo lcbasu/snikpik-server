@@ -52,7 +52,7 @@ class CollectionProvider {
     fun saveCollection(company: Company, user: User, saveCollectionRequest: SaveCollectionRequest) : Collection? {
         try {
             val newCollection = Collection()
-            newCollection.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.CLC.name)
+            newCollection.id = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.CLC.name)
             newCollection.addedBy = user
             newCollection.company = company
             newCollection.title = saveCollectionRequest.title

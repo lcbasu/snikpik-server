@@ -63,7 +63,7 @@ class AttendanceProvider {
         }
 
         val attendance = Attendance()
-        attendance.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.ATN.name)
+        attendance.id = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.ATN.name)
         attendance.forDate = saveAttendanceRequest.forDate
 
         attendance.punchBy = requestContext.user

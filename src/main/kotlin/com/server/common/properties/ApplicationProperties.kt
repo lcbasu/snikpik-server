@@ -26,7 +26,7 @@ data class AwsProperties(val accountId: String, val awsKey: String, val awsSecre
 @ConstructorBinding
 @ConfigurationProperties("payments")
 data class PaymentProperties(val razorpay: RazorpayProperties) {
-    data class RazorpayProperties(var key: String, var secret: String? = null)
+    data class RazorpayProperties(var key: String, var secret: String)
 }
 
 @ConstructorBinding

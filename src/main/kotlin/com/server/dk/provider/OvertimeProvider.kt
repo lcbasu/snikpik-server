@@ -35,7 +35,7 @@ class OvertimeProvider {
 
     fun saveOvertime(addedBy: User, company: Company, employee: Employee, forDate: String, saveOvertimeRequest: SaveOvertimeRequest) : SavedOvertimeResponse {
         val overtime = Overtime()
-        overtime.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.OVT.name)
+        overtime.id = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.OVT.name)
         overtime.company = company
         overtime.employee = employee
         overtime.addedBy = addedBy

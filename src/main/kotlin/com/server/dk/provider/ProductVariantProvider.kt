@@ -7,7 +7,6 @@ import com.server.dk.entities.*
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.convertToString
 import com.server.dk.dto.UpdateProductVariantRequest
-import com.server.dk.model.convertToString
 import convertToString
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -31,7 +30,7 @@ class ProductVariantProvider {
             // If no variant is provided then save a default one with product details
             if (allProductVariants.isEmpty()) {
                 val newProductVariant = ProductVariant()
-                newProductVariant.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.PVT.name)
+                newProductVariant.id = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.PVT.name)
                 newProductVariant.addedBy = product.addedBy
                 newProductVariant.company = product.company
                 newProductVariant.title = product.title
@@ -45,7 +44,7 @@ class ProductVariantProvider {
             } else {
                 allProductVariants.map {
                     val newProductVariant = ProductVariant()
-                    newProductVariant.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.PVT.name)
+                    newProductVariant.id = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.PVT.name)
                     newProductVariant.addedBy = product.addedBy
                     newProductVariant.company = product.company
                     newProductVariant.product = product

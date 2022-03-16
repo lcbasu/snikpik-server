@@ -29,7 +29,7 @@ class DiscountProvider {
 
     fun saveDiscount(addedBy: User, company: Company, saveDiscountRequest: SaveDiscountRequest): Discount {
         val newDiscount = Discount()
-        newDiscount.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.DCT.name)
+        newDiscount.id = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.DCT.name)
         newDiscount.promoCode = saveDiscountRequest.promoCode
         newDiscount.discountType = saveDiscountRequest.discountType
         newDiscount.discountAmount = saveDiscountRequest.discountAmount

@@ -8,7 +8,6 @@ import com.server.ud.dto.ResourceLikesReportDetailForUser
 import com.server.ud.dto.SaveLikeRequest
 import com.server.ud.entities.like.Like
 import com.server.ud.enums.LikeUpdateAction
-import com.server.ud.enums.ResourceType
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.post.LikedPostsByUserProvider
 import com.server.ud.provider.user_activity.UserActivitiesProvider
@@ -91,7 +90,7 @@ class LikeProvider {
             // As like is very high frequency call
             // So checking uniqueness will increase the latency
             val like = Like(
-                likeId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.LIK.name),
+                likeId = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.LIK.name),
                 userId = userId,
                 resourceId = request.resourceId,
                 resourceType = request.resourceType,

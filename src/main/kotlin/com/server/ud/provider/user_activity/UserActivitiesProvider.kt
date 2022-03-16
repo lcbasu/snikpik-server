@@ -19,7 +19,6 @@ import com.server.ud.entities.user_activity.*
 import com.server.ud.enums.*
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.cache.BlockedIDs
-import com.server.ud.provider.cache.UDCacheProvider
 import com.server.ud.provider.cache.UDCacheProviderV2
 import com.server.ud.provider.comment.CommentProvider
 import com.server.ud.provider.notification.DeviceNotificationProvider
@@ -111,7 +110,7 @@ class UserActivitiesProvider {
         GlobalScope.launch {
             try {
                 asyncSaveUserActivity(UserActivity(
-                    userActivityId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.UAT.name),
+                    userActivityId = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.UAT.name),
                     createdAt = DateUtils.getInstantNow(),
                     userAggregateActivityType = UserAggregateActivityType.MESSAGE_SENT_OR_RECEIVED,
                     userActivityType = UserActivityType.USER_SENT_CHAT_MESSAGE,
@@ -139,7 +138,7 @@ class UserActivitiesProvider {
                 UserActivityType.USER_FOLLOWED,
                 UserActivityType.USER_CLICKED_CONNECT,
                 UserActivityType.USER_PROFILE_SHARED -> UserActivity(
-                    userActivityId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.UAT.name),
+                    userActivityId = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.UAT.name),
                     createdAt = DateUtils.getInstantNow(),
                     userAggregateActivityType = userActivityType.toUserAggregateActivityType(),
                     userActivityType = userActivityType,
@@ -581,7 +580,7 @@ class UserActivitiesProvider {
                 UserActivityType.WALL_LIKED,
                 UserActivityType.WALL_SAVED,
                 UserActivityType.WALL_SHARED -> UserActivity(
-                    userActivityId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.UAT.name),
+                    userActivityId = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.UAT.name),
                     createdAt = DateUtils.getInstantNow(),
                     userAggregateActivityType = userActivityType.toUserAggregateActivityType(),
                     userActivityType = userActivityType,
@@ -610,7 +609,7 @@ class UserActivitiesProvider {
                 UserActivityType.POST_COMMENT_REPLY_LIKED,
                 UserActivityType.REPLIED_TO_WALL_COMMENT,
                 UserActivityType.WALL_COMMENT_REPLY_LIKED -> UserActivity(
-                    userActivityId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.UAT.name),
+                    userActivityId = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.UAT.name),
                     createdAt = DateUtils.getInstantNow(),
                     userAggregateActivityType = userActivityType.toUserAggregateActivityType(),
                     userActivityType = userActivityType,
@@ -650,7 +649,7 @@ class UserActivitiesProvider {
                 UserActivityType.POST_COMMENT_LIKED,
                 UserActivityType.COMMENTED_ON_WALL,
                 UserActivityType.WALL_COMMENT_LIKED -> UserActivity(
-                    userActivityId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.UAT.name),
+                    userActivityId = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.UAT.name),
                     createdAt = DateUtils.getInstantNow(),
                     userAggregateActivityType = userActivityType.toUserAggregateActivityType(),
                     userActivityType = userActivityType,

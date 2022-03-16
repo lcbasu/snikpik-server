@@ -1,6 +1,6 @@
 package com.server.ud.controller
 
-import com.server.ud.dto.AllCategoryV2Response
+import com.server.common.dto.AllCategoryV2Response
 import com.server.ud.enums.CategoryGroupV2
 import com.server.ud.service.category.CategoryV2Service
 import io.micrometer.core.annotation.Timed

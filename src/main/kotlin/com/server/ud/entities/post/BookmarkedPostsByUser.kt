@@ -4,7 +4,9 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.utils.DateUtils
 import com.server.common.model.MediaDetailsV2
 import com.server.common.model.getMediaDetailsFromJsonString
-import com.server.ud.dto.AllCategoryV2Response
+import com.server.common.dto.AllCategoryV2Response
+import com.server.ud.dto.BookmarkedPostsByUserPostDetail
+import com.server.ud.dto.SavedPostResponse
 import com.server.ud.enums.PostType
 import com.server.ud.model.AllHashTags
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
@@ -128,3 +130,49 @@ fun BookmarkedPostsByUser.getCategories(): AllCategoryV2Response {
     }
 }
 
+fun BookmarkedPostsByUser.toSavedPostResponse(): SavedPostResponse {
+    this.apply {
+        return SavedPostResponse(
+            postId = postId,
+            postType = postType,
+            userId = userId,
+            locationId = locationId,
+            zipcode = zipcode,
+            googlePlaceId = null,
+            locationName = locationName,
+            locationLat = locationLat,
+            locationLng = locationLng,
+            locality = locality,
+            subLocality = subLocality,
+            route = route,
+            city = city,
+            state = state,
+            country = country,
+            countryCode = countryCode,
+            completeAddress = completeAddress,
+            createdAt = DateUtils.getEpoch(createdAt),
+            title = title,
+            description = description,
+            tags = getHashTags(),
+            categories = getCategories(),
+            mediaDetails = getMediaDetails(),
+            media = getMediaDetails(),
+            sourceMediaDetails = getSourceMediaDetails(),
+        )
+    }
+}
+
+fun BookmarkedPostsByUser.toBookmarkedPostsByUserPostDetail(): BookmarkedPostsByUserPostDetail {
+    this.apply {
+        return BookmarkedPostsByUserPostDetail(
+            postId = postId,
+            userId = postedByUserId,
+            media = getMediaDetails(),
+            title = title,
+            createdAt = DateUtils.getEpoch(postCreatedAt),
+            bookmarkedAt = DateUtils.getEpoch(createdAt),
+            bookmarkedByUserId = userId,
+            description = description,
+        )
+    }
+}

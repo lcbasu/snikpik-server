@@ -20,7 +20,12 @@ class UniqueIdProvider {
     private lateinit var randomIdProvider: RandomIdProvider
 
     @Transactional
-    fun getUniqueId(prefix: String? = null, onlyNumbers: Boolean? = false, minLength: Int? = uuidMinLength, maxLength: Int? = uuidMaxLength): String {
+    fun getUniqueIdAfterSaving(prefix: String? = null, onlyNumbers: Boolean? = false, minLength: Int? = uuidMinLength, maxLength: Int? = uuidMaxLength): String {
+        return saveId(getUniqueIdWithoutSaving(prefix, onlyNumbers, minLength, maxLength), prefix).id
+    }
+
+    @Transactional
+    fun getUniqueIdWithoutSaving(prefix: String? = null, onlyNumbers: Boolean? = false, minLength: Int? = uuidMinLength, maxLength: Int? = uuidMaxLength): String {
 
         // Create a new UUID
         var currentId = randomIdProvider.getRandomId(prefix, onlyNumbers, minLength, maxLength)
@@ -36,7 +41,6 @@ class UniqueIdProvider {
             }
             // Save the unique ID if not already present
             if (existingResult.isPresent.not()) {
-                uniqueIdRepository.saveAndFlush(UniqueId(currentId))
                 // Return the unique ID
                 return currentId
             }
@@ -45,4 +49,13 @@ class UniqueIdProvider {
         }
         error("Failed to generate Unique ID")
     }
+
+    fun isIdAvailable(id: String): Boolean {
+        return uniqueIdRepository.findById(id).isPresent.not()
+    }
+
+    fun saveId(id: String, prefix: String?): UniqueId {
+        return uniqueIdRepository.saveAndFlush(UniqueId(id = id, prefix = prefix))
+    }
+
 }

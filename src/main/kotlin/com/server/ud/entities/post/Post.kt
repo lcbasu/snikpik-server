@@ -6,7 +6,7 @@ import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.utils.DateUtils
 import com.server.common.model.MediaDetailsV2
 import com.server.common.model.getMediaDetailsFromJsonString
-import com.server.ud.dto.AllCategoryV2Response
+import com.server.common.dto.AllCategoryV2Response
 import com.server.ud.enums.PostType
 import com.server.ud.enums.PostUpdateType
 import com.server.ud.model.AllHashTags

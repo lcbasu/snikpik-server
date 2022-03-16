@@ -1,5 +1,6 @@
 package com.server.ud.service.open_web
 
+import com.server.common.dto.UserV2PublicMiniDataResponse
 import com.server.ud.dto.*
 import com.server.ud.entities.bookmark.BookmarksCountByResource
 import com.server.ud.entities.comment.CommentsCountByPost

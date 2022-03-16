@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.utils.DateUtils
 import com.server.common.model.MediaDetailsV2
 import com.server.common.model.getMediaDetailsFromJsonString
+import com.server.ud.dto.LikedPostsByUserPostDetail
 import com.server.ud.enums.PostType
 import com.server.ud.model.AllHashTags
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
@@ -77,3 +78,18 @@ fun LikedPostsByUser.getHashTags(): AllHashTags {
     }
 }
 
+
+fun LikedPostsByUser.toLikedPostsByUserPostDetail(): LikedPostsByUserPostDetail {
+    this.apply {
+        return LikedPostsByUserPostDetail(
+            postId = postId,
+            userId = postedByUserId,
+            media = getMediaDetails(),
+            title = title,
+            createdAt = DateUtils.getEpoch(postCreatedAt),
+            likedAt = DateUtils.getEpoch(createdAt),
+            likedByUserId = userId,
+            description = description,
+        )
+    }
+}

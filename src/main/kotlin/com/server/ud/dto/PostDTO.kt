@@ -3,6 +3,7 @@ package com.server.ud.dto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.server.common.dto.AllCategoryV2Response
 import com.server.common.model.MediaDetailsV2
 import com.server.common.utils.DateUtils
 import com.server.ud.entities.post.*
@@ -12,6 +13,41 @@ import com.server.ud.enums.PostReportActionType
 import com.server.ud.enums.PostType
 import com.server.ud.model.AllHashTags
 import java.time.Instant
+
+data class PostsByUserPostDetail(
+    override val postId: String,
+    override val userId: String,
+    override val createdAt: Long,
+    override val media: MediaDetailsV2?,
+    override val title: String?,
+    override val description: String?
+): PostMiniDetail
+
+data class PostsByUserResponse(
+    val posts: List<PostsByUserPostDetail>,
+    override val count: Int? = null,
+    override val pagingState: String? = null,
+    override val hasNext: Boolean? = null,
+): PaginationResponse(count, pagingState, hasNext)
+
+data class PostsByUserResponseV2(
+    val posts: List<SavedPostResponse>,
+    override val count: Int? = null,
+    override val pagingState: String? = null,
+    override val hasNext: Boolean? = null,
+): PaginationResponse(count, pagingState, hasNext)
+
+data class PostsByUserRequest (
+    val userId: String,
+    override val limit: Int = 10,
+    override val pagingState: String? = null,
+): PaginationRequest(limit, pagingState)
+
+data class PostsByUserRequestV2 (
+    val userIdOrHandle: String,
+    override val limit: Int = 10,
+    override val pagingState: String? = null,
+): PaginationRequest(limit, pagingState)
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class PostReportRequest (
@@ -53,6 +89,9 @@ data class SavePostRequest(
     val categories: Set<CategoryV2> = emptySet(),
     val locationRequest: SaveLocationRequest? = null,
     val mediaDetails: MediaDetailsV2? = null,
+
+    // For products to sell
+    val taggedProductIds: Set<String>? = emptySet(),
 
     // Just in case it is passed, use it
     var createdAt: Instant? = null,

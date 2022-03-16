@@ -1,14 +1,12 @@
 package com.server.ud.dto
 
-import com.server.common.dto.ProfileTypeResponse
-import com.server.common.dto.ProfileTypeWithUsersResponse
-import com.server.common.dto.ProfileTypeWithUsersResponseV3
-import com.server.common.dto.toProfileTypeResponse
+import com.server.common.dto.*
 import com.server.common.enums.ProfileCategory
 import com.server.common.enums.ProfileType
 import com.server.common.model.MediaDetailsV2
 import com.server.ud.entities.user.UsersByNearbyZipcodeAndProfileType
 import com.server.ud.entities.user.getMediaDetailsForDP
+import com.server.ud.entities.user.toUserV2PublicMiniDataResponse
 import com.server.ud.provider.user.UserV2Provider
 
 data class MarketplaceUserDetail(

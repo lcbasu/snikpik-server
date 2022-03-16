@@ -4,7 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.model.MediaDetailsV2
 import com.server.common.model.getMediaDetailsFromJsonString
 import com.server.common.utils.DateUtils
-import com.server.ud.dto.AllCategoryV2Response
+import com.server.common.dto.AllCategoryV2Response
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType
 import org.springframework.data.cassandra.core.mapping.Column
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn

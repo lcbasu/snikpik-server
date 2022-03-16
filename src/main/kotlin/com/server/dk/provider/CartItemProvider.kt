@@ -65,7 +65,7 @@ class CartItemProvider {
                           productOrder: ProductOrder): CartItem {
         val newCartItem = CartItem()
 
-        newCartItem.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.CRT.name)
+        newCartItem.id = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.CRT.name)
 
         newCartItem.productVariant = productVariant
         newCartItem.product = productVariant.product

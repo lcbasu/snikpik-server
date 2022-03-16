@@ -32,7 +32,7 @@ class ProductOrderStateChangeProvider {
 
     fun saveProductOrderStateChange(productOrder: ProductOrder): ProductOrderStateChange {
         val newProductOrderStateChange = ProductOrderStateChange()
-        newProductOrderStateChange.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.OSC.name)
+        newProductOrderStateChange.id = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.OSC.name)
         newProductOrderStateChange.productOrder = productOrder
         newProductOrderStateChange.addedBy = productOrder.addedBy
         newProductOrderStateChange.company = productOrder.company

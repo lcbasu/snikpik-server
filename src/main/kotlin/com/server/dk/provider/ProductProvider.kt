@@ -8,7 +8,6 @@ import com.server.dk.entities.*
 import com.server.dk.enums.ProductStatus
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.convertToString
-import com.server.dk.model.convertToString
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.springframework.beans.factory.annotation.Autowired
@@ -45,7 +44,7 @@ class ProductProvider {
     fun saveProduct(company: Company, user: User, saveProductRequest: SaveProductRequest) : Product? {
         try {
             val newProduct = Product()
-            newProduct.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.PRD.name)
+            newProduct.id = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.PRD.name)
             newProduct.addedBy = user
             newProduct.company = company
             newProduct.title = saveProductRequest.title

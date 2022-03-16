@@ -17,6 +17,7 @@ data class MediaDetail(
     val mimeType: String
 )
 
+@Deprecated("Use MediaDetailV2")
 data class MediaDetails(
     val media: List<MediaDetail>
 )
@@ -30,11 +31,15 @@ fun MediaDetails.convertToString(): String {
 data class SingleMediaDetail(
     val mediaUrl: String,
     val mediaType: MediaType = MediaType.IMAGE,
-    val thumbnailUrl: String? = null,
-    val mimeType: String? = null,
-    val lengthInSeconds: Long? = 0, // Only applicable for Video and GIF
+
     val width: Int? = 0,
     val height: Int? = 0,
+
+    val thumbnailUrl: String? = null,
+
+    val mimeType: String? = null,
+
+    val lengthInSeconds: Long? = 0, // Only applicable for Video and GIF
 
     @Deprecated("DO NOT USE THIS")
     val contentType: ContentType? = ContentType.ACTUAL,

@@ -40,7 +40,7 @@ class AddressProvider {
     fun saveAddress(saveAddressRequest: SaveAddressRequest): Address? {
         try {
             val newAddress = Address()
-            newAddress.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.ADR.name)
+            newAddress.id = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.ADR.name)
             newAddress.line1 = saveAddressRequest.house
             newAddress.line2 = saveAddressRequest.roadName
             newAddress.zipcode = saveAddressRequest.zipcode

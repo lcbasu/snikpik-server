@@ -87,7 +87,7 @@ class BookmarkProvider {
     fun save(userId: String, request: SaveBookmarkRequest) : Bookmark? {
         try {
             val bookmark = Bookmark(
-                bookmarkId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.BMK.name),
+                bookmarkId = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.BMK.name),
                 userId = userId,
                 resourceId = request.resourceId,
                 resourceType = request.resourceType,

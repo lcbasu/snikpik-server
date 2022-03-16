@@ -6,7 +6,6 @@ import com.server.common.enums.ProfileCategory
 import com.server.common.enums.ProfileType
 import com.server.common.model.MediaDetailsV2
 import com.server.ud.dto.MarketplaceUserDetail
-import com.server.ud.dto.UserV2PublicMiniDataResponse
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AllLabelsResponse(

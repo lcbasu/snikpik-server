@@ -8,7 +8,7 @@ import com.server.common.enums.NotificationTokenProvider
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.enums.RoleType
 import com.server.common.model.RequestContext
-import com.server.dk.dto.PhoneVerificationResponse
+import com.server.common.dto.PhoneVerificationResponse
 import com.server.dk.entities.Address
 import com.server.dk.entities.Company
 import com.server.dk.entities.Employee
@@ -173,7 +173,7 @@ class AuthProvider {
         }
 
         val newUser = User()
-        newUser.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.USR.name)
+        newUser.id = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.USR.name)
         newUser.absoluteMobile = sanitizePhoneNumber
         newUser.countryCode = countryCode
         newUser.fullName = fullName

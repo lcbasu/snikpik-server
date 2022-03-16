@@ -109,7 +109,7 @@ class PaymentProvider {
         }
 
         val payment = Payment()
-        payment.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.PMT.name)
+        payment.id = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.PMT.name)
         payment.company = company
         payment.employee = employee
         payment.paymentType = paymentType

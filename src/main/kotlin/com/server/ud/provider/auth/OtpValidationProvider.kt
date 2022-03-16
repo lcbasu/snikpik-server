@@ -56,7 +56,7 @@ class OtpValidationProvider {
                 createdAt = DateUtils.getEpochNow(),
                 expireAt = DateUtils.getEpoch(DateUtils.getInstantNow().plusSeconds(10 * 60)), // After 10 minutes
                 otp = otp,
-                loginSequenceId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.OTP.name),
+                loginSequenceId = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.OTP.name),
             ))
             return OTPValidationResult (
                 otpValidation = otpValidation,

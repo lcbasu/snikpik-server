@@ -7,7 +7,6 @@ import com.server.common.utils.DateUtils
 import com.server.ud.dao.reply.*
 import com.server.ud.dto.SaveCommentReplyRequest
 import com.server.ud.entities.MediaProcessingDetail
-import com.server.ud.entities.reply.RepliesByComment
 import com.server.ud.entities.reply.Reply
 import com.server.ud.enums.PostTrackerType
 import com.server.ud.provider.bookmark.BookmarkProvider
@@ -91,7 +90,7 @@ class ReplyProvider {
     fun save(userId: String, request: SaveCommentReplyRequest) : Reply? {
         try {
             val reply = Reply(
-                replyId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.RPL.name),
+                replyId = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.RPL.name),
                 commentId = request.commentId,
                 userId = userId,
                 createdAt = DateUtils.getInstantNow(),

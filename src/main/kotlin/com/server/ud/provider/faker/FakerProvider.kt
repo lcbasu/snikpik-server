@@ -4,6 +4,7 @@ import com.algolia.search.SearchClient
 import com.github.javafaker.Faker
 import com.server.common.client.RedisClient
 import com.server.common.dto.AllProfileTypeResponse
+import com.server.common.dto.UpdateUserV2LocationRequest
 import com.server.common.dto.convertToString
 import com.server.common.dto.toProfileTypeResponse
 import com.server.common.enums.*
@@ -140,7 +141,7 @@ class FakerProvider {
         for (i in 1..usersToCreate) {
             val profiles = ProfileType.values().toList().shuffled().take(Random.nextInt(1, ProfileType.values().size))
             val location = userLocations.shuffled().first()
-            val id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.FKE.name)
+            val id = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.FKE.name)
             val userV2 = userV2Provider.saveUserV2(UserV2 (
                 userId = "${ReadableIdPrefix.USR}$id",
                 createdAt = DateUtils.getInstantNow(),
@@ -166,7 +167,8 @@ class FakerProvider {
                 notificationTokenProvider = NotificationTokenProvider.FIREBASE
             ), ProcessingType.NO_PROCESSING) ?: error("Error saving userV2 for userId: ${id}")
             // This save will also take care of creating the job to process location data
-            userV2Provider.updateUserV2Location(UpdateUserV2LocationRequest (
+            userV2Provider.updateUserV2Location(
+                UpdateUserV2LocationRequest (
                 updateTypes = setOf(UserLocationUpdateType.CURRENT, UserLocationUpdateType.PERMANENT),
                 lat = location.lat!!,
                 lng = location.lng!!,
@@ -428,7 +430,13 @@ class FakerProvider {
 
     fun doSomething(): Any {
 
-        postProvider.updatePostAlgoliaData()
+        userV2Repository.findAll().filterNotNull().filterNot {
+            it.handle.isNullOrBlank()
+        }.map {
+            uniqueIdProvider.saveId(it.handle!!, ReadableIdPrefix.USR.name)
+        }
+
+//        postProvider.updatePostAlgoliaData()
 
         //postProvider.updateSourceMediaForAll()
 //        automationProvider.sendTestSlackMessage()

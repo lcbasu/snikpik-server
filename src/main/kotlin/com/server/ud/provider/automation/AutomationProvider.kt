@@ -4,8 +4,9 @@ import com.github.seratch.jslack.Slack
 import com.github.seratch.jslack.api.webhook.Payload
 import com.server.common.controller.Msg91SMSDeliveryObject
 import com.server.common.properties.AutomationProperties
+import com.server.dk.dto.UserReportRequest
 import com.server.ud.dto.PostReportRequest
-import com.server.ud.dto.UserReportRequest
+import com.server.ud.dto.*
 import com.server.ud.entities.auth.OtpValidation
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.getCategories

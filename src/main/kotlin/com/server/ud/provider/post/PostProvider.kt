@@ -1,7 +1,9 @@
 package com.server.ud.provider.post
 
+import com.server.common.dto.AllCategoryV2Response
 import com.server.common.dto.AllLabelsResponse
 import com.server.common.dto.convertToString
+import com.server.common.dto.toCategoryV2Response
 import com.server.common.enums.MediaType
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.MediaDetailsV2
@@ -11,7 +13,9 @@ import com.server.common.model.getSanitizedMediaDetails
 import com.server.common.provider.MediaHandlerProvider
 import com.server.common.provider.SecurityProvider
 import com.server.common.provider.UniqueIdProvider
+import com.server.common.utils.CommonUtils
 import com.server.common.utils.DateUtils
+import com.server.shop.provider.PostTaggedProductsProvider
 import com.server.ud.dao.post.PostReportByUserRepository
 import com.server.ud.dao.post.PostRepository
 import com.server.ud.dao.post.TrackingByPostRepository
@@ -149,6 +153,9 @@ class PostProvider {
     @Autowired
     private lateinit var postReportByUserRepository: PostReportByUserRepository
 
+    @Autowired
+    private lateinit var postTaggedProductsProvider: PostTaggedProductsProvider
+
     fun getPost(postId: String): Post? =
         try {
             val posts = postRepository.findAllByPostId(postId)
@@ -186,11 +193,11 @@ class PostProvider {
                 location = locationProvider.getOrSaveRandomLocation(userId = user.userId, locationFor = if (request.postType == PostType.GENERIC_POST) LocationFor.GENERIC_POST else LocationFor.COMMUNITY_WALL_POST)
             }
 
-            var postId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.PST.name)
+            var postId = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.PST.name)
 
             getPost(postId) ?.let {
                 logger.error("Post already exists for postId: $postId so generating a new Id: $postId")
-                postId += uniqueIdProvider.getUniqueId(ReadableIdPrefix.PST.name)
+                postId += uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.PST.name)
             }
 
             val post = Post(
@@ -203,31 +210,31 @@ class PostProvider {
                 media = request.mediaDetails?.getSanitizedMediaDetails()?.convertToString(),
                 sourceMedia = request.mediaDetails?.getSanitizedMediaDetails()?.convertToString(),
                 tags = AllHashTags(request.tags).convertToString(),
-                categories = AllCategoryV2Response(
-                    request.categories.map { it.toCategoryV2Response() }
-                ).convertToString(),
-                locationId = location?.locationId,
-                zipcode = location?.zipcode,
-                locationLat = location?.lat,
-                locationLng = location?.lng,
-                locationName = location?.name,
-                googlePlaceId = location?.googlePlaceId,
-                userName = user.fullName,
-                userMobile = user.absoluteMobile,
-                userHandle = user.handle,
-                userCountryCode = user.countryCode,
-                userProfiles = user.getProfiles().convertToString(),
-                locality = location?.locality,
-                subLocality = location?.subLocality,
-                route = location?.route,
-                city = location?.city,
-                state = location?.state,
-                country = location?.country,
-                countryCode = location?.countryCode,
-                completeAddress = location?.completeAddress,
-            )
+                categories = CommonUtils.convertToStringBlob(AllCategoryV2Response(
+                        request.categories.map { it.toCategoryV2Response() }
+                    )),
+                    locationId = location?.locationId,
+                    zipcode = location?.zipcode,
+                    locationLat = location?.lat,
+                    locationLng = location?.lng,
+                    locationName = location?.name,
+                    googlePlaceId = location?.googlePlaceId,
+                    userName = user.fullName,
+                    userMobile = user.absoluteMobile,
+                    userHandle = user.handle,
+                    userCountryCode = user.countryCode,
+                    userProfiles = user.getProfiles().convertToString(),
+                    locality = location?.locality,
+                    subLocality = location?.subLocality,
+                    route = location?.route,
+                    city = location?.city,
+                    state = location?.state,
+                    country = location?.country,
+                    countryCode = location?.countryCode,
+                    completeAddress = location?.completeAddress,
+                )
             val savedPost = postRepository.save(post)
-            processJustAfterCreation(savedPost)
+            processJustAfterCreation(savedPost, request)
             return savedPost
         } catch (e: Exception) {
             e.printStackTrace()
@@ -235,13 +242,15 @@ class PostProvider {
         }
     }
 
-    fun processJustAfterCreation(savedPost: Post) {
+    fun processJustAfterCreation(savedPost: Post, request: SavePostRequest) {
         GlobalScope.launch {
-            automationProvider.sendSlackMessageForNewPost(savedPost)
             // Saving this temporarily with whatever media url is in the source
             // so that user can see all his posts immediately
             postProcessPostAfterFirstTimeCreationForUser(savedPost)
             handlePostSaved(savedPost)
+            postTaggedProductsProvider.saveTaggedProduct(savedPost.postId, request.taggedProductIds ?: emptySet())
+
+            automationProvider.sendSlackMessageForNewPost(savedPost)
         }
     }
 
@@ -757,9 +766,10 @@ class PostProvider {
 
     fun updateCategories(post: Post, categories: Set<CategoryV2>): PostUpdate {
         return try {
-            val updatedPost = postRepository.save(post.copy(categories = AllCategoryV2Response(
+            val updatedPost = postRepository.save(post.copy(categories = CommonUtils.convertToStringBlob(
+                AllCategoryV2Response(
                 categories.map { it.toCategoryV2Response() }
-            ).convertToString()))
+            ))))
             val result = PostUpdate(listOf(PostUpdateType.CATEGORIES), post, updatedPost)
             updatePostProcessing(result, ProcessingType.DELETE_AND_REFRESH)
             result
@@ -803,9 +813,9 @@ class PostProvider {
             val areCategoriesSame = postCategories.containsAll(requestCategories)
             categoriesAreUpdated = !isCategoriesSizeSame || !areCategoriesSame
             if (categoriesAreUpdated) {
-                tempPost = tempPost.copy(categories = AllCategoryV2Response(
+                tempPost = tempPost.copy(categories = CommonUtils.convertToStringBlob(AllCategoryV2Response(
                     request.categories.map { it.toCategoryV2Response() }
-                ).convertToString())
+                )))
                 updateTypes.add(PostUpdateType.CATEGORIES)
             }
         }

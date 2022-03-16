@@ -35,6 +35,10 @@ dependencies {
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools:2.3.8.RELEASE")
 
+	// Payment - START
+	implementation("com.razorpay:razorpay-java:1.3.9")
+	// Payment - END
+  
 	// Prometheus - START
 	implementation("io.micrometer:micrometer-registry-prometheus:1.8.2")
 	// Prometheus - END

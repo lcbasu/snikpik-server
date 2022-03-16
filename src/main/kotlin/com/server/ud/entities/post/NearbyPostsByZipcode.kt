@@ -5,7 +5,7 @@ import com.server.common.enums.MediaType
 import com.server.common.utils.DateUtils
 import com.server.common.model.MediaDetailsV2
 import com.server.common.model.getMediaDetailsFromJsonString
-import com.server.ud.dto.AllCategoryV2Response
+import com.server.common.dto.AllCategoryV2Response
 import com.server.ud.enums.PostType
 import com.server.ud.model.AllHashTags
 import org.springframework.data.cassandra.core.cql.Ordering

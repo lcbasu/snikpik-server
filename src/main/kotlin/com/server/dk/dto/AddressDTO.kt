@@ -2,6 +2,26 @@ package com.server.dk.dto
 
 import com.server.dk.entities.Address
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.server.common.dto.SavedUserResponse
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SaveUserAddressRequest(
+    val name: String = "",
+    val address: SaveAddressRequest,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SavedUserAddressResponse(
+    val user: SavedUserResponse,
+    val address: SavedAddressResponse,
+)
+
+
+data class UserAddressesResponse(
+    val user: SavedUserResponse,
+    val addresses: List<SavedAddressResponse>
+)
+
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveAddressRequest(

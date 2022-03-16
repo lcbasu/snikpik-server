@@ -72,7 +72,7 @@ class CompanyProvider {
 
     fun saveCompany(user: User, saveCompanyRequest: SaveCompanyRequest): Company {
         val newCompany = Company()
-        newCompany.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.COM.name)
+        newCompany.id = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.COM.name)
         newCompany.user = user
         newCompany.name = saveCompanyRequest.name
         newCompany.location = saveCompanyRequest.location
@@ -101,7 +101,7 @@ class CompanyProvider {
         while (currentCount < maxTryOutCount) {
             currentCount += 1
             val currentUsername = try {
-                uniqueIdProvider.getUniqueId(
+                uniqueIdProvider.getUniqueIdAfterSaving(
                     prefix = prefix,
                     minLength = prefix.length,
                     maxLength = prefix.length + currentCount)

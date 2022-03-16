@@ -85,7 +85,7 @@ class CommentProvider {
     fun save(userId: String, request: SaveCommentRequest) : Comment? {
         try {
             val comment = Comment(
-                commentId = uniqueIdProvider.getUniqueId(ReadableIdPrefix.CMT.name),
+                commentId = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.CMT.name),
                 userId = userId,
                 createdAt = DateUtils.getInstantNow(),
                 postType = request.postType,

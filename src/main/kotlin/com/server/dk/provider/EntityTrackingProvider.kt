@@ -40,7 +40,7 @@ class EntityTrackingProvider {
     fun saveProduct(request: EntityInteractionRequest) : EntityTracking? {
         return try {
             val newEntityTracking = EntityTracking()
-            newEntityTracking.id = uniqueIdProvider.getUniqueId(ReadableIdPrefix.ETR.name)
+            newEntityTracking.id = uniqueIdProvider.getUniqueIdAfterSaving(ReadableIdPrefix.ETR.name)
             newEntityTracking.addedBy = authProvider.getRequestUserEntity()
             newEntityTracking.company = request.companyServerIdOrUsername?.let { companyProvider.getCompanyByServerIdOrUsername(it) }
             newEntityTracking.product = request.productId?.let { productProvider.getProduct(it) }
