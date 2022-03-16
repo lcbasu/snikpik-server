@@ -35,6 +35,10 @@ dependencies {
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools:2.3.8.RELEASE")
 
+	// Prometheus - START
+	implementation("io.micrometer:micrometer-registry-prometheus:1.8.2")
+	// Prometheus - END
+
 	// Slack - START
 	implementation("com.github.seratch:jslack:3.4.2")
 	implementation("org.apache.httpcomponents:httpmime:4.5.13")

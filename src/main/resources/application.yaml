@@ -110,6 +110,7 @@ security:
     - /swagger-resources/*
     - /webjars/*
     - /documentation/*
+    - /actuator
     - /actuator/*
     - /error/*
     - /favicon.ico
@@ -190,6 +191,13 @@ management:
         api-key: ${DATADOG_API_KEY}
         app-key: ${DATADOG_APP_KEY}
         step: 20s
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: '*'
 
 bugsnag:
   unbox-server-api-key: ${BUGSNAG_UNBOX_SERVER_API_KEY}

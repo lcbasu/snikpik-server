@@ -79,6 +79,8 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers(
                 "/externalReposts/**",
+                    "/actuator",
+                    "/actuator/**",
                     "/seoData/**",
                     "/consumeAPI/**",
                     "/ud/openWeb/**",
@@ -92,6 +94,8 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                 "/webjars/**").permitAll()
                 .antMatchers(
                     "/externalReposts/**",
+                    "/actuator",
+                    "/actuator/**",
                     "/seoData/**",
                     "/consumeAPI/**",
                     "/ud/openWeb/**",
