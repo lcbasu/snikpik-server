@@ -334,7 +334,7 @@ class PostProvider {
             error("User $loggedInUserId is not authorized to delete post: $postId. Only admins can delete the post from explore.")
         }
         logger.info("Start: Delete post from explore feed for postId: $postId")
-        deletePostFromExplore(post.postId)
+        deletePostFromExplore(post)
         logger.info("End: Delete post from explore feed for postId: $postId")
     }
 
