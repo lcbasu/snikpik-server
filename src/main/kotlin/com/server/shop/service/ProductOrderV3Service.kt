@@ -12,4 +12,5 @@ abstract class ProductOrderV3Service {
     abstract fun createPaymentOrder(request: CreatePaymentOrderRequest): CreatePaymentOrderResponse?
     abstract fun verifyAndCommitPayment(request: VerifyAndCommitPaymentRequest): VerifyAndCommitPaymentResponse?
     abstract fun getAllOrdersForLoggedInUser(): AllProductOrderV3Response?
+    abstract fun getOrderTrackingResponse(productOrderId: String): OrderTrackingResponse
 }

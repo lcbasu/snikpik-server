@@ -30,6 +30,8 @@ class ProductOrderV3 : Auditable() {
 
     var priceOfCartItemsWithoutTaxInPaisa: Long = 0
 
+    var orderedOnDateTime: LocalDateTime? = null
+
     // Min date of delivery (maxDeliveryDateTime) for any CartItemV3
     var minOfMaxDeliveryDateTime: LocalDateTime? = null
     // Max date of delivery (maxDeliveryDateTime) for any CartItemV3
@@ -43,6 +45,9 @@ class ProductOrderV3 : Auditable() {
     // In normal cases, these both would be same except for cases when each item is delivered on separate delivery time
     var firstCartItemDeliveredOnDateTime: LocalDateTime? = null
     var lastCartItemDeliveredOnDateTime: LocalDateTime? = null
+
+    var replaceableTillDateTime: LocalDateTime? = null
+    var refundableTillDateTime: LocalDateTime? = null
 
     var razorpayOrderId: String? = null
 

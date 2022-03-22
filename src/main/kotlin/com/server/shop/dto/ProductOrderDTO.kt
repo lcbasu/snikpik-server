@@ -9,6 +9,14 @@ import com.server.shop.entities.ProductOrderV3
 import com.server.shop.entities.toUserV2PublicMiniDataResponse
 import com.server.shop.enums.*
 
+data class OrderTrackingResponse (
+    val orderedAt: Long? = 0,
+    val sellerProcessedAt: Long? = 0,
+    val shippedAt: Long? = 0,
+    val outForDeliveryAt: Long? = 0,
+    val deliveredAt: Long? = 0,
+)
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AllProductOrderV3Response (
     val orders: List<SavedProductOrderV3Response>,

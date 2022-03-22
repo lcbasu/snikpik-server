@@ -1,12 +1,10 @@
 package com.server.shop.controller
 
 import com.server.shop.dto.*
+import com.server.shop.enums.ProductCategoryV3Group
 import com.server.shop.service.ProductOrderV3Service
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 // ONLY Authenticated with Phone number APIs
 @RestController
@@ -59,6 +57,11 @@ class ProductOrderV3Controller {
     @RequestMapping(value = ["/verifyAndCommitPayment"], method = [RequestMethod.POST])
     fun verifyAndCommitPayment(@RequestBody request: VerifyAndCommitPaymentRequest): VerifyAndCommitPaymentResponse? {
         return productOrderV3Service.verifyAndCommitPayment(request)
+    }
+
+    @RequestMapping(value = ["/getOrderTrackingResponse"], method = [RequestMethod.GET])
+    fun getOrderTrackingResponse(@RequestParam productOrderId: String): OrderTrackingResponse {
+        return productOrderV3Service.getOrderTrackingResponse(productOrderId)
     }
 
 }

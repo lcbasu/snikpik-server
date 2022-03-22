@@ -423,4 +423,14 @@ class ProductOrderV3Provider {
         }
     }
 
+    fun getOrderTrackingResponse(productOrderId: String): OrderTrackingResponse {
+        return OrderTrackingResponse(
+            orderedAt = 100,
+            shippedAt = 0,
+            sellerProcessedAt = 0,
+            outForDeliveryAt = 0,
+            deliveredAt = 0,
+        )
+    }
+
 }

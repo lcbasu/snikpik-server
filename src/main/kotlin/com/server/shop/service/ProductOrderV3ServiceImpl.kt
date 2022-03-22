@@ -46,4 +46,8 @@ class ProductOrderV3ServiceImpl : ProductOrderV3Service() {
     override fun getAllOrdersForLoggedInUser(): AllProductOrderV3Response? {
         return AllProductOrderV3Response(productOrderV3Provider.getAllOrdersForLoggedInUser().map { it.toSavedProductOrderV3Response() })
     }
+
+    override fun getOrderTrackingResponse(productOrderId: String): OrderTrackingResponse {
+        return productOrderV3Provider.getOrderTrackingResponse(productOrderId)
+    }
 }

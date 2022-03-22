@@ -26,6 +26,10 @@ enum class ProductOrderStatusV3 {
     CANCELED_BY_CUSTOMER,
     CANCELED_BY_COMPANY,
 
+    PROCESSED_BY_SELLER,
+
+    SHIPPED,
+
     IN_TRANSIT,
 
     RETURNED_BY_DELIVERY,
@@ -46,6 +50,7 @@ enum class ProductOrderStatusV3 {
 
     // Close the current order and start the new order with amount Rs 0.
     NEW_ORDER_STARTED_FOR_REPLACEMENT,
+    REPLACED,
 
     ARCHIVED,
 
