@@ -30,50 +30,266 @@ enum class ProductCategoryV3(
     val subTitle: String,
     val mediaDetails: MediaDetailsV2
 ) {
-    BEDROOM(
+    APPLIANCES(
         ProductCategoryV3Group.HOME,
         4,
-        "Bedroom",
-        "Bedroom",
-                MediaDetailsV2(listOf(
+        "Appliances",
+        "Appliances & electronics",
+        MediaDetailsV2(listOf(
             SingleMediaDetail(
-                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/CategoryImages/EXTERIOR.png",
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/APPLIANCES_0.png",
                 mimeType = "image",
                 mediaType = MediaType.IMAGE,
-                width = 3222,
-                height = 2327,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            ),
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/APPLIANCES_1.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
                 mediaQualityType = MediaQualityType.HIGH,
             )
         ))
     ),
-    FURNITURE(
+    BUILDING(
         ProductCategoryV3Group.HOME,
-        7,
-        "Furniture",
-        "Furniture",
-                MediaDetailsV2(listOf(
+        4,
+        "Building",
+        "Building material",
+        MediaDetailsV2(listOf(
             SingleMediaDetail(
-                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/CategoryImages/EXTERIOR.png",
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/BUILDING_0.png",
                 mimeType = "image",
                 mediaType = MediaType.IMAGE,
-                width = 3222,
-                height = 2327,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            ),
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/BUILDING_1.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
                 mediaQualityType = MediaQualityType.HIGH,
             )
         ))
     ),
     DECOR(
         ProductCategoryV3Group.HOME,
-        20,
+        4,
         "Decor",
-        "Decor",
-                MediaDetailsV2(listOf(
+        "Decor items",
+        MediaDetailsV2(listOf(
             SingleMediaDetail(
-                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/CategoryImages/EXTERIOR.png",
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/DECOR_0.png",
                 mimeType = "image",
                 mediaType = MediaType.IMAGE,
-                width = 3222,
-                height = 2327,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            ),
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/DECOR_1.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            )
+        ))
+    ),
+    ELECTRIC(
+        ProductCategoryV3Group.HOME,
+        4,
+        "Electric",
+        "Electric items",
+        MediaDetailsV2(listOf(
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/ELECTRIC_0.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            ),
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/ELECTRIC_1.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            )
+        ))
+    ),
+    FURNITURE(
+        ProductCategoryV3Group.HOME,
+        4,
+        "Furniture",
+        "Furniture",
+        MediaDetailsV2(listOf(
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/FURNITURE_0.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            ),
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/FURNITURE_1.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            )
+        ))
+    ),
+    KITCHEN(
+        ProductCategoryV3Group.HOME,
+        4,
+        "Kitchen",
+        "Kitchen",
+        MediaDetailsV2(listOf(
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/KITCHEN_0.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            ),
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/KITCHEN_1.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            )
+        ))
+    ),
+    KNOBS_HANDLES(
+        ProductCategoryV3Group.HOME,
+        4,
+        "Knobs and Handles",
+        "Knobs and Handles",
+        MediaDetailsV2(listOf(
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/KNOBS_HANDLES_0.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            ),
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/KNOBS_HANDLES_1.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            )
+        ))
+    ),
+    LIGHTS(
+        ProductCategoryV3Group.HOME,
+        4,
+        "Lights",
+        "Lights",
+        MediaDetailsV2(listOf(
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/LIGHTS_0.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            ),
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/LIGHTS_1.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            )
+        ))
+    ),
+    PAINTS(
+        ProductCategoryV3Group.HOME,
+        4,
+        "Paints",
+        "Paints",
+        MediaDetailsV2(listOf(
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/PAINTS_0.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            ),
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/PAINTS_1.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            )
+        ))
+    ),
+    SANITARY(
+        ProductCategoryV3Group.HOME,
+        4,
+        "Sanitary",
+        "Sanitary",
+        MediaDetailsV2(listOf(
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/SANITARY_0.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            ),
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/SANITARY_1.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            )
+        ))
+    ),
+    STEELWORKS(
+        ProductCategoryV3Group.HOME,
+        4,
+        "Steelworks",
+        "Steelworks and Fabrication",
+        MediaDetailsV2(listOf(
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/STEELWORKS_0.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
+                mediaQualityType = MediaQualityType.HIGH,
+            ),
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/ProductCategoryV3/Images/STEELWORKS_1.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 64,
+                height = 56,
                 mediaQualityType = MediaQualityType.HIGH,
             )
         ))
@@ -89,11 +305,11 @@ enum class ProductSubCategory(
 ) {
 
     SOFA(
-        listOf(ProductCategoryV3.FURNITURE,ProductCategoryV3.DECOR),
+        listOf(ProductCategoryV3.FURNITURE, ProductCategoryV3.DECOR),
         1,
         "Sofa",
         "Sofa",
-                MediaDetailsV2(listOf(
+        MediaDetailsV2(listOf(
             SingleMediaDetail(
                 mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/CategoryImages/EXTERIOR.png",
                 mimeType = "image",
@@ -105,11 +321,11 @@ enum class ProductSubCategory(
         ))
     ),
     BED(
-        listOf(ProductCategoryV3.FURNITURE, ProductCategoryV3.DECOR, ProductCategoryV3.BEDROOM),
+        listOf(ProductCategoryV3.FURNITURE, ProductCategoryV3.DECOR),
         2,
         "Bed",
         "Bed",
-                MediaDetailsV2(listOf(
+        MediaDetailsV2(listOf(
             SingleMediaDetail(
                 mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/CategoryImages/EXTERIOR.png",
                 mimeType = "image",
@@ -140,7 +356,7 @@ enum class ProductVertical(
         1,
         "Sofa",
         "Sofa",
-                MediaDetailsV2(listOf(
+        MediaDetailsV2(listOf(
             SingleMediaDetail(
                 mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/CategoryImages/EXTERIOR.png",
                 mimeType = "image",
@@ -155,7 +371,7 @@ enum class ProductVertical(
         1,
         "Bed",
         "Bed",
-                MediaDetailsV2(listOf(
+        MediaDetailsV2(listOf(
             SingleMediaDetail(
                 mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/CategoryImages/EXTERIOR.png",
                 mimeType = "image",
@@ -172,7 +388,7 @@ enum class ProductVertical(
         1,
         "Recliner",
         "Recliner",
-                MediaDetailsV2(listOf(
+        MediaDetailsV2(listOf(
             SingleMediaDetail(
                 mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/CategoryImages/EXTERIOR.png",
                 mimeType = "image",
@@ -187,7 +403,7 @@ enum class ProductVertical(
         1,
         "American Sofa",
         "American Sofa",
-                MediaDetailsV2(listOf(
+        MediaDetailsV2(listOf(
             SingleMediaDetail(
                 mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/CategoryImages/EXTERIOR.png",
                 mimeType = "image",
@@ -202,7 +418,7 @@ enum class ProductVertical(
         2,
         "King Size Bed",
         "King Size Bed",
-                MediaDetailsV2(listOf(
+        MediaDetailsV2(listOf(
             SingleMediaDetail(
                 mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/CategoryImages/EXTERIOR.png",
                 mimeType = "image",
