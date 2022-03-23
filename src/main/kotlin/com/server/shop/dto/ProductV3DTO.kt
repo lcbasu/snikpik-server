@@ -118,9 +118,14 @@ data class AllBookmarkedProductVariantsRequest (
     override val limit: Int,
 ): SQLPaginationRequest()
 
+data class VariantAndProductResponse (
+    val variant: SavedProductVariantV3Response,
+    val product: SavedProductV3Response,
+)
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class AllBookmarkedProductVariantsResponse (
-    val productVariants: List<SavedProductVariantV3Response>,
+    val variantAndProductList: List<VariantAndProductResponse>,
     override val askedForPage: Int,
     override val askedForLimit: Int,
     override val hasNext: Boolean,
@@ -392,7 +397,10 @@ fun ProductVariantV3.toSaveProductVariantV3Response(): SavedProductVariantV3Resp
 fun SQLSlice<BookmarkedProductsV3>.toAllBookmarkedProductVariantsResponse(): AllBookmarkedProductVariantsResponse {
     this.apply {
         return AllBookmarkedProductVariantsResponse(
-            productVariants = content.mapNotNull { it?.productVariant?.toSaveProductVariantV3Response() },
+            variantAndProductList = content.filter { it?.productVariant != null && it?.product != null } .map { VariantAndProductResponse(
+                variant = it!!.productVariant!!.toSaveProductVariantV3Response(),
+                product = it!!.product!!.toSaveProductV3Response(),
+            ) },
             askedForPage = askedForPage,
             askedForLimit = askedForLimit,
             nextPage = nextPage,

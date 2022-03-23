@@ -16,6 +16,6 @@ interface BookmarkedProductsV3Repository : JpaRepository<BookmarkedProductsV3?, 
 
 //    fun findAllByAddedBy(user: UserV3): List<BookmarkedProductsV3>
 
-    fun findAllByAddedBy(addedBy: UserV3, pageable: Pageable): Slice<BookmarkedProductsV3>
+    fun findAllByAddedByAndBookmarked(addedBy: UserV3, bookmarked: Boolean, pageable: Pageable): Slice<BookmarkedProductsV3>
 
 }

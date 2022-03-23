@@ -90,8 +90,9 @@ class BookmarkedProductsV3Provider {
         val userV3 = userV3Provider.getUserV3(request.userId) ?: error("Logged in user not found")
         val pageable = PageRequest.of(request.page, request.limit)
         return SQLSlice(
-            bookmarkedProductsV3Repository.findAllByAddedBy(
+            bookmarkedProductsV3Repository.findAllByAddedByAndBookmarked(
                 userV3,
+                true,
                 pageable
             )
         ).toAllBookmarkedProductVariantsResponse()
