@@ -10,6 +10,7 @@ import com.server.shop.model.VariantInfoV3List
 import com.server.shop.model.VariantProperties
 import com.server.shop.pagination.SQLPaginationRequest
 import com.server.shop.pagination.SQLPaginationResponse
+import com.server.shop.pagination.SQLSlice
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class PostTaggedProductsRequest (
@@ -33,6 +34,12 @@ data class FeaturedProductsRequest (
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class DecorProductsRequest (
+    override val page: Int,
+    override val limit: Int,
+): SQLPaginationRequest()
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class LightsProductsRequest (
     override val page: Int,
     override val limit: Int,
 ): SQLPaginationRequest()
@@ -98,9 +105,33 @@ data class BookmarkProductVariantV3Request (
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class BookmarkedProductVariantsResponse (
-    val productVariants: List<SavedProductVariantV3Response>,
+data class BookmarkedProductVariantV3Response (
+    val productVariant: SavedProductVariantV3Response,
+    val bookmarked: Boolean,
 )
+
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AllBookmarkedProductVariantsRequest (
+    val userId: String,
+    override val page: Int,
+    override val limit: Int,
+): SQLPaginationRequest()
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class AllBookmarkedProductVariantsResponse (
+    val productVariants: List<SavedProductVariantV3Response>,
+    override val askedForPage: Int,
+    override val askedForLimit: Int,
+    override val hasNext: Boolean,
+    override val nextPage: Int,
+    override val numFound: Int,
+): SQLPaginationResponse(
+    askedForPage = askedForPage,
+    askedForLimit = askedForLimit,
+    hasNext = hasNext,
+    nextPage = nextPage,
+    numFound = numFound)
 
 data class OwnSingleProductCommissionResponse (
     val product: SavedProductV3Response,
@@ -358,3 +389,15 @@ fun ProductVariantV3.toSaveProductVariantV3Response(): SavedProductVariantV3Resp
     }
 }
 
+fun SQLSlice<BookmarkedProductsV3>.toAllBookmarkedProductVariantsResponse(): AllBookmarkedProductVariantsResponse {
+    this.apply {
+        return AllBookmarkedProductVariantsResponse(
+            productVariants = content.mapNotNull { it?.productVariant?.toSaveProductVariantV3Response() },
+            askedForPage = askedForPage,
+            askedForLimit = askedForLimit,
+            nextPage = nextPage,
+            numFound = numFound,
+            hasNext = hasNext
+        )
+    }
+}

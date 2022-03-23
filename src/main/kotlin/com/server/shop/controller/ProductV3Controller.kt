@@ -56,6 +56,12 @@ class ProductV3Controller {
         return productV3Service.getDecorProducts(DecorProductsRequest(page, limit))
     }
 
+    @RequestMapping(value = ["/getLightsProducts"], method = [RequestMethod.GET])
+    fun getLightsProducts(@RequestParam page: Int,
+                          @RequestParam limit: Int,): AllSavedProductV3Response {
+        return productV3Service.getLightsProducts(LightsProductsRequest(page, limit))
+    }
+
     @RequestMapping(value = ["/getUnboxManagedProducts"], method = [RequestMethod.GET])
     fun getUnboxManagedProducts(@RequestParam page: Int,
                                 @RequestParam limit: Int,): AllSavedProductV3Response {
@@ -170,13 +176,24 @@ class ProductV3Controller {
     }
 
     @RequestMapping(value = ["/updateBookmarkProductVariant"], method = [RequestMethod.POST])
-    fun updateBookmarkProductVariant(@RequestBody request: BookmarkProductVariantV3Request): BookmarkedProductVariantsResponse? {
+    fun updateBookmarkProductVariant(@RequestBody request: BookmarkProductVariantV3Request): BookmarkedProductVariantV3Response? {
         return productV3Service.updateBookmarkProductVariant(request)
     }
 
-    @RequestMapping(value = ["/getBookmarkedProductVariants"], method = [RequestMethod.GET])
-    fun getBookmarkedProductVariants(): BookmarkedProductVariantsResponse {
-        return productV3Service.getBookmarkedProductVariants()
+    @RequestMapping(value = ["/getIsProductVariantBookmarked"], method = [RequestMethod.GET])
+    fun getIsProductVariantBookmarked(@RequestParam productVariantId: String): BookmarkedProductVariantV3Response? {
+        return productV3Service.getIsProductVariantBookmarked(productVariantId)
+    }
+
+    @RequestMapping(value = ["/getAllBookmarkedProductVariants"], method = [RequestMethod.GET])
+    fun getAllBookmarkedProductVariants(@RequestParam userId: String,
+                                        @RequestParam page: Int,
+                                        @RequestParam limit: Int,): AllBookmarkedProductVariantsResponse {
+        return productV3Service.getAllBookmarkedProductVariants(AllBookmarkedProductVariantsRequest(
+            userId = userId,
+            page = page,
+            limit = limit,
+        ))
     }
 
 }

@@ -5,6 +5,7 @@ import com.github.seratch.jslack.api.webhook.Payload
 import com.server.common.controller.Msg91SMSDeliveryObject
 import com.server.common.properties.AutomationProperties
 import com.server.dk.dto.UserReportRequest
+import com.server.shop.entities.UserV3
 import com.server.ud.dto.PostReportRequest
 import com.server.ud.dto.*
 import com.server.ud.entities.auth.OtpValidation
@@ -145,6 +146,19 @@ class AutomationProvider {
 
                 val payload = Payload.builder().text(message).build()
                 Slack.getInstance().send(automationProperties.slack.webhook.postReport, payload)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                logger.error("sendSlackMessageForUserReport Error while sending test slack message", e)
+            }
+        }
+    }
+
+    fun registerInterestForShopCategoryLaunch(userV3: UserV3) {
+        GlobalScope.launch {
+            try {
+                val message = "Interested in Shop Category Launch: ${userV3.fullName}, ${userV3.handle}, ${userV3.absoluteMobile}, ${userV3.id}, ${userV3.permanentLocationName}, ${userV3.permanentLocationCity}, ${userV3.permanentLocationState}, ${userV3.permanentLocationZipcode}"
+                val payload = Payload.builder().text(message).build()
+                Slack.getInstance().send(automationProperties.slack.webhook.shopLaunch, payload)
             } catch (e: Exception) {
                 e.printStackTrace()
                 logger.error("sendSlackMessageForUserReport Error while sending test slack message", e)

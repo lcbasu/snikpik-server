@@ -9,7 +9,6 @@ import com.server.shop.pagination.toAllSavedProductV3Response
 import com.server.shop.provider.ProductV3Provider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import javax.validation.constraints.Min
 
 @Service
 class ProductV3ServiceImpl : ProductV3Service() {
@@ -45,12 +44,16 @@ class ProductV3ServiceImpl : ProductV3Service() {
         }.map { it.toProductVerticalResponse() })
     }
 
-    override fun updateBookmarkProductVariant(request: BookmarkProductVariantV3Request): BookmarkedProductVariantsResponse? {
-        return BookmarkedProductVariantsResponse(productV3Provider.updateBookmarkProductVariant(request).map { it.toSaveProductVariantV3Response() })
+    override fun updateBookmarkProductVariant(request: BookmarkProductVariantV3Request): BookmarkedProductVariantV3Response? {
+        return productV3Provider.updateBookmarkProductVariant(request)
     }
 
-    override fun getBookmarkedProductVariants(): BookmarkedProductVariantsResponse {
-        return BookmarkedProductVariantsResponse(productV3Provider.getBookmarkedProductVariants().map { it.toSaveProductVariantV3Response() })
+    override fun getIsProductVariantBookmarked(productVariantId: String): BookmarkedProductVariantV3Response? {
+        return productV3Provider.getIsProductVariantBookmarked(productVariantId)
+    }
+
+    override fun getAllBookmarkedProductVariants(request: AllBookmarkedProductVariantsRequest): AllBookmarkedProductVariantsResponse {
+        return productV3Provider.getAllBookmarkedProductVariants(request)
     }
 
     override fun getFeaturedProducts(request: FeaturedProductsRequest): AllSavedProductV3Response {
@@ -87,6 +90,11 @@ class ProductV3ServiceImpl : ProductV3Service() {
 
     override fun getCommissionDetailsForTaggedProducts(request: CommissionDetailsForTaggedProductsRequest): CommissionDetailsForTaggedProductsResponse {
         return productV3Provider.getCommissionDetailsForTaggedProducts(request)
+    }
+
+    override fun getLightsProducts(request: LightsProductsRequest): AllSavedProductV3Response {
+        val response = productV3Provider.getLightsProducts(request)
+        return response.toAllSavedProductV3Response()
     }
 
     override fun getSimilarProducts(request: SimilarProductsRequest): AllSavedProductV3Response {

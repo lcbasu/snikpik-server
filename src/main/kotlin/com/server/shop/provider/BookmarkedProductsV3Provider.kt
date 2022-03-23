@@ -3,12 +3,17 @@ package com.server.shop.provider
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.utils.CommonUtils
 import com.server.shop.dao.BookmarkedProductsV3Repository
+import com.server.shop.dto.AllBookmarkedProductVariantsRequest
+import com.server.shop.dto.AllBookmarkedProductVariantsResponse
+import com.server.shop.dto.toAllBookmarkedProductVariantsResponse
 import com.server.shop.entities.BookmarkedProductsV3
 import com.server.shop.entities.ProductVariantV3
 import com.server.shop.entities.UserV3
+import com.server.shop.pagination.SQLSlice
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Component
 
 @Component
@@ -18,6 +23,9 @@ class BookmarkedProductsV3Provider {
 
     @Autowired
     private lateinit var bookmarkedProductsV3Repository: BookmarkedProductsV3Repository
+
+    @Autowired
+    private lateinit var userV3Provider: UserV3Provider
 
     fun saveBookmark(bookmarked: Boolean, user: UserV3, productVariantV3: ProductVariantV3): BookmarkedProductsV3? {
         return try {
@@ -64,20 +72,30 @@ class BookmarkedProductsV3Provider {
     fun getId(user: UserV3, productVariantV3: ProductVariantV3) =
         "${ReadableIdPrefix.PBK.name}${user.id}${CommonUtils.STRING_SEPARATOR}${productVariantV3.id}"
 
-    fun getAllBookmarks(user: UserV3): List<BookmarkedProductsV3> {
-        return try {
-            bookmarkedProductsV3Repository.findAllByAddedBy(user)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            logger.error("getBookmarks error", e)
-            emptyList()
-        }
-    }
+//    fun getAllBookmarks(user: UserV3): List<BookmarkedProductsV3> {
+//        return try {
+//            bookmarkedProductsV3Repository.findAllByAddedBy(user)
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//            logger.error("getBookmarks error", e)
+//            emptyList()
+//        }
+//    }
 
-    fun getValidBookmarks(user: UserV3): List<BookmarkedProductsV3> {
-        return getAllBookmarks(user).filter { it.bookmarked }
-    }
+//    fun getValidBookmarks(user: UserV3): List<BookmarkedProductsV3> {
+//        return getAllBookmarks(user).filter { it.bookmarked }
+//    }
 
+    fun getAllBookmarkedProductVariants(request: AllBookmarkedProductVariantsRequest): AllBookmarkedProductVariantsResponse {
+        val userV3 = userV3Provider.getUserV3(request.userId) ?: error("Logged in user not found")
+        val pageable = PageRequest.of(request.page, request.limit)
+        return SQLSlice(
+            bookmarkedProductsV3Repository.findAllByAddedBy(
+                userV3,
+                pageable
+            )
+        ).toAllBookmarkedProductVariantsResponse()
+    }
 
 
 }

@@ -1,5 +1,6 @@
 package com.server.shop.controller
 
+import com.server.shop.dto.NotifyMeForShopCategoryLaunchResponse
 import com.server.shop.dto.TaggedProductCommissionsResponse
 import com.server.shop.service.ShopV3Service
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,6 +22,11 @@ class ShopV3Controller {
 
             unboxMarginInPercentage = 5.00,
         )
+    }
+
+    @RequestMapping(value = ["/notifyMeForShopCategoryLaunch"], method = [RequestMethod.POST])
+    fun notifyMeForShopCategoryLaunch(): NotifyMeForShopCategoryLaunchResponse? {
+        return shopV3Service.notifyMeForShopCategoryLaunch()
     }
 
 }

@@ -7,7 +7,6 @@ import com.server.shop.dao.ProductV3Repository
 import com.server.shop.dto.*
 import com.server.shop.entities.PostTaggedProduct
 import com.server.shop.entities.ProductV3
-import com.server.shop.entities.ProductVariantV3
 import com.server.shop.entities.UserV3
 import com.server.shop.enums.ProductStatusV3
 import com.server.shop.pagination.SQLSlice
@@ -89,18 +88,6 @@ class ProductV3Provider {
             logger.error("saveProduct error", e)
             null
         }
-    }
-
-    fun updateBookmarkProductVariant(request: BookmarkProductVariantV3Request): List<ProductVariantV3> {
-        val userV3 = userV3Provider.getUserV3FromLoggedInUser() ?: error("Logged in user not found")
-        val variant = productVariantV3Provider.getProductVariant(request.productVariantId) ?: error("Product variant not found for id: ${request.productVariantId}")
-        bookmarkedProductsV3Provider.updateBookmark(userV3, variant)
-        return bookmarkedProductsV3Provider.getValidBookmarks(userV3).mapNotNull { it.productVariant }
-    }
-
-    fun getBookmarkedProductVariants(): List<ProductVariantV3> {
-        val userV3 = userV3Provider.getUserV3FromLoggedInUser() ?: error("Logged in user not found")
-        return bookmarkedProductsV3Provider.getValidBookmarks(userV3).mapNotNull { it.productVariant }
     }
 
     fun getCreatorsInFocus(): List<UserV3> {
@@ -264,5 +251,40 @@ class ProductV3Provider {
             )
         )
     }
+
+    fun getLightsProducts(request: LightsProductsRequest): SQLSlice<ProductV3> {
+        val pageable = PageRequest.of(request.page, request.limit)
+        return SQLSlice(productV3Repository.findAllBy(pageable))
+    }
+
+
+    fun updateBookmarkProductVariant(request: BookmarkProductVariantV3Request): BookmarkedProductVariantV3Response {
+        val userV3 = userV3Provider.getUserV3FromLoggedInUser() ?: error("Logged in user not found")
+        val variant = productVariantV3Provider.getProductVariant(request.productVariantId) ?: error("Product variant not found for id: ${request.productVariantId}")
+        val bookmarkedProductsV3 = bookmarkedProductsV3Provider.updateBookmark(userV3, variant)
+        return BookmarkedProductVariantV3Response(
+            productVariant = variant.toSaveProductVariantV3Response(),
+            bookmarked = bookmarkedProductsV3?.bookmarked == true
+        )
+    }
+
+    fun getIsProductVariantBookmarked(productVariantId: String): BookmarkedProductVariantV3Response? {
+        val userV3 = userV3Provider.getUserV3FromLoggedInUser() ?: error("Logged in user not found")
+        val variant = productVariantV3Provider.getProductVariant(productVariantId) ?: error("Product variant not found for id: $productVariantId")
+        val bookmarkedProductsV3 = bookmarkedProductsV3Provider.getBookmark(userV3, variant)
+        return BookmarkedProductVariantV3Response(
+            productVariant = variant.toSaveProductVariantV3Response(),
+            bookmarked = bookmarkedProductsV3?.bookmarked == true
+        )
+    }
+
+    fun getAllBookmarkedProductVariants(request: AllBookmarkedProductVariantsRequest): AllBookmarkedProductVariantsResponse {
+        return bookmarkedProductsV3Provider.getAllBookmarkedProductVariants(request)
+    }
+
+//    fun getBookmarkedProductVariants(): List<ProductVariantV3> {
+//        val userV3 = userV3Provider.getUserV3FromLoggedInUser() ?: error("Logged in user not found")
+//        return bookmarkedProductsV3Provider.getValidBookmarks(userV3).mapNotNull { it.productVariant }
+//    }
 
 }

@@ -221,3 +221,4 @@ automation:
       otp-delivery: ${SLACK_OTP_DELIVERY_WEBHOOK}
       user-report: ${SLACK_USER_REPORT_WEBHOOK}
       post-report: ${SLACK_POST_REPORT_WEBHOOK}
+      shop-launch: ${SLACK_SHOP_LAUNCH_WEBHOOK}

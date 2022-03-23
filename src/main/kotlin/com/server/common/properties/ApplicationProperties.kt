@@ -130,6 +130,7 @@ data class AutomationProperties(
             var otpDelivery: String,
             var userReport: String,
             var postReport: String,
+            var shopLaunch: String,
         )
     }
 }

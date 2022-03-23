@@ -12,3 +12,7 @@ data class TaggedProductCommissionsResponse (
 
     val unboxMarginInPercentage: Double,
 )
+
+data class NotifyMeForShopCategoryLaunchResponse (
+    val registeredInterest: Boolean,
+)
