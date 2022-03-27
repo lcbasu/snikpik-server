@@ -78,7 +78,7 @@ class RazorpayProvider {
         var razorpayOrderResponse: RazorpayOrderResponse? = null
         try {
             val orderRequest = JSONObject()
-            orderRequest.put("amount", productOrder.priceOfCartItemsWithoutTaxInPaisa)
+            orderRequest.put("amount", productOrder.totalPricePayableInPaisa)
             orderRequest.put("currency", "INR")
             orderRequest.put("receipt", productOrder.id)
 

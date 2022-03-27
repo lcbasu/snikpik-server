@@ -21,6 +21,9 @@ data class ProductOrderStateChangeDataV3(
     val totalPriceWithoutTaxInPaisa: Long = 0,
     val totalPricePayableInPaisa: Long = 0,
 
+    var totalMrpInPaisa: Long? = 0,
+    var totalSellingPriceInPaisa: Long? = 0,
+
     var discountInPaisa: Long = 0,
     val discountId: String? = null,
 

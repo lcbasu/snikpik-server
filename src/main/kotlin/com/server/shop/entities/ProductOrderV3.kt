@@ -19,7 +19,7 @@ class ProductOrderV3 : Auditable() {
 
     var type: ProductOrderType = ProductOrderType.REGULAR_ORDER
 
-    var totalPricePayableInPaisa: Long = 0 // (priceOfProductsWithoutTaxInPaisa + totalTaxInPaisa + deliveryChargeInPaisa) - discountInPaisa
+    var totalPricePayableInPaisa: Long = 0 // (priceOfCartItemsWithoutTaxInPaisa + deliveryChargeInPaisa) - coupons/promotions
     var totalDiscountInPaisa: Long = 0 // Sum of all the applied promotions
     var totalTaxInPaisa: Long = 0
 
@@ -28,6 +28,11 @@ class ProductOrderV3 : Auditable() {
 
     var deliveryChargeInPaisa: Long = 0
 
+    var totalMrpInPaisa: Long = 0
+    var totalSellingPriceInPaisa: Long = 0
+
+    // This is the actual selling price of all teh cart items.
+    // This is after discount and without any promotions on order like coupons
     var priceOfCartItemsWithoutTaxInPaisa: Long = 0
 
     var orderedOnDateTime: LocalDateTime? = null

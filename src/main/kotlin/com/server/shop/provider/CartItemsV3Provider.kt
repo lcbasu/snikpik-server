@@ -90,6 +90,9 @@ class CartItemsV3Provider {
         newCartItem.pricePerUnitInPaisaPaid = productVariant.sellingPricePerUnitInPaisa
         newCartItem.totalPriceWithoutTaxInPaisaPaid = newCartItem.totalUnits * productVariant.sellingPricePerUnitInPaisa
 
+        newCartItem.totalMrpInPaisa = newCartItem.totalUnits * productVariant.mrpPerUnitInPaisa
+        newCartItem.totalSellingPriceInPaisa = newCartItem.totalUnits * productVariant.sellingPricePerUnitInPaisa
+
         // For now, promised delivery date is same as max delivery date
         newCartItem.maxDeliveryDateTime = DateUtils.addSecondsToNow(productVariant.maxDeliveryTimeInSeconds)
         newCartItem.promisedDeliveryDateTime = newCartItem.maxDeliveryDateTime
@@ -182,6 +185,9 @@ class CartItemsV3Provider {
 
             cartItem.pricePerUnitInPaisaPaid = 0
             cartItem.totalPriceWithoutTaxInPaisaPaid = 0
+
+            cartItem.totalMrpInPaisa = 0
+            cartItem.totalSellingPriceInPaisa = 0
         } else {
             // TODO: Fix This.
             // Right now if the product price is updated while the order is being updated,
@@ -195,6 +201,9 @@ class CartItemsV3Provider {
             cartItem.pricePerUnitInPaisaPaid = productVariant.sellingPricePerUnitInPaisa
             cartItem.totalPriceWithoutTaxInPaisaPaid = newCount * productVariant.sellingPricePerUnitInPaisa
 
+            cartItem.totalMrpInPaisa = newCount * productVariant.mrpPerUnitInPaisa
+            cartItem.totalSellingPriceInPaisa = newCount * productVariant.sellingPricePerUnitInPaisa
+
             // For now, promised delivery date is same as max delivery date
             cartItem.maxDeliveryDateTime = DateUtils.addSecondsToNow(cartItem.productVariant!!.maxDeliveryTimeInSeconds)
             cartItem.promisedDeliveryDateTime = cartItem.maxDeliveryDateTime
@@ -203,8 +212,8 @@ class CartItemsV3Provider {
         return cartItemV3Repository.save(cartItem)
     }
 
-    fun getDiscountInPaisa(cartItem: CartItemV3): Long {
-        return cartItem.totalUnits * (cartItem.productVariant!!.mrpPerUnitInPaisa - cartItem.productVariant!!.sellingPricePerUnitInPaisa)
-    }
+//    fun getDiscountInPaisa(cartItem: CartItemV3): Long {
+//        return cartItem.totalUnits * (cartItem.productVariant!!.mrpPerUnitInPaisa - cartItem.productVariant!!.sellingPricePerUnitInPaisa)
+//    }
 
 }

@@ -51,6 +51,9 @@ class ProductOrderStateChangeV3Provider {
             totalPriceWithoutTaxInPaisa = oldProductOrder.priceOfCartItemsWithoutTaxInPaisa,
             totalPricePayableInPaisa = oldProductOrder.totalPricePayableInPaisa,
 
+            totalMrpInPaisa = oldProductOrder.totalMrpInPaisa,
+            totalSellingPriceInPaisa = oldProductOrder.totalSellingPriceInPaisa,
+
             discountInPaisa = oldProductOrder.totalDiscountInPaisa,
 
             paymentMode = oldProductOrder.paymentMode,

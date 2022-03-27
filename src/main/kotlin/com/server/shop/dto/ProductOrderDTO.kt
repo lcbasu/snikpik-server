@@ -105,6 +105,9 @@ data class SavedProductOrderV3Response (
 
     val deliveryChargeInPaisa: Long = 0,
 
+    val totalMrpInPaisa: Long,
+    val totalSellingPriceInPaisa: Long,
+
     val priceOfCartItemsWithoutTaxInPaisa: Long = 0,
 
     val orderStatus: ProductOrderStatusV3 = ProductOrderStatusV3.DRAFT,
@@ -151,6 +154,9 @@ data class SavedCartItemV3Response (
     val totalTaxInPaisaPaid: Long,
     val totalPriceWithoutTaxInPaisaPaid: Long,
 
+    val totalMrpInPaisa: Long,
+    val totalSellingPriceInPaisa: Long,
+
     val maxDeliveryDateTime: Long?,
     val promisedDeliveryDateTime: Long?,
     val deliveredOnDateTime: Long?,
@@ -175,6 +181,8 @@ fun ProductOrderV3.toSavedProductOrderV3Response(): SavedProductOrderV3Response 
             totalTaxInPaisa = totalTaxInPaisa,
             deliveryChargeInPaisa = deliveryChargeInPaisa,
             priceOfCartItemsWithoutTaxInPaisa = priceOfCartItemsWithoutTaxInPaisa,
+            totalMrpInPaisa = totalMrpInPaisa,
+            totalSellingPriceInPaisa = totalSellingPriceInPaisa,
             orderStatus = orderStatus,
             paymentMode = paymentMode,
             successPayment = successPayment?.toProductOrderPaymentV3Response(),
@@ -220,6 +228,9 @@ fun CartItemV3.toSavedCartItemV3Response(): SavedCartItemV3Response {
             pricePerUnitInPaisaPaid = pricePerUnitInPaisaPaid ?: 0,
             totalTaxInPaisaPaid = totalTaxInPaisaPaid ?: 0,
             totalPriceWithoutTaxInPaisaPaid = totalPriceWithoutTaxInPaisaPaid ?: 0,
+
+            totalMrpInPaisa = totalMrpInPaisa ?: 0,
+            totalSellingPriceInPaisa = totalSellingPriceInPaisa ?: 0,
 
             maxDeliveryDateTime = DateUtils.getEpoch(maxDeliveryDateTime),
             promisedDeliveryDateTime = DateUtils.getEpoch(promisedDeliveryDateTime),

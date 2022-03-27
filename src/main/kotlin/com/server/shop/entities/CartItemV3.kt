@@ -19,6 +19,8 @@ class CartItemV3 : Auditable() {
     var taxPerUnitInPaisaPaid: Long? = 0
     var pricePerUnitInPaisaPaid: Long? = 0
     var totalTaxInPaisaPaid: Long? = 0
+    var totalMrpInPaisa: Long? = 0
+    var totalSellingPriceInPaisa: Long? = 0
     var totalPriceWithoutTaxInPaisaPaid: Long? = 0
 
     // Adding these values at cart level as well as may be some cart item might have delivery date that is different from the order date.

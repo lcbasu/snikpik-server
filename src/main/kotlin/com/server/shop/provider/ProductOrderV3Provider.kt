@@ -129,6 +129,8 @@ class ProductOrderV3Provider {
             productOrder.totalTaxInPaisa = 0
             productOrder.priceOfCartItemsWithoutTaxInPaisa = 0
             productOrder.totalDiscountInPaisa = 0
+            productOrder.totalMrpInPaisa = 0
+            productOrder.totalSellingPriceInPaisa = 0
 
             // Step 2: Set the values again using the latest prices, update total items count ,and update delivery dates
             val cartItems = cartItemsV3Provider.getCartItems(productOrder)
@@ -137,7 +139,8 @@ class ProductOrderV3Provider {
                 productOrder.totalUnitsInAllCarts += cartItem.totalUnits
                 productOrder.totalTaxInPaisa += cartItem.totalTaxInPaisaPaid ?: 0
                 productOrder.priceOfCartItemsWithoutTaxInPaisa += cartItem.totalPriceWithoutTaxInPaisaPaid ?: 0
-                productOrder.totalDiscountInPaisa += cartItemsV3Provider.getDiscountInPaisa(cartItem)
+                productOrder.totalMrpInPaisa += cartItem.totalMrpInPaisa ?: 0
+                productOrder.totalSellingPriceInPaisa += cartItem.totalSellingPriceInPaisa ?: 0
 
                 if (cartItem.maxDeliveryDateTime != null) {
                     if (productOrder.maxOfMaxDeliveryDateTime == null || cartItem.maxDeliveryDateTime!!.isAfter(productOrder.maxOfMaxDeliveryDateTime)) {
@@ -160,8 +163,10 @@ class ProductOrderV3Provider {
                 }
             }
 
+            productOrder.totalDiscountInPaisa = productOrder.totalMrpInPaisa - productOrder.totalSellingPriceInPaisa
+
             // Also check if the order address is null and the user default address has changed to non-null then assign it as delivery address
-            productOrder.totalPricePayableInPaisa = (productOrder.priceOfCartItemsWithoutTaxInPaisa + productOrder.totalTaxInPaisa + productOrder.deliveryChargeInPaisa) - productOrder.totalDiscountInPaisa
+            productOrder.totalPricePayableInPaisa = (productOrder.totalSellingPriceInPaisa + productOrder.deliveryChargeInPaisa)
             if (productOrder.deliveryAddress == null && productOrder.addedBy?.defaultAddress != null) {
                 productOrder.deliveryAddress = productOrder.addedBy?.defaultAddress
             }
