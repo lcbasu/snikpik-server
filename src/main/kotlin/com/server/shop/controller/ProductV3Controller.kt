@@ -17,7 +17,7 @@ class ProductV3Controller {
     private lateinit var productV3Service: ProductV3Service
 
     @RequestMapping(value = ["/save"], method = [RequestMethod.POST])
-    fun savePost(@RequestBody request: SaveProductV3Request): SavedProductV3Response? {
+    fun saveProduct(@RequestBody request: SaveProductV3Request): SavedProductV3Response? {
         return productV3Service.saveProduct(request)
     }
 
