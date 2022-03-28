@@ -167,6 +167,14 @@ object DateUtils {
         return Date.from(fromLocalDateTime.atZone(ZoneId.of(standardTimeZoneId)).toInstant())
     }
 
+    fun toDate(instant: Instant): Date {
+        return Date.from(instant)
+    }
+
+    fun dateNow(): Date {
+        return Date.from(dateTimeNow().atZone(ZoneId.of(standardTimeZoneId)).toInstant())
+    }
+
     fun getDateInPast(daysInPast: Long) : LocalDateTime {
         return dateTimeNow().minusDays(daysInPast)
     }

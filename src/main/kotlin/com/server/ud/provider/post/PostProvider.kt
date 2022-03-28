@@ -16,6 +16,7 @@ import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.CommonUtils
 import com.server.common.utils.DateUtils
 import com.server.shop.provider.PostTaggedProductsProvider
+import com.server.ud.dao.post.PostMongoDBRepository
 import com.server.ud.dao.post.PostReportByUserRepository
 import com.server.ud.dao.post.PostRepository
 import com.server.ud.dao.post.TrackingByPostRepository
@@ -62,6 +63,9 @@ class PostProvider {
 
     @Autowired
     private lateinit var postRepository: PostRepository
+
+    @Autowired
+    private lateinit var postMongoDBRepository: PostMongoDBRepository
 
     @Autowired
     private lateinit var uniqueIdProvider: UniqueIdProvider
@@ -244,6 +248,72 @@ class PostProvider {
 
     fun processJustAfterCreation(savedPost: Post, request: SavePostRequest) {
         GlobalScope.launch {
+
+            val postInMongoDB = PostMongoDB (
+
+                postId = savedPost.postId,
+
+                createdAt = DateUtils.toDate(savedPost.createdAt),
+
+                userId = savedPost.userId,
+
+                postType = savedPost.postType,
+
+                labels = savedPost.labels,
+
+                title = savedPost.title,
+
+                userHandle = savedPost.userHandle,
+
+                userName = savedPost.userName,
+
+                userMobile = savedPost.userMobile,
+
+                userCountryCode = savedPost.userCountryCode,
+
+                userProfiles = savedPost.getUserProfiles(),
+
+                description = savedPost.description,
+
+                media = savedPost.getMediaDetails(),
+
+                sourceMedia = savedPost.getSourceMediaDetails(),
+
+                tags = savedPost.getHashTags(),
+
+                categories = savedPost.getCategories(),
+
+                locationId = savedPost.locationId,
+
+                googlePlaceId = savedPost.googlePlaceId,
+
+                zipcode = savedPost.zipcode,
+
+                locationName = savedPost.locationName,
+
+                locationLat = savedPost.locationLat,
+
+                locationLng = savedPost.locationLng,
+
+                locality = savedPost.locality,
+
+                subLocality = savedPost.subLocality,
+
+                route = savedPost.route,
+
+                city = savedPost.city,
+
+                state = savedPost.state,
+
+                country = savedPost.country,
+
+                countryCode = savedPost.countryCode,
+
+                completeAddress = savedPost.completeAddress,
+            )
+
+            postMongoDBRepository.save(postInMongoDB)
+
             // Saving this temporarily with whatever media url is in the source
             // so that user can see all his posts immediately
             postProcessPostAfterFirstTimeCreationForUser(savedPost)
