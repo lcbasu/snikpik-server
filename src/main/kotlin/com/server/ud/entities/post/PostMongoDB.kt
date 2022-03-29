@@ -3,6 +3,7 @@ package com.server.ud.entities.post
 import com.server.common.dto.AllCategoryV2Response
 import com.server.common.dto.AllProfileTypeResponse
 import com.server.common.model.MediaDetailsV2
+import com.server.common.model.MediaTypeDetail
 import com.server.common.utils.DateUtils
 import com.server.ud.enums.PostType
 import com.server.ud.model.AllHashTags
@@ -13,17 +14,18 @@ import javax.persistence.Id
 @Document("posts")
 data class PostMongoDB (
 
-    val schemaVersion: Int = 1,
+    val schemaVersion: Int = 2,
 
     @Id
     var postId: String,
-
 
     var createdAt: Date = DateUtils.dateNow(),
 
     var userId: String,
 
     var postType: PostType,
+
+    var mediaTypeDetail: MediaTypeDetail,
 
     var labels: String? = null,
 
@@ -48,6 +50,8 @@ data class PostMongoDB (
     var tags: AllHashTags? = null, // List of AllHashTags
 
     var categories: AllCategoryV2Response? = null, //  List of AllCategoryV2Response
+
+    var geoPoint: MongoGeoPoint? = null,
 
     var locationId: String? = null,
 
@@ -77,3 +81,14 @@ data class PostMongoDB (
 
     val completeAddress: String? = null,
 )
+
+data class MongoGeoPoint (
+    val type: String = "Point",
+    val coordinates: List<Double>
+)
+
+fun getMongoGeoPoint(lat: Double?, lng: Double?): MongoGeoPoint? {
+    return if (lat != null && lng != null) {
+        MongoGeoPoint(coordinates = listOf(lng, lat))
+    } else null
+}

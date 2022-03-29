@@ -14,7 +14,7 @@ interface PostRepository : CassandraRepository<Post?, String?> {
 
     fun deleteByPostId(postId: String)
 
-//    @AllowFiltering
-//    @Query("SELECT * FROM posts")
-//    fun getAll(): List<Post>
+    @AllowFiltering
+    @Query("SELECT * FROM posts")
+    fun getAll(): List<Post>
 }

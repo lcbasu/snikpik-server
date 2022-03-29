@@ -16,7 +16,6 @@ import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.CommonUtils
 import com.server.common.utils.DateUtils
 import com.server.shop.provider.PostTaggedProductsProvider
-import com.server.ud.dao.post.PostMongoDBRepository
 import com.server.ud.dao.post.PostReportByUserRepository
 import com.server.ud.dao.post.PostRepository
 import com.server.ud.dao.post.TrackingByPostRepository
@@ -65,7 +64,7 @@ class PostProvider {
     private lateinit var postRepository: PostRepository
 
     @Autowired
-    private lateinit var postMongoDBRepository: PostMongoDBRepository
+    private lateinit var postMongoDBProvider: PostMongoDBProvider
 
     @Autowired
     private lateinit var uniqueIdProvider: UniqueIdProvider
@@ -238,7 +237,7 @@ class PostProvider {
                     completeAddress = location?.completeAddress,
                 )
             val savedPost = postRepository.save(post)
-            processJustAfterCreation(savedPost, request)
+            processJustAfterCreation(savedPost, request.taggedProductIds ?: emptySet())
             return savedPost
         } catch (e: Exception) {
             e.printStackTrace()
@@ -246,79 +245,15 @@ class PostProvider {
         }
     }
 
-    fun processJustAfterCreation(savedPost: Post, request: SavePostRequest) {
+    fun processJustAfterCreation(savedPost: Post, taggedProductIds: Set<String> = emptySet()) {
         GlobalScope.launch {
-
-            val postInMongoDB = PostMongoDB (
-
-                postId = savedPost.postId,
-
-                createdAt = DateUtils.toDate(savedPost.createdAt),
-
-                userId = savedPost.userId,
-
-                postType = savedPost.postType,
-
-                labels = savedPost.labels,
-
-                title = savedPost.title,
-
-                userHandle = savedPost.userHandle,
-
-                userName = savedPost.userName,
-
-                userMobile = savedPost.userMobile,
-
-                userCountryCode = savedPost.userCountryCode,
-
-                userProfiles = savedPost.getUserProfiles(),
-
-                description = savedPost.description,
-
-                media = savedPost.getMediaDetails(),
-
-                sourceMedia = savedPost.getSourceMediaDetails(),
-
-                tags = savedPost.getHashTags(),
-
-                categories = savedPost.getCategories(),
-
-                locationId = savedPost.locationId,
-
-                googlePlaceId = savedPost.googlePlaceId,
-
-                zipcode = savedPost.zipcode,
-
-                locationName = savedPost.locationName,
-
-                locationLat = savedPost.locationLat,
-
-                locationLng = savedPost.locationLng,
-
-                locality = savedPost.locality,
-
-                subLocality = savedPost.subLocality,
-
-                route = savedPost.route,
-
-                city = savedPost.city,
-
-                state = savedPost.state,
-
-                country = savedPost.country,
-
-                countryCode = savedPost.countryCode,
-
-                completeAddress = savedPost.completeAddress,
-            )
-
-            postMongoDBRepository.save(postInMongoDB)
+            postMongoDBProvider.savePostToMongoDB(savedPost)
 
             // Saving this temporarily with whatever media url is in the source
             // so that user can see all his posts immediately
             postProcessPostAfterFirstTimeCreationForUser(savedPost)
             handlePostSaved(savedPost)
-            postTaggedProductsProvider.saveTaggedProduct(savedPost.postId, request.taggedProductIds ?: emptySet())
+            postTaggedProductsProvider.saveTaggedProduct(savedPost.postId, taggedProductIds)
 
             automationProvider.sendSlackMessageForNewPost(savedPost)
         }

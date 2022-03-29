@@ -428,13 +428,19 @@ class FakerProvider {
     @Autowired
     private lateinit var automationProvider: AutomationProvider
 
-    fun doSomething(): Any {
+    @Autowired
+    private lateinit var postMongoDBProvider: PostMongoDBProvider
 
-        userV2Repository.findAll().filterNotNull().filterNot {
-            it.handle.isNullOrBlank()
-        }.map {
-            uniqueIdProvider.saveId(it.handle!!, ReadableIdPrefix.USR.name)
+    fun doSomething(): Any {
+        postRepository.getAll().forEach { post ->
+            postMongoDBProvider.savePostToMongoDB(post)
         }
+
+//        userV2Repository.findAll().filterNotNull().filterNot {
+//            it.handle.isNullOrBlank()
+//        }.map {
+//            uniqueIdProvider.saveId(it.handle!!, ReadableIdPrefix.USR.name)
+//        }
 
 //        postProvider.updatePostAlgoliaData()
 

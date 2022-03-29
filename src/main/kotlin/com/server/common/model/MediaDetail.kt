@@ -17,6 +17,16 @@ data class MediaDetail(
     val mimeType: String
 )
 
+
+enum class MediaTypeDetail {
+    EMPTY,
+    ONLY_IMAGES,
+    ONLY_VIDEOS,
+    BOTH_IMAGES_AND_VIDEOS,
+    UNKNOWN_MEDIA,
+}
+
+
 @Deprecated("Use MediaDetailV2")
 data class MediaDetails(
     val media: List<MediaDetail>
@@ -66,6 +76,33 @@ fun getMediaDetailsFromJsonString(mediaStr: String?): MediaDetailsV2 {
     } catch (e: Exception) {
         MediaDetailsV2(emptyList())
     }
+}
+
+fun getMediaTypeDetailsFromJsonString(mediaStr: String?): MediaTypeDetail {
+    val mediaDetails = getMediaDetailsFromJsonString(mediaStr)
+    return getMediaTypeDetailsFromMediaDetails(mediaDetails)
+}
+
+fun getMediaTypeDetailsFromMediaDetails(mediaDetails: MediaDetailsV2): MediaTypeDetail {
+
+    if (mediaDetails.media.isEmpty()) {
+        return MediaTypeDetail.EMPTY
+    }
+
+    val listOfMediaType = mediaDetails.media.map { it.mediaType }.toSet()
+
+    if (listOfMediaType.size == 1) {
+        if (listOfMediaType.contains(MediaType.IMAGE)) {
+            return MediaTypeDetail.ONLY_IMAGES
+        } else if (listOfMediaType.contains(MediaType.VIDEO)) {
+            return MediaTypeDetail.ONLY_VIDEOS
+        }
+    } else if (listOfMediaType.size == 2) {
+        if (listOfMediaType.contains(MediaType.IMAGE) && listOfMediaType.contains(MediaType.VIDEO)) {
+            return MediaTypeDetail.BOTH_IMAGES_AND_VIDEOS
+        }
+    }
+    return MediaTypeDetail.UNKNOWN_MEDIA
 }
 
 fun getBestM3u8Url(mediaUrl: String): String {
