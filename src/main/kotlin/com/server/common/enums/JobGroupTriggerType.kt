@@ -28,4 +28,6 @@ enum class JobGroupTriggerType {
 
     RefreshingInstagramLongLivedToken_JobGroupTrigger,
     InstagramPostIngestion_JobGroupTrigger,
+
+    DeleteJob_JobGroupTrigger,
 }

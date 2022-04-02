@@ -308,25 +308,31 @@ class PostProvider {
         if (post.userId != loggedInUserId) {
             error("User $loggedInUserId is not authorized to delete post: $postId. User can only delete their own post.")
         }
+        postsCountByUserProvider.decrementPostCount(post.userId)
+        // Repeat after avery 6 minutes for 1 hour
+        udJobProvider.schedulePostDeletion(postId, 6 * 60, 10)
+    }
+
+    fun deletePostWithId(postId: String) {
         GlobalScope.launch {
             logger.info("Start: Delete post and other dependent information for postId: $postId")
 
-            bookmarkedPostsByUserProvider.deletePostExpandedData(postId)
-            likedPostsByUserProvider.deletePostExpandedData(postId)
-            postsByCategoryProvider.deletePostExpandedData(post)
-            postsByFollowingProvider.deletePostExpandedData(postId)
-            postsByHashTagProvider.deletePostExpandedData(postId)
-            postsByUserProvider.deletePostExpandedData(postId)
-            postsByZipcodeProvider.deletePostExpandedData(postId)
-            nearbyPostsByZipcodeProvider.deletePostExpandedData(postId)
-            nearbyVideoPostsByZipcodeProvider.deletePostExpandedData(postId)
+            async { postsByCategoryProvider.deletePostExpandedDataWithPostId(postId) }
+            async { bookmarkedPostsByUserProvider.deletePostExpandedData(postId) }
+            async { likedPostsByUserProvider.deletePostExpandedData(postId) }
+            async { postsByFollowingProvider.deletePostExpandedData(postId) }
+            async { postsByHashTagProvider.deletePostExpandedData(postId) }
+            async { postsByUserProvider.deletePostExpandedData(postId) }
+            async { postsByZipcodeProvider.deletePostExpandedData(postId) }
+            async { nearbyPostsByZipcodeProvider.deletePostExpandedData(postId) }
+            async { nearbyVideoPostsByZipcodeProvider.deletePostExpandedData(postId) }
 
             // Only one count has to be decreases as the one post is created by
             // only one user and adds only one count
 //            postsCountByUserRepository.decrementPostCount(userId)
-            deletePostExpandedData(post)
-            deleteSinglePost(postId)
-            postsCountByUserProvider.decrementPostCount(post.userId)
+            async { deletePostExpandedData(postId) }
+            async { deleteSinglePost(postId) }
+
             logger.info("End: Delete post and other dependent information for postId: $postId")
         }
     }
@@ -567,16 +573,16 @@ class PostProvider {
         }
     }
 
-    fun deletePostExpandedData(post: Post) {
+    fun deletePostExpandedData(postId: String) {
         GlobalScope.launch {
-            logger.info("Start deletePostExpandedData: Delete post and other dependent information for postId: ${post.postId}")
-            bookmarkProvider.deleteResourceExpandedData(post.postId)
-            commentProvider.deletePostExpandedData(post.postId)
-            likeProvider.deleteResourceExpandedData(post.postId)
-            replyProvider.deletePostExpandedData(post.postId)
-            searchProvider.deletePostExpandedData(post.postId)
-            userActivityProvider.deletePostExpandedData(post.postId)
-            logger.info("End deletePostExpandedData: Delete post and other dependent information for postId: ${post.postId}")
+            logger.info("Start deletePostExpandedData: Delete post and other dependent information for postId: $postId")
+            async { bookmarkProvider.deleteResourceExpandedData(postId) }
+            async { commentProvider.deletePostExpandedData(postId) }
+            async { likeProvider.deleteResourceExpandedData(postId) }
+            async { replyProvider.deletePostExpandedData(postId) }
+            async { searchProvider.deletePostExpandedData(postId) }
+            async { userActivityProvider.deletePostExpandedData(postId) }
+            logger.info("End deletePostExpandedData: Delete post and other dependent information for postId: $postId")
         }
     }
 

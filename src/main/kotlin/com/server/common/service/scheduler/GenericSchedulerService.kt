@@ -10,7 +10,9 @@ data class JobRequest(val genericId: String,
                       val job: Class<out Job?>? = null,
                       val description: String? = null,
                       val scheduleAfterSeconds: Long? = null,
-                      val repeatAfterSeconds: Long? = null,)
+                      val repeatInfo: RepeatInfo? = null,) {
+    data class RepeatInfo(val repeatAfterSeconds: Long, val totalRepeatCount: Int)
+}
 
 abstract class GenericSchedulerService {
     abstract fun scheduleJob(jobRequest: JobRequest)

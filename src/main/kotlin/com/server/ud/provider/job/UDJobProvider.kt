@@ -7,6 +7,7 @@ import com.server.common.service.scheduler.JobRequest
 import com.server.ud.entities.integration.common.IntegrationAccountInfoByUserId
 import com.server.ud.jobs.*
 import com.server.ud.utils.UDKeyBuilder
+import org.quartz.SimpleTrigger
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -174,7 +175,10 @@ class UDJobProvider {
             groupTypeForJob = JobGroupKeyType.RefreshingInstagramLongLivedToken_JobGroupKey,
             groupTypeForTrigger = JobGroupTriggerType.RefreshingInstagramLongLivedToken_JobGroupTrigger,
             scheduleAfterSeconds = 0,
-            repeatAfterSeconds = refreshTokenSeconds,
+            repeatInfo = JobRequest.RepeatInfo(
+                repeatAfterSeconds = refreshTokenSeconds,
+                totalRepeatCount = SimpleTrigger.REPEAT_INDEFINITELY,
+            )
         ))
     }
 
@@ -198,7 +202,10 @@ class UDJobProvider {
             groupTypeForJob = JobGroupKeyType.InstagramPostIngestion_JobGroupKey,
             groupTypeForTrigger = JobGroupTriggerType.InstagramPostIngestion_JobGroupTrigger,
             scheduleAfterSeconds = 0,
-            repeatAfterSeconds = repeatAfterSeconds,
+            repeatInfo = JobRequest.RepeatInfo(
+                repeatAfterSeconds = repeatAfterSeconds,
+                totalRepeatCount = SimpleTrigger.REPEAT_INDEFINITELY,
+            )
         ))
     }
 
@@ -212,4 +219,19 @@ class UDJobProvider {
         ))
     }
 
+    fun schedulePostDeletion(postId: String, repeatAfterSeconds: Long, totalRepeatCount: Int) {
+        logger.info("schedulePostDeletion: $postId.")
+        genericSchedulerService.scheduleJob(JobRequest(
+            genericId = postId,
+            job = PostDeletionJob::class.java,
+            description = "Delete Post Job",
+            groupTypeForJob = JobGroupKeyType.DeletePost_JobGroupKey,
+            groupTypeForTrigger = JobGroupTriggerType.DeleteJob_JobGroupTrigger,
+            scheduleAfterSeconds = 0,
+            repeatInfo = JobRequest.RepeatInfo(
+                repeatAfterSeconds = repeatAfterSeconds,
+                totalRepeatCount = totalRepeatCount,
+            )
+        ))
+    }
 }

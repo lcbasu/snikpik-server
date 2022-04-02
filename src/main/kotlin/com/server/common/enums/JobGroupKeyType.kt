@@ -28,4 +28,6 @@ enum class JobGroupKeyType {
 
     RefreshingInstagramLongLivedToken_JobGroupKey,
     InstagramPostIngestion_JobGroupKey,
+
+    DeletePost_JobGroupKey,
 }

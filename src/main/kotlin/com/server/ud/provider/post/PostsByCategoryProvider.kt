@@ -17,7 +17,6 @@ import com.server.ud.enums.PostType
 import com.server.ud.enums.ProcessingType
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.cache.BlockedIDs
-import com.server.ud.provider.cache.UDCacheProvider
 import com.server.ud.provider.cache.UDCacheProviderV2
 import com.server.ud.utils.UDCommonUtils.DEFAULT_PAGING_STATE_VALUE
 import com.server.ud.utils.pagination.PaginationRequestUtil
@@ -151,6 +150,11 @@ class PostsByCategoryProvider {
             val postId = post.postId
             posts.addAll(postsByCategoryRepository.findAllByCategoryIdAndPostTypeAndCreatedAtAndPostId(categoryV2, postType, createdAt, postId))
         }
+        postsByCategoryRepository.deleteAll(posts)
+    }
+
+    fun deletePostExpandedDataWithPostId(postId: String) {
+        val posts = postsByCategoryRepository.findAllByPostId_V2(postId)
         postsByCategoryRepository.deleteAll(posts)
     }
 

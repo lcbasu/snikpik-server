@@ -5,6 +5,7 @@ import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
 import org.springframework.data.cassandra.repository.AllowFiltering
 import org.springframework.data.cassandra.repository.CassandraRepository
+import org.springframework.data.cassandra.repository.Query
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
 import org.springframework.stereotype.Repository
@@ -26,4 +27,9 @@ interface PostsByCategoryRepository : CassandraRepository<PostsByCategory?, Stri
 
     @AllowFiltering
     fun deleteAllByPostId(postId: String)
+
+
+    @Query("SELECT * FROM posts_by_category where post_id = ?0 allow filtering")
+    fun findAllByPostId_V2(postId: String): List<PostsByCategory>
+
 }

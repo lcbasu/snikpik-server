@@ -89,7 +89,7 @@ class GenericSchedulerServiceImpl : GenericSchedulerService() {
     }
 
     private fun createNewTrigger(jobRequest: JobRequest, jobDetail: JobDetail): Trigger {
-        return if (jobRequest.repeatAfterSeconds == null || jobRequest.repeatAfterSeconds <= 0) {
+        return if (jobRequest.repeatInfo == null) {
             createOneTimeTrigger(jobRequest, jobDetail)
         } else {
             createRepeatableTrigger(jobRequest, jobDetail)
@@ -97,7 +97,7 @@ class GenericSchedulerServiceImpl : GenericSchedulerService() {
     }
 
     private fun createRepeatableTrigger(jobRequest: JobRequest, jobDetail: JobDetail): Trigger {
-        if (jobRequest.repeatAfterSeconds == null || jobRequest.repeatAfterSeconds <= 0) {
+        if (jobRequest.repeatInfo == null || jobRequest.repeatInfo.repeatAfterSeconds <= 0) {
             error("Repeat after seconds cannot be null or zero")
         }
         if (jobRequest.scheduleAfterSeconds!! <= 0) {
@@ -107,9 +107,12 @@ class GenericSchedulerServiceImpl : GenericSchedulerService() {
                 .withIdentity(getTriggerKey(jobRequest))
                 .withDescription(jobRequest.description)
                 .startNow()
-                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                    .withIntervalInSeconds(jobRequest.repeatAfterSeconds.toInt())
-                    .repeatForever())
+                .withSchedule(
+                    SimpleScheduleBuilder
+                        .simpleSchedule()
+                        .withIntervalInSeconds(jobRequest.repeatInfo.repeatAfterSeconds.toInt())
+                        .withRepeatCount(jobRequest.repeatInfo.totalRepeatCount)
+                )
                 .build()
         } else {
             return TriggerBuilder
@@ -118,9 +121,12 @@ class GenericSchedulerServiceImpl : GenericSchedulerService() {
                 .withIdentity(getTriggerKey(jobRequest))
                 .withDescription(jobRequest.description)
                 .startAt(getStartDateForJob(jobRequest))
-                .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                    .withIntervalInSeconds(jobRequest.repeatAfterSeconds.toInt())
-                    .repeatForever())
+                .withSchedule(
+                    SimpleScheduleBuilder
+                        .simpleSchedule()
+                        .withIntervalInSeconds(jobRequest.repeatInfo.repeatAfterSeconds.toInt())
+                        .withRepeatCount(jobRequest.repeatInfo.totalRepeatCount)
+                )
                 .build()
         }
     }
