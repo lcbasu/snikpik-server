@@ -304,11 +304,20 @@ class PostProvider {
 
     fun deletePost(postId: String) {
         val loggedInUserId = securityProvider.validateRequest().getUserIdToUse()
-        val post = getPost(postId) ?: error("No post found for postId: $postId")
-        if (post.userId != loggedInUserId) {
-            error("User $loggedInUserId is not authorized to delete post: $postId. User can only delete their own post.")
+        val post = getPost(postId)// ?: error("No post found for postId: $postId")
+        if (post != null) {
+            // If the post is not null and the user is not authorized to delete the post, then we will not delete the post
+            if (post.userId != loggedInUserId) {
+                error("User $loggedInUserId is not authorized to delete post: $postId. User can only delete their own post.")
+            }
+            postsCountByUserProvider.decrementPostCount(post.userId)
         }
-        postsCountByUserProvider.decrementPostCount(post.userId)
+        // Case 1: If the post is null then it means we failed to delete the post last time so cleanup right now
+        // Case 1: If the post is not null then it means the post exists so delete anyways
+        // Hence in both the cases the cascading change needs to continue
+        // Remove this feature after sometime once we are sure that none of the older post needs cleanup.
+        // Do cleanup inside post != null and enable error("No post found for postId: $postId")
+
         // Repeat after avery 6 minutes for 1 hour
         udJobProvider.schedulePostDeletion(postId, 6 * 60, 10)
     }
