@@ -1,8 +1,10 @@
 package com.server.shop.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.server.common.dto.AuditableResponse
 import com.server.common.dto.UserV2PublicMiniDataResponse
 import com.server.common.model.MediaDetailsV2
+import com.server.common.utils.DateUtils
 import com.server.shop.entities.*
 import com.server.shop.enums.*
 import com.server.shop.model.SpecificationInfoList
@@ -281,8 +283,20 @@ data class SavedProductVariantV3Response (
     val totalSoldAmountInPaisa: Long,
     val totalOrdersCount: Long?,
 
+    override val createdAt: Long,
+    override val createdBy: String?,
+    override val lastModifiedAt: Long,
+    override val lastModifiedBy: String?,
+    override val version : Long,
+    override val deleted: Boolean,
+): AuditableResponse (
+    createdAt = createdAt,
+    createdBy = createdBy,
+    lastModifiedAt = lastModifiedAt,
+    lastModifiedBy = lastModifiedBy,
+    version = version,
+    deleted = deleted,
 )
-
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SavedProductV3Response (
@@ -301,6 +315,20 @@ data class SavedProductV3Response (
     val brand: SavedBrandResponse? = null,
 
     val addedBy: UserV2PublicMiniDataResponse,
+
+    override val createdAt: Long,
+    override val createdBy: String?,
+    override val lastModifiedAt: Long,
+    override val lastModifiedBy: String?,
+    override val version : Long,
+    override val deleted: Boolean,
+): AuditableResponse (
+    createdAt = createdAt,
+    createdBy = createdBy,
+    lastModifiedAt = lastModifiedAt,
+    lastModifiedBy = lastModifiedBy,
+    version = version,
+    deleted = deleted,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -335,6 +363,13 @@ fun ProductV3.toSaveProductV3Response(): SavedProductV3Response {
             brand = brand?.toSavedBrandResponse(),
 
             addedBy = addedBy!!.toUserV2PublicMiniDataResponse(),
+
+            createdAt = DateUtils.getEpoch(createdAt),
+            createdBy = createdBy,
+            lastModifiedAt = DateUtils.getEpoch(lastModifiedAt),
+            lastModifiedBy = lastModifiedBy,
+            version = version,
+            deleted = deleted,
         )
     }
 }
@@ -390,6 +425,12 @@ fun ProductVariantV3.toSaveProductVariantV3Response(): SavedProductVariantV3Resp
             totalSoldAmountInPaisa = totalSoldAmountInPaisa,
             totalOrdersCount = totalOrdersCount,
 
+            createdAt = DateUtils.getEpoch(createdAt),
+            createdBy = createdBy,
+            lastModifiedAt = DateUtils.getEpoch(lastModifiedAt),
+            lastModifiedBy = lastModifiedBy,
+            version = version,
+            deleted = deleted,
         )
     }
 }
