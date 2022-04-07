@@ -114,19 +114,19 @@ class AwsClients {
         return ElasticsearchRestTemplate(getRestHighLevelClient())
     }
 
-    @Bean
-    fun sessionBuilderCustomizer(): CqlSessionBuilderCustomizer? {
-        val loader = DriverConfigLoader.fromClasspath("application.conf")
-        return CqlSessionBuilderCustomizer {
-                builder: CqlSessionBuilder -> builder
-            .withConfigLoader(loader)
-            .withAuthCredentials(awsProperties.keyspace.username, awsProperties.keyspace.password)
-            .withLocalDatacenter("ap-south-1")
-            .withSslContext(SSLContext.getDefault())
-            .withKeyspace(awsProperties.keyspace.name)
-            //.withCloudSecureConnectBundle(objectData)
-        }
-    }
+//    @Bean
+//    fun sessionBuilderCustomizer(): CqlSessionBuilderCustomizer? {
+//        val loader = DriverConfigLoader.fromClasspath("application.conf")
+//        return CqlSessionBuilderCustomizer {
+//                builder: CqlSessionBuilder -> builder
+//            .withConfigLoader(loader)
+//            .withAuthCredentials(awsProperties.keyspace.username, awsProperties.keyspace.password)
+//            .withLocalDatacenter("ap-south-1")
+//            .withSslContext(SSLContext.getDefault())
+//            .withKeyspace(awsProperties.keyspace.name)
+//            //.withCloudSecureConnectBundle(objectData)
+//        }
+//    }
 
     @Bean
     fun awsRekognitionClient(): RekognitionClient? {
