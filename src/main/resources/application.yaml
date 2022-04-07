@@ -23,9 +23,6 @@ spring:
       max-file-size: 10000MB
       max-request-size: 10MB
   data:
-    mongodb:
-      database: ${MONGODB_DATABASE}
-      uri: ${MONGODB_URI}
     cassandra:
       keyspace-name: ${ASTRA_DB_KEYSPACE}
 #      username: ${ASTRA_DB_USERNAME}

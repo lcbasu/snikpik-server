@@ -35,10 +35,6 @@ dependencies {
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools:2.3.8.RELEASE")
 
-	// MongoDB - START
-	implementation("org.springframework.boot:spring-boot-starter-data-mongodb:2.3.8.RELEASE")
-	// MongoDB - END
-
 	// Payment - START
 	implementation("com.razorpay:razorpay-java:1.3.9")
 	// Payment - END

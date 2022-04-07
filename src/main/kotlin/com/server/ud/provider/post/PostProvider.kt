@@ -64,9 +64,6 @@ class PostProvider {
     private lateinit var postRepository: PostRepository
 
     @Autowired
-    private lateinit var postMongoDBProvider: PostMongoDBProvider
-
-    @Autowired
     private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
@@ -247,7 +244,6 @@ class PostProvider {
 
     fun processJustAfterCreation(savedPost: Post, taggedProductIds: Set<String> = emptySet()) {
         GlobalScope.launch {
-            postMongoDBProvider.savePostToMongoDB(savedPost)
 
             // Saving this temporarily with whatever media url is in the source
             // so that user can see all his posts immediately
