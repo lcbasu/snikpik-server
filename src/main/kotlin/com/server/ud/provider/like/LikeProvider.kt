@@ -56,9 +56,6 @@ class LikeProvider {
     private lateinit var likeForResourceByUserRepository: LikeForResourceByUserRepository
 
     @Autowired
-    private lateinit var likesByResourceRepository: LikesByResourceRepository
-
-    @Autowired
     private lateinit var likesByUserRepository: LikesByUserRepository
 
     @Autowired
@@ -180,7 +177,7 @@ class LikeProvider {
 
     fun deleteResourceExpandedData(resourceId: String) {
         GlobalScope.launch {
-            val likesByResource = likesByResourceRepository.findAllByResourceId(resourceId)
+            val likesByResource = likesByResourceProvider.getAllLikesByResource(resourceId)
             val firstValue = likesByResource.firstOrNull()
             val userIds = likesByResource.map { it.userId }.toSet()
             val likeIds = likesByResource.mapNotNull { it.likeId }.toSet()
@@ -200,17 +197,25 @@ class LikeProvider {
                         likesCountByUserRepository.decrementLikes(it)
                     }
                     likeForResourceByUserRepository.deleteAllByResourceIdAndUserId(resourceId, it)
-
-                    // TODO: Optimize this
-                    val allUserLikes = likesByUserRepository.findAllByResourceId(resourceId)
-                    likesByUserRepository.deleteAll(allUserLikes)
                 }
             }.map {
                 it.await()
             }
+
+            // TODO: Optimize this
+            likesByResource.map { lbr ->
+                async {
+                    lbr.userId?.let {
+                        likesByUserRepository.deleteAllByUserIdAndCreatedAtAndResourceIdAndResourceType(it, lbr.createdAt, lbr.resourceId, lbr.resourceType)
+                    }
+                }
+            }.map {
+                it.await()
+            }
+
             likesCountByResourceRepository.deleteAllByResourceId(resourceId)
             firstValue?.let {
-                likesByResourceRepository.deleteAllByResourceIdAndResourceType(resourceId, it.resourceType)
+                likesByResourceProvider.deleteAll(resourceId, it.resourceType)
             }
         }
     }

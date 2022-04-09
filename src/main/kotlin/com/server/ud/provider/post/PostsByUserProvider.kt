@@ -1,8 +1,10 @@
 package com.server.ud.provider.post
 
-import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostsByUserRepository
-import com.server.ud.dto.*
+import com.server.ud.dao.post.PostsByUserTrackerRepository
+import com.server.ud.dto.PostsByUserRequest
+import com.server.ud.dto.PostsByUserResponse
+import com.server.ud.dto.PostsByUserResponseV2
 import com.server.ud.entities.post.*
 import com.server.ud.enums.PostType
 import com.server.ud.enums.ProcessingType
@@ -16,7 +18,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
-import java.time.Instant
 
 @Component
 class PostsByUserProvider {
@@ -25,6 +26,9 @@ class PostsByUserProvider {
 
     @Autowired
     private lateinit var postsByUserRepository: PostsByUserRepository
+
+    @Autowired
+    private lateinit var postsByUserTrackerRepository: PostsByUserTrackerRepository
 
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
@@ -56,7 +60,7 @@ class PostsByUserProvider {
                 countryCode = post.countryCode,
                 completeAddress = post.completeAddress,
             )
-            return postsByUserRepository.save(postsByUser)
+            return save(postsByUser)
         } catch (e: Exception) {
             logger.error("Saving PostsByUser filed for ${post.postId}.")
             e.printStackTrace()
@@ -66,7 +70,7 @@ class PostsByUserProvider {
 
     fun update(postsByUser: PostsByUser, updatedPost: Post): PostsByUser? {
         try {
-            return postsByUserRepository.save(postsByUser.copy(
+            return save(postsByUser.copy(
                 userId = updatedPost.userId,
                 createdAt = updatedPost.createdAt,
                 postId = updatedPost.postId,
@@ -124,11 +128,47 @@ class PostsByUserProvider {
         )
     }
 
-    fun getAllByPostId(postId: String) = postsByUserRepository.findAllByPostId_V2(postId)
+
+    fun getAllPostsTracker(postId: String): List<PostsByUserTracker> {
+        val limit = 10
+        var pagingState = ""
+
+        val trackedPosts = mutableListOf<PostsByUserTracker>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val posts = postsByUserTrackerRepository.findAllByPostId(
+            postId,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(posts)
+        trackedPosts.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextPosts = postsByUserTrackerRepository.findAllByPostId(
+                postId,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextPosts)
+            hasNext = nextSlicedResult.hasNext == true
+            trackedPosts.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return trackedPosts
+    }
+
+    fun getAllByPostId(postId: String) : List<PostsByUser> {
+        val trackedPosts = getAllPostsTracker(postId)
+        return trackedPosts.map {
+            it.toPostsByUser()
+        }
+    }
 
     fun deletePostExpandedData(postId: String) {
         val all = getAllByPostId(postId)
-        postsByUserRepository.deleteAll(all)
+        all.chunked(10).forEach {
+            postsByUserRepository.deleteAll(it)
+        }
     }
 
     fun updatePostExpandedData(postUpdate: PostUpdate, processingType: ProcessingType) {
@@ -141,5 +181,11 @@ class PostsByUserProvider {
                 it.await()
             }
         }
+    }
+
+    fun save(postsByUser: PostsByUser): PostsByUser {
+        val saved =  postsByUserRepository.save(postsByUser)
+        postsByUserTrackerRepository.save(saved.toPostsByUserTracker())
+        return saved
     }
 }

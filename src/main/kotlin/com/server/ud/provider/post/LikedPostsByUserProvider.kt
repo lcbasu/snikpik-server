@@ -1,11 +1,10 @@
 package com.server.ud.provider.post
 
 import com.server.ud.dao.post.LikedPostsByUserRepository
+import com.server.ud.dao.post.LikedPostsByUserTrackerRepository
 import com.server.ud.dto.LikedPostsByUserRequest
 import com.server.ud.entities.like.Like
-import com.server.ud.entities.post.LikedPostsByUser
-import com.server.ud.entities.post.Post
-import com.server.ud.entities.post.PostUpdate
+import com.server.ud.entities.post.*
 import com.server.ud.enums.ProcessingType
 import com.server.ud.enums.ResourceType
 import com.server.ud.pagination.CassandraPageV2
@@ -28,6 +27,9 @@ class LikedPostsByUserProvider {
     private lateinit var likedPostsByUserRepository: LikedPostsByUserRepository
 
     @Autowired
+    private lateinit var likedPostsByUserTrackerRepository: LikedPostsByUserTrackerRepository
+
+    @Autowired
     private lateinit var postProvider: PostProvider
 
     @Autowired
@@ -40,7 +42,7 @@ class LikedPostsByUserProvider {
                 if (like.liked) {
                     save(like, post)
                 } else {
-                    likedPostsByUserRepository.deleteByUserIdAndPostTypeAndPostId(
+                    likedPostsByUserRepository.deleteAllByUserIdAndPostTypeAndPostId(
                         userId = like.userId,
                         postType = post.postType,
                         postId = like.resourceId,
@@ -73,7 +75,7 @@ class LikedPostsByUserProvider {
                 tags = post.tags,
                 categories = post.categories,
             )
-            return likedPostsByUserRepository.save(likedPostByUser)
+            return save(likedPostByUser)
         } catch (e: Exception) {
             logger.error("Saving LikedPostsByUser failed for likeId: ${like.likeId}.")
             e.printStackTrace()
@@ -83,7 +85,7 @@ class LikedPostsByUserProvider {
 
     fun update(likedPostsByUser: LikedPostsByUser, updatedPost: Post): LikedPostsByUser? {
         try {
-            return likedPostsByUserRepository.save(likedPostsByUser.copy(
+            return save(likedPostsByUser.copy(
                 postCreatedAt = updatedPost.createdAt,
                 postedByUserId = updatedPost.userId,
                 postId = updatedPost.postId,
@@ -113,7 +115,42 @@ class LikedPostsByUserProvider {
         likedPostsByUserRepository.deleteAll(all)
     }
 
-    fun getAllByPostId(postId: String) = likedPostsByUserRepository.findAllByPostId_V2(postId)
+    fun getAllPostsTracker(postId: String): List<LikedPostsByUserTracker> {
+        val limit = 10
+        var pagingState = ""
+
+        val trackedPosts = mutableListOf<LikedPostsByUserTracker>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val posts = likedPostsByUserTrackerRepository.findAllByPostId(
+            postId,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(posts)
+        trackedPosts.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextPosts = likedPostsByUserTrackerRepository.findAllByPostId(
+                postId,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextPosts)
+            hasNext = nextSlicedResult.hasNext == true
+            trackedPosts.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return trackedPosts
+    }
+
+    fun getAllByPostId(postId: String) : List<LikedPostsByUser> {
+        val trackedPosts = getAllPostsTracker(postId)
+        val posts = mutableListOf<LikedPostsByUser>()
+        return trackedPosts.map {
+            it.toLikedPostsByUser()
+        }
+//        return posts
+    }
 
     fun updatePostExpandedData(postUpdate: PostUpdate, processingType: ProcessingType) {
         GlobalScope.launch {
@@ -126,5 +163,9 @@ class LikedPostsByUserProvider {
             }
         }
     }
-
+    private fun save(likedPostsByUser: LikedPostsByUser): LikedPostsByUser {
+        val savedData = likedPostsByUserRepository.save(likedPostsByUser)
+        likedPostsByUserTrackerRepository.save(savedData.toLikedPostsByUserTracker())
+        return savedData
+    }
 }

@@ -116,6 +116,153 @@ data class NearbyPostsByZipcode (
 
 )
 
+@Table("nearby_posts_by_zipcode_tracker")
+data class NearbyPostsByZipcodeTracker (
+
+    @PrimaryKeyColumn(name = "post_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+    var postId: String,
+
+//    // Modulo 10 to create 10 shards based on Post Id/user id so that there
+//    // is a mechanism to retrieve it later on as well just by using the ids
+//    // user id will give better cardinality
+//    @PrimaryKeyColumn(name = "shard_id", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
+//    var shardId: Int,
+
+    @PrimaryKeyColumn(name = "post_type", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
+    var postType: PostType,
+
+    @PrimaryKeyColumn(name = "zipcode", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
+    var zipcode: String,
+
+    @PrimaryKeyColumn(name = "created_at", ordinal = 3, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
+    var createdAt: Instant = DateUtils.getInstantNow(),
+
+    @PrimaryKeyColumn(name = "user_id", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
+    var userId: String,
+
+    @Column("original_zipcode")
+    var originalZipcode: String,
+
+    @Column("location_id")
+    var locationId: String? = null,
+
+    @Column("location_name")
+    val locationName: String? = null,
+
+    @Column("location_lat")
+    val locationLat: Double? = null,
+
+    @Column("location_lng")
+    val locationLng: Double? = null,
+
+    @Column
+    val locality: String? = null,
+
+    @Column("sub_locality")
+    val subLocality: String? = null,
+
+    @Column
+    val route: String? = null,
+
+    @Column
+    val city: String? = null,
+
+    @Column
+    val state: String? = null,
+
+    @Column
+    val country: String? = null,
+
+    @Column("country_code")
+    val countryCode: String? = null,
+
+    @Column("complete_address")
+    val completeAddress: String? = null,
+
+    @Column
+    var title: String? = null,
+
+    @Column
+    var description: String? = null,
+
+    @Column
+    var media: String? = null, // MediaDetailsV2
+
+    @Column("source_media")
+    var sourceMedia: String? = null, // MediaDetailsV2
+
+    @Column
+    var tags: String? = null, // List of HashTagList
+
+    @Column
+    var categories: String? = null, //  List of CategoryV2
+
+)
+
+
+fun NearbyPostsByZipcodeTracker.toNearbyPostsByZipcode(): NearbyPostsByZipcode {
+    this.apply {
+        return NearbyPostsByZipcode(
+            postId = this.postId,
+            postType = this.postType,
+            zipcode = this.zipcode,
+            createdAt = this.createdAt,
+            userId = this.userId,
+            originalZipcode = this.originalZipcode,
+            locationId = this.locationId,
+            locationName = this.locationName,
+            locationLat = this.locationLat,
+            locationLng = this.locationLng,
+            locality = this.locality,
+            subLocality = this.subLocality,
+            route = this.route,
+            city = this.city,
+            state = this.state,
+            country = this.country,
+            countryCode = this.countryCode,
+            completeAddress = this.completeAddress,
+            title = this.title,
+            description = this.description,
+            media = this.media,
+            sourceMedia = this.sourceMedia,
+            tags = this.tags,
+            categories = this.categories
+        )
+    }
+}
+
+
+fun NearbyPostsByZipcode.toNearbyPostsByZipcodeTracker(): NearbyPostsByZipcodeTracker {
+    this.apply {
+        return NearbyPostsByZipcodeTracker(
+            postId = this.postId,
+            postType = this.postType,
+            zipcode = this.zipcode,
+            createdAt = this.createdAt,
+            userId = this.userId,
+            originalZipcode = this.originalZipcode,
+            locationId = this.locationId,
+            locationName = this.locationName,
+            locationLat = this.locationLat,
+            locationLng = this.locationLng,
+            locality = this.locality,
+            subLocality = this.subLocality,
+            route = this.route,
+            city = this.city,
+            state = this.state,
+            country = this.country,
+            countryCode = this.countryCode,
+            completeAddress = this.completeAddress,
+            title = this.title,
+            description = this.description,
+            media = this.media,
+            sourceMedia = this.sourceMedia,
+            tags = this.tags,
+            categories = this.categories
+        )
+    }
+}
+
 fun NearbyPostsByZipcode.toNearbyVideoPostsByZipcode(): NearbyVideoPostsByZipcode? {
     this.apply {
         val hasVideo = getMediaDetails().media.any { it.mediaType == MediaType.VIDEO }

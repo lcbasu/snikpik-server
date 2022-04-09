@@ -1,10 +1,11 @@
 package com.server.ud.provider.post
 
-import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostsByHashTagRepository
+import com.server.ud.dao.post.PostsByHashTagTrackerRepository
 import com.server.ud.entities.post.*
-import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.ProcessingType
+import com.server.ud.pagination.CassandraPageV2
+import com.server.ud.utils.pagination.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -12,6 +13,7 @@ import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 
 @Component
@@ -21,6 +23,12 @@ class PostsByHashTagProvider {
 
     @Autowired
     private lateinit var postsByHashTagRepository: PostsByHashTagRepository
+
+    @Autowired
+    private lateinit var postsByHashTagTrackerRepository: PostsByHashTagTrackerRepository
+
+    @Autowired
+    private lateinit var paginationRequestUtil: PaginationRequestUtil
 
     fun save(post: Post, hashTagId: String): PostsByHashTag? {
         try {
@@ -50,7 +58,11 @@ class PostsByHashTagProvider {
                 countryCode = post.countryCode,
                 completeAddress = post.completeAddress,
             )
-            return postsByHashTagRepository.save(postsByHashTag)
+            val saved = postsByHashTagRepository.save(postsByHashTag)
+
+            postsByHashTagTrackerRepository.save(saved.toPostsByHashTagTracker())
+
+            return saved
         } catch (e: Exception) {
             logger.error("Saving PostsByHashTag filed for ${post.postId}.")
             e.printStackTrace()
@@ -58,9 +70,58 @@ class PostsByHashTagProvider {
         }
     }
 
+
+    fun getAllPostsTracker(postId: String): List<PostsByHashTagTracker> {
+        val limit = 10
+        var pagingState = ""
+
+        val trackedPosts = mutableListOf<PostsByHashTagTracker>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val posts = postsByHashTagTrackerRepository.findAllByPostId(
+            postId,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(posts)
+        trackedPosts.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextPosts = postsByHashTagTrackerRepository.findAllByPostId(
+                postId,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextPosts)
+            hasNext = nextSlicedResult.hasNext == true
+            trackedPosts.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return trackedPosts
+    }
+
+    fun getAllByPostId(postId: String) : List<PostsByHashTag> {
+        val trackedPosts = getAllPostsTracker(postId)
+        val posts = mutableListOf<PostsByHashTag>()
+        return trackedPosts.map {
+            it.toPostsByHashTag()
+//            posts.addAll(
+//                postsByHashTagRepository.findAllByHashTagIdAndPostTypeAndCreatedAtAndPostIdAndUserId(
+//                    it.hashTagId,
+//                    it.postType,
+//                    it.createdAt,
+//                    it.postId,
+//                    it.userId
+//                )
+//            )
+        }
+//        return posts
+    }
+
     fun deletePostExpandedData(postId: String) {
-        val all = postsByHashTagRepository.findAllByPostId_V2(postId)
-        postsByHashTagRepository.deleteAll(all)
+        val all = getAllByPostId(postId)
+        all.chunked(10).forEach {
+            postsByHashTagRepository.deleteAll(it)
+        }
     }
 
     fun processPostExpandedData(post: Post) {

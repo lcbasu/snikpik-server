@@ -306,6 +306,7 @@ class PostProvider {
             if (post.userId != loggedInUserId) {
                 error("User $loggedInUserId is not authorized to delete post: $postId. User can only delete their own post.")
             }
+            automationProvider.sendSlackMessageForPostDeletion(post)
             postsCountByUserProvider.decrementPostCount(post.userId)
         }
         // Case 1: If the post is null then it means we failed to delete the post last time so cleanup right now

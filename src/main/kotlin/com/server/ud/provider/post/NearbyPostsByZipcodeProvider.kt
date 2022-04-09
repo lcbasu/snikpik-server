@@ -2,19 +2,17 @@ package com.server.ud.provider.post
 
 import com.server.common.provider.SecurityProvider
 import com.server.ud.dao.post.NearbyPostsByZipcodeRepository
+import com.server.ud.dao.post.NearbyPostsByZipcodeTrackerRepository
 import com.server.ud.dto.CommunityWallFeedRequest
 import com.server.ud.dto.CommunityWallViewResponse
 import com.server.ud.dto.NearbyFeedRequest
 import com.server.ud.dto.toSavedPostResponse
 import com.server.ud.entities.location.NearbyZipcodesByZipcode
-import com.server.ud.entities.post.NearbyPostsByZipcode
-import com.server.ud.entities.post.Post
-import com.server.ud.entities.post.PostUpdate
+import com.server.ud.entities.post.*
 import com.server.ud.enums.PostType
 import com.server.ud.enums.ProcessingType
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.cache.BlockedIDs
-import com.server.ud.provider.cache.UDCacheProvider
 import com.server.ud.provider.cache.UDCacheProviderV2
 import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
 import com.server.ud.utils.pagination.PaginationRequestUtil
@@ -36,6 +34,9 @@ class NearbyPostsByZipcodeProvider {
     private lateinit var nearbyPostsByZipcodeRepository: NearbyPostsByZipcodeRepository
 
     @Autowired
+    private lateinit var nearbyPostsByZipcodeTrackerRepository: NearbyPostsByZipcodeTrackerRepository
+
+    @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
 
     @Autowired
@@ -52,7 +53,7 @@ class NearbyPostsByZipcodeProvider {
             val posts = nearbyPosts.map { post ->
                 post.copy(zipcode = forNearbyZipcode)
             }
-            return nearbyPostsByZipcodeRepository.saveAll(posts)
+            return saveAll(posts)
         } catch (e: Exception) {
             logger.error("Saving NearbyPostsByZipcode failed forNearbyZipcode $forNearbyZipcode.")
             e.printStackTrace()
@@ -94,7 +95,7 @@ class NearbyPostsByZipcodeProvider {
                     completeAddress = post.completeAddress,
                 )
             }
-            return nearbyPostsByZipcodeRepository.saveAll(posts)
+            return saveAll(posts)
         } catch (e: Exception) {
             logger.error("Saving PostsByNearbyZipcode filed for ${post.postId}.")
             e.printStackTrace()
@@ -130,37 +131,43 @@ class NearbyPostsByZipcodeProvider {
         return CassandraPageV2(posts)
     }
 
-    fun deletePostExpandedData(postId: String) {
-        val nearbyPostsByZipcode = nearbyPostsByZipcodeRepository.findAllByPostId_V2(postId)
+    fun getAllPostsTracker(postId: String): List<NearbyPostsByZipcodeTracker> {
+        val limit = 10
+        var pagingState = ""
 
-//            val posts = mutableListOf<NearbyPostsByZipcode>()
-//            val postType = post.postType
-//            val createdAt = post.createdAt
-//            val postId = post.postId
-//            nearbyPostsByZipcode.map {
-//                posts.addAll(
-//                    nearbyPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndCreatedAtAndPostId(
-//                        it.zipcode,
-//                        postType,
-//                        createdAt,
-//                        postId
-//                    )
-//                )
-//            }
-//            post.zipcode?.let {
-//                posts.addAll(
-//                    nearbyPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndCreatedAtAndPostId(
-//                        it,
-//                        postType,
-//                        createdAt,
-//                        postId
-//                    )
-//                )
-//            }
-        val maxDeleteSize = 5
-        logger.info("Deleting post ${postId} from NearbyPostsByZipcode. Total ${nearbyPostsByZipcode.size} zipcode x posts entries needs to be deleted.")
-        nearbyPostsByZipcodeRepository.deleteAll(nearbyPostsByZipcode)
-        logger.info("Deleted all entries for zipcode x posts for post ${postId} from NearbyPostsByZipcode.")
+        val trackedPosts = mutableListOf<NearbyPostsByZipcodeTracker>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val posts = nearbyPostsByZipcodeTrackerRepository.findAllByPostId(
+            postId,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(posts)
+        trackedPosts.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextPosts = nearbyPostsByZipcodeTrackerRepository.findAllByPostId(
+                postId,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextPosts)
+            hasNext = nextSlicedResult.hasNext == true
+            trackedPosts.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return trackedPosts
+    }
+
+    fun deletePostExpandedData(postId: String) {
+        val trackedPosts = getAllPostsTracker(postId)
+        logger.info("Deleting post ${postId} from NearbyPostsByZipcode. Total ${trackedPosts.size} zipcode x posts entries needs to be deleted.")
+        trackedPosts.chunked(5).map {
+            nearbyPostsByZipcodeRepository.deleteAll(
+                it.map { it.toNearbyPostsByZipcode() }
+            )
+        }
+        logger.info("Deleted all entries : ${trackedPosts.size} for zipcode x posts for post ${postId} from NearbyPostsByZipcode.")
     }
 
     fun processPostExpandedData(post: Post) {
@@ -203,5 +210,11 @@ class NearbyPostsByZipcodeProvider {
             hasNext = result.hasNext,
             pagingState = result.pagingState
         )
+    }
+
+    private fun saveAll(posts: List<NearbyPostsByZipcode>): List<NearbyPostsByZipcode> {
+        val savedPosts = nearbyPostsByZipcodeRepository.saveAll(posts)
+        nearbyPostsByZipcodeTrackerRepository.saveAll(savedPosts.map { it.toNearbyPostsByZipcodeTracker() })
+        return savedPosts
     }
 }

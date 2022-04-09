@@ -55,6 +55,18 @@ class UserActivitiesProvider {
     private lateinit var userActivitiesByUserAndAggregateRepository: UserActivitiesByUserAndAggregateRepository
 
     @Autowired
+    private lateinit var userActivityByPostTrackerRepository: UserActivityByPostTrackerRepository
+
+    @Autowired
+    private lateinit var userActivityByChatTrackerRepository: UserActivityByChatTrackerRepository
+
+    @Autowired
+    private lateinit var userActivityByCommentTrackerRepository: UserActivityByCommentTrackerRepository
+
+    @Autowired
+    private lateinit var userActivityByReplyTrackerRepository: UserActivityByReplyTrackerRepository
+
+    @Autowired
     private lateinit var uniqueIdProvider: UniqueIdProvider
 
     @Autowired
@@ -161,45 +173,64 @@ class UserActivitiesProvider {
                 UserActivityType.USER_CLICKED_CONNECT,
                 UserActivityType.USER_PROFILE_SHARED -> {
 
-                    userActivitiesRepository.deleteAll(
-                        userActivitiesRepository.findAllByByUserIdAndForUserIdAndUserActivityType(
-                            byUser.userId,
-                            forUser.userId,
-                            userActivityType,
-                        )
-                    )
 
-                    userActivitiesByUserRepository.deleteAll(
-                        userActivitiesByUserRepository.findAllByByUserIdAndForUserIdAndUserActivityType(
-                            byUser.userId,
-                            forUser.userId,
-                            userActivityType,
-                        )
-                    )
+                    val userActivitiesByUser = getAllActivitiesByUser(byUser.userId)
 
-                    userActivitiesByUserAndAggregateRepository.deleteAll(
-                        userActivitiesByUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityType(
-                            byUser.userId,
-                            forUser.userId,
-                            userActivityType,
-                        )
-                    )
+                    userActivitiesByUser.map { userActivityByUser ->
 
-                    userActivitiesForUserRepository.deleteAll(
-                        userActivitiesForUserRepository.findAllByByUserIdAndForUserIdAndUserActivityType(
-                            byUser.userId,
-                            forUser.userId,
-                            userActivityType,
+                        // 1
+                        val allUserActivities = userActivitiesRepository.findAllByUserActivityId(
+                            userActivityByUser.userActivityId,
                         )
-                    )
+                        allUserActivities.chunked(10).map { chunk ->
+                            userActivitiesRepository.deleteAll(chunk)
+                        }
 
-                    userActivitiesForUserAndAggregateRepository.deleteAll(
-                        userActivitiesForUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityType(
-                            byUser.userId,
-                            forUser.userId,
-                            userActivityType,
+                        // 2
+                        val alluserActivitiesByUser = userActivitiesByUserRepository.findAllByByUserIdAndCreatedAt(
+                            userActivityByUser.byUserId,
+                            userActivityByUser.createdAt,
                         )
-                    )
+                        alluserActivitiesByUser.chunked(10).map { chunk ->
+                            userActivitiesByUserRepository.deleteAll(chunk)
+                        }
+
+                        // 3
+                        val alluserActivitiesByUserAndAggregate = userActivitiesByUserAndAggregateRepository.findAllByByUserIdAndUserAggregateActivityTypeAndCreatedAt(
+                            userActivityByUser.byUserId,
+                            userActivityByUser.userAggregateActivityType,
+                            userActivityByUser.createdAt,
+                        )
+                        alluserActivitiesByUserAndAggregate.chunked(10).map { chunk ->
+                            userActivitiesByUserAndAggregateRepository.deleteAll(chunk)
+                        }
+
+
+                        // 4
+                        userActivityByUser.forUserId?.let {
+                            val alluserActivitiesForUser = userActivitiesForUserRepository.findAllByForUserIdAndCreatedAt(
+                                it,
+                                userActivityByUser.createdAt,
+                            )
+                            alluserActivitiesForUser.chunked(10).map { chunk ->
+                                userActivitiesForUserRepository.deleteAll(chunk)
+                            }
+                        }
+
+                        // 5
+
+                        userActivityByUser.forUserId?.let {
+                            val all = userActivitiesForUserAndAggregateRepository.findAllByForUserIdAndUserAggregateActivityTypeAndCreatedAt(
+                                it,
+                                userActivityByUser.userAggregateActivityType,
+                                userActivityByUser.createdAt,
+                            )
+                            all.chunked(10).map { chunk ->
+                                userActivitiesForUserAndAggregateRepository.deleteAll(chunk)
+                            }
+                        }
+
+                    }
                 }
                 else -> error("Incorrect User Activity Method called for byUserId: ${byUser.userId}, forUserId: ${forUser.userId} for userActivityType: $userActivityType")
             }
@@ -259,6 +290,166 @@ class UserActivitiesProvider {
         }
     }
 
+    fun getAllUserActivityByPostTracker(postId: String, activityType: UserActivityType? = null): List<UserActivityByPostTracker> {
+        val limit = 10
+        var pagingState = ""
+
+        val trackedActivities = mutableListOf<UserActivityByPostTracker>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val activities = activityType?.let {
+            userActivityByPostTrackerRepository.findAllByPostIdAndUserAggregateActivityTypeAndUserActivityType(
+                postId,
+                activityType.toUserAggregateActivityType(),
+                activityType,
+                pageRequest as Pageable
+            )
+        } ?: userActivityByPostTrackerRepository.findAllByPostId(
+            postId,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(activities)
+        trackedActivities.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextPosts = activityType?.let {
+                userActivityByPostTrackerRepository.findAllByPostIdAndUserAggregateActivityTypeAndUserActivityType(
+                    postId,
+                    activityType.toUserAggregateActivityType(),
+                    activityType,
+                    nextPageRequest as Pageable
+                )
+            } ?: userActivityByPostTrackerRepository.findAllByPostId(
+                postId,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextPosts)
+            hasNext = nextSlicedResult.hasNext == true
+            trackedActivities.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return trackedActivities
+    }
+
+    fun getAllUserActivityByCommentTracker(commentId: String,
+                                           activityType: UserActivityType? = null): List<UserActivityByCommentTracker> {
+        val limit = 10
+        var pagingState = ""
+
+        val trackedActivities = mutableListOf<UserActivityByCommentTracker>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val activities = activityType?.let {
+            userActivityByCommentTrackerRepository.findAllByCommentIdAndUserAggregateActivityTypeAndUserActivityType(
+                commentId,
+                activityType.toUserAggregateActivityType(),
+                activityType,
+                pageRequest as Pageable
+            )
+        } ?: userActivityByCommentTrackerRepository.findAllByCommentId(
+            commentId,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(activities)
+        trackedActivities.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextComments = activityType?.let {
+                userActivityByCommentTrackerRepository.findAllByCommentIdAndUserAggregateActivityTypeAndUserActivityType(
+                    commentId,
+                    activityType.toUserAggregateActivityType(),
+                    activityType,
+                    nextPageRequest as Pageable
+                )
+            } ?: userActivityByCommentTrackerRepository.findAllByCommentId(
+                commentId,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextComments)
+            hasNext = nextSlicedResult.hasNext == true
+            trackedActivities.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return trackedActivities
+    }
+
+    fun getAllUserActivityByReplyTracker(replyId: String,
+                                         activityType: UserActivityType? = null): List<UserActivityByReplyTracker> {
+        val limit = 10
+        var pagingState = ""
+
+        val trackedActivities = mutableListOf<UserActivityByReplyTracker>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val activities = activityType?.let {
+            userActivityByReplyTrackerRepository.findAllByReplyIdAndUserAggregateActivityTypeAndUserActivityType(
+                replyId,
+                activityType.toUserAggregateActivityType(),
+                activityType,
+                pageRequest as Pageable
+            )
+        } ?: userActivityByReplyTrackerRepository.findAllByReplyId(
+            replyId,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(activities)
+        trackedActivities.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextReplies = activityType?.let {
+                userActivityByReplyTrackerRepository.findAllByReplyIdAndUserAggregateActivityTypeAndUserActivityType(
+                    replyId,
+                    activityType.toUserAggregateActivityType(),
+                    activityType,
+                    nextPageRequest as Pageable
+                )
+            } ?: userActivityByReplyTrackerRepository.findAllByReplyId(
+                replyId,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextReplies)
+            hasNext = nextSlicedResult.hasNext == true
+            trackedActivities.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return trackedActivities
+    }
+
+    fun getAllUserActivityByChatTracker(chatId: String, activityType: UserActivityType): List<UserActivityByChatTracker> {
+        val limit = 10
+        var pagingState = ""
+
+        val trackedActivities = mutableListOf<UserActivityByChatTracker>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val activities = userActivityByChatTrackerRepository.findAllByChatIdAndUserAggregateActivityTypeAndUserActivityType(
+            chatId,
+            activityType.toUserAggregateActivityType(),
+            activityType,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(activities)
+        trackedActivities.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextChats = userActivityByChatTrackerRepository.findAllByChatIdAndUserAggregateActivityTypeAndUserActivityType(
+                chatId,
+                activityType.toUserAggregateActivityType(),
+                activityType,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextChats)
+            hasNext = nextSlicedResult.hasNext == true
+            trackedActivities.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return trackedActivities
+    }
+
     fun deleteLikeLevelActivity(like: Like) {
         GlobalScope.launch {
             logger.info("Later:Start: User Activity Like processing for likeId: ${like.likeId}")
@@ -268,107 +459,16 @@ class UserActivitiesProvider {
                     ResourceType.WALL -> {
                         val post = postProvider.getPost(like.resourceId) ?: error("Failed to get post data for postId: ${like.resourceId}")
                         val activityType = if (post.postType == PostType.GENERIC_POST) UserActivityType.POST_LIKED else UserActivityType.WALL_LIKED
-                        userActivitiesRepository.deleteAll(
-                            userActivitiesRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
-                                like.userId,
-                                post.userId,
-                                activityType,
-                                post.postId
-                            )
-                        )
-
-                        userActivitiesByUserRepository.deleteAll(
-                            userActivitiesByUserRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
-                                like.userId,
-                                post.userId,
-                                activityType,
-                                post.postId
-                            )
-                        )
-
-                        userActivitiesByUserAndAggregateRepository.deleteAll(
-                            userActivitiesByUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
-                                like.userId,
-                                post.userId,
-                                activityType,
-                                post.postId
-                            )
-                        )
-
-                        userActivitiesForUserRepository.deleteAll(
-                            userActivitiesForUserRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
-                                like.userId,
-                                post.userId,
-                                activityType,
-                                post.postId
-                            )
-                        )
-
-                        userActivitiesForUserAndAggregateRepository.deleteAll(
-                            userActivitiesForUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
-                                like.userId,
-                                post.userId,
-                                activityType,
-                                post.postId
-                            )
-                        )
+                        deleteActivitiesForPost(post.postId, activityType)
                     }
 
                     ResourceType.POST_COMMENT,
                     ResourceType.WALL_COMMENT -> {
+
                         val comment = commentProvider.getComment(like.resourceId) ?: error("Failed to get comment data for commentId: ${like.resourceId}")
                         val post = postProvider.getPost(comment.postId) ?: error("Failed to get post data for postId: ${comment.postId}")
                         val activityType = if (post.postType == PostType.GENERIC_POST) UserActivityType.POST_COMMENT_LIKED else UserActivityType.WALL_COMMENT_LIKED
-
-                        userActivitiesRepository.deleteAll(
-                            userActivitiesRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentId(
-                                like.userId,
-                                post.userId,
-                                activityType,
-                                post.postId,
-                                comment.commentId
-                            )
-                        )
-
-                        userActivitiesByUserRepository.deleteAll(
-                            userActivitiesByUserRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentId(
-                                like.userId,
-                                post.userId,
-                                activityType,
-                                post.postId,
-                                comment.commentId
-                            )
-                        )
-
-                        userActivitiesByUserAndAggregateRepository.deleteAll(
-                            userActivitiesByUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentId(
-                                like.userId,
-                                post.userId,
-                                activityType,
-                                post.postId,
-                                comment.commentId
-                            )
-                        )
-
-                        userActivitiesForUserRepository.deleteAll(
-                            userActivitiesForUserRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentId(
-                                like.userId,
-                                post.userId,
-                                activityType,
-                                post.postId,
-                                comment.commentId
-                            )
-                        )
-
-                        userActivitiesForUserAndAggregateRepository.deleteAll(
-                            userActivitiesForUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentId(
-                                like.userId,
-                                post.userId,
-                                activityType,
-                                post.postId,
-                                comment.commentId
-                            )
-                        )
+                        deleteCommentActivities(comment.commentId, activityType)
                     }
 
                     ResourceType.POST_COMMENT_REPLY,
@@ -378,60 +478,7 @@ class UserActivitiesProvider {
                         val post = postProvider.getPost(comment.postId) ?: error("Failed to get post data for postId: ${reply.postId}")
                         val activityType = if (post.postType == PostType.GENERIC_POST) UserActivityType.POST_COMMENT_REPLY_LIKED else UserActivityType.WALL_COMMENT_REPLY_LIKED
 
-                        userActivitiesRepository.deleteAll(
-                            userActivitiesRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentIdAndReplyId(
-                                like.userId,
-                                post.userId,
-                                activityType,
-                                post.postId,
-                                comment.commentId,
-                                reply.replyId
-                            )
-                        )
-
-                        userActivitiesByUserRepository.deleteAll(
-                            userActivitiesByUserRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentIdAndReplyId(
-                                like.userId,
-                                post.userId,
-                                activityType,
-                                post.postId,
-                                comment.commentId,
-                                reply.replyId
-                            )
-                        )
-
-                        userActivitiesByUserAndAggregateRepository.deleteAll(
-                            userActivitiesByUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentIdAndReplyId(
-                                like.userId,
-                                post.userId,
-                                activityType,
-                                post.postId,
-                                comment.commentId,
-                                reply.replyId
-                            )
-                        )
-
-                        userActivitiesForUserRepository.deleteAll(
-                            userActivitiesForUserRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentIdAndReplyId(
-                                like.userId,
-                                post.userId,
-                                activityType,
-                                post.postId,
-                                comment.commentId,
-                                reply.replyId
-                            )
-                        )
-
-                        userActivitiesForUserAndAggregateRepository.deleteAll(
-                            userActivitiesForUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostIdAndCommentIdAndReplyId(
-                                like.userId,
-                                post.userId,
-                                activityType,
-                                post.postId,
-                                comment.commentId,
-                                reply.replyId
-                            )
-                        )
+                        deleteReplyActivities(reply.replyId, activityType)
                     }
                 }
             }
@@ -439,6 +486,7 @@ class UserActivitiesProvider {
             logger.info("Later:Done: User Activity Like processing for likeId: ${like.likeId}")
         }
     }
+
 
     fun saveBookmarkLevelActivity(bookmark: Bookmark) {
         GlobalScope.launch {
@@ -472,50 +520,9 @@ class UserActivitiesProvider {
                     ResourceType.WALL -> {
                         val post = postProvider.getPost(bookmark.resourceId) ?: error("Failed to get post data for postId: ${bookmark.resourceId}")
                         val activityType = if (post.postType == PostType.GENERIC_POST) UserActivityType.POST_SAVED else UserActivityType.WALL_SAVED
-                        userActivitiesRepository.deleteAll(
-                            userActivitiesRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
-                                bookmark.userId,
-                                post.userId,
-                                activityType,
-                                post.postId
-                            )
-                        )
 
-                        userActivitiesByUserRepository.deleteAll(
-                            userActivitiesByUserRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
-                                bookmark.userId,
-                                post.userId,
-                                activityType,
-                                post.postId
-                            )
-                        )
+                        deleteActivitiesForPost(post.postId, activityType)
 
-                        userActivitiesByUserAndAggregateRepository.deleteAll(
-                            userActivitiesByUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
-                                bookmark.userId,
-                                post.userId,
-                                activityType,
-                                post.postId
-                            )
-                        )
-
-                        userActivitiesForUserRepository.deleteAll(
-                            userActivitiesForUserRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
-                                bookmark.userId,
-                                post.userId,
-                                activityType,
-                                post.postId
-                            )
-                        )
-
-                        userActivitiesForUserAndAggregateRepository.deleteAll(
-                            userActivitiesForUserAndAggregateRepository.findAllByByUserIdAndForUserIdAndUserActivityTypeAndPostId(
-                                bookmark.userId,
-                                post.userId,
-                                activityType,
-                                post.postId
-                            )
-                        )
                     }
                     else -> error("Incorrect User Activity Method called for bookmarkId: ${bookmark.bookmarkId}, resourceType: ${bookmark.resourceType}")
                 }
@@ -546,6 +553,114 @@ class UserActivitiesProvider {
         return CassandraPageV2(activities)
     }
 
+    fun deletePostExpandedData(postId: String) {
+        GlobalScope.launch {
+            deleteActivitiesForPost(postId)
+        }
+    }
+
+    fun deleteCommentExpandedData(commentId: String) {
+        GlobalScope.launch {
+            deleteCommentActivities(commentId)
+        }
+    }
+
+    fun deleteReplyExpandedData(replyId: String) {
+        GlobalScope.launch {
+            deleteReplyActivities(replyId)
+        }
+    }
+
+    fun getActivitiesFeedForUser_Internal(request: ForUserActivitiesFeedRequest): UserActivitiesFeedResponse? {
+        val result = getActivitiesFeedForUser(request)
+        val userId = securityProvider.getFirebaseAuthUser()?.getUserIdToUse()
+        val blockedIds = userId?.let {
+            udCacheProvider.getBlockedIds(userId)
+        } ?: BlockedIDs()
+        val activities = result.content?.filterNotNull()?.filterNot {
+            it.byUserId in blockedIds.userIds || it.postId in blockedIds.postIds || it.byUserId in blockedIds.mutedUserIds
+        }?.mapNotNull { it.toUserActivityResponse() } ?: emptyList()
+        return UserActivitiesFeedResponse(
+            activities = activities,
+            count = activities.size,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
+    }
+
+    fun getActivitiesFeedByUser_Internal(request: ByUserActivitiesFeedRequest): UserActivitiesFeedResponse? {
+        val result = getActivitiesFeedByUser(request)
+        val userId = securityProvider.getFirebaseAuthUser()?.getUserIdToUse()
+        val blockedIds = userId?.let {
+            udCacheProvider.getBlockedIds(userId)
+        } ?: BlockedIDs()
+        val activities = result.content?.filterNotNull()?.filterNot {
+            it.forUserId in blockedIds.userIds || it.postId in blockedIds.postIds || it.forUserId in blockedIds.mutedUserIds
+        }?.mapNotNull { it.toUserActivityResponse() } ?: emptyList()
+        return UserActivitiesFeedResponse(
+            activities = activities,
+            count = activities.size,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
+    }
+
+    fun getAllActivitiesByUser(byUserId: String): List<UserActivityByUser> {
+        val limit = 10
+        var pagingState = ""
+
+        val trackedUsers = mutableListOf<UserActivityByUser>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val posts = userActivitiesByUserRepository.findAllByByUserId(
+            byUserId,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(posts)
+        trackedUsers.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextPosts = userActivitiesByUserRepository.findAllByByUserId(
+                byUserId,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextPosts)
+            hasNext = nextSlicedResult.hasNext == true
+            trackedUsers.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return trackedUsers
+    }
+
+    private fun getAllActivitiesForUser(forUserId: String): List<UserActivityForUser> {
+        val limit = 10
+        var pagingState = ""
+
+        val trackedUsers = mutableListOf<UserActivityForUser>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val posts = userActivitiesForUserRepository.findAllByForUserId(
+            forUserId,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(posts)
+        trackedUsers.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextPosts = userActivitiesForUserRepository.findAllByForUserId(
+                forUserId,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextPosts)
+            hasNext = nextSlicedResult.hasNext == true
+            trackedUsers.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return trackedUsers
+    }
+
     private fun asyncSaveUserActivity(userActivity: UserActivity) {
         if (userActivity.byUserId == userActivity.forUserId) {
             logger.info("No need to track own activities")
@@ -553,18 +668,39 @@ class UserActivitiesProvider {
         }
         GlobalScope.launch {
             userActivitiesRepository.save(userActivity)
+
             userActivity.getUserActivityByUser().let {
                 userActivitiesByUserRepository.save(it!!)
             }
+
             userActivity.getUserActivityByUserAndAggregate().let {
                 userActivitiesByUserAndAggregateRepository.save(it!!)
             }
+
             userActivity.getUserActivityForUser()?.let {
                 userActivitiesForUserRepository.save(it)
             }
+
             userActivity.getUserActivityForUserAndAggregate()?.let {
                 userActivitiesForUserAndAggregateRepository.save(it)
             }
+
+            userActivity.toUserActivityByPostTracker()?.let {
+                userActivityByPostTrackerRepository.save(it)
+            }
+
+            userActivity.toUserActivityByChatTracker()?.let {
+                userActivityByChatTrackerRepository.save(it)
+            }
+
+            userActivity.toUserActivityByCommentTracker()?.let {
+                userActivityByCommentTrackerRepository.save(it)
+            }
+
+            userActivity.toUserActivityByReplyTracker()?.let {
+                userActivityByReplyTrackerRepository.save(it)
+            }
+
             deviceNotificationProvider.sendNotification(userActivity)
         }
     }
@@ -677,68 +813,164 @@ class UserActivitiesProvider {
         }
     }
 
-    fun deletePostExpandedData(postId: String) {
-        GlobalScope.launch {
-            userActivitiesRepository.deleteAll(userActivitiesRepository.getAllByPostId(postId))
-            userActivitiesForUserRepository.deleteAll(userActivitiesForUserRepository.getAllByPostId(postId))
-            userActivitiesForUserAndAggregateRepository.deleteAll(userActivitiesForUserAndAggregateRepository.getAllByPostId(postId))
-            userActivitiesByUserRepository.deleteAll(userActivitiesByUserRepository.getAllByPostId(postId))
-            userActivitiesByUserAndAggregateRepository.deleteAll(userActivitiesByUserAndAggregateRepository.getAllByPostId(postId))
+    private fun deleteReplyActivities(
+        replyId: String,
+        activityType: UserActivityType? = null
+    ): List<List<Unit>?> {
+        val replyTrackedActivities = getAllUserActivityByReplyTracker(replyId, activityType)
+        return replyTrackedActivities.map { replyTrackedActivity ->
+            val one = userActivitiesRepository.findAllByUserActivityId(
+                replyTrackedActivity.userActivityId,
+            )
+            one.chunked(10).map {
+                userActivitiesRepository.deleteAll(it)
+            }
+
+            val two = userActivitiesByUserRepository.findAllByByUserIdAndCreatedAt(
+                replyTrackedActivity.userActivityId,
+                replyTrackedActivity.createdAt,
+            )
+            two.chunked(10).map {
+                userActivitiesByUserRepository.deleteAll(it)
+            }
+
+            val three =
+                userActivitiesByUserAndAggregateRepository.findAllByByUserIdAndUserAggregateActivityTypeAndCreatedAt(
+                    replyTrackedActivity.byUserId,
+                    replyTrackedActivity.userAggregateActivityType,
+                    replyTrackedActivity.createdAt,
+                )
+            three.chunked(10).map {
+                userActivitiesByUserAndAggregateRepository.deleteAll(it)
+            }
+
+            replyTrackedActivity.forUserId?.let {
+                val four = userActivitiesForUserRepository.findAllByForUserIdAndCreatedAt(
+                    replyTrackedActivity.forUserId,
+                    replyTrackedActivity.createdAt,
+                )
+                four.chunked(10).map {
+                    userActivitiesForUserRepository.deleteAll(it)
+                }
+
+                val five =
+                    userActivitiesForUserAndAggregateRepository.findAllByForUserIdAndUserAggregateActivityTypeAndCreatedAt(
+                        replyTrackedActivity.forUserId,
+                        replyTrackedActivity.userAggregateActivityType,
+                        replyTrackedActivity.createdAt,
+                    )
+                five.chunked(10).map {
+                    userActivitiesForUserAndAggregateRepository.deleteAll(it)
+                }
+            }
         }
     }
 
-    fun deleteCommentExpandedData(commentId: String) {
-        GlobalScope.launch {
-            userActivitiesRepository.deleteAll(userActivitiesRepository.getAllByCommentId(commentId))
-            userActivitiesForUserRepository.deleteAll(userActivitiesForUserRepository.getAllByCommentId(commentId))
-            userActivitiesForUserAndAggregateRepository.deleteAll(userActivitiesForUserAndAggregateRepository.getAllByCommentId(commentId))
-            userActivitiesByUserRepository.deleteAll(userActivitiesByUserRepository.getAllByCommentId(commentId))
-            userActivitiesByUserAndAggregateRepository.deleteAll(userActivitiesByUserAndAggregateRepository.getAllByCommentId(commentId))
+    private fun deleteCommentActivities(
+        commentId: String,
+        activityType: UserActivityType? = null
+    ) {
+        val commentTrackedActivities = getAllUserActivityByCommentTracker(commentId, activityType)
+        commentTrackedActivities.map { commentTrackedActivity ->
+            val one = userActivitiesRepository.findAllByUserActivityId(
+                commentTrackedActivity.userActivityId,
+            )
+            one.chunked(10).map {
+                userActivitiesRepository.deleteAll(it)
+            }
+
+            val two = userActivitiesByUserRepository.findAllByByUserIdAndCreatedAt(
+                commentTrackedActivity.userActivityId,
+                commentTrackedActivity.createdAt,
+            )
+            two.chunked(10).map {
+                userActivitiesByUserRepository.deleteAll(it)
+            }
+
+            val three =
+                userActivitiesByUserAndAggregateRepository.findAllByByUserIdAndUserAggregateActivityTypeAndCreatedAt(
+                    commentTrackedActivity.byUserId,
+                    commentTrackedActivity.userAggregateActivityType,
+                    commentTrackedActivity.createdAt,
+                )
+            three.chunked(10).map {
+                userActivitiesByUserAndAggregateRepository.deleteAll(it)
+            }
+
+            commentTrackedActivity.forUserId?.let {
+                val four = userActivitiesForUserRepository.findAllByForUserIdAndCreatedAt(
+                    commentTrackedActivity.forUserId,
+                    commentTrackedActivity.createdAt,
+                )
+                four.chunked(10).map {
+                    userActivitiesForUserRepository.deleteAll(it)
+                }
+
+                val five =
+                    userActivitiesForUserAndAggregateRepository.findAllByForUserIdAndUserAggregateActivityTypeAndCreatedAt(
+                        commentTrackedActivity.forUserId,
+                        commentTrackedActivity.userAggregateActivityType,
+                        commentTrackedActivity.createdAt,
+                    )
+                five.chunked(10).map {
+                    userActivitiesForUserAndAggregateRepository.deleteAll(it)
+                }
+            }
         }
     }
 
-    fun deleteReplyExpandedData(replyId: String) {
-        GlobalScope.launch {
-            userActivitiesRepository.deleteAll(userActivitiesRepository.getAllByReplyId(replyId))
-            userActivitiesForUserRepository.deleteAll(userActivitiesForUserRepository.getAllByReplyId(replyId))
-            userActivitiesForUserAndAggregateRepository.deleteAll(userActivitiesForUserAndAggregateRepository.getAllByReplyId(replyId))
-            userActivitiesByUserRepository.deleteAll(userActivitiesByUserRepository.getAllByReplyId(replyId))
-            userActivitiesByUserAndAggregateRepository.deleteAll(userActivitiesByUserAndAggregateRepository.getAllByReplyId(replyId))
+    private fun deleteActivitiesForPost(
+        postId: String,
+        activityType: UserActivityType? = null
+    ) {
+        val postTrackedActivities = getAllUserActivityByPostTracker(postId, activityType)
+
+        postTrackedActivities.map { postTrackedActivity ->
+            val one = userActivitiesRepository.findAllByUserActivityId(
+                postTrackedActivity.userActivityId,
+            )
+            one.chunked(10).map {
+                userActivitiesRepository.deleteAll(it)
+            }
+
+            val two = userActivitiesByUserRepository.findAllByByUserIdAndCreatedAt(
+                postTrackedActivity.userActivityId,
+                postTrackedActivity.createdAt,
+            )
+            two.chunked(10).map {
+                userActivitiesByUserRepository.deleteAll(it)
+            }
+
+            val three =
+                userActivitiesByUserAndAggregateRepository.findAllByByUserIdAndUserAggregateActivityTypeAndCreatedAt(
+                    postTrackedActivity.byUserId,
+                    postTrackedActivity.userAggregateActivityType,
+                    postTrackedActivity.createdAt,
+                )
+            three.chunked(10).map {
+                userActivitiesByUserAndAggregateRepository.deleteAll(it)
+            }
+
+            postTrackedActivity.forUserId?.let {
+                val four = userActivitiesForUserRepository.findAllByForUserIdAndCreatedAt(
+                    postTrackedActivity.forUserId,
+                    postTrackedActivity.createdAt,
+                )
+                four.chunked(10).map {
+                    userActivitiesForUserRepository.deleteAll(it)
+                }
+
+                val five =
+                    userActivitiesForUserAndAggregateRepository.findAllByForUserIdAndUserAggregateActivityTypeAndCreatedAt(
+                        postTrackedActivity.forUserId,
+                        postTrackedActivity.userAggregateActivityType,
+                        postTrackedActivity.createdAt,
+                    )
+                five.chunked(10).map {
+                    userActivitiesForUserAndAggregateRepository.deleteAll(it)
+                }
+            }
         }
-    }
-
-    fun getActivitiesFeedForUser_Internal(request: ForUserActivitiesFeedRequest): UserActivitiesFeedResponse? {
-        val result = getActivitiesFeedForUser(request)
-        val userId = securityProvider.getFirebaseAuthUser()?.getUserIdToUse()
-        val blockedIds = userId?.let {
-            udCacheProvider.getBlockedIds(userId)
-        } ?: BlockedIDs()
-        val activities = result.content?.filterNotNull()?.filterNot {
-            it.byUserId in blockedIds.userIds || it.postId in blockedIds.postIds || it.byUserId in blockedIds.mutedUserIds
-        }?.mapNotNull { it.toUserActivityResponse() } ?: emptyList()
-        return UserActivitiesFeedResponse(
-            activities = activities,
-            count = activities.size,
-            hasNext = result.hasNext,
-            pagingState = result.pagingState
-        )
-    }
-
-    fun getActivitiesFeedByUser_Internal(request: ByUserActivitiesFeedRequest): UserActivitiesFeedResponse? {
-        val result = getActivitiesFeedByUser(request)
-        val userId = securityProvider.getFirebaseAuthUser()?.getUserIdToUse()
-        val blockedIds = userId?.let {
-            udCacheProvider.getBlockedIds(userId)
-        } ?: BlockedIDs()
-        val activities = result.content?.filterNotNull()?.filterNot {
-            it.forUserId in blockedIds.userIds || it.postId in blockedIds.postIds || it.forUserId in blockedIds.mutedUserIds
-        }?.mapNotNull { it.toUserActivityResponse() } ?: emptyList()
-        return UserActivitiesFeedResponse(
-            activities = activities,
-            count = activities.size,
-            hasNext = result.hasNext,
-            pagingState = result.pagingState
-        )
     }
 
 }

@@ -1,15 +1,17 @@
 package com.server.ud.provider.post
 
 import com.server.ud.dao.post.PostsByZipcodeRepository
-import com.server.ud.entities.post.Post
-import com.server.ud.entities.post.PostUpdate
-import com.server.ud.entities.post.PostsByZipcode
+import com.server.ud.dao.post.PostsByZipcodeTrackerRepository
+import com.server.ud.entities.post.*
 import com.server.ud.enums.ProcessingType
+import com.server.ud.pagination.CassandraPageV2
+import com.server.ud.utils.pagination.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 
 @Component
@@ -19,6 +21,12 @@ class PostsByZipcodeProvider {
 
     @Autowired
     private lateinit var postsByZipcodeRepository: PostsByZipcodeRepository
+
+    @Autowired
+    private lateinit var postsByZipcodeTrackerRepository: PostsByZipcodeTrackerRepository
+
+    @Autowired
+    private lateinit var paginationRequestUtil: PaginationRequestUtil
 
     fun save(post: Post): PostsByZipcode? {
         try {
@@ -51,7 +59,9 @@ class PostsByZipcodeProvider {
                 countryCode = post.countryCode,
                 completeAddress = post.completeAddress,
             )
-            return postsByZipcodeRepository.save(postsByZipcode)
+            val saved = postsByZipcodeRepository.save(postsByZipcode)
+            postsByZipcodeTrackerRepository.save(saved.toPostsByZipcodeTracker())
+            return saved
         } catch (e: Exception) {
             logger.error("Saving PostsByZipcode filed for ${post.postId}.")
             e.printStackTrace()
@@ -59,9 +69,46 @@ class PostsByZipcodeProvider {
         }
     }
 
+    fun getAllPostsTracker(postId: String): List<PostsByZipcodeTracker> {
+        val limit = 10
+        var pagingState = ""
+
+        val trackedPosts = mutableListOf<PostsByZipcodeTracker>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val posts = postsByZipcodeTrackerRepository.findAllByPostId(
+            postId,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(posts)
+        trackedPosts.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextPosts = postsByZipcodeTrackerRepository.findAllByPostId(
+                postId,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextPosts)
+            hasNext = nextSlicedResult.hasNext == true
+            trackedPosts.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return trackedPosts
+    }
+
+    fun getAllByPostId(postId: String) : List<PostsByZipcode> {
+        val trackedPosts = getAllPostsTracker(postId)
+        return trackedPosts.map {
+            it.toPostsByZipcode()
+        }
+    }
+
     fun deletePostExpandedData(postId: String) {
-        val all = postsByZipcodeRepository.findAllByPostId_V2(postId)
-        postsByZipcodeRepository.deleteAll(all)
+        val all = getAllByPostId(postId)
+        all.chunked(10).forEach {
+            postsByZipcodeRepository.deleteAll(it)
+        }
     }
 
     fun processPostExpandedData(post: Post) {

@@ -10,8 +10,8 @@ interface CommentForPostByUserRepository : CassandraRepository<CommentForPostByU
 //    @Query("select * from comment_for_post_by_user where post_id = ?0 and user_id = ?1")
     fun findAllByPostIdAndUserId(postId: String, userId: String): List<CommentForPostByUser>
 
-    @AllowFiltering
-    fun findAllByPostId(postId: String): List<CommentForPostByUser>
+//    @AllowFiltering
+//    fun findAllByPostId(postId: String): List<CommentForPostByUser>
 
     fun deleteAllByPostIdAndUserId(postId: String, userId: String)
 }

@@ -1,12 +1,14 @@
 package com.server.ud.provider.user
 
-import com.server.common.utils.DateUtils
 import com.server.ud.dao.user.UsersByZipcodeRepository
-import com.server.ud.entities.user.UserV2
-import com.server.ud.entities.user.UsersByZipcode
+import com.server.ud.dao.user.UsersByZipcodeTrackerRepository
+import com.server.ud.entities.user.*
+import com.server.ud.pagination.CassandraPageV2
+import com.server.ud.utils.pagination.PaginationRequestUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 
 @Component
@@ -16,6 +18,12 @@ class UsersByZipcodeProvider {
 
     @Autowired
     private lateinit var usersByZipcodeRepository: UsersByZipcodeRepository
+
+    @Autowired
+    private lateinit var usersByZipcodeTrackerRepository: UsersByZipcodeTrackerRepository
+
+    @Autowired
+    private lateinit var paginationRequestUtil: PaginationRequestUtil
 
     fun save(userV2: UserV2): UsersByZipcode? {
         try {
@@ -29,11 +37,57 @@ class UsersByZipcodeProvider {
                 userId = userV2.userId,
             )
             logger.info("UsersByZipcode saved for userId: ${userV2.userId}")
-            return usersByZipcodeRepository.save(usersByZipcode)
+            val saved = usersByZipcodeRepository.save(usersByZipcode)
+            usersByZipcodeTrackerRepository.save(saved.toUsersByZipcodeTracker())
+            return saved
         } catch (e: Exception) {
             logger.error("Saving UsersByZipcode filed for userId: ${userV2.userId}.")
             e.printStackTrace()
             return null
+        }
+    }
+
+    fun getAllUsersTracker(userId: String): List<UsersByZipcodeTracker> {
+        val limit = 10
+        var pagingState = ""
+
+        val trackedUsers = mutableListOf<UsersByZipcodeTracker>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val posts = usersByZipcodeTrackerRepository.findAllByUserId(
+            userId,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(posts)
+        trackedUsers.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextPosts = usersByZipcodeTrackerRepository.findAllByUserId(
+                userId,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextPosts)
+            hasNext = nextSlicedResult.hasNext == true
+            trackedUsers.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return trackedUsers
+    }
+
+    fun getAllByUserId(userId: String) : List<UsersByZipcode> {
+        val trackedUsers = getAllUsersTracker(userId)
+        val posts = mutableListOf<UsersByZipcode>()
+        return trackedUsers.map {
+            it.toUsersByZipcode()
+        }
+//        return posts
+    }
+
+    fun delete(userId: String) {
+        val users = getAllByUserId(userId)
+        users.chunked(10).forEach {
+            usersByZipcodeRepository.deleteAll(it)
         }
     }
 }

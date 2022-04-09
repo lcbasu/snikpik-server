@@ -5,13 +5,11 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import com.server.common.provider.SecurityProvider
 import com.server.common.utils.CommonUtils.STRING_SEPARATOR
 import com.server.ud.dao.post.PostsByCategoryRepository
+import com.server.ud.dao.post.PostsByCategoryTrackerRepository
 import com.server.ud.dto.ExploreFeedRequest
 import com.server.ud.dto.ExploreTabViewResponse
 import com.server.ud.dto.toSavedPostResponse
-import com.server.ud.entities.post.Post
-import com.server.ud.entities.post.PostUpdate
-import com.server.ud.entities.post.PostsByCategory
-import com.server.ud.entities.post.getCategories
+import com.server.ud.entities.post.*
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
 import com.server.ud.enums.ProcessingType
@@ -40,6 +38,9 @@ class PostsByCategoryProvider {
     private lateinit var postsByCategoryRepository: PostsByCategoryRepository
 
     @Autowired
+    private lateinit var postsByCategoryTrackerRepository: PostsByCategoryTrackerRepository
+
+    @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
 
     @Autowired
@@ -57,7 +58,7 @@ class PostsByCategoryProvider {
     }
 
     fun save(post: Post, categoryId: CategoryV2): PostsByCategory? {
-        try {
+        return try {
             val postsByZipcode = PostsByCategory(
                 categoryId = categoryId,
                 createdAt = post.createdAt,
@@ -84,11 +85,13 @@ class PostsByCategoryProvider {
                 tags = post.tags,
                 categories = post.categories,
             )
-            return postsByCategoryRepository.save(postsByZipcode)
+            val savedPost = postsByCategoryRepository.save(postsByZipcode)
+            postsByCategoryTrackerRepository.save(savedPost.toPostsByCategoryTracker())
+            savedPost
         } catch (e: Exception) {
             logger.error("Saving _root_ide_package_.com.server.ud.entities.post.PostsByCategory filed for ${post.postId}.")
             e.printStackTrace()
-            return null
+            null
         }
     }
 
@@ -141,21 +144,62 @@ class PostsByCategoryProvider {
     }
 
     fun deletePostExpandedData(post: Post) {
-        val categories = (post.getCategories().categories.map { it.id } + CategoryV2.ALL).toSet()
-        val posts = mutableListOf<PostsByCategory>()
-        categories.map {
-            val categoryV2 = it
-            val postType = post.postType
-            val createdAt = post.createdAt
-            val postId = post.postId
-            posts.addAll(postsByCategoryRepository.findAllByCategoryIdAndPostTypeAndCreatedAtAndPostId(categoryV2, postType, createdAt, postId))
+//        val categories = (post.getCategories().categories.map { it.id } + CategoryV2.ALL).toSet()
+//        val posts = mutableListOf<PostsByCategory>()
+//        categories.map {
+//            val categoryV2 = it
+//            val postType = post.postType
+//            val createdAt = post.createdAt
+//            val postId = post.postId
+//            posts.addAll(postsByCategoryRepository.findAllByCategoryIdAndPostTypeAndCreatedAtAndPostId(categoryV2, postType, createdAt, postId))
+//        }
+//        postsByCategoryRepository.deleteAll(posts)
+
+        deletePostExpandedDataWithPostId(post.postId)
+    }
+
+    fun getAllPostsTracker(postId: String): List<PostsByCategoryTracker> {
+        val limit = 10
+        var pagingState = ""
+
+        val trackedPosts = mutableListOf<PostsByCategoryTracker>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val posts = postsByCategoryTrackerRepository.findAllByPostId(
+            postId,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(posts)
+        trackedPosts.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextPosts = postsByCategoryTrackerRepository.findAllByPostId(
+                postId,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextPosts)
+            hasNext = nextSlicedResult.hasNext == true
+            trackedPosts.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
         }
-        postsByCategoryRepository.deleteAll(posts)
+        return trackedPosts
+    }
+
+    fun getAllByPostId(postId: String) : List<PostsByCategory> {
+        val trackedPosts = getAllPostsTracker(postId)
+        val posts = mutableListOf<PostsByCategory>()
+        return trackedPosts.map {
+            it.toPostsByCategory()
+        }
+//        return posts
     }
 
     fun deletePostExpandedDataWithPostId(postId: String) {
-        val posts = postsByCategoryRepository.findAllByPostId_V2(postId)
-        postsByCategoryRepository.deleteAll(posts)
+        val posts = getAllByPostId(postId)
+        posts.chunked(10).map {
+            postsByCategoryRepository.deleteAll(it)
+        }
     }
 
     fun processPostExpandedData(post: Post) {

@@ -10,8 +10,8 @@ interface CommentRepository : CassandraRepository<Comment?, String?> {
 //    @Query("select * from comments where comment_id = ?0")
     fun findAllByCommentId(commentId: String?): List<Comment>
 
-    @AllowFiltering
-    fun findAllByPostId(postId: String): List<Comment>
+//    @AllowFiltering
+//    fun findAllByPostId(postId: String): List<Comment>
 
     fun deleteByCommentId(commentId: String)
 }

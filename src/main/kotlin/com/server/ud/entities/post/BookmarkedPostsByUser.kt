@@ -1,10 +1,10 @@
 package com.server.ud.entities.post
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.server.common.utils.DateUtils
+import com.server.common.dto.AllCategoryV2Response
 import com.server.common.model.MediaDetailsV2
 import com.server.common.model.getMediaDetailsFromJsonString
-import com.server.common.dto.AllCategoryV2Response
+import com.server.common.utils.DateUtils
 import com.server.ud.dto.BookmarkedPostsByUserPostDetail
 import com.server.ud.dto.SavedPostResponse
 import com.server.ud.enums.PostType
@@ -95,6 +95,149 @@ data class BookmarkedPostsByUser (
     @Column("complete_address")
     val completeAddress: String? = null,
 )
+
+@Table("bookmarked_posts_by_user_tracker")
+data class BookmarkedPostsByUserTracker (
+
+    @PrimaryKeyColumn(name = "post_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+    var postId: String,
+
+    @PrimaryKeyColumn(name = "user_id", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
+    var userId: String,
+
+    @PrimaryKeyColumn(name = "post_type", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
+    var postType: PostType,
+
+    @Column("created_at")
+    var createdAt: Instant = DateUtils.getInstantNow(),
+
+    @Column("post_created_at")
+    var postCreatedAt: Instant,
+
+    @Column("posted_by_user_id")
+    var postedByUserId: String,
+
+    @Column
+    var title: String? = null,
+
+    @Column
+    var description: String? = null,
+
+    @Column
+    var media: String? = null, // MediaDetailsV2
+
+    @Column("source_media")
+    var sourceMedia: String? = null, // MediaDetailsV2
+
+    @Column
+    var tags: String? = null, // List of AllHashTags
+
+    @Column
+    var categories: String? = null, //  List of AllCategoryV2Response
+
+    @Column("location_id")
+    var locationId: String? = null,
+
+    @Column("zipcode")
+    var zipcode: String? = null,
+
+    @Column("location_name")
+    val locationName: String? = null,
+
+    @Column("location_lat")
+    val locationLat: Double? = null,
+
+    @Column("location_lng")
+    val locationLng: Double? = null,
+
+    @Column
+    val locality: String? = null,
+
+    @Column("sub_locality")
+    val subLocality: String? = null,
+
+    @Column
+    val route: String? = null,
+
+    @Column
+    val city: String? = null,
+
+    @Column
+    val state: String? = null,
+
+    @Column
+    val country: String? = null,
+
+    @Column("country_code")
+    val countryCode: String? = null,
+
+    @Column("complete_address")
+    val completeAddress: String? = null,
+)
+
+fun BookmarkedPostsByUserTracker.toBookmarkedPostsByUser(): BookmarkedPostsByUser {
+    this.apply {
+        return BookmarkedPostsByUser(
+            postId = this.postId,
+            userId = this.userId,
+            postType = this.postType,
+            createdAt = this.createdAt,
+            postCreatedAt = this.postCreatedAt,
+            postedByUserId = this.postedByUserId,
+            title = this.title,
+            description = this.description,
+            media = this.media,
+            sourceMedia = this.sourceMedia,
+            tags = this.tags,
+            categories = this.categories,
+            locationId = this.locationId,
+            zipcode = this.zipcode,
+            locationName = this.locationName,
+            locationLat = this.locationLat,
+            locationLng = this.locationLng,
+            locality = this.locality,
+            subLocality = this.subLocality,
+            route = this.route,
+            city = this.city,
+            state = this.state,
+            country = this.country,
+            countryCode = this.countryCode,
+            completeAddress = this.completeAddress
+        )
+    }
+}
+
+fun BookmarkedPostsByUser.toBookmarkedPostsByUserTracker(): BookmarkedPostsByUserTracker {
+    this.apply {
+        return BookmarkedPostsByUserTracker(
+            postId = this.postId,
+            userId = this.userId,
+            postType = this.postType,
+            createdAt = this.createdAt,
+            postCreatedAt = this.postCreatedAt,
+            postedByUserId = this.postedByUserId,
+            title = this.title,
+            description = this.description,
+            media = this.media,
+            sourceMedia = this.sourceMedia,
+            tags = this.tags,
+            categories = this.categories,
+            locationId = this.locationId,
+            zipcode = this.zipcode,
+            locationName = this.locationName,
+            locationLat = this.locationLat,
+            locationLng = this.locationLng,
+            locality = this.locality,
+            subLocality = this.subLocality,
+            route = this.route,
+            city = this.city,
+            state = this.state,
+            country = this.country,
+            countryCode = this.countryCode,
+            completeAddress = this.completeAddress
+        )
+    }
+}
 
 fun BookmarkedPostsByUser.getMediaDetails(): MediaDetailsV2? {
     this.apply {

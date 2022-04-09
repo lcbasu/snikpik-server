@@ -2,21 +2,17 @@ package com.server.ud.provider.post
 
 import com.server.common.enums.MediaType
 import com.server.common.provider.SecurityProvider
-import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.NearbyVideoPostsByZipcodeRepository
+import com.server.ud.dao.post.NearbyVideoPostsByZipcodeTrackerRepository
 import com.server.ud.dto.NearbyFeedRequest
 import com.server.ud.dto.VideoFeedViewResultList
 import com.server.ud.dto.toSavedPostResponse
 import com.server.ud.entities.location.NearbyZipcodesByZipcode
-import com.server.ud.entities.post.NearbyVideoPostsByZipcode
-import com.server.ud.entities.post.Post
-import com.server.ud.entities.post.PostUpdate
-import com.server.ud.entities.post.getMediaDetails
+import com.server.ud.entities.post.*
 import com.server.ud.enums.PostType
 import com.server.ud.enums.ProcessingType
 import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.cache.BlockedIDs
-import com.server.ud.provider.cache.UDCacheProvider
 import com.server.ud.provider.cache.UDCacheProviderV2
 import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
 import com.server.ud.utils.pagination.PaginationRequestUtil
@@ -38,6 +34,9 @@ class NearbyVideoPostsByZipcodeProvider {
     private lateinit var nearbyVideoPostsByZipcodeRepository: NearbyVideoPostsByZipcodeRepository
 
     @Autowired
+    private lateinit var nearbyVideoPostsByZipcodeTrackerRepository: NearbyVideoPostsByZipcodeTrackerRepository
+
+    @Autowired
     private lateinit var nearbyZipcodesByZipcodeProvider: NearbyZipcodesByZipcodeProvider
 
     @Autowired
@@ -54,7 +53,7 @@ class NearbyVideoPostsByZipcodeProvider {
             val posts = nearbyPosts.map { post ->
                 post.copy(zipcode = forNearbyZipcode)
             }
-            return nearbyVideoPostsByZipcodeRepository.saveAll(posts)
+            return saveAll(posts)
         } catch (e: Exception) {
             logger.error("Saving NearbyVideoPostsByZipcode failed forNearbyZipcode $forNearbyZipcode.")
             e.printStackTrace()
@@ -103,7 +102,7 @@ class NearbyVideoPostsByZipcodeProvider {
                     completeAddress = post.completeAddress,
                 )
             }
-            return nearbyVideoPostsByZipcodeRepository.saveAll(posts)
+            return saveAll(posts)
         } catch (e: Exception) {
             logger.error("Saving PostsByNearbyZipcode filed for ${post.postId}.")
             e.printStackTrace()
@@ -130,43 +129,41 @@ class NearbyVideoPostsByZipcodeProvider {
         return CassandraPageV2(posts)
     }
 
+    fun getAllPostsTracker(postId: String): List<NearbyVideoPostsByZipcodeTracker> {
+        val limit = 10
+        var pagingState = ""
+
+        val trackedPosts = mutableListOf<NearbyVideoPostsByZipcodeTracker>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val posts = nearbyVideoPostsByZipcodeTrackerRepository.findAllByPostId(
+            postId,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(posts)
+        trackedPosts.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextPosts = nearbyVideoPostsByZipcodeTrackerRepository.findAllByPostId(
+                postId,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextPosts)
+            hasNext = nextSlicedResult.hasNext == true
+            trackedPosts.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return trackedPosts
+    }
+
     fun deletePostExpandedData(postId: String) {
-        val nearbyVideoPostsByZipcode = nearbyVideoPostsByZipcodeRepository.findAllByPostId_V2(postId)
-//            val zipcode = post.zipcode
-//            if (zipcode == null) {
-//                logger.error("Post does not have location zipcode. Hence unable to delete from NearbyPostsByZipcode for postId: ${post.postId}.")
-//                return@launch
-//            }
-//            // Doing this as the post might have been reprocessed for newer locations multiple times
-//            val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(zipcode)
-//            val posts = mutableListOf<NearbyVideoPostsByZipcode>()
-//            val postType = post.postType
-//            val createdAt = post.createdAt
-//            val postId = post.postId
-//            nearbyZipcodes.map {
-//                posts.addAll(
-//                    nearbyVideoPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndCreatedAtAndPostId(
-//                        it.zipcode,
-//                        postType,
-//                        createdAt,
-//                        postId
-//                    )
-//                )
-//            }
-//            post.zipcode?.let {
-//                posts.addAll(
-//                    nearbyVideoPostsByZipcodeRepository.findAllByZipcodeAndPostTypeAndCreatedAtAndPostId(
-//                        it,
-//                        postType,
-//                        createdAt,
-//                        postId
-//                    )
-//                )
-//            }
-        val maxDeleteSize = 5
-        logger.info("Deleting post $postId from NearbyVideoPostsByZipcode. Total ${nearbyVideoPostsByZipcode.size} zipcode x posts entries needs to be deleted.")
-        nearbyVideoPostsByZipcodeRepository.deleteAll(nearbyVideoPostsByZipcode)
-        logger.info("Deleted all entries for zipcode x posts for post $postId from NearbyVideoPostsByZipcode.")
+        val trackedPosts = getAllPostsTracker(postId)
+        logger.info("Deleting post ${postId} from NearbyVideoPostsByZipcode. Total ${trackedPosts.size} zipcode x posts entries needs to be deleted.")
+        trackedPosts.chunked(5).map {
+            nearbyVideoPostsByZipcodeRepository.deleteAll(it.map { it.toNearbyVideoPostsByZipcode() })
+        }
+        logger.info("Deleted all entries ${trackedPosts.size} for zipcode x posts for post ${postId} from NearbyVideoPostsByZipcode.")
     }
 
     fun processPostExpandedData(post: Post) {
@@ -209,5 +206,11 @@ class NearbyVideoPostsByZipcodeProvider {
             hasNext = result.hasNext,
             pagingState = result.pagingState
         )
+    }
+
+    fun saveAll(posts: List<NearbyVideoPostsByZipcode>): List<NearbyVideoPostsByZipcode> {
+        val savedPosts = nearbyVideoPostsByZipcodeRepository.saveAll(posts)
+        nearbyVideoPostsByZipcodeTrackerRepository.saveAll(savedPosts.map { it.toNearbyVideoPostsByZipcodeTracker() })
+        return savedPosts
     }
 }

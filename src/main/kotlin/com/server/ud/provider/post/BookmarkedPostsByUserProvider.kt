@@ -1,7 +1,10 @@
 package com.server.ud.provider.post
 
 import com.server.ud.dao.post.BookmarkedPostsByUserRepository
-import com.server.ud.dto.*
+import com.server.ud.dao.post.BookmarkedPostsByUserTrackerRepository
+import com.server.ud.dto.BookmarkedPostsByUserRequest
+import com.server.ud.dto.BookmarkedPostsByUserResponse
+import com.server.ud.dto.BookmarkedPostsByUserResponseV2
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.entities.post.*
 import com.server.ud.enums.ProcessingType
@@ -26,6 +29,9 @@ class BookmarkedPostsByUserProvider {
     private lateinit var bookmarkedPostsByUserRepository: BookmarkedPostsByUserRepository
 
     @Autowired
+    private lateinit var bookmarkedPostsByUserTrackerRepository: BookmarkedPostsByUserTrackerRepository
+
+    @Autowired
     private lateinit var postProvider: PostProvider
 
     @Autowired
@@ -38,7 +44,7 @@ class BookmarkedPostsByUserProvider {
                 if (bookmark.bookmarked) {
                     save(bookmark, post)
                 } else {
-                    bookmarkedPostsByUserRepository.deleteByUserIdAndPostTypeAndPostId(
+                    bookmarkedPostsByUserRepository.deleteAllByUserIdAndPostTypeAndPostId(
                         userId = bookmark.userId,
                         postType = post.postType,
                         postId = bookmark.resourceId,
@@ -85,7 +91,7 @@ class BookmarkedPostsByUserProvider {
                 countryCode = post.countryCode,
                 completeAddress = post.completeAddress,
             )
-            return bookmarkedPostsByUserRepository.save(bookmarkedPostByUser)
+            return save(bookmarkedPostByUser)
         } catch (e: Exception) {
             logger.error("Saving BookmarkedPostsByUser failed for bookmarkId: ${bookmark.bookmarkId}.")
             e.printStackTrace()
@@ -95,7 +101,7 @@ class BookmarkedPostsByUserProvider {
 
     fun update(bookmarkedPostsByUser: BookmarkedPostsByUser, updatedPost: Post): BookmarkedPostsByUser? {
         try {
-            return bookmarkedPostsByUserRepository.save(bookmarkedPostsByUser.copy(
+            return save(bookmarkedPostsByUser.copy(
                 postCreatedAt = updatedPost.createdAt,
                 postedByUserId = updatedPost.userId,
                 postId = updatedPost.postId,
@@ -128,13 +134,46 @@ class BookmarkedPostsByUserProvider {
         }
     }
 
+    fun getAllPostsTracker(postId: String): List<BookmarkedPostsByUserTracker> {
+        val limit = 10
+        var pagingState = ""
+
+        val trackedPosts = mutableListOf<BookmarkedPostsByUserTracker>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val posts = bookmarkedPostsByUserTrackerRepository.findAllByPostId(
+            postId,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(posts)
+        trackedPosts.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextPosts = bookmarkedPostsByUserTrackerRepository.findAllByPostId(
+                postId,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextPosts)
+            hasNext = nextSlicedResult.hasNext == true
+            trackedPosts.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return trackedPosts
+    }
+
     fun getBookmarkedPostsByUser(request: BookmarkedPostsByUserRequest): CassandraPageV2<BookmarkedPostsByUser> {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
          val posts = bookmarkedPostsByUserRepository.findAllByUserId(request.userId, pageRequest as Pageable)
         return CassandraPageV2(posts)
     }
 
-    fun getAllByPostId(postId: String) = bookmarkedPostsByUserRepository.findAllByPostId_V2(postId)
+    fun getAllByPostId(postId: String) : List<BookmarkedPostsByUser> {
+        val trackedPosts = getAllPostsTracker(postId)
+        return trackedPosts.map {
+            it.toBookmarkedPostsByUser()
+        }
+    }
 
     fun deletePostExpandedData(postId: String) {
         val all = getAllByPostId(postId)
@@ -171,6 +210,12 @@ class BookmarkedPostsByUserProvider {
             hasNext = result.hasNext,
             pagingState = result.pagingState
         )
+    }
+
+    private fun save(bookmarkedPostsByUser: BookmarkedPostsByUser): BookmarkedPostsByUser {
+        val savedData = bookmarkedPostsByUserRepository.save(bookmarkedPostsByUser)
+        bookmarkedPostsByUserTrackerRepository.save(savedData.toBookmarkedPostsByUserTracker())
+        return savedData
     }
 
 }

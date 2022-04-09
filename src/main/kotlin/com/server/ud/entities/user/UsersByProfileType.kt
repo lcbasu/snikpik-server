@@ -24,3 +24,39 @@ class UsersByProfileType (
 
 )
 
+
+@Table("users_by_profile_type_tracker")
+class UsersByProfileTypeTracker (
+
+    @PrimaryKeyColumn(name = "user_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+    var userId: String,
+
+    @PrimaryKeyColumn(name = "profile_type", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
+    var profileType: ProfileType,
+
+    @PrimaryKeyColumn(name = "created_at", ordinal = 2, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
+    var createdAt: Instant,
+
+)
+
+fun UsersByProfileType.toUsersByProfileTypeTracker(): UsersByProfileTypeTracker {
+    this.apply {
+        return UsersByProfileTypeTracker(
+            userId = this.userId,
+            profileType = this.profileType,
+            createdAt = this.createdAt
+        )
+    }
+}
+
+
+fun UsersByProfileTypeTracker.toUsersByProfileType(): UsersByProfileType {
+    this.apply {
+        return UsersByProfileType(
+            userId = this.userId,
+            profileType = this.profileType,
+            createdAt = this.createdAt
+        )
+    }
+}
+

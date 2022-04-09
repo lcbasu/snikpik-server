@@ -8,8 +8,8 @@ import java.time.Instant
 
 @Repository
 interface BookmarksByUserRepository : CassandraRepository<BookmarksByUser?, String?> {
-    @AllowFiltering
-    fun findAllByResourceId(resourceId: String): List<BookmarksByUser>
+//    @AllowFiltering
+//    fun findAllByResourceId(resourceId: String): List<BookmarksByUser>
 
     fun findAllByUserId(userId: String): List<BookmarksByUser>
 

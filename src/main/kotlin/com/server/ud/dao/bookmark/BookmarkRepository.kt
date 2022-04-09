@@ -11,8 +11,8 @@ interface BookmarkRepository : CassandraRepository<Bookmark?, String?> {
 //    @Query("select * from bookmarks where bookmark_id = ?0")
     fun findAllByBookmarkId(bookmarkId: String?): List<Bookmark>
 
-    @AllowFiltering
-    fun findAllByResourceId(resourceId: String): List<Bookmark>
+//    @AllowFiltering
+//    fun findAllByResourceId(resourceId: String): List<Bookmark>
 
     fun deleteByBookmarkId(bookmarkId: String)
 

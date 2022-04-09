@@ -90,3 +90,136 @@ class PostsByZipcode (
 
 )
 
+@Table("posts_by_zipcode_tracker")
+class PostsByZipcodeTracker (
+    @PrimaryKeyColumn(name = "post_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+    var postId: String,
+
+    @PrimaryKeyColumn(name = "zipcode", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
+    var zipcode: String,
+
+    @PrimaryKeyColumn(name = "post_type", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
+    var postType: PostType,
+
+    @PrimaryKeyColumn(name = "created_at", ordinal = 3, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
+    var createdAt: Instant = DateUtils.getInstantNow(),
+
+    @PrimaryKeyColumn(name = "user_id", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
+    var userId: String,
+
+    @Column("location_id")
+    var locationId: String? = null,
+
+    @Column("location_name")
+    val locationName: String? = null,
+
+    @Column("location_lat")
+    val locationLat: Double? = null,
+
+    @Column("location_lng")
+    val locationLng: Double? = null,
+
+    @Column
+    val locality: String? = null,
+
+    @Column("sub_locality")
+    val subLocality: String? = null,
+
+    @Column
+    val route: String? = null,
+
+    @Column
+    val city: String? = null,
+
+    @Column
+    val state: String? = null,
+
+    @Column
+    val country: String? = null,
+
+    @Column("country_code")
+    val countryCode: String? = null,
+
+    @Column("complete_address")
+    val completeAddress: String? = null,
+
+    @Column
+    var title: String? = null,
+
+    @Column
+    var description: String? = null,
+
+    @Column
+    var media: String? = null, // MediaDetailsV2
+
+    @Column("source_media")
+    var sourceMedia: String? = null, // MediaDetailsV2
+
+    @Column
+    var tags: String? = null, // List of AllHashTags
+
+    @Column
+    var categories: String? = null, //  List of AllCategoryV2Response
+
+)
+
+fun PostsByZipcode.toPostsByZipcodeTracker(): PostsByZipcodeTracker {
+    this.apply {
+        return PostsByZipcodeTracker(
+            postId = postId,
+            zipcode = zipcode,
+            postType = postType,
+            createdAt = createdAt,
+            userId = userId,
+            locationId = locationId,
+            locationName = locationName,
+            locationLat = locationLat,
+            locationLng = locationLng,
+            locality = locality,
+            subLocality = subLocality,
+            route = route,
+            city = city,
+            state = state,
+            country = country,
+            countryCode = countryCode,
+            completeAddress = completeAddress,
+            title = title,
+            description = description,
+            media = media,
+            sourceMedia = sourceMedia,
+            tags = tags,
+            categories = categories
+        )
+    }
+}
+
+fun PostsByZipcodeTracker.toPostsByZipcode(): PostsByZipcode {
+    this.apply {
+        return PostsByZipcode(
+            postId = postId,
+            zipcode = zipcode,
+            postType = postType,
+            createdAt = createdAt,
+            userId = userId,
+            locationId = locationId,
+            locationName = locationName,
+            locationLat = locationLat,
+            locationLng = locationLng,
+            locality = locality,
+            subLocality = subLocality,
+            route = route,
+            city = city,
+            state = state,
+            country = country,
+            countryCode = countryCode,
+            completeAddress = completeAddress,
+            title = title,
+            description = description,
+            media = media,
+            sourceMedia = sourceMedia,
+            tags = tags,
+            categories = categories
+        )
+    }
+}
+

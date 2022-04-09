@@ -76,6 +76,24 @@ class AutomationProvider {
         }
     }
 
+    fun sendSlackMessageForPostDeletion(post: Post) {
+        GlobalScope.launch {
+            try {
+                val message = "User requested to delete post: ${post.postId} (${post.postType}) created with title: ${post.description ?: post.title} in categories: ${
+                    post.getCategories().categories.joinToString(
+                        ","
+                    ) { it.displayName }
+                } by ${post.userName}, ${post.userHandle} at ${post.locationName}, ${post.locality}, ${post.subLocality}, ${post.route}, ${post.city}, ${post.state}, ${post.country}, ${post.zipcode} . Link: https://www.letsunbox.in/posts/${post.postId}"
+
+                val payload = Payload.builder().text(message).build()
+                Slack.getInstance().send(automationProperties.slack.webhook.postDelete, payload)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                logger.error("sendSlackMessageForPostDeletion Error while sending test slack message", e)
+            }
+        }
+    }
+
     fun sendSlackMessageForOTP(otpValidation: OtpValidation) {
         GlobalScope.launch {
             try {

@@ -1,17 +1,18 @@
 package com.server.ud.provider.post
 
-import com.server.common.utils.DateUtils
 import com.server.ud.dao.post.PostsByFollowingRepository
-import com.server.ud.entities.post.Post
-import com.server.ud.entities.post.PostUpdate
-import com.server.ud.entities.post.PostsByFollowing
+import com.server.ud.dao.post.PostsByFollowingTrackerRepository
+import com.server.ud.entities.post.*
 import com.server.ud.enums.ProcessingType
+import com.server.ud.pagination.CassandraPageV2
+import com.server.ud.utils.pagination.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 
 @Component
@@ -21,6 +22,12 @@ class PostsByFollowingProvider {
 
     @Autowired
     private lateinit var postsByFollowingRepository: PostsByFollowingRepository
+
+    @Autowired
+    private lateinit var postsByFollowingTrackerRepository: PostsByFollowingTrackerRepository
+
+    @Autowired
+    private lateinit var paginationRequestUtil: PaginationRequestUtil
 
     fun save(post: Post, followerId: String): PostsByFollowing? {
         try {
@@ -50,7 +57,7 @@ class PostsByFollowingProvider {
                 countryCode = post.countryCode,
                 completeAddress = post.completeAddress,
             )
-            val saved = postsByFollowingRepository.save(postsByFollowing)
+            val saved = save(postsByFollowing)
             logger.info("Saved PostsByFollowing for postId:${saved.postId}, followerId: $followerId and followingUserId: ${saved.followingUserId}.")
             return saved
         } catch (e: Exception) {
@@ -63,7 +70,7 @@ class PostsByFollowingProvider {
 
     fun update(postsByFollowing: PostsByFollowing, updatedPost: Post): PostsByFollowing? {
         try {
-            val saved = postsByFollowingRepository.save(postsByFollowing.copy(
+            val saved = save(postsByFollowing.copy(
                 followingUserId = updatedPost.userId,
                 createdAt = updatedPost.createdAt,
                 postId = updatedPost.postId,
@@ -97,13 +104,53 @@ class PostsByFollowingProvider {
         }
     }
 
-    fun getAllByPostId(postId: String) = postsByFollowingRepository.findAllByPostId_V2(postId)
+
+    fun getAllPostsTracker(postId: String): List<PostsByFollowingTracker> {
+        val limit = 10
+        var pagingState = ""
+
+        val trackedPosts = mutableListOf<PostsByFollowingTracker>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val posts = postsByFollowingTrackerRepository.findAllByPostId(
+            postId,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(posts)
+        trackedPosts.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextPosts = postsByFollowingTrackerRepository.findAllByPostId(
+                postId,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextPosts)
+            hasNext = nextSlicedResult.hasNext == true
+            trackedPosts.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return trackedPosts
+    }
+
+    fun getAllByPostId(postId: String) : List<PostsByFollowing> {
+        val trackedPosts = getAllPostsTracker(postId)
+        val posts = mutableListOf<PostsByFollowing>()
+        return trackedPosts.map {
+            it.toPostsByFollowing()
+        }
+//        return posts
+    }
+
+//    fun getAllByPostId(postId: String) = postsByFollowingRepository.findAllByPostId_V2(postId)
 
     fun deletePostExpandedData(postId: String) {
         val maxDeleteSize = 5
         val posts = getAllByPostId(postId)
         logger.info("Deleting post $postId from PostsByFollowing. Total ${posts.size} PostsByFollowing entries needs to be deleted.")
-        postsByFollowingRepository.deleteAll(posts)
+        posts.chunked(maxDeleteSize).forEach {
+            postsByFollowingRepository.deleteAll(it)
+        }
         logger.info("Deleted all entries for PostsByFollowing for post $postId from PostsByFollowing.")
     }
 
@@ -117,5 +164,11 @@ class PostsByFollowingProvider {
                 it.await()
             }
         }
+    }
+
+    private fun save(postsByFollowing: PostsByFollowing): PostsByFollowing {
+        val savedData = postsByFollowingRepository.save(postsByFollowing)
+        postsByFollowingTrackerRepository.save(savedData.toPostsByFollowingTracker())
+        return savedData
     }
 }

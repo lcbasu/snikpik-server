@@ -89,9 +89,147 @@ data class PostsByUser (
     val completeAddress: String? = null,
 )
 
+
+@Table("posts_by_user_tracker")
+data class PostsByUserTracker (
+
+    @PrimaryKeyColumn(name = "post_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+    var postId: String,
+
+    @PrimaryKeyColumn(name = "user_id", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
+    var userId: String,
+
+    @PrimaryKeyColumn(name = "post_type", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
+    var postType: PostType,
+
+    @PrimaryKeyColumn(name = "created_at", ordinal = 3, type = PrimaryKeyType.CLUSTERED, ordering = Ordering.DESCENDING)
+    var createdAt: Instant = DateUtils.getInstantNow(),
+
+    @Column
+    var title: String? = null,
+
+    @Column
+    var description: String? = null,
+
+    @Column
+    var media: String? = null, // MediaDetailsV2
+
+    @Column("source_media")
+    var sourceMedia: String? = null, // MediaDetailsV2
+
+    @Column
+    var tags: String? = null, // List of HashTagList
+
+    @Column
+    var categories: String? = null, //  List of CategoryV2
+
+    @Column("location_id")
+    var locationId: String? = null,
+
+    @Column("zipcode")
+    var zipcode: String? = null,
+
+    @Column("location_name")
+    val locationName: String? = null,
+
+    @Column("location_lat")
+    val locationLat: Double? = null,
+
+    @Column("location_lng")
+    val locationLng: Double? = null,
+
+    @Column
+    val locality: String? = null,
+
+    @Column("sub_locality")
+    val subLocality: String? = null,
+
+    @Column
+    val route: String? = null,
+
+    @Column
+    val city: String? = null,
+
+    @Column
+    val state: String? = null,
+
+    @Column
+    val country: String? = null,
+
+    @Column("country_code")
+    val countryCode: String? = null,
+
+    @Column("complete_address")
+    val completeAddress: String? = null,
+)
+
+
 fun PostsByUser.getMediaDetails(): MediaDetailsV2? {
     this.apply {
         return getMediaDetailsFromJsonString(media)
+    }
+}
+
+
+fun PostsByUserTracker.toPostsByUser(): PostsByUser {
+    this.apply {
+        return PostsByUser(
+            postId = postId,
+            userId = userId,
+            postType = postType,
+            createdAt = createdAt,
+            title = title,
+            description = description,
+            media = media,
+            sourceMedia = sourceMedia,
+            tags = tags,
+            categories = categories,
+            locationId = locationId,
+            zipcode = zipcode,
+            locationName = locationName,
+            locationLat = locationLat,
+            locationLng = locationLng,
+            locality = locality,
+            subLocality = subLocality,
+            route = route,
+            city = city,
+            state = state,
+            country = country,
+            countryCode = countryCode,
+            completeAddress = completeAddress
+        )
+    }
+}
+
+
+
+fun PostsByUser.toPostsByUserTracker(): PostsByUserTracker {
+    this.apply {
+        return PostsByUserTracker(
+            postId = postId,
+            userId = userId,
+            postType = postType,
+            createdAt = createdAt,
+            title = title,
+            description = description,
+            media = media,
+            sourceMedia = sourceMedia,
+            tags = tags,
+            categories = categories,
+            locationId = locationId,
+            zipcode = zipcode,
+            locationName = locationName,
+            locationLat = locationLat,
+            locationLng = locationLng,
+            locality = locality,
+            subLocality = subLocality,
+            route = route,
+            city = city,
+            state = state,
+            country = country,
+            countryCode = countryCode,
+            completeAddress = completeAddress
+        )
     }
 }
 
