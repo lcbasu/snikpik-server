@@ -131,6 +131,21 @@ class NearbyPostsByZipcodeProvider {
         return CassandraPageV2(posts)
     }
 
+    fun deleteOldPosts(zipcodes: Set<String>, postType: PostType, postId: String) {
+        val posts = mutableListOf<NearbyPostsByZipcode>()
+        zipcodes.map {
+            posts.addAll(nearbyPostsByZipcodeRepository.getAll(
+                it, postType,
+                postId)
+            )
+        }
+
+        posts.chunked(5).map {
+            nearbyPostsByZipcodeRepository.deleteAll(it)
+        }
+        logger.info("Deleted NearbyPostsByZipcode ${posts.size} posts for postId: $postId")
+    }
+
     fun getAllPostsTracker(postId: String): List<NearbyPostsByZipcodeTracker> {
         val limit = 10
         var pagingState = ""

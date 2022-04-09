@@ -129,6 +129,21 @@ class NearbyVideoPostsByZipcodeProvider {
         return CassandraPageV2(posts)
     }
 
+    fun deleteOldPosts(zipcodes: Set<String>, postType: PostType, postId: String) {
+        val posts = mutableListOf<NearbyVideoPostsByZipcode>()
+        zipcodes.map {
+            posts.addAll(nearbyVideoPostsByZipcodeRepository.getAll(
+                it, postType,
+                postId)
+            )
+        }
+
+        posts.chunked(5).map {
+            nearbyVideoPostsByZipcodeRepository.deleteAll(it)
+        }
+        logger.info("Deleted NearbyVideoPostsByZipcode ${posts.size} posts for postId: $postId")
+    }
+
     fun getAllPostsTracker(postId: String): List<NearbyVideoPostsByZipcodeTracker> {
         val limit = 10
         var pagingState = ""

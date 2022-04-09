@@ -298,6 +298,13 @@ class PostProvider {
         return CassandraPageV2(userSlice)
     }
 
+    fun deleteOlderPosts(zipcodes: Set<String>, postType: PostType, postId: String) {
+        logger.info("Deleting older posts for zipcodes: $zipcodes, postType: $postType, postId: $postId")
+        nearbyPostsByZipcodeProvider.deleteOldPosts(zipcodes, postType, postId)
+        nearbyVideoPostsByZipcodeProvider.deleteOldPosts(zipcodes, postType, postId)
+        logger.info("Deleted older posts for zipcodes: $zipcodes, postType: $postType, postId: $postId")
+    }
+
     fun deletePost(postId: String) {
         val loggedInUserId = securityProvider.validateRequest().getUserIdToUse()
         val post = getPost(postId)// ?: error("No post found for postId: $postId")

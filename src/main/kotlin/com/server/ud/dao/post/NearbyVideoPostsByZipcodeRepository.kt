@@ -4,10 +4,10 @@ import com.server.ud.entities.post.NearbyVideoPostsByZipcode
 import com.server.ud.entities.post.NearbyVideoPostsByZipcodeTracker
 import com.server.ud.enums.PostType
 import org.springframework.data.cassandra.repository.CassandraRepository
+import org.springframework.data.cassandra.repository.Query
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
 import org.springframework.stereotype.Repository
-import java.time.Instant
 
 @Repository
 interface NearbyVideoPostsByZipcodeRepository : CassandraRepository<NearbyVideoPostsByZipcode?, String?> {
@@ -19,6 +19,8 @@ interface NearbyVideoPostsByZipcodeRepository : CassandraRepository<NearbyVideoP
 //        postId: String,
 //        userId: String
 //    )
+    @Query("SELECT * FROM nearby_video_posts_by_zipcode where post_type = ?1 and post_id = ?2 and zipcode = ?0 allow filtering")
+    fun getAll(zipcode: String, postType: PostType, postId: String): List<NearbyVideoPostsByZipcode>
 }
 
 @Repository

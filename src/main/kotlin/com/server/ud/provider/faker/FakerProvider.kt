@@ -428,7 +428,109 @@ class FakerProvider {
     @Autowired
     private lateinit var automationProvider: AutomationProvider
 
+
     fun doSomething(): Any {
+
+
+        val oldPostDataList = listOf<OldPostData>(
+            OldPostData(
+                zipcodes = setOf(
+                    "390007",
+                    "682036",
+                    "110007",
+                    "560030",
+                    "401402",
+                    "686020",
+                    "178957",
+                    "673004",
+                    "500044",
+                    "688011",
+                    "686503",
+                    "560002",
+                    "695020",
+                    "682304",
+                    "695584",
+                    "682024",
+                    "335523",
+                    "570031",
+                    "689602",
+                    "678001",
+                    "500001",
+                    "673603",
+                    "682017",
+                    "679561"
+                ),
+                postType = PostType.GENERIC_POST,
+                postId = "PST260B01343"
+            ),
+            OldPostData(
+                zipcodes = setOf(
+                    "562125",
+                    "680311",
+                    "141203",
+                    "691001",
+                    "500092",
+                    "686001",
+                    "679586",
+                    "682507",
+                    "560102",
+                    "680006",
+                    "676517",
+                    "682030",
+                    "380001",
+                    "635751",
+                    "ZZZZZZ",
+                    "500025",
+                    "680001",
+                    "670003",
+                    "390007",
+                    "560001",
+                    "560100",
+                    "682036",
+                    "110007",
+                    "560030",
+                    "401402",
+                    "560037",
+                    "686020",
+                    "560082",
+                    "560034",
+                    "178957",
+                    "673004",
+                    "500044",
+                    "688011",
+                    "686503",
+                    "570026",
+                    "560002",
+                    "695020",
+                    "682304",
+                    "695584",
+                    "560029",
+                    "335523",
+                    "570031",
+                    "560093",
+                    "302001",
+                    "302021",
+                    "689602",
+                    "560075",
+                    "678001",
+                    "500001",
+                    "673603",
+                    "500007",
+                    "679561"
+                ),
+                postType = PostType.GENERIC_POST,
+                postId = "PSTA529ADEEB"
+            )
+        )
+
+        oldPostDataList.map {
+            postProvider.deleteOlderPosts(
+                it.zipcodes,
+                it.postType,
+                it.postId
+            )
+        }
+
 
 //        userV2Repository.findAll().filterNotNull().filterNot {
 //            it.handle.isNullOrBlank()
@@ -564,3 +666,9 @@ class FakerProvider {
 //    }
 
 }
+
+data class OldPostData(
+    val zipcodes: Set<String>,
+    val postType: PostType,
+    val postId: String,
+)
