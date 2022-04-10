@@ -5,5 +5,6 @@ security:
   allowed-origins:
     - https://${DOMAIN}
     - https://${SERVER_DOMAIN}
+    - https://${CONSOLE_DOMAIN}
   allowed-origin-patterns:
     - https://*.${vercel.app}
