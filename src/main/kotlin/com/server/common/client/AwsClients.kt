@@ -1,9 +1,6 @@
 package com.server.common.client
 
-import com.amazonaws.auth.AWS4Signer
-import com.amazonaws.auth.AWSCredentials
-import com.amazonaws.auth.AWSStaticCredentialsProvider
-import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.auth.*
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
@@ -29,6 +26,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchOperations
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.rekognition.RekognitionClient
+import software.amazon.codeguruprofilerjavaagent.Profiler
 import javax.net.ssl.SSLContext
 
 @Configuration
@@ -133,6 +131,16 @@ class AwsClients {
         return RekognitionClient.builder()
             .region(Region.AP_SOUTH_1)
             .build()
+    }
+
+
+    @Bean
+    fun awsCodeGuruProfiler() {
+        Profiler.Builder()
+            .profilingGroupName("Unbox-Prod-Server-Profiler")
+            .awsRegionToReportTo(Region.AP_SOUTH_1)
+            .withHeapSummary(true)
+            .build().start()
     }
 
 }
