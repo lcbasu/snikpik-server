@@ -26,9 +26,9 @@ configurations {
 
 repositories {
 	mavenCentral()
-	maven {
-		url = uri("https://d1osg35nybn3tt.cloudfront.net")
-	}
+//	maven {
+//		url = uri("https://d1osg35nybn3tt.cloudfront.net")
+//	}
 }
 
 dependencies {
@@ -37,11 +37,6 @@ dependencies {
 //	implementation(group = "org.springframework.data", name = "spring-data-releasetrain", version = "Neumann-SR9", ext = "pom")
 
 	developmentOnly("org.springframework.boot:spring-boot-devtools:2.3.8.RELEASE")
-
-	// CodeGuru Profiler - START
-	implementation("com.amazonaws:codeguru-profiler-java-agent:1.2.1")
-	implementation("software.amazon.awssdk:codeguruprofiler:2.17.87")
-	// CodeGuru Profiler - END
 
 	// Payment - START
 	implementation("com.razorpay:razorpay-java:1.3.9")
