@@ -40,6 +40,7 @@ dependencies {
 
 	// CodeGuru Profiler - START
 	implementation("com.amazonaws:codeguru-profiler-java-agent:1.2.1")
+	implementation("software.amazon.awssdk:codeguruprofiler:2.17.87")
 	// CodeGuru Profiler - END
 
 	// Payment - START

@@ -24,6 +24,8 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.rekognition.RekognitionClient
 import software.amazon.codeguruprofilerjavaagent.Profiler
@@ -139,6 +141,7 @@ class AwsClients {
         Profiler.Builder()
             .profilingGroupName("Unbox-Prod-Server-Profiler")
             .awsRegionToReportTo(Region.AP_SOUTH_1)
+            .awsCredentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(awsProperties.awsKey, awsProperties.awsSecret)))
             .withHeapSummary(true)
             .build().start()
     }
