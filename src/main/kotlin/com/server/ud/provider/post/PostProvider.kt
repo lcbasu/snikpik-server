@@ -118,6 +118,9 @@ class PostProvider {
     private lateinit var postsByCategoryProvider: PostsByCategoryProvider
 
     @Autowired
+    private lateinit var postsByPostTypeProvider: PostsByPostTypeProvider
+
+    @Autowired
     private lateinit var postsByHashTagProvider: PostsByHashTagProvider
 
     @Autowired
@@ -331,6 +334,7 @@ class PostProvider {
             logger.info("Start: Delete post and other dependent information for postId: $postId")
 
             async { postsByCategoryProvider.deletePostExpandedDataWithPostId(postId) }
+            async { postsByPostTypeProvider.deletePostExpandedDataWithPostId(postId) }
             async { bookmarkedPostsByUserProvider.deletePostExpandedData(postId) }
             async { likedPostsByUserProvider.deletePostExpandedData(postId) }
             async { postsByFollowingProvider.deletePostExpandedData(postId) }
@@ -429,6 +433,7 @@ class PostProvider {
         // Post By Zipcode (Nearby Feed)
         // Follower Feed
         // Category Feed
+        // Forum Feed
         // Tags Feed
         GlobalScope.launch {
             logger.info("Start postProcessPostAfterFirstTimeCreation: post processing for postId: $postId")
@@ -464,6 +469,7 @@ class PostProvider {
             zipcodeByPostProvider.processPostExpandedData(updatedPost)
 
             val postsByCategoryFuture = async { postsByCategoryProvider.processPostExpandedData(updatedPost) }
+            val postsByPostTypeFuture = async { postsByPostTypeProvider.processPostExpandedData(updatedPost) }
 
             val postsByHashTagFuture = async { postsByHashTagProvider.processPostExpandedData(updatedPost) }
 
@@ -482,6 +488,7 @@ class PostProvider {
             userActivityFuture.await()
             postsByUserFuture.await()
             postsByCategoryFuture.await()
+            postsByPostTypeFuture.await()
             postsByHashTagFuture.await()
             postsByZipcodeFuture.await()
             nearbyPostsByZipcodeFuture.await()
@@ -891,6 +898,7 @@ class PostProvider {
             bookmarkedPostsByUserProvider.updatePostExpandedData(postUpdate, processingType)
             likedPostsByUserProvider.updatePostExpandedData(postUpdate, processingType)
             postsByCategoryProvider.updatePostExpandedData(postUpdate, processingType)
+            postsByPostTypeProvider.updatePostExpandedData(postUpdate, processingType)
             postsByFollowingProvider.updatePostExpandedData(postUpdate, processingType)
             postsByHashTagProvider.updatePostExpandedData(postUpdate, processingType)
             postsByUserProvider.updatePostExpandedData(postUpdate, processingType)

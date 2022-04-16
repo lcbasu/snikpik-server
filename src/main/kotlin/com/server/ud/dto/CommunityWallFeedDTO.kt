@@ -72,6 +72,38 @@ fun NearbyPostsByZipcode.toSavedPostResponse(): SavedPostResponse {
     }
 }
 
+
+fun PostsByPostType.toSavedPostResponse(): SavedPostResponse {
+    this.apply {
+        return SavedPostResponse(
+            postId = postId,
+            userId = userId,
+            createdAt = DateUtils.getEpoch(createdAt),
+            media = getMediaDetails(),
+            sourceMediaDetails = getSourceMediaDetails(),
+            title = title,
+            description = description,
+            postType = postType,
+            tags = getHashTags(),
+            locationId = locationId,
+            zipcode = zipcode,
+            locationName = locationName,
+            city = city,
+            categories = getCategories(),
+            locationLat = locationLat,
+            locationLng = locationLng,
+            locality = locality,
+            subLocality = subLocality,
+            route = route,
+            state = state,
+            country = country,
+            countryCode = countryCode,
+            completeAddress = completeAddress,
+            mediaDetails = getMediaDetails(),
+        )
+    }
+}
+
 fun UserV2.toCommunityWallViewUserDetail(): CommunityWallViewUserDetail {
     this.apply {
         return CommunityWallViewUserDetail(
