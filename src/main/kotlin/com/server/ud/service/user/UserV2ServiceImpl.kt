@@ -177,6 +177,11 @@ class UserV2ServiceImpl : UserV2Service() {
         return userV2Provider.unblockUser(request)
     }
 
+    override fun getUserPublicDetails(userIdOrHandle: String): UserV2PublicMiniDataResponse {
+        val user = userV2Provider.getUserByIdOrHandle(userIdOrHandle) ?: error("User not found for userIdOrHandle: $userIdOrHandle")
+        return user.toUserV2PublicMiniDataResponse()
+    }
+
     override fun getProfileTypesByProfileCategory(profileCategory: ProfileCategory): AllProfileTypeResponse? {
         return userV2Provider.getProfileTypesByProfileCategory(profileCategory)
     }

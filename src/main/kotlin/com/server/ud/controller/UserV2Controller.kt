@@ -1,10 +1,8 @@
 package com.server.ud.controller
 
-import com.server.common.dto.AllProfileTypeResponse
-import com.server.common.dto.UpdateUserV2PreferredCategoriesRequest
+import com.server.common.dto.*
 import com.server.common.enums.ProfileCategory
 import com.server.common.provider.SecurityProvider
-import com.server.common.dto.*
 import com.server.dk.dto.AllUserReportResponse
 import com.server.dk.dto.UserReportRequest
 import com.server.dk.dto.UserReportResponse
@@ -55,6 +53,12 @@ class UserV2Controller {
     fun getUser(@RequestParam userId: String): SavedUserV2Response? {
         securityProvider.validateRequest()
         return userV2Service.getUser(userId)
+    }
+
+    @RequestMapping(value = ["/getUserPublicDetails"], method = [RequestMethod.GET])
+    fun getUserPublicDetails(userIdOrHandle: String): UserV2PublicMiniDataResponse {
+        securityProvider.validateRequest()
+        return userV2Service.getUserPublicDetails(userIdOrHandle)
     }
 
     @RequestMapping(value = ["/getUserPublicData"], method = [RequestMethod.GET])
