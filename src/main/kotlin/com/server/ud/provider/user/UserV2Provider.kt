@@ -160,6 +160,7 @@ class UserV2Provider {
         val firebaseAuthUser = securityProvider.validateRequest()
         val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
         val newUserToBeSaved = user.copy(notificationToken = request.token, notificationTokenProvider = request.tokenProvider)
+        logger.info("Updating notification token for userId: ${user.userId} (${user.absoluteMobile}), new token: ${request.token}")
         return saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING)
     }
 
