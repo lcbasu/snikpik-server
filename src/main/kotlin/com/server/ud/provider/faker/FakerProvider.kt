@@ -59,6 +59,8 @@ import com.server.ud.provider.user.UserV2Provider
 import com.server.ud.provider.user.UsersByProfileCategoryProvider
 import com.server.ud.provider.user.UsersByProfileTypeProvider
 import com.server.ud.provider.user.UsersByZipcodeProvider
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -431,10 +433,12 @@ class FakerProvider {
 
     fun doSomething(): Any {
 
-        userV2Repository.findAll().filterNotNull().forEach {
-            val profileCategories = it.getProfiles().profileTypes.map { it.category }
-            val isContactVisible = profileCategories.contains(ProfileCategory.OWNER).not()
-            userV2Provider.updateContactVisibility(it.userId, isContactVisible)
+        GlobalScope.launch {
+            userV2Repository.findAll().filterNotNull().forEach {
+                val profileCategories = it.getProfiles().profileTypes.map { it.category }
+                val isContactVisible = profileCategories.contains(ProfileCategory.OWNER).not()
+                userV2Provider.updateContactVisibility(it.userId, isContactVisible)
+            }
         }
 
 //        postRepository.findAll().filterNotNull().map {
