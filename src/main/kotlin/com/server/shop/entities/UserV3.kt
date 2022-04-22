@@ -31,6 +31,7 @@ class UserV3 : Auditable() {
     var uid: String = ""
     var anonymous: Boolean = false
     var verified: Boolean = false
+    var contactVisible: Boolean? = null
     var profiles: String? = null
 
     var fullName: String = ""
@@ -161,6 +162,7 @@ fun UserV3.toUserV2PublicMiniDataResponse(): UserV2PublicMiniDataResponse {
             verified = verified,
             profileToShow = profileToShow,
             allProfileTypes = getProfiles(),
+            contactVisible = contactVisible,
 
             clId = currentLocationId,
             clZipcode = currentLocationZipcode,

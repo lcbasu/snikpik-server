@@ -86,6 +86,7 @@ class UserV3Provider {
         newUser.anonymous = userV2.anonymous
         newUser.verified = userV2.verified
         newUser.profiles = userV2.profiles
+        newUser.contactVisible = userV2.contactVisible
 
         newUser.fullName = userV2.fullName ?: ""
 

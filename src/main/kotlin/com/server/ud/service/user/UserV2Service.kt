@@ -43,4 +43,5 @@ abstract class UserV2Service {
     abstract fun getAllReport(userId: String): AllUserReportResponse?
     abstract fun unblockUser(request: UnblockUserRequest): UnblockUserResponse?
     abstract fun getUserPublicDetails(userIdOrHandle: String): UserV2PublicMiniDataResponse
+    abstract fun updateContactVisibility(request: UpdateUserV2ContactVisibilityRequest): SavedUserV2Response?
 }

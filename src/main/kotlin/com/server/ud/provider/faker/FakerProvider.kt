@@ -3,10 +3,7 @@ package com.server.ud.provider.faker
 import com.algolia.search.SearchClient
 import com.github.javafaker.Faker
 import com.server.common.client.RedisClient
-import com.server.common.dto.AllProfileTypeResponse
-import com.server.common.dto.UpdateUserV2LocationRequest
-import com.server.common.dto.convertToString
-import com.server.common.dto.toProfileTypeResponse
+import com.server.common.dto.*
 import com.server.common.enums.*
 import com.server.common.model.MediaDetailsV2
 import com.server.common.model.SingleMediaDetail
@@ -32,6 +29,7 @@ import com.server.ud.entities.post.Post
 import com.server.ud.entities.reply.Reply
 import com.server.ud.entities.social.SocialRelation
 import com.server.ud.entities.user.UserV2
+import com.server.ud.entities.user.getProfiles
 import com.server.ud.enums.*
 import com.server.ud.model.sampleHashTagsIds
 import com.server.ud.provider.automation.AutomationProvider
@@ -433,9 +431,15 @@ class FakerProvider {
 
     fun doSomething(): Any {
 
-        postRepository.findAll().filterNotNull().map {
-            postsByPostTypeProvider.save(it)
+        userV2Repository.findAll().filterNotNull().forEach {
+            val profileCategories = it.getProfiles().profileTypes.map { it.category }
+            val isContactVisible = profileCategories.contains(ProfileCategory.OWNER).not()
+            userV2Provider.updateContactVisibility(it.userId, isContactVisible)
         }
+
+//        postRepository.findAll().filterNotNull().map {
+//            postsByPostTypeProvider.save(it)
+//        }
 
 
 //        val oldPostDataList = listOf<OldPostData>(

@@ -199,6 +199,18 @@ class UserV2Provider {
         return saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING)
     }
 
+    fun updateContactVisibility(request: UpdateUserV2ContactVisibilityRequest): UserV2? {
+        val firebaseAuthUser = securityProvider.validateRequest()
+        return updateContactVisibility(firebaseAuthUser.getUserIdToUse(), request.contactVisible)
+    }
+
+    // Make this private after initial data is filled
+    fun updateContactVisibility(userId: String, contactVisible: Boolean): UserV2? {
+        val user = getUser(userId) ?: error("No user found for userId: $userId")
+        val newUserToBeSaved = user.copy(contactVisible = contactVisible)
+        return saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING)
+    }
+
     fun removeUserV2DP(): UserV2? {
         val firebaseAuthUser = securityProvider.validateRequest()
         val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
@@ -442,7 +454,7 @@ class UserV2Provider {
             fullName = request.newName,
             dp = request.dp?.convertToString())
 
-        val nameUpdatedUser = saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING) ?: error("Error while updating name and dp for userId: ${firebaseAuthUser.getUserIdToUse()}")
+        val nameUpdatedUser = saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING) ?: error("Error while updating name and dp for userId: ${user.userId}")
 
         // Now update the username as it requires uniqueness enforcement
         // and once, updated, do user level processing by job scheduling
@@ -453,7 +465,7 @@ class UserV2Provider {
         val firebaseAuthUser = securityProvider.validateRequest()
         val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
         val newUserToBeSaved = user.copy(email = request.email,)
-        val emailSavedUser = saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING) ?: error("Error while updating email for userId: ${firebaseAuthUser.getUserIdToUse()}")
+        val emailSavedUser = saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING) ?: error("Error while updating email for userId: ${user.userId}")
         return request.location?.let { updateUserV2Location(request.location, emailSavedUser.userId) } ?: emailSavedUser
     }
 
@@ -463,7 +475,7 @@ class UserV2Provider {
         val newUserToBeSaved = user.copy(preferredCategories = CommonUtils.convertToStringBlob(AllCategoryV2Response(
             request.categories.map { it.toCategoryV2Response() }
         )),)
-        return saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING) ?: error("Error while updating categories for userId: ${firebaseAuthUser.getUserIdToUse()}")
+        return saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING) ?: error("Error while updating categories for userId: ${user.userId}")
     }
 
     fun getProfileTypesByProfileCategory(profileCategory: ProfileCategory): AllProfileTypeResponse? {

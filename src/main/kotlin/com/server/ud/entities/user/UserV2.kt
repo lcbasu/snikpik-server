@@ -59,6 +59,9 @@ data class UserV2 (
     @Column
     val verified: Boolean = false,
 
+    @Column("contact_visible")
+    val contactVisible: Boolean? = null,
+
     @Column
     val profiles: String? = null, // Set of AllProfileTypeResponse as String
 
@@ -265,6 +268,8 @@ fun UserV2.toSavedUserV2Response(): SavedUserV2Response {
             profiles = getProfiles(),
             preferredCategories = getPreferredCategories(),
 
+            contactVisible = contactVisible,
+
             currentLocationId = currentLocationId,
             currentLocationLat = currentLocationLat,
             currentLocationLng = currentLocationLng,
@@ -319,6 +324,8 @@ fun UserV2.toProfilePageUserDetailsResponse(): ProfilePageUserDetailsResponse {
             userPermanentLocationName = permanentLocationName,
             userPermanentLocationZipcode = permanentLocationZipcode,
 
+            contactVisible = contactVisible,
+
             currentLocationId = currentLocationId,
             currentLocationLat = currentLocationLat,
             currentLocationLng = currentLocationLng,
@@ -354,20 +361,23 @@ fun UserV2.toProfilePageUserDetailsResponse(): ProfilePageUserDetailsResponse {
 
 fun UserV2.toUserV2PublicMiniDataResponse(): UserV2PublicMiniDataResponse {
     this.apply {
-        val profileToShow = getProfiles().profileTypes.firstOrNull()
+        val profileCategories = getProfiles().profileTypes.map { it.category }
+        val isContactVisible = contactVisible ?: profileCategories.contains(ProfileCategory.OWNER).not()
         return UserV2PublicMiniDataResponse(
             userId = userId,
             fullName = fullName,
             uid = uid,
             createdAt = DateUtils.getEpoch(createdAt),
             handle = handle,
-            email = if (profileToShow?.category !== ProfileCategory.OWNER) email else "",
-            absoluteMobile = if (profileToShow?.category !== ProfileCategory.OWNER) absoluteMobile else "",
+            email = if (isContactVisible) email else "",
+            absoluteMobile = if (isContactVisible) absoluteMobile else "",
             dp = getMediaDetailsForDP(),
             coverImage = getMediaDetailsForCoverImage(),
             verified = verified,
-            profileToShow = profileToShow,
+            profileToShow = getProfiles().profileTypes.firstOrNull(),
             allProfileTypes = getProfiles(),
+
+            contactVisible = contactVisible,
 
             clId = currentLocationId,
             clZipcode = currentLocationZipcode,

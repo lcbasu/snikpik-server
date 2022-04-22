@@ -145,6 +145,10 @@ class UserV2ServiceImpl : UserV2Service() {
         return userV2Provider.updateUserV2Email(request)?.toSavedUserV2Response()
     }
 
+    override fun updateContactVisibility(request: UpdateUserV2ContactVisibilityRequest): SavedUserV2Response? {
+        return userV2Provider.updateContactVisibility(request)?.toSavedUserV2Response()
+    }
+
     override fun removeUserV2DP(): SavedUserV2Response? {
         return userV2Provider.removeUserV2DP()?.toSavedUserV2Response()
     }

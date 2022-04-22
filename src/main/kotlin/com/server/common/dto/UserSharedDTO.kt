@@ -136,6 +136,11 @@ data class UpdateUserV2DuringSignupRequest (
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class UpdateUserV2ContactVisibilityRequest (
+    val contactVisible: Boolean,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class UpdateUserV2LocationRequest (
     // Take it from request for any update related action
 //    val userId: String,
@@ -173,6 +178,7 @@ data class ProfilePageUserDetailsResponse(
     val dp: MediaDetailsV2?, // MediaDetailsV2
     val coverImage: MediaDetailsV2?, // MediaDetailsV2
     val verified: Boolean?,
+    val contactVisible: Boolean?,
     val profileToShow: ProfileTypeResponse?,
     val allProfileTypes: AllProfileTypeResponse?,
     val userCurrentLocationName: String?,
@@ -222,6 +228,7 @@ data class UserV2PublicMiniDataResponse(
     val dp: MediaDetailsV2?, // MediaDetailsV2
     val coverImage: MediaDetailsV2?, // MediaDetailsV2
     val verified: Boolean?,
+    val contactVisible: Boolean?,
     val profileToShow: ProfileTypeResponse?,
     val allProfileTypes: AllProfileTypeResponse?,
 
@@ -251,6 +258,7 @@ data class SavedUserV2Response(
     val dp: MediaDetailsV2?, // MediaDetailsV2
     val coverImage: MediaDetailsV2?, // MediaDetailsV2
     val verified: Boolean?,
+    val contactVisible: Boolean?,
     val profiles: AllProfileTypeResponse?,
     val preferredCategories: AllCategoryV2Response = AllCategoryV2Response(emptyList()),
 
