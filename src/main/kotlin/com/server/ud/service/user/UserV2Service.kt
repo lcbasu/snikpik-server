@@ -44,4 +44,5 @@ abstract class UserV2Service {
     abstract fun unblockUser(request: UnblockUserRequest): UnblockUserResponse?
     abstract fun getUserPublicDetails(userIdOrHandle: String): UserV2PublicMiniDataResponse
     abstract fun updateContactVisibility(request: UpdateUserV2ContactVisibilityRequest): SavedUserV2Response?
+    abstract fun toggleContactVisibility(): SavedUserV2Response?
 }

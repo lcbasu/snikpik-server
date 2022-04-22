@@ -221,6 +221,12 @@ class UserV2Controller {
         return userV2Service.updateContactVisibility(request)
     }
 
+    @RequestMapping(value = ["/toggleContactVisibility"], method = [RequestMethod.POST])
+    fun toggleContactVisibility(): SavedUserV2Response? {
+        securityProvider.validateRequest()
+        return userV2Service.toggleContactVisibility()
+    }
+
     @RequestMapping(value = ["/getProfileTypesByProfileCategory"], method = [RequestMethod.GET])
     fun getProfileTypesByProfileCategory(@RequestParam profileCategory: ProfileCategory): AllProfileTypeResponse? {
         securityProvider.validateRequest()

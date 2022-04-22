@@ -204,9 +204,22 @@ class UserV2Provider {
         return updateContactVisibility(firebaseAuthUser.getUserIdToUse(), request.contactVisible)
     }
 
+    fun toggleContactVisibility(): UserV2? {
+        val firebaseAuthUser = securityProvider.validateRequest()
+        val user = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
+        // If user.contactVisible is null then assume it was true
+        val currentVisibility = user.contactVisible ?: true
+        // Set it to opposite of current value
+        return updateContactVisibility(user, currentVisibility.not())
+    }
+
     // Make this private after initial data is filled
     fun updateContactVisibility(userId: String, contactVisible: Boolean): UserV2? {
         val user = getUser(userId) ?: error("No user found for userId: $userId")
+        return updateContactVisibility(user, contactVisible)
+    }
+
+    private fun updateContactVisibility(user: UserV2, contactVisible: Boolean): UserV2? {
         val newUserToBeSaved = user.copy(contactVisible = contactVisible)
         return saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING)
     }
