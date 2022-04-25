@@ -8,6 +8,7 @@ import com.server.common.model.getMediaUrlForNotification
 import com.server.ud.entities.user_activity.UserActivity
 import com.server.ud.enums.UserActivityType
 import com.server.ud.enums.UserAggregateActivityType
+import com.server.ud.provider.automation.AutomationProvider
 import com.server.ud.provider.user.UserV2Provider
 import com.server.ud.utils.UDCommonUtils
 import org.slf4j.Logger
@@ -23,6 +24,9 @@ class DeviceNotificationProvider {
 
     @Autowired
     private lateinit var userV2Provider: UserV2Provider
+
+    @Autowired
+    private lateinit var automationProvider: AutomationProvider
 
     fun sendNotification(userActivity: UserActivity) {
         try {
@@ -51,6 +55,8 @@ class DeviceNotificationProvider {
             var mediaURL = ""
             var dataValue3 = userActivity.userActivityId
 
+            var landingUrl = ""
+
             when (userActivity.userAggregateActivityType) {
                 UserAggregateActivityType.NEW_POST_CREATED -> {
                     dataValue3 = userActivity.postId ?: error("Missing post id for activityId: ${userActivity.userActivityId}")
@@ -66,6 +72,8 @@ class DeviceNotificationProvider {
                         }
                         else -> error("Invalid userActivityType: ${userActivity.userActivityType} for userActivityId: ${userActivity.userActivityId}")
                     }
+
+                    landingUrl = "${UDCommonUtils.UNBOX_ROOT_URL}/posts/${dataValue3}"
                 }
                 UserAggregateActivityType.LIKED -> {
                     // Go to post only in case you like post, or comment, or reply
@@ -95,6 +103,7 @@ class DeviceNotificationProvider {
                         }
                         else -> error("Invalid userActivityType: ${userActivity.userActivityType} for userActivityId: ${userActivity.userActivityId}")
                     }
+                    landingUrl = "${UDCommonUtils.UNBOX_ROOT_URL}/posts/${dataValue3}"
                 }
                 UserAggregateActivityType.SAVED -> {
                     dataValue3 = userActivity.postId ?: error("Missing post id for activityId: ${userActivity.userActivityId}")
@@ -110,6 +119,7 @@ class DeviceNotificationProvider {
                         }
                         else -> error("Invalid userActivityType: ${userActivity.userActivityType} for userActivityId: ${userActivity.userActivityId}")
                     }
+                    landingUrl = "${UDCommonUtils.UNBOX_ROOT_URL}/posts/${dataValue3}"
                 }
                 UserAggregateActivityType.SHARED -> {
                     when (userActivity.userActivityType) {
@@ -133,6 +143,7 @@ class DeviceNotificationProvider {
                         }
                         else -> error("Invalid userActivityType: ${userActivity.userActivityType} for userActivityId: ${userActivity.userActivityId}")
                     }
+                    landingUrl = "${UDCommonUtils.UNBOX_ROOT_URL}/posts/${dataValue3}"
                 }
                 UserAggregateActivityType.COMMENTED -> {
                     dataValue3 = userActivity.postId ?: error("Missing post id for activityId: ${userActivity.userActivityId}")
@@ -163,6 +174,7 @@ class DeviceNotificationProvider {
                         }
                         else -> error("Invalid userActivityType: ${userActivity.userActivityType} for userActivityId: ${userActivity.userActivityId}")
                     }
+                    landingUrl = "${UDCommonUtils.UNBOX_ROOT_URL}/posts/${dataValue3}"
                 }
                 UserAggregateActivityType.FOLLOWED -> {
                     dataValue3 = byUser.userId
@@ -174,6 +186,7 @@ class DeviceNotificationProvider {
                         }
                         else -> error("Invalid userActivityType: ${userActivity.userActivityType} for userActivityId: ${userActivity.userActivityId}")
                     }
+                    landingUrl = "${UDCommonUtils.UNBOX_ROOT_URL}/users/${dataValue3}"
                 }
                 UserAggregateActivityType.CLICKED_CONNECT -> {
                     dataValue3 = byUser.userId
@@ -185,6 +198,7 @@ class DeviceNotificationProvider {
                         }
                         else -> error("Invalid userActivityType: ${userActivity.userActivityType} for userActivityId: ${userActivity.userActivityId}")
                     }
+                    landingUrl = "${UDCommonUtils.UNBOX_ROOT_URL}/users/${dataValue3}"
                 }
                 UserAggregateActivityType.MESSAGE_SENT_OR_RECEIVED -> {
                     dataValue3 = userActivity.chatId ?: error("Chat id is missing for activityId: ${userActivity.userActivityId}")
@@ -198,6 +212,14 @@ class DeviceNotificationProvider {
                     }
                 }
             }
+
+            automationProvider.sendSlackMessageForUserActivity(
+                title = title,
+                body = body,
+                mediaURL = mediaURL,
+                landingUrl = landingUrl,
+                userActivity = userActivity,
+            )
 
             // See documentation on defining a message payload.
             if (forUser.notificationTokenProvider == NotificationTokenProvider.FIREBASE) {

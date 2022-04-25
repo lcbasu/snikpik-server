@@ -7,11 +7,11 @@ import com.server.common.properties.AutomationProperties
 import com.server.dk.dto.UserReportRequest
 import com.server.shop.entities.UserV3
 import com.server.ud.dto.PostReportRequest
-import com.server.ud.dto.*
 import com.server.ud.entities.auth.OtpValidation
 import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.getCategories
 import com.server.ud.entities.user.UserV2
+import com.server.ud.entities.user_activity.UserActivity
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
@@ -36,7 +36,7 @@ class AutomationProvider {
 
         } catch (e: Exception) {
             e.printStackTrace()
-            logger.error("Error while sending test slack message", e)
+            logger.error("Error while sending slack message", e)
         }
     }
 
@@ -53,7 +53,7 @@ class AutomationProvider {
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                logger.error("sendSlackMessageForNewUser Error while sending test slack message", e)
+                logger.error("sendSlackMessageForNewUser Error while sending slack message", e)
             }
         }
     }
@@ -71,7 +71,7 @@ class AutomationProvider {
                 Slack.getInstance().send(automationProperties.slack.webhook.newPost, payload)
             } catch (e: Exception) {
                 e.printStackTrace()
-                logger.error("sendSlackMessageForNewPost Error while sending test slack message", e)
+                logger.error("sendSlackMessageForNewPost Error while sending slack message", e)
             }
         }
     }
@@ -89,7 +89,7 @@ class AutomationProvider {
                 Slack.getInstance().send(automationProperties.slack.webhook.postDelete, payload)
             } catch (e: Exception) {
                 e.printStackTrace()
-                logger.error("sendSlackMessageForPostDeletion Error while sending test slack message", e)
+                logger.error("sendSlackMessageForPostDeletion Error while sending slack message", e)
             }
         }
     }
@@ -102,7 +102,7 @@ class AutomationProvider {
                 Slack.getInstance().send(automationProperties.slack.webhook.otpDelivery, payload)
             } catch (e: Exception) {
                 e.printStackTrace()
-                logger.error("sendSlackMessageForOTP Error while sending test slack message", e)
+                logger.error("sendSlackMessageForOTP Error while sending slack message", e)
             }
         }
     }
@@ -115,7 +115,7 @@ class AutomationProvider {
                 Slack.getInstance().send(automationProperties.slack.webhook.otpDelivery, payload)
             } catch (e: Exception) {
                 e.printStackTrace()
-                logger.error("sendSlackMessageForOTP Error while sending test slack message", e)
+                logger.error("sendSlackMessageForOTP Error while sending slack message", e)
             }
         }
     }
@@ -131,7 +131,7 @@ class AutomationProvider {
                 Slack.getInstance().send(automationProperties.slack.webhook.otpDelivery, payload)
             } catch (e: Exception) {
                 e.printStackTrace()
-                logger.error("sendSlackMessageForOTPDelivery Error while sending test slack message", e)
+                logger.error("sendSlackMessageForOTPDelivery Error while sending slack message", e)
             }
         }
     }
@@ -146,7 +146,7 @@ class AutomationProvider {
                 Slack.getInstance().send(automationProperties.slack.webhook.userReport, payload)
             } catch (e: Exception) {
                 e.printStackTrace()
-                logger.error("sendSlackMessageForUserReport Error while sending test slack message", e)
+                logger.error("sendSlackMessageForUserReport Error while sending slack message", e)
             }
         }
     }
@@ -166,7 +166,7 @@ class AutomationProvider {
                 Slack.getInstance().send(automationProperties.slack.webhook.postReport, payload)
             } catch (e: Exception) {
                 e.printStackTrace()
-                logger.error("sendSlackMessageForUserReport Error while sending test slack message", e)
+                logger.error("sendSlackMessageForUserReport Error while sending slack message", e)
             }
         }
     }
@@ -179,7 +179,24 @@ class AutomationProvider {
                 Slack.getInstance().send(automationProperties.slack.webhook.shopLaunch, payload)
             } catch (e: Exception) {
                 e.printStackTrace()
-                logger.error("sendSlackMessageForUserReport Error while sending test slack message", e)
+                logger.error("sendSlackMessageForUserReport Error while sending slack message", e)
+            }
+        }
+    }
+
+    fun sendSlackMessageForUserActivity(title: String, body: String, mediaURL: String, landingUrl: String, userActivity: UserActivity) {
+        GlobalScope.launch {
+            try {
+                val message = "User Activity: ${userActivity.userActivityId}, ${userActivity.userActivityType}, ${userActivity.userAggregateActivityType}\n\n\n" +
+                        "Title: $title\n\n" +
+                        "Body: $body\n\n" +
+                        "Media URL: $mediaURL\n\n\n\n" +
+                        "Landing URL: $landingUrl\n\n"
+                val payload = Payload.builder().text(message).build()
+                Slack.getInstance().send(automationProperties.slack.webhook.userActivity, payload)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                logger.error("sendSlackMessageForUserActivity Error while sending slack message", e)
             }
         }
     }

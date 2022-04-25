@@ -223,3 +223,4 @@ automation:
       post-report: ${SLACK_POST_REPORT_WEBHOOK}
       shop-launch: ${SLACK_SHOP_LAUNCH_WEBHOOK}
       post-delete: ${SLACK_POST_DELETE_WEBHOOK}
+      user-activity: ${SLACK_USER_ACTIVITY_WEBHOOK}

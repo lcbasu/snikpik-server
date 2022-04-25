@@ -1,7 +1,5 @@
 package com.server.ud.utils
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.server.shop.model.VariantProperties
 import org.apache.commons.codec.digest.DigestUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -14,6 +12,7 @@ object UDCommonUtils {
     const val randomLocationZipcode = "ZZZZZZ"
     const val randomLocationName = "Global"
     const val DEFAULT_PAGING_STATE_VALUE = "NOT_SET"
+    const val UNBOX_ROOT_URL = "https://letsunbox.in";
 
     val fixedLoginOTPMap = mapOf(
         // Team Numbers

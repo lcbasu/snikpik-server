@@ -132,6 +132,7 @@ data class AutomationProperties(
             var postReport: String,
             var shopLaunch: String,
             var postDelete: String,
+            var userActivity: String,
         )
     }
 }
