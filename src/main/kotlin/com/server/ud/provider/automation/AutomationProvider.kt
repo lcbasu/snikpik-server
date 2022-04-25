@@ -190,7 +190,7 @@ class AutomationProvider {
                 val message = "User Activity: ${userActivity.userActivityId}, ${userActivity.userActivityType}, ${userActivity.userAggregateActivityType}\n\n\n" +
                         "Title: $title\n\n" +
                         "Body: $body\n\n" +
-                        "Media URL: $mediaURL\n\n\n\n" +
+//                        "Media URL: $mediaURL\n\n\n\n" +
                         "Landing URL: $landingUrl\n\n"
                 val payload = Payload.builder().text(message).build()
                 Slack.getInstance().send(automationProperties.slack.webhook.userActivity, payload)
