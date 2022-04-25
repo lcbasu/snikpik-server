@@ -159,6 +159,7 @@ class DeviceNotificationProvider {
                         }
                         else -> error("Invalid userActivityType: ${userActivity.userActivityType} for userActivityId: ${userActivity.userActivityId}")
                     }
+                    landingUrl = "${UDCommonUtils.UNBOX_ROOT_URL}/posts/${dataValue3}"
                 }
                 UserAggregateActivityType.REPLIED -> {
                     dataValue3 = userActivity.postId ?: error("Missing post id for activityId: ${userActivity.userActivityId}")
