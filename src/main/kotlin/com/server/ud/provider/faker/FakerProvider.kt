@@ -433,17 +433,19 @@ class FakerProvider {
 
     fun doSomething(): Any {
 
+//        GlobalScope.launch {
+//            userV2Repository.findAll().filterNotNull().forEach {
+//                val profileCategories = it.getProfiles().profileTypes.map { it.category }
+//                val isContactVisible = profileCategories.contains(ProfileCategory.OWNER).not()
+//                userV2Provider.updateContactVisibility(it.userId, isContactVisible)
+//            }
+//        }
+
         GlobalScope.launch {
-            userV2Repository.findAll().filterNotNull().forEach {
-                val profileCategories = it.getProfiles().profileTypes.map { it.category }
-                val isContactVisible = profileCategories.contains(ProfileCategory.OWNER).not()
-                userV2Provider.updateContactVisibility(it.userId, isContactVisible)
+            postRepository.findAll().filterNotNull().map {
+                postsByPostTypeProvider.save(it)
             }
         }
-
-//        postRepository.findAll().filterNotNull().map {
-//            postsByPostTypeProvider.save(it)
-//        }
 
 
 //        val oldPostDataList = listOf<OldPostData>(
