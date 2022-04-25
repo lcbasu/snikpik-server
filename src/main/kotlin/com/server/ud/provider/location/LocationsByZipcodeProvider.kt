@@ -24,7 +24,7 @@ class LocationsByZipcodeProvider {
                 return null
             }
             val locationByZipcode = LocationsByZipcode(
-                zipcode = location.zipcode!!,
+                zipcode = location.zipcode,
                 userId = location.userId,
                 locationId = location.locationId,
                 locationFor = location.locationFor,

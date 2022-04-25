@@ -466,7 +466,7 @@ class PostProvider {
             val nearbyPostsByZipcodeFuture = async { nearbyPostsByZipcodeProvider.processPostExpandedData(updatedPost) }
             val nearbyVideoPostsByZipcodeFuture =
                 async { nearbyVideoPostsByZipcodeProvider.processPostExpandedData(updatedPost) }
-            zipcodeByPostProvider.processPostExpandedData(updatedPost)
+            val zipcodeByPostProviderFuture = async { zipcodeByPostProvider.processPostExpandedData(updatedPost) }
 
             val postsByCategoryFuture = async { postsByCategoryProvider.processPostExpandedData(updatedPost) }
             val postsByPostTypeFuture = async { postsByPostTypeProvider.processPostExpandedData(updatedPost) }
@@ -493,6 +493,7 @@ class PostProvider {
             postsByZipcodeFuture.await()
             nearbyPostsByZipcodeFuture.await()
             nearbyVideoPostsByZipcodeFuture.await()
+            zipcodeByPostProviderFuture.await()
 //            savePostToESFuture.await()
 //            savePostAutoSuggestToESFuture.await()
             algoliaIndexingFuture.await()
@@ -531,9 +532,9 @@ class PostProvider {
             }
             logger.info("Total ${nearbyPosts.size} nearby post found for the current location ${originalLocation.name}. Save in batches of $maxSaveListSize")
             nearbyPosts.chunked(maxSaveListSize).map {
-                nearbyPostsByZipcodeProvider.save(it, originalLocation.zipcode!!)
+                nearbyPostsByZipcodeProvider.save(it, originalLocation.zipcode)
                 val videoPosts = it.mapNotNull { it.toNearbyVideoPostsByZipcode() }
-                nearbyVideoPostsByZipcodeProvider.saveWhileProcessing(videoPosts, originalLocation.zipcode!!)
+                nearbyVideoPostsByZipcodeProvider.saveWhileProcessing(videoPosts, originalLocation.zipcode)
             }
             logger.info("Done: processPostForNearbyLocation for locationId: ${originalLocation.locationId}")
         }

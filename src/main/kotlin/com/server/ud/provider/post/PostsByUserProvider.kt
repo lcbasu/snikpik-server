@@ -47,7 +47,7 @@ class PostsByUserProvider {
                 tags = post.tags,
                 categories = post.categories,
                 locationId = post.locationId,
-                zipcode = post.zipcode!!,
+                zipcode = post.zipcode,
                 locationName = post.locationName,
                 locationLat = post.locationLat,
                 locationLng = post.locationLng,
@@ -62,7 +62,7 @@ class PostsByUserProvider {
             )
             return save(postsByUser)
         } catch (e: Exception) {
-            logger.error("Saving PostsByUser filed for ${post.postId}.")
+            logger.error("Saving PostsByUser failed for ${post.postId}.")
             e.printStackTrace()
             return null
         }
@@ -82,7 +82,7 @@ class PostsByUserProvider {
                 tags = updatedPost.tags,
                 categories = updatedPost.categories,
                 locationId = updatedPost.locationId,
-                zipcode = updatedPost.zipcode!!,
+                zipcode = updatedPost.zipcode,
                 locationName = updatedPost.locationName,
                 locationLat = updatedPost.locationLat,
                 locationLng = updatedPost.locationLng,
@@ -96,7 +96,7 @@ class PostsByUserProvider {
                 completeAddress = updatedPost.completeAddress,
             ))
         } catch (e: Exception) {
-            logger.error("Saving PostsByUser filed for postId: ${updatedPost.postId}.")
+            logger.error("Saving PostsByUser failed for postId: ${updatedPost.postId}.")
             e.printStackTrace()
             return null
         }

@@ -119,32 +119,35 @@ class LocationProvider {
 
     // To be used for cases where there are no location of post or for the user
     fun getOrSaveRandomLocation(userId: String, locationFor: LocationFor) : Location? {
-        try {
+        return try {
             // Get
-            getLocation(UDCommonUtils.randomLocationId)?.let {
-                return it
-            }
+            val existing = getLocation(UDCommonUtils.randomLocationId)
 
-            // Save will be called only once
-            // Keeping it here so that if we reset the DB,
-            // this save happens and the future calls
-            // do not happen
-            val location = Location(
-                locationId = UDCommonUtils.randomLocationId,
-                locationFor = locationFor,
-                userId = userId,
-                createdAt = Instant.now(),
-                zipcode = UDCommonUtils.randomLocationZipcode,
-                name = UDCommonUtils.randomLocationName,
-            )
-            val savedLocation = locationRepository.save(location)
-            logger.info("Saved location into cassandra with locationId: ${savedLocation.locationId}")
-            udJobProvider.scheduleProcessingForLocation(savedLocation.locationId)
-            return savedLocation
+            if (existing != null) {
+                logger.info("Get random location from cassandra")
+                existing
+            } else {
+                // Save will be called only once
+                // Keeping it here so that if we reset the DB,
+                // this save happens and the future calls
+                // do not happen
+                val location = Location(
+                    locationId = UDCommonUtils.randomLocationId,
+                    locationFor = locationFor,
+                    userId = userId,
+                    createdAt = Instant.now(),
+                    zipcode = UDCommonUtils.randomLocationZipcode,
+                    name = UDCommonUtils.randomLocationName,
+                )
+                val savedLocation = locationRepository.save(location)
+                logger.info("Saved random location into cassandra with locationId: ${savedLocation.locationId}")
+                udJobProvider.scheduleProcessingForLocation(savedLocation.locationId)
+                savedLocation
+            }
         } catch (e: Exception) {
-            logger.error("Saved location into cassandra failed locationFor: $locationFor for userId: $userId")
+            logger.error("Saving location into cassandra failed locationFor: $locationFor for userId: $userId")
             e.printStackTrace()
-            return null
+            null
         }
     }
 

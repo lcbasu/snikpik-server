@@ -78,7 +78,7 @@ class BookmarkedPostsByUserProvider {
                 categories = post.categories,
 
                 locationId = post.locationId,
-                zipcode = post.zipcode!!,
+                zipcode = post.zipcode,
                 locationName = post.locationName,
                 locationLat = post.locationLat,
                 locationLng = post.locationLng,
@@ -114,7 +114,7 @@ class BookmarkedPostsByUserProvider {
                 categories = updatedPost.categories,
 
                 locationId = updatedPost.locationId,
-                zipcode = updatedPost.zipcode!!,
+                zipcode = updatedPost.zipcode,
                 locationName = updatedPost.locationName,
                 locationLat = updatedPost.locationLat,
                 locationLng = updatedPost.locationLng,

@@ -43,7 +43,7 @@ class PostsByPostTypeProvider {
     private lateinit var securityProvider: SecurityProvider
 
     fun save(post: Post): PostsByPostType? {
-        logger.error("Saving PostsByPostType for ${post.postId}.")
+        logger.info("Saving PostsByPostType for ${post.postId}.")
         return try {
             val postsByPostType = PostsByPostType(
                 postType = post.postType,
@@ -174,6 +174,7 @@ class PostsByPostTypeProvider {
 
     fun processPostExpandedData(post: Post) {
         runBlocking {
+            logger.info("Processing post expanded data for postId in Post by Post Type: ${post.postId}")
             save(post)
         }
     }

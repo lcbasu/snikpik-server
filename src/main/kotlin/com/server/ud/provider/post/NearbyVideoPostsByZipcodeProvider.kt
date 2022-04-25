@@ -183,8 +183,10 @@ class NearbyVideoPostsByZipcodeProvider {
 
     fun processPostExpandedData(post: Post) {
         runBlocking {
-            val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(post.zipcode!!)
-            save(post, nearbyZipcodes)
+            if (post.zipcode != null) {
+                val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(post.zipcode!!)
+                save(post, nearbyZipcodes)
+            }
         }
     }
 

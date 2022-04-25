@@ -169,7 +169,7 @@ class UserV2ProcessingProvider {
             }
             logger.info("Total ${nearbyUsers.size} nearby users found for the current location ${originalLocation.name}. Save in batches of $maxSaveListSize")
             nearbyUsers.chunked(maxSaveListSize).map {
-                usersByNearbyZipcodeAndProfileTypeProvider.save(it, originalLocation.zipcode!!)
+                usersByNearbyZipcodeAndProfileTypeProvider.save(it, originalLocation.zipcode)
             }
             logger.info("Done: processUserForNearbyLocation for locationId: ${originalLocation.locationId}")
         }
@@ -202,7 +202,7 @@ class UserV2ProcessingProvider {
             }
             logger.info("Total ${nearbyProfileTypes.size} nearby profile types found for the current location ${originalLocation.name}. Save in batches of $maxSaveListSize")
             nearbyProfileTypes.chunked(maxSaveListSize).map {
-                profileTypesByNearbyZipcodeProvider.save(it, originalLocation.zipcode!!)
+                profileTypesByNearbyZipcodeProvider.save(it, originalLocation.zipcode)
             }
             logger.info("Done: processProfileTypesForNearbyLocation for locationId: ${originalLocation.locationId}")
         }

@@ -58,8 +58,10 @@ class ZipcodeByPostProvider {
 
     fun processPostExpandedData(post: Post) {
         GlobalScope.launch {
-            val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(post.zipcode!!)
-            save(post.postId, nearbyZipcodes)
+            if (post.zipcode != null) {
+                val nearbyZipcodes = nearbyZipcodesByZipcodeProvider.getNearbyZipcodesByZipcode(post.zipcode!!)
+                save(post.postId, nearbyZipcodes)
+            }
         }
     }
 }
