@@ -41,6 +41,47 @@ class CommentsByPostProvider {
         }
     }
 
+    fun delete(comment: Comment) {
+        try {
+            commentsByPostRepository.deleteAllByPostIdAndCreatedAtAndCommentId(
+                comment.postId,
+                comment.createdAt,
+                comment.commentId
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+
+    fun getAllCommentsByPost(postId: String): List<CommentsByPost> {
+        val limit = 10
+        var pagingState = ""
+
+        val comments = mutableListOf<CommentsByPost>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val posts = commentsByPostRepository.findAllByPostId(
+            postId,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(posts)
+        comments.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextPosts = commentsByPostRepository.findAllByPostId(
+                postId,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextPosts)
+            hasNext = nextSlicedResult.hasNext == true
+            comments.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return comments
+    }
+
     fun getPostComments(request: GetPostCommentsRequest): CassandraPageV2<CommentsByPost> {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
         val comments = commentsByPostRepository.findAllByPostId(request.postId, pageRequest as Pageable)

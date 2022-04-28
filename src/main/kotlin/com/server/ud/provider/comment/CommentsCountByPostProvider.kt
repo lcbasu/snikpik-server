@@ -42,6 +42,12 @@ class CommentsCountByPostProvider {
         saveCommentsCountByPostToFirestore(getCommentsCountByPost(postId))
     }
 
+    fun decreaseCommentCount(postId: String) {
+        commentsCountByPostRepository.decrementCommentCount(postId)
+        logger.warn("Decreased comment for postId: $postId")
+        saveCommentsCountByPostToFirestore(getCommentsCountByPost(postId))
+    }
+
     // Decreasing is Not supported as the comments are immutable right now
     // without an ability to delete the comments
 //    fun decreaseCommentCount(postId: String) {

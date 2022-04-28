@@ -13,7 +13,7 @@ import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
 
 @Table("comments")
-class Comment (
+data class Comment (
 
     @PrimaryKeyColumn(name = "comment_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var commentId: String,

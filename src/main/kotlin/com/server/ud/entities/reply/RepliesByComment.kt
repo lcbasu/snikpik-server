@@ -1,6 +1,5 @@
 package com.server.ud.entities.reply
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.model.MediaDetailsV2
 import com.server.common.model.getMediaDetailsFromJsonString
 import org.springframework.data.cassandra.core.cql.Ordering

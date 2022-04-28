@@ -46,6 +46,10 @@ class ReplyForCommentByUserProvider {
         save(commentId, userId, true)
     }
 
+    fun resetReplied(commentId: String, userId: String) {
+        save(commentId, userId, false)
+    }
+
     fun deletePostExpandedData(postId: String) {
         TODO("Add steps to delete post and related information")
     }

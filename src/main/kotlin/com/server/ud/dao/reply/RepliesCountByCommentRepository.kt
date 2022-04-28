@@ -14,5 +14,8 @@ interface RepliesCountByCommentRepository : CassandraRepository<RepliesCountByCo
     @Query("UPDATE replies_count_by_comment SET replies_count = replies_count + 1 WHERE comment_id = ?0")
     fun incrementReplyCount(commentId: String)
 
+    @Query("UPDATE replies_count_by_comment SET replies_count = replies_count - 1 WHERE comment_id = ?0")
+    fun decrementReplyCount(commentId: String)
+
     fun deleteByCommentId(commentId: String)
 }

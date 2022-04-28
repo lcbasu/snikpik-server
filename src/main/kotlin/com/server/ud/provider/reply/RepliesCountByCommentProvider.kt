@@ -42,6 +42,12 @@ class RepliesCountByCommentProvider {
         saveRepliesCountByCommentToFirestore(getRepliesCountByComment(commentId))
     }
 
+    fun decreaseRepliesCount(commentId: String) {
+        repliesCountByCommentRepository.decrementReplyCount(commentId)
+        logger.warn("Decreased replies count for commentId: $commentId")
+        saveRepliesCountByCommentToFirestore(getRepliesCountByComment(commentId))
+    }
+
     fun deletePostExpandedData(postId: String) {
         TODO("Add steps to delete post and related information")
     }

@@ -51,6 +51,10 @@ class CommentForPostByUserProvider {
         save(postId, userId, true)
     }
 
+    fun resetCommented(postId: String, userId: String) {
+        save(postId, userId, false)
+    }
+
     private fun saveCommentForPostByUserToFirestore (commentForPostByUser: CommentForPostByUser) {
         GlobalScope.launch {
             FirestoreClient.getFirestore()

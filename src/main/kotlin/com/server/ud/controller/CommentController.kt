@@ -15,8 +15,18 @@ class CommentController {
     private lateinit var commentService: CommentService
 
     @RequestMapping(value = ["/save"], method = [RequestMethod.POST])
-    fun saveComment(@RequestBody request: SaveCommentRequest): SavedCommentResponse {
+    fun saveComment(@RequestBody request: SaveCommentRequest): SavedCommentResponse? {
         return commentService.saveComment(request)
+    }
+
+    @RequestMapping(value = ["/update"], method = [RequestMethod.POST])
+    fun updateComment(@RequestBody request: UpdateCommentRequest): SavedCommentResponse? {
+        return commentService.updateComment(request)
+    }
+
+    @RequestMapping(value = ["/delete"], method = [RequestMethod.POST])
+    fun deleteComment(@RequestBody request: DeleteCommentRequest): DeleteCommentResponse {
+        return commentService.deleteComment(request)
     }
 
     @RequestMapping(value = ["/getCommentReportDetail"], method = [RequestMethod.GET])

@@ -64,6 +64,25 @@ data class SaveCommentReplyRequest(
     var mediaDetails: MediaDetailsV2? = null,
 )
 
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class DeleteCommentReplyRequest(
+    var replyId: String,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class UpdateCommentReplyRequest(
+    var replyId: String,
+    var text: String,
+    var mediaDetails: MediaDetailsV2? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class DeletedCommentReplyResponse(
+    var replyId: String,
+    var deleted: Boolean,
+)
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SavedCommentReplyResponse(
     var replyId: String,

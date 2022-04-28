@@ -41,6 +41,51 @@ class RepliesByCommentProvider {
         }
     }
 
+    fun deleteAllRepliesByComment(reply: Reply) {
+        try {
+            return repliesByCommentRepository.deleteAllByCommentIdAndCreatedAtAndReplyIdAndUserId(
+                reply.commentId,
+                reply.createdAt,
+                reply.replyId,
+                reply.userId
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+//    fun deleteAllReplies(replies: List<RepliesByComment>) {
+//        repliesByCommentRepository.deleteAll(replies)
+//    }
+
+    fun getAllRepliesByComment(commentId: String): List<RepliesByComment> {
+        val limit = 10
+        var pagingState = ""
+
+        val replies = mutableListOf<RepliesByComment>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val repliesByComment = repliesByCommentRepository.findAllByCommentId(
+            commentId,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(repliesByComment)
+        replies.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextRepliesByComment = repliesByCommentRepository.findAllByCommentId(
+                commentId,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextRepliesByComment)
+            hasNext = nextSlicedResult.hasNext == true
+            replies.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return replies
+    }
+
     fun getCommentReplies(request: GetCommentRepliesRequest): CassandraPageV2<RepliesByComment> {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
         val comments = repliesByCommentRepository.findAllByCommentId(request.commentId, pageRequest as Pageable)

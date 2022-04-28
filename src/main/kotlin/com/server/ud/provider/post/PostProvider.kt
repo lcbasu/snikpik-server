@@ -598,9 +598,9 @@ class PostProvider {
         GlobalScope.launch {
             logger.info("Start deletePostExpandedData: Delete post and other dependent information for postId: $postId")
             async { bookmarkProvider.deleteResourceExpandedData(postId) }
-            async { commentProvider.deletePostExpandedData(postId) }
+            async { commentProvider.deleteAllCommentsOfPost(postId) }
+//            async { replyProvider.deleteAllRepliesOfPost(postId) } Delete comments so that will aut delete replies
             async { likeProvider.deleteResourceExpandedData(postId) }
-            async { replyProvider.deletePostExpandedData(postId) }
             async { searchProvider.deletePostExpandedData(postId) }
             async { userActivityProvider.deletePostExpandedData(postId) }
             logger.info("End deletePostExpandedData: Delete post and other dependent information for postId: $postId")

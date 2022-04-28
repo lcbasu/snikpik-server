@@ -13,7 +13,7 @@ import org.springframework.data.cassandra.core.mapping.Table
 import java.time.Instant
 
 @Table("replies")
-class Reply (
+data class Reply (
 
     @PrimaryKeyColumn(name = "reply_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     var replyId: String,

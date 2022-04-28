@@ -1,8 +1,8 @@
 package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.server.common.utils.DateUtils
 import com.server.common.model.MediaDetailsV2
+import com.server.common.utils.DateUtils
 import com.server.ud.entities.comment.Comment
 import com.server.ud.entities.comment.CommentsByPost
 import com.server.ud.entities.comment.getMediaDetails
@@ -68,6 +68,24 @@ data class SaveCommentRequest(
     var postType: PostType,
     var text: String,
     var mediaDetails: MediaDetailsV2? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class UpdateCommentRequest(
+    var commentId: String,
+    var text: String,
+    var mediaDetails: MediaDetailsV2? = null,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class DeleteCommentRequest(
+    var commentId: String,
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class DeleteCommentResponse(
+    var commentId: String,
+    var deleted: Boolean,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)

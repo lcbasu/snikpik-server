@@ -2,15 +2,20 @@ package com.server.ud.provider.comment
 
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.convertToString
+import com.server.common.provider.SecurityProvider
 import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.comment.*
+import com.server.ud.dto.DeleteCommentRequest
+import com.server.ud.dto.DeleteCommentResponse
 import com.server.ud.dto.SaveCommentRequest
+import com.server.ud.dto.UpdateCommentRequest
 import com.server.ud.entities.MediaProcessingDetail
 import com.server.ud.entities.comment.Comment
 import com.server.ud.provider.bookmark.BookmarkProvider
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.like.LikeProvider
+import com.server.ud.provider.reply.ReplyProvider
 import com.server.ud.provider.user_activity.UserActivitiesProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -68,6 +73,11 @@ class CommentProvider {
     @Autowired
     private lateinit var userActivitiesProvider: UserActivitiesProvider
 
+    @Autowired
+    private lateinit var replyProvider: ReplyProvider
+
+    @Autowired
+    private lateinit var securityProvider: SecurityProvider
 
     fun getComment(commentId: String): Comment? =
         try {
@@ -94,12 +104,27 @@ class CommentProvider {
                 media = request.mediaDetails?.convertToString(),
             )
             val savedComment = commentRepository.save(comment)
-            processCommentNow(savedComment)
-            udJobProvider.scheduleProcessingForComment(savedComment.commentId)
+            processCommentNowAfterSavingFirstTime(savedComment)
             return savedComment
         } catch (e: Exception) {
             e.printStackTrace()
             return null
+        }
+    }
+
+    fun delete(comment: Comment) {
+        try {
+            delete(comment.commentId)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    fun delete(commentId: String) {
+        try {
+            commentRepository.deleteByCommentId(commentId)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -124,9 +149,10 @@ class CommentProvider {
         }
     }
 
-    fun processCommentNow(comment: Comment) {
+    fun processCommentNowAfterSavingFirstTime(comment: Comment) {
         runBlocking {
             logger.info("StartNow: comment processing for commentId: ${comment.commentId}")
+            udJobProvider.scheduleProcessingForComment(comment.commentId)
             val commentsByPostFuture = async { commentsByPostProvider.save(comment) }
             val commentsCountByPostFuture = async { commentsCountByPostProvider.increaseCommentCount(comment.postId) }
             commentsByPostFuture.await()
@@ -135,32 +161,86 @@ class CommentProvider {
         }
     }
 
-    fun deletePostExpandedData(postId: String) {
+    fun processCommentNowAfterUpdating(comment: Comment) {
+        runBlocking {
+            logger.info("StartNow: comment processing for commentId: ${comment.commentId}")
+            udJobProvider.scheduleProcessingForComment(comment.commentId)
+            commentsByPostProvider.save(comment)
+            logger.info("DoneNow: comment processing for commentId: ${comment.commentId}")
+        }
+    }
+
+    fun deleteAllCommentsOfPost(postId: String) {
         GlobalScope.launch {
-            val commentsByPost = commentsByPostRepository.findAllByPostId_V2(postId)
-            val commentIds = commentsByPost.map { it.commentId }.toSet()
-            val userIds = commentsByPost.map { it.userId }.toSet()
-            userIds.map {
-                async {
-                    // TODO: Optimize this as there could be millions of comments
-                    val allCommentsOfThisUserForAnyPost =  commentsByUserProvider.getAllComments(it)
-                    val allCommentsOfThisUserForTHISPost =  allCommentsOfThisUserForAnyPost.filter { it.postId == postId }
-                    commentsByUserRepository.deleteAll(allCommentsOfThisUserForTHISPost)
-                    commentForPostByUserRepository.deleteAllByPostIdAndUserId(postId, it)
-                }
-            }.map { it.await() }
+            val commentsByPost = commentsByPostProvider.getAllCommentsByPost(postId)
+            commentsByPost.map {
+                deleteCommentAndAllExpandedData(it.commentId)
+            }
+        }
+    }
 
-            commentIds.map {
-                async {
-                    commentRepository.deleteByCommentId(it)
-                    bookmarkProvider.deleteResourceExpandedData(it)
-                    likeProvider.deleteResourceExpandedData(it)
-                    userActivitiesProvider.deleteCommentExpandedData(it)
-                }
-            }.map { it.await() }
+    fun deleteCommentAndAllExpandedData(commentId: String) {
+        GlobalScope.launch {
+            deleteCommentAndAllExpandedData(getComment(commentId) ?: error("Failed to get comment for commentId: $commentId"))
+        }
+    }
 
-            commentsCountByPostRepository.deleteAllByPostId(postId)
-            commentsByPostRepository.deleteAllByPostId(postId)
+    private fun deleteCommentAndAllExpandedData(comment: Comment) {
+        GlobalScope.launch {
+            val userId = comment.userId
+
+            bookmarkProvider.deleteResourceExpandedData(comment.commentId)
+            likeProvider.deleteResourceExpandedData(comment.commentId)
+            userActivitiesProvider.deleteCommentExpandedData(comment.commentId)
+
+            val allCommentsByUser =  commentsByUserProvider.deleteAllCommentsByUser(comment)
+            if (allCommentsByUser.isEmpty() || allCommentsByUser.size == 1 && allCommentsByUser.first().commentId == comment.commentId) {
+                commentForPostByUserProvider.resetCommented(comment.postId, userId)
+            } else {
+                commentForPostByUserProvider.setCommented(comment.postId, userId)
+            }
+
+            commentsCountByPostProvider.decreaseCommentCount(comment.postId)
+
+            commentsByPostProvider.delete(comment)
+
+            replyProvider.deleteAllRepliesOfComment(comment.commentId)
+
+            delete(comment)
+        }
+    }
+
+    fun deleteComment(request: DeleteCommentRequest): DeleteCommentResponse {
+        val userDetailsFromToken = securityProvider.validateRequest()
+        val comment = getComment(request.commentId) ?: error("Failed to get comment for commentId: ${request.commentId}")
+        if (comment.userId != userDetailsFromToken.getUserIdToUse()) {
+            error("You are not allowed to delete this comment. Only the owner can delete the comment. commentId: ${request.commentId}, ownerId: ${comment.userId}, userId: ${userDetailsFromToken.getUserIdToUse()}")
+        }
+        deleteCommentAndAllExpandedData(request.commentId)
+        return DeleteCommentResponse(request.commentId, true)
+    }
+
+    fun saveComment(request: SaveCommentRequest): Comment? {
+        val userDetailsFromToken = securityProvider.validateRequest()
+        return save(userDetailsFromToken.getUserIdToUse(), request)
+    }
+
+    fun updateComment(request: UpdateCommentRequest): Comment? {
+        return try {
+            val comment = getComment(request.commentId) ?: error("Failed to get comments data for commentId: ${request.commentId}")
+            val userDetailsFromToken = securityProvider.validateRequest()
+            if (comment.userId != userDetailsFromToken.getUserIdToUse()) {
+                error("You are not allowed to update this comment. Only the owner can update the comment. commentId: ${request.commentId}, ownerId: ${comment.userId}, userId: ${userDetailsFromToken.getUserIdToUse()}")
+            }
+            val savedComment = commentRepository.save(comment.copy(
+                text = request.text,
+                media = request.mediaDetails?.convertToString(),
+            ))
+            processCommentNowAfterUpdating(savedComment)
+            savedComment
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 

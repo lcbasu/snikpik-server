@@ -38,9 +38,23 @@ class RepliesByPostProvider {
         }
     }
 
-    fun getReplies(postId: String): List<RepliesByPost> {
-        return repliesByPostRepository.findAllByPostId(postId)
+    fun deleteAllRepliesByPost(reply: Reply) {
+        return try {
+            repliesByPostRepository.deleteAllByPostIdAndCommentIdAndCreatedAtAndReplyIdAndUserId(
+                reply.postId,
+                reply.commentId,
+                reply.createdAt,
+                reply.replyId,
+                reply.userId
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
+
+//    fun getReplies(postId: String): List<RepliesByPost> {
+//        return repliesByPostRepository.findAllByPostId(postId)
+//    }
 
     fun deletePostExpandedData(postId: String) {
         TODO("Add steps to delete post and related information")

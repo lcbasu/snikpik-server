@@ -31,10 +31,8 @@ class ReplyServiceImpl : ReplyService() {
     @Autowired
     private lateinit var userV2Provider: UserV2Provider
 
-    override fun saveReply(request: SaveCommentReplyRequest): SavedCommentReplyResponse {
-        val userDetailsFromToken = securityProvider.validateRequest()
-        val comment = replyProvider.save(userDetailsFromToken.getUserIdToUse(), request) ?: error("Failed to save reply for commentId: ${request.commentId}")
-        return comment.toSavedCommentReplyResponse()
+    override fun saveReply(request: SaveCommentReplyRequest): SavedCommentReplyResponse? {
+        return replyProvider.saveReply(request)
     }
 
     override fun getReplyReportDetail(commentId: String): ReplyReportDetail {
@@ -67,5 +65,13 @@ class ReplyServiceImpl : ReplyService() {
     override fun getSingleReplyUserDetail(userId: String): SingleReplyUserDetail {
         val user = userV2Provider.getUser(userId) ?: error("No userV2 found with id: $userId")
         return user.toSingleReplyUserDetail()
+    }
+
+    override fun deleteReply(request: DeleteCommentReplyRequest): DeletedCommentReplyResponse? {
+        return replyProvider.deleteReply(request)
+    }
+
+    override fun updateReply(request: UpdateCommentReplyRequest): SavedCommentReplyResponse? {
+        return replyProvider.updateReply(request)?.toSavedCommentReplyResponse()
     }
 }

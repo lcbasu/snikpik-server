@@ -15,8 +15,18 @@ class ReplyController {
     private lateinit var replyService: ReplyService
 
     @RequestMapping(value = ["/save"], method = [RequestMethod.POST])
-    fun saveReply(@RequestBody request: SaveCommentReplyRequest): SavedCommentReplyResponse {
+    fun saveReply(@RequestBody request: SaveCommentReplyRequest): SavedCommentReplyResponse? {
         return replyService.saveReply(request)
+    }
+
+    @RequestMapping(value = ["/delete"], method = [RequestMethod.POST])
+    fun deleteReply(@RequestBody request: DeleteCommentReplyRequest): DeletedCommentReplyResponse? {
+        return replyService.deleteReply(request)
+    }
+
+    @RequestMapping(value = ["/update"], method = [RequestMethod.POST])
+    fun updateReply(@RequestBody request: UpdateCommentReplyRequest): SavedCommentReplyResponse? {
+        return replyService.updateReply(request)
     }
 
     @RequestMapping(value = ["/getReplyReportDetail"], method = [RequestMethod.GET])

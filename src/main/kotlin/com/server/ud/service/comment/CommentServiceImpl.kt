@@ -31,10 +31,12 @@ class CommentServiceImpl : CommentService() {
     @Autowired
     private lateinit var userV2Provider: UserV2Provider
 
-    override fun saveComment(request: SaveCommentRequest): SavedCommentResponse {
-        val userDetailsFromToken = securityProvider.validateRequest()
-        val comment = commentProvider.save(userDetailsFromToken.getUserIdToUse(), request) ?: error("Failed to save comment for postId: ${request.postId}")
-        return comment.toSavedCommentResponse()
+    override fun saveComment(request: SaveCommentRequest): SavedCommentResponse? {
+        return commentProvider.saveComment(request)?.toSavedCommentResponse()
+    }
+
+    override fun updateComment(request: UpdateCommentRequest): SavedCommentResponse? {
+        return commentProvider.updateComment(request)?.toSavedCommentResponse()
     }
 
     override fun getCommentReportDetail(postId: String): CommentReportDetail {
@@ -67,6 +69,10 @@ class CommentServiceImpl : CommentService() {
     override fun getSingleCommentUserDetail(userId: String): SingleCommentUserDetail {
         val user = userV2Provider.getUser(userId) ?: error("No userV2 found with id: $userId")
         return user.toSingleCommentUserDetail()
+    }
+
+    override fun deleteComment(request: DeleteCommentRequest): DeleteCommentResponse {
+        return commentProvider.deleteComment(request)
     }
 
 }
