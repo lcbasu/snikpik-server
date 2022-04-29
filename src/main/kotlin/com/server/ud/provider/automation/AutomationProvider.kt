@@ -12,6 +12,8 @@ import com.server.ud.entities.post.Post
 import com.server.ud.entities.post.getCategories
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user_activity.UserActivity
+import com.server.ud.enums.UserActivityType
+import com.server.ud.enums.UserAggregateActivityType
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
@@ -190,6 +192,9 @@ class AutomationProvider {
     fun sendSlackMessageForUserActivity(title: String, body: String, mediaURL: String, landingUrl: String, userActivity: UserActivity) {
         GlobalScope.launch {
             try {
+                if (userActivity.userAggregateActivityType == UserAggregateActivityType.MESSAGE_SENT_OR_RECEIVED) {
+                    return@launch
+                }
                 val message = "User Activity: ${userActivity.userActivityId}, ${userActivity.userActivityType}, ${userActivity.userAggregateActivityType}\n\n\n" +
                         "Title: $title\n\n" +
                         "Body: $body\n\n" +
