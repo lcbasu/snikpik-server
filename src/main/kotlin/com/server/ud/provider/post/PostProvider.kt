@@ -34,6 +34,7 @@ import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.automation.AutomationProvider
 import com.server.ud.provider.bookmark.BookmarkProvider
 import com.server.ud.provider.comment.CommentProvider
+import com.server.ud.provider.integration.IntegrationProvider
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.like.LikeProvider
 import com.server.ud.provider.location.ESLocationProvider
@@ -158,6 +159,9 @@ class PostProvider {
 
     @Autowired
     private lateinit var postTaggedProductsProvider: PostTaggedProductsProvider
+
+    @Autowired
+    private lateinit var integrationProvider: IntegrationProvider
 
     fun getPost(postId: String): Post? =
         try {
@@ -367,7 +371,7 @@ class PostProvider {
     }
 
     fun createPost(instagramPost: InstagramPost): Post? {
-
+        logger.info("Start: Create post for instagram post: $instagramPost")
         val user = userV2Provider.getUser(instagramPost.userId) ?: error("Missing user for userId: ${instagramPost.userId}")
         val location = SaveLocationRequest(
             locationFor = LocationFor.GENERIC_POST,
@@ -376,8 +380,8 @@ class PostProvider {
             name = user.permanentLocationName,
             lat = user.permanentLocationLat,
             lng = user.permanentLocationLng,
-            locality = user.currentLocationLocality,
-            subLocality = user.currentLocationSubLocality,
+            locality = user.permanentLocationLocality,
+            subLocality = user.permanentLocationSubLocality,
             route = user.permanentLocationRoute,
             city = user.permanentLocationCity,
             state = user.permanentLocationState,
@@ -407,7 +411,14 @@ class PostProvider {
             mediaDetails = instagramPost.getMediaDetails(),
             createdAt = instagramPost.createdAt
         )
-        return save(instagramPost.userId, req)
+        logger.info("End: Create post for instagram post: $instagramPost")
+        val unboxPost = save(instagramPost.userId, req)
+
+        integrationProvider.saveInstagramPost(instagramPost.copy(unboxPostId = unboxPost?.postId))
+
+        logger.info("Created post for instagram post: ${instagramPost.postId} with unboxPostId: ${unboxPost?.postId}")
+
+        return unboxPost
     }
 
 

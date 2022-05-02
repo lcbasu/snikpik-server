@@ -29,6 +29,9 @@ data class InstagramPost (
     @PrimaryKeyColumn(name = "post_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     val postId: String,
 
+    @Column("unbox_post_id")
+    var unboxPostId: String? = "",
+
     @Column("media_type")
     var mediaType: InstagramMediaType,
 
@@ -81,7 +84,7 @@ fun InstagramPost.getMediaDetails(): MediaDetailsV2 {
             return MediaDetailsV2(media = listOf(
                 SingleMediaDetail(
                     mediaUrl = mediaUrl,
-                    thumbnailUrl = thumbnailUrl,
+                    thumbnailUrl = if (thumbnailUrl == null) mediaUrl else thumbnailUrl,
                     mediaType = mediaType.getMediaType(),
                 )
             ))
@@ -90,7 +93,7 @@ fun InstagramPost.getMediaDetails(): MediaDetailsV2 {
                 media = children.data.map {
                     SingleMediaDetail(
                         mediaUrl = it.mediaUrl,
-                        thumbnailUrl = it.thumbnailUrl,
+                        thumbnailUrl = if (it.thumbnailUrl == null) it.mediaUrl else it.thumbnailUrl,
                         mediaType = it.mediaType.getMediaType(),
                     )
                 }

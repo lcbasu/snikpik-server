@@ -27,4 +27,12 @@ class IntegrationServiceImpl : IntegrationService() {
         return integrationProvider.updateIngestionState(request)
     }
 
+    override fun getInstagramPosts(request: GetInstagramPostsRequest): AllInstagramPostsResponse {
+        return integrationProvider.getInstagramPosts(request)
+    }
+
+    override fun getAllIntegrationAccountsForUser(): AllIntegrationAccountsResponse? {
+        return integrationProvider.getAllIntegrationAccountsForUser()
+    }
+
 }

@@ -8,26 +8,28 @@ import com.server.common.provider.SecurityProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.integration.ExternalIngestionPauseInfoRepository
 import com.server.ud.dao.integration.InstagramAuthProcessingByUserIdRepository
+import com.server.ud.dao.integration.IntegrationAccountInfoByPlatformAccountIdRepository
 import com.server.ud.dao.integration.IntegrationAccountInfoByUserIdRepository
 import com.server.ud.dao.post.InstagramPostsRepository
 import com.server.ud.dto.*
-import com.server.ud.entities.integration.common.ExternalIngestionPauseInfo
-import com.server.ud.entities.integration.common.InstagramAuthProcessingByUserId
-import com.server.ud.entities.integration.common.IntegrationAccountInfoByUserId
-import com.server.ud.entities.integration.common.toConnectInstagramAccountResponse
+import com.server.ud.entities.integration.common.*
 import com.server.ud.entities.post.InstagramPost
 import com.server.ud.entities.post.getInstagramPostChildrenResponse
 import com.server.ud.enums.*
+import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.post.PostProvider
 import com.server.ud.utils.UDKeyBuilder
+import com.server.ud.utils.pagination.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
 
@@ -44,6 +46,9 @@ class IntegrationProvider {
 
     @Autowired
     private lateinit var integrationAccountInfoByUserIdRepository: IntegrationAccountInfoByUserIdRepository
+
+    @Autowired
+    private lateinit var integrationAccountInfoByPlatformAccountIdRepository: IntegrationAccountInfoByPlatformAccountIdRepository
 
     @Autowired
     private lateinit var externalIngestionPauseInfoRepository: ExternalIngestionPauseInfoRepository
@@ -63,6 +68,9 @@ class IntegrationProvider {
     @Autowired
     private lateinit var postProvider: PostProvider
 
+    @Autowired
+    private lateinit var paginationRequestUtil: PaginationRequestUtil
+
     fun getIntegrationAccountInfoByUserId(userId: String, platform: IntegrationPlatform, accountId: String): IntegrationAccountInfoByUserId? =
         try {
             val users = integrationAccountInfoByUserIdRepository.findAllByUserIdAndPlatformAndAccountId(userId, platform, accountId)
@@ -76,12 +84,36 @@ class IntegrationProvider {
             null
         }
 
+    fun getIntegrationAccountInfoByUserId(userId: String): List<IntegrationAccountInfoByUserId> =
+        try {
+            integrationAccountInfoByUserIdRepository.findAllByUserId(userId)
+        } catch (e: Exception) {
+            logger.error("Getting all IntegrationAccountInfoByUserId for userId: $userId failed.")
+            e.printStackTrace()
+            emptyList()
+        }
+
+    fun getAllIntegrationAccountInfoByPlatformAccountId(accountId: String): List<IntegrationAccountInfoByPlatformAccountId> =
+        try {
+            integrationAccountInfoByPlatformAccountIdRepository.findAllByAccountId(accountId)
+        } catch (e: Exception) {
+            logger.error("Getting all IntegrationAccountInfoByPlatformAccountId for accountId: $accountId failed.")
+            e.printStackTrace()
+            emptyList()
+        }
+
+    fun saveIntegrationAccountInfoByUserId(integrationAccountInfoByUserId: IntegrationAccountInfoByUserId): IntegrationAccountInfoByUserId {
+            val result = integrationAccountInfoByUserIdRepository.save(integrationAccountInfoByUserId)
+            integrationAccountInfoByPlatformAccountIdRepository.save(result.toIntegrationAccountInfoByPlatformAccountId())
+            return result
+        }
+
     fun connect(request: ConnectInstagramAccountRequest): ConnectInstagramAccountResponse {
         val userDetailsFromToken = securityProvider.validateRequest()
         if (userDetailsFromToken.getUserIdToUse() != request.userId) {
             error("UserId in token does not match userId in request")
         }
-        val savedData = instagramAuthProcessingByUserIdRepository.save(
+        val instagramAuthProcessingByUserId = instagramAuthProcessingByUserIdRepository.save(
             InstagramAuthProcessingByUserId(
                 userId = request.userId,
                 code = request.code,
@@ -89,8 +121,80 @@ class IntegrationProvider {
                 createdAt = DateUtils.getInstantNow(),
             )
         )
-        processNewAccountConnect(savedData)
-        return savedData.toConnectInstagramAccountResponse()
+        try {
+
+            // Generate the short-lived token
+            val instagramShortLivedAccessTokenResponse = generateShortLivedToken(instagramAuthProcessingByUserId)
+                ?: error("Failed to generate short-lived token for userId: ${instagramAuthProcessingByUserId.userId}")
+            // VERY-CRITICAL Raise an alert in case of error
+
+            val shortLivedAccessTokenResponse = saveAndGetShortLivedAccessTokenResponse(instagramAuthProcessingByUserId, instagramShortLivedAccessTokenResponse)
+
+            if (shortLivedAccessTokenResponse.error == true || shortLivedAccessTokenResponse.model == null) {
+                instagramAuthProcessingByUserIdRepository.save(
+                    instagramAuthProcessingByUserId.copy(state = InstagramAuthProcessingState.FAILED)
+                )
+                return ConnectInstagramAccountResponse(
+                    userId = request.userId,
+                    integrationAccount = null,
+                    error = shortLivedAccessTokenResponse.error,
+                    errorMessage = shortLivedAccessTokenResponse.errorMessage,
+                )
+            }
+
+            // Generate the long-lived token
+            val instagramLongLivedAccessTokenResponse = generateLongLivedToken(shortLivedAccessTokenResponse.model)
+                ?: error("Failed to generate long-lived token for userId: ${instagramAuthProcessingByUserId.userId}")
+            // VERY-CRITICAL Raise an alert in case of error
+
+            // Update the entry for the info about integration
+            var integrationAccountInfoByUserId = saveIntegrationAccountInfoByUserId(
+                shortLivedAccessTokenResponse.model.copy(
+                    longLivedAccessToken = instagramLongLivedAccessTokenResponse.instagramAccessToken,
+                    expiresIn = instagramLongLivedAccessTokenResponse.expiresIn,
+                )
+            )
+
+            val instagramUserInfoResponse = getUserAccountInfo(integrationAccountInfoByUserId)
+            if (instagramUserInfoResponse != null) {
+                integrationAccountInfoByUserId = saveIntegrationAccountInfoByUserId(
+                    integrationAccountInfoByUserId.copy(
+                        userIdOnPlatform = instagramUserInfoResponse.id,
+                        usernameOnPlatform = instagramUserInfoResponse.username,
+                    )
+                )
+            } else {
+                logger.error("Failed to get user info for userId: ${instagramAuthProcessingByUserId.userId}")
+            }
+
+            // Ingest all instagram post on first connection
+            // This is a time taking process
+            // And the user expectation is also that the first connection is slow
+            // if they have a huge number of posts
+
+            // Figure out a way to time out if there are a lot of posts
+            ingestAllInstagramPostsSync(integrationAccountInfoByUserId)
+
+            scheduleJobs(integrationAccountInfoByUserId)
+
+            instagramAuthProcessingByUserIdRepository.save(
+                instagramAuthProcessingByUserId.copy(state = InstagramAuthProcessingState.SUCCESS)
+            )
+            return integrationAccountInfoByUserId.toConnectInstagramAccountResponse(false, null)
+        } catch (e: Exception) {
+            logger.error("Error while processNewAccountConnect for userId: ${instagramAuthProcessingByUserId.userId}")
+            e.printStackTrace()
+            instagramAuthProcessingByUserIdRepository.save(
+                instagramAuthProcessingByUserId.copy(state = InstagramAuthProcessingState.FAILED)
+            )
+
+            return ConnectInstagramAccountResponse(
+                userId = request.userId,
+                integrationAccount = null,
+                error = true,
+                errorMessage = "Error while connecting instagram account",
+            )
+        }
     }
 
     fun disconnect(request: DisconnectInstagramAccountRequest): DisconnectInstagramAccountResponse {
@@ -104,7 +208,7 @@ class IntegrationProvider {
         // VERY-CRITICAL Raise an alert in case of error
 
         // Reset the long-lived token
-        val updatedIntegrationAccountInfoByUserId = integrationAccountInfoByUserIdRepository.save(
+        val updatedIntegrationAccountInfoByUserId = saveIntegrationAccountInfoByUserId(
             integrationAccountInfoByUserId.copy(
                 authorizationCode = null,
                 shortLivedAccessToken = null,
@@ -142,13 +246,15 @@ class IntegrationProvider {
     }
 
     fun ingestAllInstagramPosts(key: String) {
+        logger.info("Ingest all instagram posts for key: $key")
         val parsedKeyForIntegrationAccountInfoByUserId = UDKeyBuilder.parseJobKeyForIntegrationAccountInfoByUserId(key)
         val integrationAccountInfoByUserId = integrationProvider.getIntegrationAccountInfoByUserId(parsedKeyForIntegrationAccountInfoByUserId.userId, IntegrationPlatform.valueOf(parsedKeyForIntegrationAccountInfoByUserId.platform), parsedKeyForIntegrationAccountInfoByUserId.accountId)
             ?: error("Failed to find integrationAccountInfoByUserId for key: $key in ingestAllInstagramPosts")
         // VERY-CRITICAL Raise an alert in case of error
 
         // Start the ingestion
-        ingestAllInstagramPosts(integrationAccountInfoByUserId)
+        ingestAllInstagramPostsAsync(integrationAccountInfoByUserId)
+        logger.info("Ingest all instagram posts for key: $key completed")
     }
 
     fun updateIngestionState(request: UpdateIngestionStateRequest): UpdateIngestionStateResponse {
@@ -156,7 +262,7 @@ class IntegrationProvider {
             ?: error("Failed to find integrationAccountInfoByUserId for request: $request")
         // VERY-CRITICAL Raise an alert in case of error
         // Update the entry for the info about integration
-        val updatedData = integrationAccountInfoByUserIdRepository.save(
+        val updatedData = saveIntegrationAccountInfoByUserId(
             integrationAccountInfoByUserId.copy(
                 pauseIngestion = request.shouldPause,
             )
@@ -166,18 +272,18 @@ class IntegrationProvider {
 
         return UpdateIngestionStateResponse(
             request.userId,
-            request.accountId,
-            request.platform,
-            updatedData.pauseIngestion && processingDone
+            updatedData.toIntegrationAccountResponse()
         )
     }
 
-
     fun refreshInstagramLongLivedToken(key: String) {
+        logger.info("Refreshing Instagram long-lived token for key: $key")
         val parsedKeyForIntegrationAccountInfoByUserId = UDKeyBuilder.parseJobKeyForIntegrationAccountInfoByUserId(key)
         val integrationAccountInfoByUserId = getIntegrationAccountInfoByUserId(parsedKeyForIntegrationAccountInfoByUserId.userId, IntegrationPlatform.valueOf(parsedKeyForIntegrationAccountInfoByUserId.platform), parsedKeyForIntegrationAccountInfoByUserId.accountId)
             ?: error("Failed to find integrationAccountInfoByUserId for key: $key")
         // VERY-CRITICAL Raise an alert in case of error
+
+        logger.info("Old long-lived token: ${integrationAccountInfoByUserId.longLivedAccessToken}")
 
         // Refresh the long-lived token
         val instagramLongLivedAccessTokenResponse = refreshLongLivedToken(integrationAccountInfoByUserId)
@@ -185,11 +291,15 @@ class IntegrationProvider {
         // VERY-CRITICAL Raise an alert in case of error
 
         // Update the entry for the info about integration
-        integrationAccountInfoByUserIdRepository.save(
+        saveIntegrationAccountInfoByUserId(
             integrationAccountInfoByUserId.copy(
                 longLivedAccessToken = instagramLongLivedAccessTokenResponse.instagramAccessToken,
             )
         )
+
+        logger.info("New long-lived token: ${instagramLongLivedAccessTokenResponse.instagramAccessToken}")
+
+        logger.info("Refreshed Instagram long-lived token for key: $key")
     }
 
     private fun getAllExternalIngestionPauseInfo(userId: String, platform: IntegrationPlatform, accountId: String): List<ExternalIngestionPauseInfo> {
@@ -224,45 +334,24 @@ class IntegrationProvider {
             request.postIdsNotWanted.mapNotNull {
                 getInstagramPost(request.userId, request.accountId, it)
             }.map {
-                instagramPostsRepository.save(it.copy(state = InstagramPostProcessingState.DOES_NOT_WANT_TO_INGEST))
+                saveInstagramPost(it.copy(state = InstagramPostProcessingState.DOES_NOT_WANT_TO_INGEST))
             }
             // Do not process now. Just schedule the processing job
 //            processAllInstagramPosts(userId = request.userId, accountId = request.accountId)
 
+            val integrationAccountInfoByUserId = getIntegrationAccountInfoByUserId(request.userId, IntegrationPlatform.INSTAGRAM, request.accountId)
+            integrationAccountInfoByUserId?.let {
+                logger.info("Starting Instagram ingestion for userId: ${request.userId}, accountId: ${request.accountId}")
+                saveIntegrationAccountInfoByUserId(
+                    it.copy(firstIngestionDone = true)
+                )
+                ingestAllInstagramPostsAsync(integrationAccountInfoByUserId)
+            }
         }
     }
 
-    private fun processNewAccountConnect(instagramAuthProcessingByUserId: InstagramAuthProcessingByUserId) {
-        GlobalScope.launch {
-            try {
-                var integrationAccountInfoByUserId = shortLivedToken(instagramAuthProcessingByUserId)
-
-                // Generate the long-lived token
-                val instagramLongLivedAccessTokenResponse = generateLongLivedToken(integrationAccountInfoByUserId)
-                    ?: error("Failed to generate long-lived token for userId: ${instagramAuthProcessingByUserId.userId}")
-                // VERY-CRITICAL Raise an alert in case of error
-
-                // Update the entry for the info about integration
-                integrationAccountInfoByUserId = integrationAccountInfoByUserIdRepository.save(
-                    integrationAccountInfoByUserId.copy(
-                        longLivedAccessToken = instagramLongLivedAccessTokenResponse.instagramAccessToken,
-                        expiresIn = instagramLongLivedAccessTokenResponse.expiresIn,
-                    )
-                )
-
-                scheduleJobs(integrationAccountInfoByUserId)
-
-                instagramAuthProcessingByUserIdRepository.save(
-                    instagramAuthProcessingByUserId.copy(state = InstagramAuthProcessingState.SUCCESS)
-                )
-            } catch (e: Exception) {
-                logger.error("Error while processNewAccountConnect for userId: ${instagramAuthProcessingByUserId.userId}")
-                e.printStackTrace()
-                instagramAuthProcessingByUserIdRepository.save(
-                    instagramAuthProcessingByUserId.copy(state = InstagramAuthProcessingState.FAILED)
-                )
-            }
-        }
+    fun saveInstagramPost(instagramPost: InstagramPost): InstagramPost {
+        return instagramPostsRepository.save(instagramPost)
     }
 
     fun scheduleJobs(integrationAccountInfoByUserId: IntegrationAccountInfoByUserId) {
@@ -277,14 +366,25 @@ class IntegrationProvider {
         udJobProvider.scheduleInstagramPostIngestion(integrationAccountInfoByUserId, DateUtils.convertHoursToSeconds(6))
     }
 
-    private fun shortLivedToken(instagramAuthProcessingByUserId: InstagramAuthProcessingByUserId): IntegrationAccountInfoByUserId {
-        // Generate the short-lived token
-        val instagramShortLivedAccessTokenResponse = generateShortLivedToken(instagramAuthProcessingByUserId)
-            ?: error("Failed to generate short-lived token for userId: ${instagramAuthProcessingByUserId.userId}")
-        // VERY-CRITICAL Raise an alert in case of error
+    private fun saveAndGetShortLivedAccessTokenResponse(instagramAuthProcessingByUserId: InstagramAuthProcessingByUserId, instagramShortLivedAccessTokenResponse: InstagramShortLivedAccessTokenResponse): ShortLivedAccessTokenResponse {
+
+        val allExistingAccountInfo = getAllIntegrationAccountInfoByPlatformAccountId(instagramShortLivedAccessTokenResponse.instagramUserId)
+        val instagramAccounts = allExistingAccountInfo.filter { it.platform == IntegrationPlatform.INSTAGRAM }
+        if (instagramAccounts.isNotEmpty()) {
+            val userIds = instagramAccounts.map { it.userId }
+
+            if (userIds.contains(instagramAuthProcessingByUserId.userId).not()) {
+                logger.error("Account Id: ${instagramShortLivedAccessTokenResponse.instagramUserId} is already in use by another userId: ${instagramAuthProcessingByUserId.userId}")
+                return ShortLivedAccessTokenResponse(
+                    model = null,
+                    error = true,
+                    errorMessage = "Account Id: ${instagramShortLivedAccessTokenResponse.instagramUserId} is already in use by another userId: ${instagramAuthProcessingByUserId.userId}",
+                )
+            }
+        }
 
         // Save an entry for the info about integration
-        return integrationAccountInfoByUserIdRepository.save(
+        val result = saveIntegrationAccountInfoByUserId(
             IntegrationAccountInfoByUserId(
                 userId = instagramAuthProcessingByUserId.userId,
                 platform = IntegrationPlatform.INSTAGRAM,
@@ -295,23 +395,60 @@ class IntegrationProvider {
                 authorizationCode = instagramAuthProcessingByUserId.code,
             )
         )
+
+        return ShortLivedAccessTokenResponse(
+            model = result,
+            error = false,
+            errorMessage = "Account Id: ${instagramShortLivedAccessTokenResponse.instagramUserId} is already in use by another userId: ${instagramAuthProcessingByUserId.userId}",
+        )
     }
 
     private fun generateShortLivedToken(instagramAuthProcessingByUserId: InstagramAuthProcessingByUserId): InstagramShortLivedAccessTokenResponse? {
         return try {
+
+//
+//
+//            val uri = "https://api.instagram.com/oauth/access_token"
+//
+//            val restTemplate = RestTemplate()
+//            val headers = HttpHeaders()
+//            headers.setContentType(MediaType.APPLICATION_JSON)
+//            val map: MultiValueMap<String, String> = LinkedMultiValueMap()
+////            map.add("id", "1")
+//            map.add("client_id", integrationProperties.instagram.appId)
+//            map.add("client_secret", integrationProperties.instagram.appSecret)
+//            map.add("code", instagramAuthProcessingByUserId.code)
+//            map.add("grant_type", "authorization_code")
+//            map.add("redirect_uri", integrationProperties.instagram.redirectUri)
+//            val request: HttpEntity<MultiValueMap<String, String>> = HttpEntity(map, headers)
+//            val restResponse: ResponseEntity<String> = restTemplate.postForEntity(
+//                uri, request,
+//                String::class.java
+//            )
+////            Assertions.assertEquals(response.statusCode, HttpStatus.CREATED)
+//
+//            logger.info("Response: ${restResponse.body}")
+
             val body = JSONObject()
             body.append("client_id", integrationProperties.instagram.appId)
             body.append("client_secret", integrationProperties.instagram.appSecret)
             body.append("code", instagramAuthProcessingByUserId.code)
             body.append("grant_type", "authorization_code")
             body.append("redirect_uri", integrationProperties.instagram.redirectUri)
-            val response: HttpResponse<JsonNode> = Unirest.post("https://api.instagram.com/oauth/access_token")
-                .body(body)
+            val response: HttpResponse<JsonNode> = Unirest
+                .post("https://api.instagram.com/oauth/access_token")
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .field("client_id", integrationProperties.instagram.appId)
+                .field("client_secret", integrationProperties.instagram.appSecret)
+                .field("code", instagramAuthProcessingByUserId.code)
+                .field("grant_type", "authorization_code")
+                .field("redirect_uri", integrationProperties.instagram.redirectUri)
                 .asJson()
+            logger.info("Instagram short-lived token response: ${response.toString()}")
             if (response.status == 200 && response.body.`object`.has("access_token") && response.body.`object`.has("user_id")) {
                 InstagramShortLivedAccessTokenResponse(
                     instagramAccessToken = response.body.`object`.getString("access_token"),
-                    instagramUserId = response.body.`object`.getString("user_id"),
+                    instagramUserId = response.body.`object`.get("user_id").toString(),
                 )
             } else {
                 logger.error("Failed to generate short-lived token for userId: ${instagramAuthProcessingByUserId.userId}")
@@ -326,11 +463,13 @@ class IntegrationProvider {
 
     private fun generateLongLivedToken(integrationAccountInfoByUserId: IntegrationAccountInfoByUserId): InstagramLongLivedAccessTokenResponse? {
         return try {
-            val response: HttpResponse<JsonNode> = Unirest.get("https://graph.instagram.com/access_token")
-                .routeParam("client_secret", integrationProperties.instagram.appSecret)
-                .routeParam("grant_type", "ig_exchange_token")
-                //Here we need to send Short lived token as this is the first time we are generating the token
-                .routeParam("access_token", integrationAccountInfoByUserId.shortLivedAccessToken)
+            val response: HttpResponse<JsonNode> = Unirest
+                .get("https://graph.instagram.com/access_token?client_secret=${integrationProperties.instagram.appSecret}&grant_type=ig_exchange_token&access_token=${integrationAccountInfoByUserId.shortLivedAccessToken}")
+                .header("Content-Type", "application/x-www-form-urlencoded")
+//                .routeParam("client_secret", integrationProperties.instagram.appSecret)
+//                .routeParam("grant_type", "ig_exchange_token")
+//                //Here we need to send Short lived token as this is the first time we are generating the token
+//                .routeParam("access_token", integrationAccountInfoByUserId.shortLivedAccessToken)
                 .asJson()
             parseLongLivedTokenResponse(response)
         } catch (e: Exception) {
@@ -342,10 +481,12 @@ class IntegrationProvider {
 
     private fun refreshLongLivedToken(integrationAccountInfoByUserId: IntegrationAccountInfoByUserId): InstagramLongLivedAccessTokenResponse? {
         return try {
-            val response: HttpResponse<JsonNode> = Unirest.get("https://graph.instagram.com/refresh_access_token")
-                .routeParam("grant_type", "ig_refresh_token")
-                //Here we need to send Long lived token
-                .routeParam("access_token", integrationAccountInfoByUserId.longLivedAccessToken)
+            val response: HttpResponse<JsonNode> = Unirest
+                .get("https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=${integrationAccountInfoByUserId.longLivedAccessToken}")
+                .header("Content-Type", "application/x-www-form-urlencoded")
+//                .routeParam("grant_type", "ig_refresh_token")
+//                //Here we need to send Long lived token
+//                .routeParam("access_token", integrationAccountInfoByUserId.longLivedAccessToken)
                 .asJson()
             parseLongLivedTokenResponse(response)
         } catch (e: Exception) {
@@ -417,11 +558,18 @@ class IntegrationProvider {
         return true
     }
 
-    private fun ingestAllInstagramPosts(integrationAccountInfoByUserId: IntegrationAccountInfoByUserId) {
+    private fun ingestAllInstagramPostsAsync(integrationAccountInfoByUserId: IntegrationAccountInfoByUserId) {
         GlobalScope.launch {
+            ingestAllInstagramPostsSync(integrationAccountInfoByUserId)
+        }
+    }
+
+    private fun ingestAllInstagramPostsSync(integrationAccountInfoByUserId: IntegrationAccountInfoByUserId) {
+        runBlocking {
+            logger.info("Starting to ingest all instagram posts for userId: ${integrationAccountInfoByUserId.userId}, platform: ${integrationAccountInfoByUserId.platform}, accountId: ${integrationAccountInfoByUserId.accountId}")
             val posts = getAllPostsFromInstagram(integrationAccountInfoByUserId)
             val allBlockingTimeSession = getAllBlockingTimeSession(userId = integrationAccountInfoByUserId.userId, platform = integrationAccountInfoByUserId.platform, accountId = integrationAccountInfoByUserId.accountId)
-            posts.chunked(10).map {
+            posts.chunked(5).map {
                 async {
                     it.map {
                         async {
@@ -448,6 +596,7 @@ class IntegrationProvider {
             }.map {
                 it.await()
             }
+            logger.info("Finished ingesting all instagram posts for userId: ${integrationAccountInfoByUserId.userId}, platform: ${integrationAccountInfoByUserId.platform}, accountId: ${integrationAccountInfoByUserId.accountId}")
         }
     }
 
@@ -464,17 +613,18 @@ class IntegrationProvider {
             null
         }
 
-    private fun getAllInstagramPost(userId: String, accountId: String): List<InstagramPost> =
-        try {
-            instagramPostsRepository.findAllByUserIdAndAccountId(userId, accountId)
-        } catch (e: Exception) {
-            logger.error("Getting InstagramPosts for $userId failed.")
-            e.printStackTrace()
-            emptyList()
-        }
+//    private fun getAllInstagramPost(userId: String, accountId: String): List<InstagramPost> =
+//        try {
+//            instagramPostsRepository.findAllByUserIdAndAccountId(userId, accountId)
+//        } catch (e: Exception) {
+//            logger.error("Getting InstagramPosts for $userId failed.")
+//            e.printStackTrace()
+//            emptyList()
+//        }
 
     private fun save(integrationAccountInfoByUserId: IntegrationAccountInfoByUserId, response: InstagramPostResponse) : InstagramPost? {
         try {
+            logger.info("Saving InstagramPost for ${response.id}")
             val existing = getInstagramPost(integrationAccountInfoByUserId.userId, integrationAccountInfoByUserId.accountId, response.id)
             existing?.let {
                 logger.warn("Trying to save existing post: ${response.id}. So returning the already saved one.")
@@ -507,7 +657,8 @@ class IntegrationProvider {
                 username = response.username,
                 children = childrenResponse.convertToString(),
             )
-            return instagramPostsRepository.save(instagramPost)
+            logger.info("Saving InstagramPost for ${response.id}")
+            return saveInstagramPost(instagramPost)
         } catch (e: Exception) {
             e.printStackTrace()
             return null
@@ -542,10 +693,11 @@ class IntegrationProvider {
     private fun processSavedInstagramPost(instagramPost: InstagramPost, allBlockingTimeSession: List<ExternalIngestionPauseInfo>) {
         GlobalScope.launch {
             try {
+                logger.info("Processing InstagramPost for ${instagramPost.postId}")
                 val isPostWithinBlockedTime = getIsPostWithinBlockedTime(instagramPost, allBlockingTimeSession)
                 if (isPostWithinBlockedTime) {
                     logger.error("CurrentState: ${instagramPost.state}. The instagram post was created during the blocked time so do not process this InstagramPost ${instagramPost.postId} for Unbox: ${instagramPost.state}")
-                    instagramPostsRepository.save(instagramPost.copy(state = InstagramPostProcessingState.BLOCKED_FOR_INGESTION))
+                    saveInstagramPost(instagramPost.copy(state = InstagramPostProcessingState.BLOCKED_FOR_INGESTION))
                     return@launch
                 }
 
@@ -585,30 +737,31 @@ class IntegrationProvider {
                             (mediaTypes.size == 1 && mediaTypes.first() == InstagramMediaType.VIDEO.name)) {
                             logger.error("Post is not supported: $mediaTypes")
                             instagramPost.state = InstagramPostProcessingState.NOT_SUPPORTED
-                            instagramPostsRepository.save(instagramPost)
+                            saveInstagramPost(instagramPost)
                             return@launch
                         }
 
                         // Create Unbox Post from Instagram Post
                         val wasRetrying = instagramPost.state == InstagramPostProcessingState.FAILED
                         instagramPost.state = InstagramPostProcessingState.PROCESSING
-                        var updatedInstagramPost = instagramPostsRepository.save(instagramPost)
+                        var updatedInstagramPost = saveInstagramPost(instagramPost)
                         val unboxPost = postProvider.createPost(updatedInstagramPost)
 
                         if (unboxPost == null) {
                             logger.error("Unbox Post creation failed for InstagramPost: ${instagramPost.postId}")
                             instagramPost.state = if (wasRetrying) InstagramPostProcessingState.FAILED_RETRY else InstagramPostProcessingState.FAILED
-                            updatedInstagramPost = instagramPostsRepository.save(instagramPost)
+                            updatedInstagramPost = saveInstagramPost(instagramPost)
                             // Send for retry
                             logger.warn("Sending for retrying Unbox Post creation for InstagramPost: ${instagramPost.postId}")
                             processSavedInstagramPost(updatedInstagramPost, allBlockingTimeSession)
                         } else {
                             logger.info("Unbox Post creation successful for InstagramPost: ${instagramPost.postId}")
                             instagramPost.state = InstagramPostProcessingState.SUCCESS
-                            instagramPostsRepository.save(instagramPost)
+                            saveInstagramPost(instagramPost)
                         }
                     }
                 }
+                logger.info("Processing InstagramPost: ${instagramPost.postId} completed.")
             } catch (e: Exception) {
                 e.printStackTrace()
                 logger.error("InstagramPost processing failed for postId: ${instagramPost.postId}")
@@ -617,6 +770,7 @@ class IntegrationProvider {
     }
 
     private fun getAllPostsFromInstagram(integrationAccountInfoByUserId: IntegrationAccountInfoByUserId): List<InstagramPostResponse> {
+        logger.info("Getting all posts from Instagram for userId: ${integrationAccountInfoByUserId.userId}")
         val result = mutableListOf<InstagramPostResponse>()
         val accountId = integrationAccountInfoByUserId.accountId
         val token = integrationAccountInfoByUserId.longLivedAccessToken ?: error("Missing longLivedAccessToken for userId: ${integrationAccountInfoByUserId.userId}")
@@ -630,17 +784,36 @@ class IntegrationProvider {
             // Keep getting the data until the response has no next pagination
             result.addAll(response.data)
             while (response?.paging?.next != null) {
-                val url = response.paging?.next!!
-                response = getInstagramPostsPaginatedResponse(url)
+                val pageSize = 25
+                val after = response.paging?.cursors?.after
+                val nextUrl = "$startupLink&limit=$pageSize&after=$after"
+                response = getInstagramPostsPaginatedResponse(nextUrl)
                 if (response != null) {
                     result.addAll(response.data)
                 }
             }
         }
-        integrationAccountInfoByUserIdRepository.save(
-            integrationAccountInfoByUserId.copy(firstIngestionDone = true)
-        )
+        // Do this after the first user approval is over
+//        saveIntegrationAccountInfoByUserIdRepository(
+//            integrationAccountInfoByUserId.copy(firstIngestionDone = true)
+//        )
+        logger.info("Successfully retrieved all posts from Instagram for userId: ${integrationAccountInfoByUserId.userId}, total posts: ${result.size}")
         return result
+    }
+
+    private fun getUserAccountInfo(integrationAccountInfoByUserId: IntegrationAccountInfoByUserId): InstagramUserInfoResponse? {
+        logger.info("Getting user info from instagram userId: ${integrationAccountInfoByUserId.userId}")
+        val accountId = integrationAccountInfoByUserId.accountId
+        val token = integrationAccountInfoByUserId.longLivedAccessToken ?: error("Missing longLivedAccessToken for userId: ${integrationAccountInfoByUserId.userId}")
+        return try {
+            val uri = "https://graph.instagram.com/v13.0/${accountId}?fields=id,username,account_type&access_token=${token}"
+            val restTemplate = RestTemplate()
+            restTemplate.getForObject(uri, InstagramUserInfoResponse::class.java) ?: error("Error while getting user info for accountId: $accountId")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            logger.error("Error while getting user info for accountId: $accountId")
+            null
+        }
     }
 
     private fun getInstagramPostsPaginatedResponse(uri: String): InstagramPostsPaginatedResponse? {
@@ -666,6 +839,29 @@ class IntegrationProvider {
             logger.error("Error while getting children data for postId: $postId")
             null
         }
+    }
+
+    fun getInstagramPosts(request: GetInstagramPostsRequest): AllInstagramPostsResponse {
+        val result = getInstagramPostsByUser(request)
+        return AllInstagramPostsResponse(
+            posts = result.content?.filterNotNull()?.map { it.toSavedInstagramPostResponse() } ?: emptyList(),
+            count = result.count,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
+    }
+
+    private fun getInstagramPostsByUser(request: GetInstagramPostsRequest): CassandraPageV2<InstagramPost> {
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
+        val posts = instagramPostsRepository.findAllByUserIdAndAccountId(request.userId, request.accountId, pageRequest as Pageable)
+        return CassandraPageV2(posts)
+    }
+
+    fun getAllIntegrationAccountsForUser(): AllIntegrationAccountsResponse? {
+        val userDetailsFromToken = securityProvider.validateRequest()
+        return AllIntegrationAccountsResponse(
+            accounts = getIntegrationAccountInfoByUserId(userDetailsFromToken.getUserIdToUse()).map { it.toIntegrationAccountResponse() }
+        )
     }
 
 }

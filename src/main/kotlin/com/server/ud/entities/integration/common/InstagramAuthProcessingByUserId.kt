@@ -26,14 +26,3 @@ data class InstagramAuthProcessingByUserId (
     @CassandraType(type = CassandraType.Name.TIMESTAMP)
     var createdAt: Instant = DateUtils.getInstantNow(),
 )
-
-fun InstagramAuthProcessingByUserId.toConnectInstagramAccountResponse(): ConnectInstagramAccountResponse {
-    this.apply {
-        return ConnectInstagramAccountResponse(
-            userId = userId,
-            code = code,
-            state = state,
-            createdAt = DateUtils.getEpoch(createdAt),
-        )
-    }
-}

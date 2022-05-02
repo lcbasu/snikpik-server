@@ -150,6 +150,15 @@ data class InstagramPostResponse(
     var username: String? = null,
 )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class InstagramUserInfoResponse(
+    val id: String,
+    var username: String,
+
+    @JsonProperty("account_type")
+    var accountType: String? = null,
+)
+
 fun InstagramPostChildrenResponse?.convertToString(): String {
     this.apply {
         return try {

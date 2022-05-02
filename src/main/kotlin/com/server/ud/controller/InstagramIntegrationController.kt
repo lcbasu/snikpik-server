@@ -4,10 +4,7 @@ import com.server.ud.dto.*
 import com.server.ud.service.integration.IntegrationService
 import io.micrometer.core.annotation.Timed
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestMethod
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @Timed
@@ -37,4 +34,23 @@ class InstagramIntegrationController {
         return integrationService.updateIngestionState(request)
     }
 
+    @RequestMapping(value = ["/getInstagramPosts"], method = [RequestMethod.GET])
+    fun getInstagramPosts(@RequestParam userId: String,
+                          @RequestParam accountId: String,
+                          @RequestParam limit: Int,
+                          @RequestParam pagingState: String?): AllInstagramPostsResponse {
+        return integrationService.getInstagramPosts(
+            GetInstagramPostsRequest(
+                userId,
+                accountId,
+                limit,
+                pagingState
+            )
+        )
+    }
+
+    @RequestMapping(value = ["/getAllIntegrationAccountsForUser"], method = [RequestMethod.GET])
+    fun getAllIntegrationAccountsForUser(): AllIntegrationAccountsResponse? {
+        return integrationService.getAllIntegrationAccountsForUser()
+    }
 }

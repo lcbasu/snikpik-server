@@ -7,4 +7,6 @@ abstract class IntegrationService {
     abstract fun disconnect(request: DisconnectInstagramAccountRequest): DisconnectInstagramAccountResponse
     abstract fun startProcessingAfterUserApproval(request: StartInstagramIngestionRequest): StartedInstagramIngestionResponse
     abstract fun updateIngestionState(request: UpdateIngestionStateRequest): UpdateIngestionStateResponse
+    abstract fun getInstagramPosts(request: GetInstagramPostsRequest): AllInstagramPostsResponse
+    abstract fun getAllIntegrationAccountsForUser(): AllIntegrationAccountsResponse?
 }
