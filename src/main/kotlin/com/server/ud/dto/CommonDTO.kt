@@ -2,6 +2,7 @@ package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.server.common.utils.CommonUtils
+import com.server.ud.entities.view.ResourceViewsCountByResource
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 
@@ -71,6 +72,11 @@ data class ResourceViewsReportDetail(
     val userLevelInfo: ResourceViewsReportDetailForUser?
 )
 
+data class ResourceViewsCountResponse(
+    val resourceId: String,
+    val views: Long,
+)
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SaveResourceViewRequest(
     val resourceId: String,
@@ -88,6 +94,15 @@ fun String.toResourceViewRequest(): ResourceViewRequest {
         return ResourceViewRequest(
             userId = split[0],
             resourceId = split[1],
+        )
+    }
+}
+
+fun ResourceViewsCountByResource.toResourceViewsCountResponse(): ResourceViewsCountResponse {
+    this.apply {
+        return ResourceViewsCountResponse(
+            resourceId = resourceId ?: "",
+            views = viewsCount ?: 0,
         )
     }
 }

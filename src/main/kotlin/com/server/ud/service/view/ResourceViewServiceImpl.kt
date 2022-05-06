@@ -1,10 +1,7 @@
 package com.server.ud.service.view
 
 import com.server.common.provider.SecurityProvider
-import com.server.ud.dto.ResourceViewRequest
-import com.server.ud.dto.ResourceViewsReportDetail
-import com.server.ud.dto.ResourceViewsReportDetailForUser
-import com.server.ud.dto.toResourceViewId
+import com.server.ud.dto.*
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.view.ResourceViewByUserProvider
 import com.server.ud.provider.view.ResourceViewsCountByResourceProvider
@@ -57,5 +54,9 @@ class ResourceViewServiceImpl : ResourceViewService() {
                 )
             }
         )
+    }
+
+    override fun getResourceViewsCount(resourceId: String): ResourceViewsCountResponse? {
+        return resourceViewsCountByResourceProvider.getResourceViewsCountByResource(resourceId)?.toResourceViewsCountResponse()
     }
 }

@@ -2,6 +2,7 @@ package com.server.ud.controller
 
 import com.server.common.provider.SecurityProvider
 import com.server.ud.dto.ResourceViewRequest
+import com.server.ud.dto.ResourceViewsCountResponse
 import com.server.ud.dto.ResourceViewsReportDetail
 import com.server.ud.dto.SaveResourceViewRequest
 import com.server.ud.enums.ResourceType
@@ -34,5 +35,10 @@ class ResourceViewController {
     @RequestMapping(value = ["/getResourceViewsDetail"], method = [RequestMethod.GET])
     fun getResourceViewsDetail(@RequestParam resourceId: String): ResourceViewsReportDetail {
         return resourceViewService.getResourceViewsDetail(resourceId)
+    }
+
+    @RequestMapping(value = ["/getResourceViewsCount"], method = [RequestMethod.GET])
+    fun getResourceViewsCount(@RequestParam resourceId: String): ResourceViewsCountResponse? {
+        return resourceViewService.getResourceViewsCount(resourceId)
     }
 }
