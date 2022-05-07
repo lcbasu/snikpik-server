@@ -27,6 +27,7 @@ class ResourceViewByUserProvider {
                 resourceId = request.resourceId,
             )
             // Get the first result as that is the most recent one
+            logger.info("ResourceViewByUserProvider.getLastView: result: $result")
             result?.firstOrNull()
         } catch (e: Exception) {
             logger.error("Getting views for userId: ${request.userId} & resourceId: ${request.resourceId} failed.")
@@ -41,6 +42,8 @@ class ResourceViewByUserProvider {
             val isLastViewRecent = lastView?.let {
                 val lastViewTime = it.createdAt
                 val currentTime = DateUtils.getInstantNow()
+                logger.info("ResourceViewByUserProvider save: lastViewTime: $lastViewTime, currentTime: $currentTime")
+                logger.info("ResourceViewByUserProvider save: lastViewTime.plusSeconds(timeBetweenUniqueViewsInMinutes.toLong() * 60): ${lastViewTime.plusSeconds(timeBetweenUniqueViewsInMinutes.toLong() * 60)}")
                 lastViewTime.plusSeconds(timeBetweenUniqueViewsInMinutes.toLong() * 60).isAfter(currentTime)
             } ?: false
             if (isLastViewRecent) {
