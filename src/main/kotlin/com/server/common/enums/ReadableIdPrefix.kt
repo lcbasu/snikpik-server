@@ -38,5 +38,7 @@ enum class ReadableIdPrefix {
 
     SFL, // Save For Later
     PBK, // Product Bookmark
+
+    LIV, // Live Stream
 }
 

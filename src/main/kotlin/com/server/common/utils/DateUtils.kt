@@ -8,9 +8,25 @@ import java.time.temporal.TemporalAdjusters
 import java.util.*
 import kotlin.math.floor
 
+data class DateSplitForKey (
+    val actualDate: LocalDateTime,
+    val forSecond: String,
+    val forMinute: String,
+    val forHour: String,
+    val forDate: String,
+    val forWeek: String,
+    val forMonth: String,
+    val forYear: String,
+)
+
 object DateUtils {
+    private const val standardForSecondFormatter = "yyyy-MM-dd-HH-mm-ss"
+    private const val standardForMinuteFormatter = "yyyy-MM-dd-HH-mm"
+    private const val standardForHourFormatter = "yyyy-MM-dd-HH"
     private const val standardForDateFormatter = "yyyy-MM-dd"
+//    private const val standardForWeekFormatter = "yyyy-W-w"
     private const val standardForMonthFormatter = "yyyy-MM"
+    private const val standardForYearFormatter = "yyyy"
     private const val standardTimeZoneId = "UTC"
     private val standardZoneOffset = ZoneOffset.UTC
     private val HOURS_IN_DAY = 24
@@ -80,20 +96,51 @@ object DateUtils {
     fun getInstantDateTime(forInstant: Instant): LocalDateTime =
         parseEpochInMilliseconds(forInstant.toEpochMilli())
 
-    fun toStringForDate(dateTime: LocalDateTime): String =
-        dateTime.format(DateTimeFormatter.ofPattern(standardForDateFormatter))
-
     fun toStringForDate(date: LocalDate): String =
         date.format(DateTimeFormatter.ofPattern(standardForDateFormatter))
 
-    fun toStringForDateDefault(): String =
-        dateTimeNow().format(DateTimeFormatter.ofPattern(standardForDateFormatter))
+    fun toStringForSecond(dateTime: LocalDateTime): String =
+        dateTime.format(DateTimeFormatter.ofPattern(standardForSecondFormatter))
+
+    fun toStringForMinute(dateTime: LocalDateTime): String =
+        dateTime.format(DateTimeFormatter.ofPattern(standardForMinuteFormatter))
+
+    fun toStringForHour(dateTime: LocalDateTime): String =
+        dateTime.format(DateTimeFormatter.ofPattern(standardForHourFormatter))
+
+    fun toStringForDate(dateTime: LocalDateTime): String =
+        dateTime.format(DateTimeFormatter.ofPattern(standardForDateFormatter))
+
+    fun toStringForWeek(dateTime: LocalDateTime): String {
+        val week = dateTime.dayOfWeek.value
+        val year = toStringForYear(dateTime)
+        return "$year-W-$week"
+    }
 
     fun toStringForMonth(dateTime: LocalDateTime): String =
         dateTime.format(DateTimeFormatter.ofPattern(standardForMonthFormatter))
 
+    fun toStringForYear(dateTime: LocalDateTime): String =
+        dateTime.format(DateTimeFormatter.ofPattern(standardForYearFormatter))
+
+
+    fun toStringForDateDefault(): String =
+        dateTimeNow().format(DateTimeFormatter.ofPattern(standardForDateFormatter))
+
     fun toStringForMonth(date: LocalDate): String =
         date.format(DateTimeFormatter.ofPattern(standardForMonthFormatter))
+
+    fun getDateSplitForKey(dateTime: LocalDateTime) =
+        DateSplitForKey(
+            actualDate = dateTime,
+            forSecond = toStringForSecond(dateTime),
+            forMinute = toStringForMinute(dateTime),
+            forHour = toStringForHour(dateTime),
+            forDate = toStringForDate(dateTime),
+            forWeek = toStringForWeek(dateTime),
+            forMonth = toStringForMonth(dateTime),
+            forYear = toStringForYear(dateTime),
+        )
 
     fun toLocalDate(dateTime: LocalDateTime): LocalDate = dateTime.toLocalDate()
 
@@ -186,4 +233,5 @@ object DateUtils {
     fun convertHoursToSeconds(hours: Long): Long {
         return hours * MINUTES_IN_HOUR * SECONDS_IN_MINUTE
     }
+
 }
