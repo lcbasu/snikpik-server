@@ -23,4 +23,8 @@ class LiveStreamServiceImpl : LiveStreamService() {
         return liveStreamProvider.get(streamId)?.toSavedLiveStreamResponse()
     }
 
+    override fun streamJoinedOrLeft(request: LiveStreamJoinedOrLeftRequest) {
+        return liveStreamProvider.streamJoinedOrLeft(request)
+    }
+
 }

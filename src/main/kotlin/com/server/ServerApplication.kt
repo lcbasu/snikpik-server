@@ -16,6 +16,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 	AblyProperties::class,
 	BugsnagProperties::class,
 	AlgoliaProperties::class,
+	AgoraProperties::class,
 	CloudinaryProperties::class,
 	DatastaxProperties::class,
 	SecurityProperties::class,

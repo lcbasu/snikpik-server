@@ -37,4 +37,9 @@ class LiveStreamController {
             )
         )
     }
+
+    @RequestMapping(value = ["/streamJoinedOrLeft"], method = [RequestMethod.POST])
+    fun streamJoinedOrLeft(@RequestBody request: LiveStreamJoinedOrLeftRequest) {
+        return liveStreamService.streamJoinedOrLeft(request)
+    }
 }

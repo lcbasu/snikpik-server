@@ -6,6 +6,11 @@ algolia:
   post-index: ${ALGOLIA_POST_INDEX}
   user-index: ${ALGOLIA_USER_INDEX}
   post-autosuggest-index: ${ALGOLIA_POST_AUTO_SUGGEST_INDEX}
+agora:
+  app-id: ${AGORA_APP_ID}
+  certificate: ${AGORA_CERTIFICATE}
+  customer-key: ${AGORA_CUSTOMER_KEY}
+  customer-secret: ${AGORA_CUSTOMER_SECRET}
 cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME}
   api-key: ${CLOUDINARY_API_KEY}

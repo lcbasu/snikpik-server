@@ -94,6 +94,15 @@ data class AlgoliaProperties(
 )
 
 @ConstructorBinding
+@ConfigurationProperties("agora")
+data class AgoraProperties(
+    val appId: String,
+    val certificate: String,
+    val customerKey: String,
+    val customerSecret: String,
+)
+
+@ConstructorBinding
 @ConfigurationProperties("bugsnag")
 data class BugsnagProperties(val unboxServerApiKey: String)
 

@@ -4,6 +4,7 @@ import com.server.common.model.MediaDetailsV2
 import com.server.common.model.getMediaDetailsFromJsonString
 import com.server.common.utils.DateUtils
 import com.server.ud.entities.live_stream.LiveStream
+import com.server.ud.enums.LiveStreamJoinStatus
 import com.server.ud.enums.LiveStreamPlatform
 
 data class SaveLiveStreamRequest (
@@ -26,6 +27,23 @@ data class SavedLiveStreamResponse (
     val title: String,
     val subTitle: String,
     val createdAt: Long,
+)
+
+data class LiveStreamJoinedOrLeftRequest (
+    val streamId: String,
+    val liveStreamJoinStatus: LiveStreamJoinStatus,
+)
+
+data class LiveStreamChatMessage (
+    val liveStreamData: SavedLiveStreamResponse,
+    val createdAt: Long,
+    val senderUserId: String,
+    val text: String?,
+    val media: MediaDetailsV2? = null,
+)
+
+data class LiveStreamMetadataResponse(
+    val totalAudience: Long,
 )
 
 data class AllActiveLiveStreamsRequestResponse (

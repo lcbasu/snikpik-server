@@ -1,18 +1,23 @@
 package com.server.ud.provider.live_stream
 
+import com.google.firebase.cloud.FirestoreClient
+import com.mashape.unirest.http.HttpResponse
+import com.mashape.unirest.http.JsonNode
+import com.mashape.unirest.http.Unirest
+import com.server.common.client.AgoraClient
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.convertToString
+import com.server.common.properties.AgoraProperties
 import com.server.common.provider.SecurityProvider
 import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.live_stream.LiveStreamRepository
-import com.server.ud.dto.AllActiveLiveStreamsRequestResponse
-import com.server.ud.dto.GetAllActiveLiveStreamsRequest
-import com.server.ud.dto.SaveLiveStreamRequest
-import com.server.ud.dto.toSavedLiveStreamResponse
+import com.server.ud.dto.*
 import com.server.ud.entities.live_stream.LiveStream
+import com.server.ud.enums.LiveStreamJoinStatus
 import com.server.ud.enums.LiveStreamPlatform
 import com.server.ud.pagination.CassandraPageV2
+import com.server.ud.provider.user.UserV2Provider
 import com.server.ud.utils.UDCommonUtils
 import com.server.ud.utils.pagination.PaginationRequestUtil
 import org.slf4j.Logger
@@ -37,6 +42,14 @@ class LiveStreamProvider {
 
     @Autowired
     private lateinit var uniqueIdProvider: UniqueIdProvider
+
+    @Autowired
+    private lateinit var agoraClient: AgoraClient
+
+    @Autowired
+    private lateinit var agoraProperties: AgoraProperties
+    @Autowired
+    private lateinit var userV2Provider: UserV2Provider
 
     fun getLiveStream(streamId: String): LiveStream? =
         try {
@@ -108,4 +121,52 @@ class LiveStreamProvider {
     fun get(streamId: String): LiveStream? {
         return getLiveStream(streamId)
     }
+
+    fun streamJoinedOrLeft(request: LiveStreamJoinedOrLeftRequest) {
+        val stream = getLiveStream(request.streamId)!!
+        val loggedInUserId = securityProvider.getFirebaseAuthUser()!!.getUserIdToUse()
+        val user = userV2Provider.getUser(loggedInUserId)!!
+
+        var joinedOrLeftText = "joined"
+
+        if (request.liveStreamJoinStatus == LiveStreamJoinStatus.LEFT) {
+            joinedOrLeftText = "left"
+        }
+
+        val message = LiveStreamChatMessage(
+            liveStreamData = stream.toSavedLiveStreamResponse(),
+            createdAt = DateUtils.getEpochNow(),
+            senderUserId = loggedInUserId,
+            text = "${user.fullName ?: user.handle} $joinedOrLeftText the live stream",
+        )
+
+        FirestoreClient.getFirestore()
+            .collection("live_stream_chats")
+            .document(stream.streamId)
+            .collection("chat_messages")
+            .add(message)
+
+
+        // channel name is same as streamId
+        val response: HttpResponse<JsonNode> = Unirest
+            .get("https://api.agora.io/dev/v1/channel/user/${agoraProperties.appId}/${request.streamId}")
+            .header("Authorization", agoraClient.getAuthorizationHeader())
+            .header("Content-Type", "application/json")
+            .asJson()
+
+        logger.info("Response: ${response.body.toString()}")
+
+        if (response.status == 200) {
+            FirestoreClient.getFirestore()
+                .collection("live_stream_metadata")
+                .document(stream.streamId)
+                .set(LiveStreamMetadataResponse(
+                    totalAudience = response.body.`object`.getJSONObject("data").getLong("audience_total"),
+                ))
+        } else {
+            logger.error("Failed update live stream metadata response: ${response.toString()}")
+        }
+
+    }
+
 }
