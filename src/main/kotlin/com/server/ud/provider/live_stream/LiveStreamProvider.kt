@@ -161,12 +161,27 @@ class LiveStreamProvider {
                 .collection("live_stream_metadata")
                 .document(stream.streamId)
                 .set(LiveStreamMetadataResponse(
-                    totalAudience = response.body.`object`.getJSONObject("data").getLong("audience_total"),
+                    totalAudience = getCount(request, response),
                 ))
         } else {
             logger.error("Failed update live stream metadata response: ${response.toString()}")
         }
 
+    }
+
+    fun getCount(request: LiveStreamJoinedOrLeftRequest, response: HttpResponse<JsonNode>): Long {
+        val count = try {
+            response.body.`object`.getJSONObject("data").getLong("audience_total")
+        } catch (e: Exception) {
+            val isSuccessful = response.body.`object`.getBoolean("success")
+            if (isSuccessful) {
+                0L
+            } else {
+                logger.error("Failed to get live stream count: request: ${request.toString()} response: ${response.body.toString()}")
+                throw e
+            }
+        }
+        return count
     }
 
 }
