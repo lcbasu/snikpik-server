@@ -29,6 +29,10 @@ data class SavedLiveStreamResponse (
     val createdAt: Long,
 )
 
+data class LiveStreamLikedRequest (
+    val streamId: String,
+)
+
 data class LiveStreamJoinedOrLeftRequest (
     val streamId: String,
     val liveStreamJoinStatus: LiveStreamJoinStatus,
@@ -44,6 +48,10 @@ data class LiveStreamChatMessage (
 
 data class LiveStreamMetadataResponse(
     val totalAudience: Long,
+)
+
+data class LikesCountForFirebase (
+    val count: Long,
 )
 
 data class AllActiveLiveStreamsRequestResponse (

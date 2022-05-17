@@ -25,6 +25,11 @@ class LiveStreamController {
         return liveStreamService.get(streamId)
     }
 
+    @RequestMapping(value = ["/like"], method = [RequestMethod.POST])
+    fun like(@RequestBody request: LiveStreamLikedRequest) {
+        return liveStreamService.like(request)
+    }
+
     @RequestMapping(value = ["/getAllActiveLiveStreams"], method = [RequestMethod.GET])
     fun getAllActiveLiveStreams(@RequestParam liveStreamPlatform: LiveStreamPlatform,
                                 @RequestParam limit: Int,

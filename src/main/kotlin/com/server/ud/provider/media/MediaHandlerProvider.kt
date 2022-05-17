@@ -275,6 +275,9 @@ class MediaHandlerProvider {
                 ResourceType.POST, ResourceType.WALL -> postProvider.handleProcessedMedia(updatedMediaDetail)
                 ResourceType.POST_COMMENT, ResourceType.WALL_COMMENT -> commentProvider.handleProcessedMedia(updatedMediaDetail)
                 ResourceType.POST_COMMENT_REPLY, ResourceType.WALL_COMMENT_REPLY -> replyProvider.handleProcessedMedia(updatedMediaDetail)
+                ResourceType.LIVE_QUESTION -> {
+                    logger.error("Live question processing is not yet supported.")
+                }
             }
         }
     }

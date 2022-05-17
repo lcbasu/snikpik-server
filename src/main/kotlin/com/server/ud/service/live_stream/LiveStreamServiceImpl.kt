@@ -27,4 +27,8 @@ class LiveStreamServiceImpl : LiveStreamService() {
         return liveStreamProvider.streamJoinedOrLeft(request)
     }
 
+    override fun like(request: LiveStreamLikedRequest) {
+        return liveStreamProvider.like(request)
+    }
+
 }

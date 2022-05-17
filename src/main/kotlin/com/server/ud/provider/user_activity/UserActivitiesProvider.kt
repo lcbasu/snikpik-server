@@ -283,6 +283,9 @@ class UserActivitiesProvider {
                             if (post.postType == PostType.GENERIC_POST) UserActivityType.POST_COMMENT_REPLY_LIKED else UserActivityType.WALL_COMMENT_REPLY_LIKED
                         )
                     }
+                    ResourceType.LIVE_QUESTION -> {
+                        logger.error("Like processing for live question is not implemented yet.")
+                    }
                 }
             }
             userActivityFuture.await()
@@ -479,6 +482,9 @@ class UserActivitiesProvider {
                         val activityType = if (post.postType == PostType.GENERIC_POST) UserActivityType.POST_COMMENT_REPLY_LIKED else UserActivityType.WALL_COMMENT_REPLY_LIKED
 
                         deleteReplyActivities(reply.replyId, activityType)
+                    }
+                    ResourceType.LIVE_QUESTION -> {
+                        logger.error("User Activity Like processing for likeId: ${like.likeId} is not implemented for live questions")
                     }
                 }
             }

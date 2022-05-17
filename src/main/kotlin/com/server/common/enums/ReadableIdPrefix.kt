@@ -40,5 +40,7 @@ enum class ReadableIdPrefix {
     PBK, // Product Bookmark
 
     LIV, // Live Stream
+
+    QLI, // Live Question
 }
 

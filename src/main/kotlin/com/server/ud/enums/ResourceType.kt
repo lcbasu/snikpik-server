@@ -7,6 +7,7 @@ enum class ResourceType {
     WALL,
     WALL_COMMENT,
     WALL_COMMENT_REPLY,
+    LIVE_QUESTION,
 }
 
 fun getResourcePostType(postType: PostType): ResourceType {

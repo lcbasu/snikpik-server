@@ -7,5 +7,6 @@ abstract class LiveStreamService {
     abstract fun getAllActiveLiveStreams(request: GetAllActiveLiveStreamsRequest): AllActiveLiveStreamsRequestResponse?
     abstract fun get(streamId: String): SavedLiveStreamResponse?
     abstract fun streamJoinedOrLeft(request: LiveStreamJoinedOrLeftRequest)
+    abstract fun like(request: LiveStreamLikedRequest)
 
 }

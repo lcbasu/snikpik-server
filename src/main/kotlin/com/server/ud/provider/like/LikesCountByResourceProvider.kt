@@ -3,6 +3,7 @@ package com.server.ud.provider.like
 import com.google.firebase.cloud.FirestoreClient
 import com.server.ud.dao.like.LikesCountByResourceRepository
 import com.server.ud.entities.like.LikesCountByResource
+import com.server.ud.provider.live_question.LiveQuestionsByStreamProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
@@ -17,6 +18,9 @@ class LikesCountByResourceProvider {
 
     @Autowired
     private lateinit var likesCountByResourceRepository: LikesCountByResourceRepository
+
+    @Autowired
+    private lateinit var liveQuestionsByStreamProvider: LiveQuestionsByStreamProvider
 
     fun getLikesCountByResource(resourceId: String): LikesCountByResource? =
     try {
@@ -67,6 +71,9 @@ class LikesCountByResourceProvider {
                 .collection("likes_count_by_resource")
                 .document(likesCountByResource.resourceId!!)
                 .set(likesCountByResource)
+
+            // Figure out a better way without introducing dependency
+            liveQuestionsByStreamProvider.updateLikeCountForQuestionByStreamToFirestore(likesCountByResource)
         }
     }
 

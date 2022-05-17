@@ -1,5 +1,6 @@
 package com.server.ud.provider.live_stream
 
+import com.google.cloud.firestore.FieldValue
 import com.google.firebase.cloud.FirestoreClient
 import com.mashape.unirest.http.HttpResponse
 import com.mashape.unirest.http.JsonNode
@@ -20,6 +21,8 @@ import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.user.UserV2Provider
 import com.server.ud.utils.UDCommonUtils
 import com.server.ud.utils.pagination.PaginationRequestUtil
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -84,7 +87,9 @@ class LiveStreamProvider {
                 subTitle = request.subTitle,
                 createdAt = DateUtils.getInstantNow(),
             )
-            return liveStreamRepository.save(stream)
+            val result = liveStreamRepository.save(stream)
+            setLiveStreamLikeCount(result.streamId)
+            return result
         } catch (e: Exception) {
             e.printStackTrace()
             logger.error("Error in saving live stream: ${e.message} ${request.toString()}")
@@ -182,6 +187,28 @@ class LiveStreamProvider {
             }
         }
         return count
+    }
+
+    fun like(request: LiveStreamLikedRequest) {
+        increaseLiveStreamLikeCount(request.streamId)
+    }
+
+    private fun increaseLiveStreamLikeCount (streamId: String) {
+        GlobalScope.launch {
+            FirestoreClient.getFirestore()
+                .collection("likes_count_by_stream")
+                .document(streamId)
+                .update("count", FieldValue.increment(1))
+        }
+    }
+
+    private fun setLiveStreamLikeCount (streamId: String) {
+        GlobalScope.launch {
+            FirestoreClient.getFirestore()
+                .collection("likes_count_by_stream")
+                .document(streamId)
+                .set(LikesCountForFirebase(0))
+        }
     }
 
 }
