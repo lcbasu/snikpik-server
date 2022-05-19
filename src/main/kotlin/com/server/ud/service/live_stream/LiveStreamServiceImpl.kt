@@ -39,4 +39,8 @@ class LiveStreamServiceImpl : LiveStreamService() {
         return liveStreamProvider.getAllSubscribedLiveStreams(request)
     }
 
+    override fun checkSubscribed(streamId: String): LiveStreamSubscribedResponse? {
+        return liveStreamProvider.checkSubscribed(streamId)
+    }
+
 }

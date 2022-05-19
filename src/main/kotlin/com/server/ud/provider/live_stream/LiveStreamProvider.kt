@@ -289,5 +289,20 @@ class LiveStreamProvider {
         return CassandraPageV2(streams)
     }
 
+    fun checkSubscribed(streamId: String): LiveStreamSubscribedResponse? {
+        val stream = getLiveStream(streamId) ?: error("Stream not found for id: $streamId")
+        val loggedInUserId = securityProvider.getFirebaseAuthUser()?.getUserIdToUse() ?: error("User not logged in")
+
+        val subscribedResult = liveStreamSubscribedByUserRepository.findAllByStreamIdAndSubscriberUserId(
+            streamId,
+            loggedInUserId
+        )
+        return LiveStreamSubscribedResponse(
+            stream = stream.toSavedLiveStreamResponse(),
+            subscribed = subscribedResult.size == 1 && subscribedResult.first().subscribed,
+
+        )
+    }
+
 
 }

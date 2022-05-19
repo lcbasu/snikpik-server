@@ -25,6 +25,11 @@ class LiveStreamController {
         return liveStreamService.get(streamId)
     }
 
+    @RequestMapping(value = ["/checkSubscribed"], method = [RequestMethod.GET])
+    fun checkSubscribed(@RequestParam streamId: String): LiveStreamSubscribedResponse? {
+        return liveStreamService.checkSubscribed(streamId)
+    }
+
     @RequestMapping(value = ["/like"], method = [RequestMethod.POST])
     fun like(@RequestBody request: LiveStreamLikedRequest) {
         return liveStreamService.like(request)
