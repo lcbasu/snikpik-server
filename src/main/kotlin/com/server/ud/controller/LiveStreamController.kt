@@ -30,6 +30,11 @@ class LiveStreamController {
         return liveStreamService.like(request)
     }
 
+    @RequestMapping(value = ["/subscribe"], method = [RequestMethod.POST])
+    fun subscribe(@RequestBody request: LiveStreamSubscribeRequest): LiveStreamSubscribedResponse {
+        return liveStreamService.subscribe(request)
+    }
+
     @RequestMapping(value = ["/getAllActiveLiveStreams"], method = [RequestMethod.GET])
     fun getAllActiveLiveStreams(@RequestParam liveStreamPlatform: LiveStreamPlatform,
                                 @RequestParam limit: Int,
@@ -37,6 +42,17 @@ class LiveStreamController {
         return liveStreamService.getAllActiveLiveStreams(
             GetAllActiveLiveStreamsRequest(
                 liveStreamPlatform,
+                limit,
+                pagingState
+            )
+        )
+    }
+
+    @RequestMapping(value = ["/getAllSubscribedLiveStreams"], method = [RequestMethod.GET])
+    fun getAllSubscribedLiveStreams(@RequestParam limit: Int,
+                                    @RequestParam pagingState: String? = null): AllSubscribedLiveStreamsResponse? {
+        return liveStreamService.getAllSubscribedLiveStreams(
+            GetAllSubscribedStreamsRequest(
                 limit,
                 pagingState
             )

@@ -8,5 +8,7 @@ abstract class LiveStreamService {
     abstract fun get(streamId: String): SavedLiveStreamResponse?
     abstract fun streamJoinedOrLeft(request: LiveStreamJoinedOrLeftRequest)
     abstract fun like(request: LiveStreamLikedRequest)
+    abstract fun subscribe(request: LiveStreamSubscribeRequest): LiveStreamSubscribedResponse
+    abstract fun getAllSubscribedLiveStreams(request: GetAllSubscribedStreamsRequest): AllSubscribedLiveStreamsResponse?
 
 }

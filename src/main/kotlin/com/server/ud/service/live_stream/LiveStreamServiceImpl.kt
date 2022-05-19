@@ -31,4 +31,12 @@ class LiveStreamServiceImpl : LiveStreamService() {
         return liveStreamProvider.like(request)
     }
 
+    override fun subscribe(request: LiveStreamSubscribeRequest): LiveStreamSubscribedResponse {
+        return liveStreamProvider.subscribe(request)
+    }
+
+    override fun getAllSubscribedLiveStreams(request: GetAllSubscribedStreamsRequest): AllSubscribedLiveStreamsResponse? {
+        return liveStreamProvider.getAllSubscribedLiveStreams(request)
+    }
+
 }

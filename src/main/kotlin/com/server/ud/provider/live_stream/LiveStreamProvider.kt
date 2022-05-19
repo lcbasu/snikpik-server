@@ -13,8 +13,14 @@ import com.server.common.provider.SecurityProvider
 import com.server.common.provider.UniqueIdProvider
 import com.server.common.utils.DateUtils
 import com.server.ud.dao.live_stream.LiveStreamRepository
+import com.server.ud.dao.live_stream.LiveStreamSubscribedByUserRepository
+import com.server.ud.dao.live_stream.SubscribedLiveStreamUsersByStreamRepository
+import com.server.ud.dao.live_stream.SubscribedLiveStreamsByUserRepository
 import com.server.ud.dto.*
 import com.server.ud.entities.live_stream.LiveStream
+import com.server.ud.entities.live_stream.LiveStreamSubscribedByUser
+import com.server.ud.entities.live_stream.SubscribedLiveStreamUsersByStream
+import com.server.ud.entities.live_stream.SubscribedLiveStreamsByUser
 import com.server.ud.enums.LiveStreamJoinStatus
 import com.server.ud.enums.LiveStreamPlatform
 import com.server.ud.pagination.CassandraPageV2
@@ -36,6 +42,15 @@ class LiveStreamProvider {
 
     @Autowired
     private lateinit var liveStreamRepository: LiveStreamRepository
+
+    @Autowired
+    private lateinit var liveStreamSubscribedByUserRepository: LiveStreamSubscribedByUserRepository
+
+    @Autowired
+    private lateinit var subscribedLiveStreamsByUserRepository: SubscribedLiveStreamsByUserRepository
+
+    @Autowired
+    private lateinit var subscribedLiveStreamUsersByStreamRepository: SubscribedLiveStreamUsersByStreamRepository
 
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
@@ -210,5 +225,69 @@ class LiveStreamProvider {
                 .set(LikesCountForFirebase(0))
         }
     }
+
+    fun subscribe(request: LiveStreamSubscribeRequest): LiveStreamSubscribedResponse {
+        val stream = getLiveStream(request.streamId) ?: error("Stream not found for id: ${request.streamId}")
+        val loggedInUserId = securityProvider.getFirebaseAuthUser()?.getUserIdToUse() ?: error("User not logged in")
+        val subscribedObject = liveStreamSubscribedByUserRepository.save(LiveStreamSubscribedByUser(
+            streamId = request.streamId,
+            subscriberUserId = loggedInUserId,
+            subscribed = true,
+        ))
+
+        subscribedLiveStreamsByUserRepository.save(
+            SubscribedLiveStreamsByUser(
+                subscriberUserId = loggedInUserId,
+                startAt = stream.startAt,
+                streamId = stream.streamId,
+                streamPlatform = stream.streamPlatform,
+                streamerUserId = stream.streamerUserId,
+                endAt = stream.endAt,
+                headerImage = stream.headerImage,
+                title = stream.title,
+                subTitle = stream.subTitle,
+                createdAt = stream.createdAt,
+                subscribedAt = subscribedObject.createdAt
+            ))
+
+        subscribedLiveStreamUsersByStreamRepository.save(
+            SubscribedLiveStreamUsersByStream(
+                subscriberUserId = loggedInUserId,
+                startAt = stream.startAt,
+                streamId = stream.streamId,
+                streamPlatform = stream.streamPlatform,
+                streamerUserId = stream.streamerUserId,
+                endAt = stream.endAt,
+                headerImage = stream.headerImage,
+                title = stream.title,
+                subTitle = stream.subTitle,
+                createdAt = stream.createdAt,
+                subscribedAt = subscribedObject.createdAt
+            )
+        )
+
+        return LiveStreamSubscribedResponse(
+            stream = stream.toSavedLiveStreamResponse(),
+            subscribed = true,
+        )
+    }
+
+    fun getAllSubscribedLiveStreams(request: GetAllSubscribedStreamsRequest): AllSubscribedLiveStreamsResponse? {
+        val result = _getAllSubscribedLiveStreams(request)
+        return AllSubscribedLiveStreamsResponse(
+            subscribedStreams = result.content?.mapNotNull { it?.toSubscribedLiveStreamResponse() } ?: emptyList(),
+            count = result.count,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
+    }
+
+    private fun _getAllSubscribedLiveStreams(request: GetAllSubscribedStreamsRequest): CassandraPageV2<SubscribedLiveStreamsByUser> {
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
+        val loggedInUserId = securityProvider.getFirebaseAuthUser()?.getUserIdToUse() ?: error("User not logged in")
+        val streams = subscribedLiveStreamsByUserRepository.findAllBySubscriberUserId(loggedInUserId, pageRequest as Pageable)
+        return CassandraPageV2(streams)
+    }
+
 
 }
