@@ -5,16 +5,20 @@ import com.google.firebase.messaging.Message
 import com.google.firebase.messaging.Notification
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.model.getMediaUrlForNotification
+import com.server.ud.dto.GetAllLiveStreamsRequest
 import com.server.ud.entities.user_activity.UserActivity
+import com.server.ud.enums.LiveStreamPlatform
 import com.server.ud.enums.UserActivityType
 import com.server.ud.enums.UserAggregateActivityType
 import com.server.ud.provider.automation.AutomationProvider
+import com.server.ud.provider.live_stream.LiveStreamProvider
 import com.server.ud.provider.user.UserV2Provider
 import com.server.ud.utils.UDCommonUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import kotlin.math.log
 
 
 @Component
@@ -27,6 +31,9 @@ class DeviceNotificationProvider {
 
     @Autowired
     private lateinit var automationProvider: AutomationProvider
+
+    @Autowired
+    private lateinit var liveStreamProvider: LiveStreamProvider
 
     fun sendNotification(userActivity: UserActivity) {
         try {
@@ -253,4 +260,43 @@ class DeviceNotificationProvider {
             e.printStackTrace()
         }
     }
+
+    fun notifyLiveEventUsers() {
+
+        // TODO: Improve this
+        val allLiveStreams = liveStreamProvider.getAllLiveStreams(
+            GetAllLiveStreamsRequest(
+                liveStreamPlatform = LiveStreamPlatform.UNBOX,
+                limit = 100,
+                pagingState = "NONE"
+            )
+        )
+
+        allLiveStreams.streams.map {
+            val stream = liveStreamProvider.getLiveStream(it.streamId) ?: error("Stream not forund for streamId: ${it.streamId}")
+            liveStreamProvider.getAllSubscribedLiveStreamUsersByStream(it.streamId).map {
+                try {
+                    val user = userV2Provider.getUser(it.subscriberUserId)
+                    val message = Message
+                        .builder()
+                        .setNotification(
+                            Notification
+                                .builder()
+                                .setTitle("Live Now!")
+                                .setBody(stream.title)
+//                            .setImage(mediaURL)
+                                .build())
+                        .putData("fallbackUrl", "https://letsunbox.in/live/${stream.streamId}")
+                        .setToken(user?.notificationToken)
+                        .build()
+                    val response = FirebaseMessaging.getInstance().send(message)
+                    logger.info("response: ${response.toString()}")
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    logger.error("Error while sending live notification: ${e.message}")
+                }
+            }
+        }
+    }
+
 }

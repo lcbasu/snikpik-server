@@ -21,6 +21,9 @@ import com.server.ud.entities.live_stream.LiveStream
 import com.server.ud.entities.live_stream.LiveStreamSubscribedByUser
 import com.server.ud.entities.live_stream.SubscribedLiveStreamUsersByStream
 import com.server.ud.entities.live_stream.SubscribedLiveStreamsByUser
+import com.server.ud.entities.post.PostsByFollowing
+import com.server.ud.entities.post.PostsByFollowingTracker
+import com.server.ud.entities.post.toPostsByFollowing
 import com.server.ud.enums.LiveStreamJoinStatus
 import com.server.ud.enums.LiveStreamPlatform
 import com.server.ud.pagination.CassandraPageV2
@@ -112,8 +115,8 @@ class LiveStreamProvider {
         }
     }
 
-    fun getAllActiveLiveStreams(request: GetAllActiveLiveStreamsRequest): AllActiveLiveStreamsRequestResponse {
-        val result = getFeedForLiveStreams(request)
+    fun getAllActiveLiveStreams(request: GetAllActiveLiveStreamsRequest): AllActiveLiveStreamsResponse {
+        val result = getFeedForLiveStreams(request.liveStreamPlatform, request.limit, request.pagingState)
 
         // TODO: Optimize this so that we have a table on daily basis for all active streams
         // instead of querying all streams everytime
@@ -124,7 +127,7 @@ class LiveStreamProvider {
             DateUtils.getInstantNow().isBefore(it.endAt)
         }
 
-        return AllActiveLiveStreamsRequestResponse(
+        return AllActiveLiveStreamsResponse(
             streams = activeStreams.map { it.toSavedLiveStreamResponse() },
             count = activeStreams.size,
             hasNext = result.hasNext,
@@ -132,9 +135,20 @@ class LiveStreamProvider {
         )
     }
 
-    private fun getFeedForLiveStreams(request: GetAllActiveLiveStreamsRequest): CassandraPageV2<LiveStream> {
-        val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
-        val streams = liveStreamRepository.findAllByStreamPlatform(request.liveStreamPlatform, pageRequest as Pageable)
+    fun getAllLiveStreams(request: GetAllLiveStreamsRequest): AllLiveStreamsResponse {
+        val result = getFeedForLiveStreams(request.liveStreamPlatform, request.limit, request.pagingState)
+
+        return AllLiveStreamsResponse(
+            streams = (result.content ?: emptyList()).filterNotNull().map { it.toSavedLiveStreamResponse() },
+            count = result.count,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
+    }
+
+    private fun getFeedForLiveStreams(liveStreamPlatform: LiveStreamPlatform, limit: Int, pagingState: String?): CassandraPageV2<LiveStream> {
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val streams = liveStreamRepository.findAllByStreamPlatform(liveStreamPlatform, pageRequest as Pageable)
         return CassandraPageV2(streams)
     }
 
@@ -286,6 +300,41 @@ class LiveStreamProvider {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
         val loggedInUserId = securityProvider.getFirebaseAuthUser()?.getUserIdToUse() ?: error("User not logged in")
         val streams = subscribedLiveStreamsByUserRepository.findAllBySubscriberUserId(loggedInUserId, pageRequest as Pageable)
+        return CassandraPageV2(streams)
+    }
+
+    fun getAllSubscribedLiveStreamUsersByStream(streamId: String): List<SubscribedLiveStreamUsersByStream> {
+        val limit = 10
+        var pagingState = ""
+
+        val trackedSubscribedLiveStreamUsersByStream = mutableListOf<SubscribedLiveStreamUsersByStream>()
+
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+        val results = subscribedLiveStreamUsersByStreamRepository.findAllByStreamId(
+            streamId,
+            pageRequest as Pageable
+        )
+        val slicedResult = CassandraPageV2(results)
+        trackedSubscribedLiveStreamUsersByStream.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        while (hasNext) {
+            pagingState = slicedResult.pagingState ?: ""
+            val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
+            val nextUsers = subscribedLiveStreamUsersByStreamRepository.findAllByStreamId(
+                streamId,
+                nextPageRequest as Pageable
+            )
+            val nextSlicedResult = CassandraPageV2(nextUsers)
+            hasNext = nextSlicedResult.hasNext == true
+            trackedSubscribedLiveStreamUsersByStream.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return trackedSubscribedLiveStreamUsersByStream
+    }
+
+    private fun _getLiveStreamSubscribedUsers(request: GetAllSubscribedUsersOfStreamRequest): CassandraPageV2<SubscribedLiveStreamUsersByStream> {
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
+        val loggedInUserId = securityProvider.getFirebaseAuthUser()?.getUserIdToUse() ?: error("User not logged in")
+        val streams = subscribedLiveStreamUsersByStreamRepository.findAllByStreamId(request.streamId, pageRequest as Pageable)
         return CassandraPageV2(streams)
     }
 

@@ -43,7 +43,7 @@ class LiveStreamController {
     @RequestMapping(value = ["/getAllActiveLiveStreams"], method = [RequestMethod.GET])
     fun getAllActiveLiveStreams(@RequestParam liveStreamPlatform: LiveStreamPlatform,
                                 @RequestParam limit: Int,
-                                @RequestParam pagingState: String? = null): AllActiveLiveStreamsRequestResponse? {
+                                @RequestParam pagingState: String? = null): AllActiveLiveStreamsResponse? {
         return liveStreamService.getAllActiveLiveStreams(
             GetAllActiveLiveStreamsRequest(
                 liveStreamPlatform,

@@ -27,4 +27,5 @@ interface SubscribedLiveStreamsByUserRepository : CassandraRepository<Subscribed
 }
 @Repository
 interface SubscribedLiveStreamUsersByStreamRepository : CassandraRepository<SubscribedLiveStreamUsersByStream?, String?> {
+    fun findAllByStreamId(streamId: String, pageable: Pageable): Slice<SubscribedLiveStreamUsersByStream>
 }

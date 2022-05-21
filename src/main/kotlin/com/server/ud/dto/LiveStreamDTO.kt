@@ -84,13 +84,26 @@ data class LikesCountForFirebase (
     val count: Long,
 )
 
-data class AllActiveLiveStreamsRequestResponse (
+data class AllActiveLiveStreamsResponse (
     val streams: List<SavedLiveStreamResponse>,
     override val count: Int? = null,
     override val pagingState: String? = null,
     override val hasNext: Boolean? = null,
 ): PaginationResponse(count, pagingState, hasNext)
 
+
+data class AllLiveStreamsResponse (
+    val streams: List<SavedLiveStreamResponse>,
+    override val count: Int? = null,
+    override val pagingState: String? = null,
+    override val hasNext: Boolean? = null,
+): PaginationResponse(count, pagingState, hasNext)
+
+data class GetAllLiveStreamsRequest (
+    val liveStreamPlatform: LiveStreamPlatform,
+    override val limit: Int = 10,
+    override val pagingState: String? = null,
+): PaginationRequest(limit, pagingState)
 
 data class GetAllActiveLiveStreamsRequest (
     val liveStreamPlatform: LiveStreamPlatform,
@@ -99,6 +112,19 @@ data class GetAllActiveLiveStreamsRequest (
 ): PaginationRequest(limit, pagingState)
 
 data class GetAllSubscribedStreamsRequest (
+    override val limit: Int = 10,
+    override val pagingState: String? = null,
+): PaginationRequest(limit, pagingState)
+
+data class AllSubscribedUsersOfStreamResponse (
+    val userIds: Set<String>,
+    override val count: Int? = null,
+    override val pagingState: String? = null,
+    override val hasNext: Boolean? = null,
+): PaginationResponse(count, pagingState, hasNext)
+
+data class GetAllSubscribedUsersOfStreamRequest (
+    val streamId: String,
     override val limit: Int = 10,
     override val pagingState: String? = null,
 ): PaginationRequest(limit, pagingState)

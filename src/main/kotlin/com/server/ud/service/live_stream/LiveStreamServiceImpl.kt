@@ -15,7 +15,7 @@ class LiveStreamServiceImpl : LiveStreamService() {
         return liveStreamProvider.save(request)?.toSavedLiveStreamResponse()
     }
 
-    override fun getAllActiveLiveStreams(request: GetAllActiveLiveStreamsRequest): AllActiveLiveStreamsRequestResponse? {
+    override fun getAllActiveLiveStreams(request: GetAllActiveLiveStreamsRequest): AllActiveLiveStreamsResponse? {
         return liveStreamProvider.getAllActiveLiveStreams(request)
     }
 
