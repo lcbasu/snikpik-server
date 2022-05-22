@@ -49,6 +49,7 @@ import com.server.ud.provider.location.LocationProvider
 import com.server.ud.provider.location.LocationsByUserProvider
 import com.server.ud.provider.location.LocationsByZipcodeProvider
 import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
+import com.server.ud.provider.notification.DeviceNotificationProvider
 import com.server.ud.provider.one_off.OneOffIndexUsersToAlgolia
 import com.server.ud.provider.one_off.OneOffSaveChatsV2ToFirestore
 import com.server.ud.provider.one_off.OneOffSaveDataToFirestore
@@ -437,6 +438,9 @@ class FakerProvider {
 
     @Autowired
     private lateinit var resourceViewsCountByResourceProvider: ResourceViewsCountByResourceProvider
+
+    @Autowired
+    private lateinit var deviceNotificationProvider: DeviceNotificationProvider
 
     private fun matchViewsCount() {
         val postIdToViewCountMap = mapOf(
@@ -1089,6 +1093,8 @@ class FakerProvider {
     fun doSomething(): Any {
 
         GlobalScope.launch {
+
+            deviceNotificationProvider.notifyLiveEventUsers()
 
 
             val dataKey1 = "userActivityType"
