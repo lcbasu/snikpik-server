@@ -338,4 +338,49 @@ enum class CategoryV2(
             )
         ))
     ),
+    MATERIALS(
+        CategoryGroupV2.HOME,
+        21,
+        "Materials",
+        MediaDetailsV2(listOf(
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/CategoryImages/MATERIALS.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 3222,
+                height = 2327,
+                mediaQualityType = MediaQualityType.HIGH,
+            )
+        ))
+    ),
+    BATHROOM(
+        CategoryGroupV2.HOME,
+        22,
+        "Bathroom",
+        MediaDetailsV2(listOf(
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/CategoryImages/BATHROOM.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 3222,
+                height = 2327,
+                mediaQualityType = MediaQualityType.HIGH,
+            )
+        ))
+    ),
+    HOME_TOUR(
+        CategoryGroupV2.HOME,
+        23,
+        "Home Tour",
+        MediaDetailsV2(listOf(
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/CategoryImages/HOME_TOUR.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 3222,
+                height = 2327,
+                mediaQualityType = MediaQualityType.HIGH,
+            )
+        ))
+    ),
 }
