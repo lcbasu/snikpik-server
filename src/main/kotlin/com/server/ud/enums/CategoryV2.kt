@@ -383,4 +383,34 @@ enum class CategoryV2(
             )
         ))
     ),
+    SMART_HOME(
+        CategoryGroupV2.HOME,
+        23,
+        "Smart Home",
+        MediaDetailsV2(listOf(
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/CategoryImages/SMART_HOME.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 3222,
+                height = 2327,
+                mediaQualityType = MediaQualityType.HIGH,
+            )
+        ))
+    ),
+    STAIRS(
+        CategoryGroupV2.HOME,
+        23,
+        "Stairs",
+        MediaDetailsV2(listOf(
+            SingleMediaDetail(
+                mediaUrl = "https://d2qrqijxy3rkcj.cloudfront.net/assets01/AppData/CategoryImages/STAIRS.png",
+                mimeType = "image",
+                mediaType = MediaType.IMAGE,
+                width = 3222,
+                height = 2327,
+                mediaQualityType = MediaQualityType.HIGH,
+            )
+        ))
+    ),
 }
