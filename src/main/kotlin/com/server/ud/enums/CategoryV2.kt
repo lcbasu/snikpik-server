@@ -385,7 +385,7 @@ enum class CategoryV2(
     ),
     SMART_HOME(
         CategoryGroupV2.HOME,
-        23,
+        24,
         "Smart Home",
         MediaDetailsV2(listOf(
             SingleMediaDetail(
@@ -400,7 +400,7 @@ enum class CategoryV2(
     ),
     STAIRS(
         CategoryGroupV2.HOME,
-        23,
+        25,
         "Stairs",
         MediaDetailsV2(listOf(
             SingleMediaDetail(
