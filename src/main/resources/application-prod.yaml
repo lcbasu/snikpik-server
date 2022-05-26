@@ -8,4 +8,4 @@ security:
     - https://${CONSOLE_DOMAIN}
     - http://${LOCAL_WEB_DEV}
   allowed-origin-patterns:
-    - https://*.${vercel.app}
+    - https://*.vercel.app
