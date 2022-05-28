@@ -100,6 +100,7 @@ dependencies {
 	implementation("ch.qos.logback:logback-classic:1.2.3")
 	implementation("ch.qos.logback:logback-core:1.2.3")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.3.8.RELEASE")
+	implementation("org.springframework.boot:spring-boot-starter-data-jdbc:2.3.8.RELEASE")
 	implementation("com.twilio.sdk:twilio:8.10.0")
 	implementation("org.hibernate:hibernate-envers:5.4.27.Final")
 	implementation("com.vladmihalcea:hibernate-types-52:2.9.11")

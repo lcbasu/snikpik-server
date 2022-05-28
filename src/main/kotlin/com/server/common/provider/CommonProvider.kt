@@ -69,4 +69,18 @@ class CommonProvider {
         val maxLengthOfAutomatedPrefix = 10
         return CommonUtils.getLowercaseStringWithOnlyCharOrDigit(name).take(maxLengthOfAutomatedPrefix)
     }
+
+    @Autowired
+    private lateinit var securityProvider: SecurityProvider
+
+    fun hardCheckForAdmin(){
+        val firebaseAuthUser = securityProvider.validateRequest()
+        val loggedInUserId = firebaseAuthUser.getUserIdToUse()
+        val isAdmin = UDCommonUtils.isAdmin(loggedInUserId)
+        if (isAdmin.not()) {
+            val message = "User $loggedInUserId is not authorized for this operation. Only admins can perform these operations."
+            logger.error(message)
+            error(message)
+        }
+    }
 }

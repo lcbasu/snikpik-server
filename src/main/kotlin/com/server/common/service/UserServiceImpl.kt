@@ -2,11 +2,15 @@ package com.server.common.service
 
 import com.server.common.dto.*
 import com.server.common.entities.toSavedUserResponse
-import com.server.dk.dto.*
-import com.server.dk.provider.AddressProvider
 import com.server.common.provider.AuthProvider
 import com.server.common.provider.SecurityProvider
 import com.server.common.provider.UserRoleProvider
+import com.server.dk.dto.SaveUserAddressRequest
+import com.server.dk.dto.SavedUserAddressResponse
+import com.server.dk.dto.UserAddressesResponse
+import com.server.dk.dto.toSavedAddressResponse
+import com.server.dk.provider.AddressProvider
+import com.server.ud.provider.user.UserV2Provider
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -24,6 +28,9 @@ class UserServiceImpl : UserService() {
 
     @Autowired
     private lateinit var securityProvider: SecurityProvider
+
+    @Autowired
+    private lateinit var userV2Provider: UserV2Provider
 
     // Save data using the auth token credentials
     override fun saveUser(): SavedUserResponse? {
@@ -101,4 +108,5 @@ class UserServiceImpl : UserService() {
             }
         )
     }
+
 }

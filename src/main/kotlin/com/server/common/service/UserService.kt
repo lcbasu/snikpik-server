@@ -1,7 +1,9 @@
 package com.server.common.service
 
 import com.server.common.dto.*
-import com.server.dk.dto.*
+import com.server.dk.dto.SaveUserAddressRequest
+import com.server.dk.dto.SavedUserAddressResponse
+import com.server.dk.dto.UserAddressesResponse
 
 abstract class UserService {
     abstract fun saveUser(): SavedUserResponse?

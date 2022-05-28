@@ -1,8 +1,10 @@
 package com.server.common.controller
 
 import com.server.common.dto.*
-import com.server.dk.dto.*
 import com.server.common.service.UserService
+import com.server.dk.dto.SaveUserAddressRequest
+import com.server.dk.dto.SavedUserAddressResponse
+import com.server.dk.dto.UserAddressesResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 
@@ -47,4 +49,5 @@ class UserController {
     fun updateDefaultAddress(@RequestBody request: UpdateDefaultAddressRequest): UserAddressesResponse? {
         return userService.updateDefaultAddress(request)
     }
+
 }

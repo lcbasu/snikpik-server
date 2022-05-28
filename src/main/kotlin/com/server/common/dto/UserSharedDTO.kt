@@ -5,6 +5,8 @@ import com.server.common.enums.NotificationTokenProvider
 import com.server.common.enums.ProfileType
 import com.server.common.enums.UserLocationUpdateType
 import com.server.common.model.MediaDetailsV2
+import com.server.ud.dto.PaginationRequest
+import com.server.ud.dto.PaginationResponse
 
 /**
  *
@@ -296,3 +298,17 @@ data class UserHandleAvailabilityResponse(
     val available: Boolean,
 )
 
+
+data class GetAllUsersRequest (
+    override val limit: Int = 10,
+    override val pagingState: String? = null,
+): PaginationRequest(limit, pagingState)
+
+
+
+data class AllUsersResponse(
+    val users: List<SavedUserV2Response>,
+    override val count: Int? = null,
+    override val pagingState: String? = null,
+    override val hasNext: Boolean? = null,
+): PaginationResponse(count, pagingState, hasNext)

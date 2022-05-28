@@ -7,34 +7,38 @@ import com.server.common.model.MediaDetailsV2
 import com.server.common.model.SingleMediaDetail
 import com.server.common.model.UserDetailsFromToken
 import com.server.common.model.convertToString
+import com.server.common.provider.CommonProvider
 import com.server.common.provider.SecurityProvider
-import com.server.common.utils.DateUtils
-import com.server.shop.provider.UserV3Provider
-import com.server.ud.dao.user.UserReportByUserRepository
-import com.server.ud.dao.user.UserV2Repository
-import com.server.ud.dto.*
-import com.server.ud.entities.user.UserReportV2ByUser
-import com.server.ud.entities.user.UserV2
-import com.server.ud.enums.LocationFor
-import com.server.ud.enums.ProcessingType
-import com.server.common.enums.UserLocationUpdateType
 import com.server.common.utils.CommonUtils
+import com.server.common.utils.DateUtils
 import com.server.dk.dto.AllUserReportResponse
 import com.server.dk.dto.UserReportRequest
 import com.server.dk.dto.UserReportResponse
+import com.server.shop.provider.UserV3Provider
+import com.server.ud.dao.user.UserReportByUserRepository
+import com.server.ud.dao.user.UserV2Repository
+import com.server.ud.dto.IPLocationData
+import com.server.ud.dto.SaveLocationRequest
+import com.server.ud.entities.user.UserReportV2ByUser
+import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.toSavedUserV2Response
 import com.server.ud.entities.user.toUserV2PublicMiniDataResponse
+import com.server.ud.enums.LocationFor
+import com.server.ud.enums.ProcessingType
 import com.server.ud.enums.UserReportActionType
+import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.automation.AutomationProvider
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.location.LocationProvider
 import com.server.ud.provider.search.SearchProvider
 import com.server.ud.utils.UDCommonUtils
+import com.server.ud.utils.pagination.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 
 @Component
@@ -71,6 +75,12 @@ class UserV2Provider {
 
     @Autowired
     private lateinit var userV3Provider: UserV3Provider
+
+    @Autowired
+    private lateinit var paginationRequestUtil: PaginationRequestUtil
+
+    @Autowired
+    private lateinit var commonProvider: CommonProvider
 
     fun getUser(userId: String): UserV2? =
         try {
@@ -627,6 +637,23 @@ class UserV2Provider {
             toUnblockUserId = request.toUnblockUserId,
             unblocked = true
         )
+    }
+
+    fun getUsers(request: GetAllUsersRequest): AllUsersResponse {
+        commonProvider.hardCheckForAdmin()
+        val result = getAllUserForRequest(request)
+        return AllUsersResponse(
+            users = result.content?.filterNotNull()?.map { it.toSavedUserV2Response() } ?: emptyList(),
+            count = result.count,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
+    }
+
+    private fun getAllUserForRequest(request: GetAllUsersRequest): CassandraPageV2<UserV2> {
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
+        val users = userV2Repository.findAllBy(pageRequest as Pageable)
+        return CassandraPageV2(users)
     }
 
 }

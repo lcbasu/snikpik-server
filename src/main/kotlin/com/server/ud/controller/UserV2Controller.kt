@@ -253,4 +253,15 @@ class UserV2Controller {
     fun getAllReport(@RequestParam userId: String): AllUserReportResponse? {
         return userV2Service.getAllReport(userId)
     }
+
+
+    @RequestMapping(value = ["/getUsers"], method = [RequestMethod.GET])
+    fun getUsers(@RequestParam limit: Int, @RequestParam pagingState: String?): AllUsersResponse {
+        return userV2Service.getUsers(
+            GetAllUsersRequest(
+                limit,
+                pagingState
+            )
+        )
+    }
 }

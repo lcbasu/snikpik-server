@@ -198,4 +198,8 @@ class UserV2ServiceImpl : UserV2Service() {
         return userV2Provider.getAllProfileTypes()
     }
 
+    override fun getUsers(request: GetAllUsersRequest): AllUsersResponse {
+        return userV2Provider.getUsers(request)
+    }
+
 }
