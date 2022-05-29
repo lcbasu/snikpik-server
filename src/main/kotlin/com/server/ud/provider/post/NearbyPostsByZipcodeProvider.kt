@@ -160,8 +160,8 @@ class NearbyPostsByZipcodeProvider {
         val slicedResult = CassandraPageV2(posts)
         trackedPosts.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
         var hasNext = slicedResult.hasNext == true
+        pagingState = slicedResult.pagingState ?: ""
         while (hasNext) {
-            pagingState = slicedResult.pagingState ?: ""
             val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
             val nextPosts = nearbyPostsByZipcodeTrackerRepository.findAllByPostId(
                 postId,
@@ -169,6 +169,7 @@ class NearbyPostsByZipcodeProvider {
             )
             val nextSlicedResult = CassandraPageV2(nextPosts)
             hasNext = nextSlicedResult.hasNext == true
+            pagingState = nextSlicedResult.pagingState ?: ""
             trackedPosts.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
         }
         return trackedPosts

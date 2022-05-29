@@ -68,8 +68,8 @@ class LikesByResourceProvider {
         val slicedResult = CassandraPageV2(posts)
         trackedLikes.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
         var hasNext = slicedResult.hasNext == true
+        pagingState = slicedResult.pagingState ?: ""
         while (hasNext) {
-            pagingState = slicedResult.pagingState ?: ""
             val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
             val nextLikes = likesByResourceTrackerRepository.findAllByResourceId(
                 resourceId,
@@ -77,6 +77,7 @@ class LikesByResourceProvider {
             )
             val nextSlicedResult = CassandraPageV2(nextLikes)
             hasNext = nextSlicedResult.hasNext == true
+            pagingState = nextSlicedResult.pagingState ?: ""
             trackedLikes.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
         }
         return trackedLikes

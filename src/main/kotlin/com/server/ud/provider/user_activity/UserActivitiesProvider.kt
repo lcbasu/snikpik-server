@@ -314,8 +314,8 @@ class UserActivitiesProvider {
         val slicedResult = CassandraPageV2(activities)
         trackedActivities.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
         var hasNext = slicedResult.hasNext == true
+        pagingState = slicedResult.pagingState ?: ""
         while (hasNext) {
-            pagingState = slicedResult.pagingState ?: ""
             val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
             val nextPosts = activityType?.let {
                 userActivityByPostTrackerRepository.findAllByPostIdAndUserAggregateActivityTypeAndUserActivityType(
@@ -330,6 +330,7 @@ class UserActivitiesProvider {
             )
             val nextSlicedResult = CassandraPageV2(nextPosts)
             hasNext = nextSlicedResult.hasNext == true
+            pagingState = nextSlicedResult.pagingState ?: ""
             trackedActivities.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
         }
         return trackedActivities
@@ -357,8 +358,8 @@ class UserActivitiesProvider {
         val slicedResult = CassandraPageV2(activities)
         trackedActivities.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
         var hasNext = slicedResult.hasNext == true
+        pagingState = slicedResult.pagingState ?: ""
         while (hasNext) {
-            pagingState = slicedResult.pagingState ?: ""
             val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
             val nextComments = activityType?.let {
                 userActivityByCommentTrackerRepository.findAllByCommentIdAndUserAggregateActivityTypeAndUserActivityType(
@@ -373,6 +374,7 @@ class UserActivitiesProvider {
             )
             val nextSlicedResult = CassandraPageV2(nextComments)
             hasNext = nextSlicedResult.hasNext == true
+            pagingState = nextSlicedResult.pagingState ?: ""
             trackedActivities.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
         }
         return trackedActivities
@@ -400,8 +402,8 @@ class UserActivitiesProvider {
         val slicedResult = CassandraPageV2(activities)
         trackedActivities.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
         var hasNext = slicedResult.hasNext == true
+        pagingState = slicedResult.pagingState ?: ""
         while (hasNext) {
-            pagingState = slicedResult.pagingState ?: ""
             val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
             val nextReplies = activityType?.let {
                 userActivityByReplyTrackerRepository.findAllByReplyIdAndUserAggregateActivityTypeAndUserActivityType(
@@ -416,6 +418,7 @@ class UserActivitiesProvider {
             )
             val nextSlicedResult = CassandraPageV2(nextReplies)
             hasNext = nextSlicedResult.hasNext == true
+            pagingState = nextSlicedResult.pagingState ?: ""
             trackedActivities.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
         }
         return trackedActivities
@@ -437,8 +440,8 @@ class UserActivitiesProvider {
         val slicedResult = CassandraPageV2(activities)
         trackedActivities.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
         var hasNext = slicedResult.hasNext == true
+        pagingState = slicedResult.pagingState ?: ""
         while (hasNext) {
-            pagingState = slicedResult.pagingState ?: ""
             val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
             val nextChats = userActivityByChatTrackerRepository.findAllByChatIdAndUserAggregateActivityTypeAndUserActivityType(
                 chatId,
@@ -448,6 +451,7 @@ class UserActivitiesProvider {
             )
             val nextSlicedResult = CassandraPageV2(nextChats)
             hasNext = nextSlicedResult.hasNext == true
+            pagingState = nextSlicedResult.pagingState ?: ""
             trackedActivities.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
         }
         return trackedActivities
@@ -625,8 +629,8 @@ class UserActivitiesProvider {
         val slicedResult = CassandraPageV2(posts)
         trackedUsers.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
         var hasNext = slicedResult.hasNext == true
+        pagingState = slicedResult.pagingState ?: ""
         while (hasNext) {
-            pagingState = slicedResult.pagingState ?: ""
             val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
             val nextPosts = userActivitiesByUserRepository.findAllByByUserId(
                 byUserId,
@@ -634,6 +638,7 @@ class UserActivitiesProvider {
             )
             val nextSlicedResult = CassandraPageV2(nextPosts)
             hasNext = nextSlicedResult.hasNext == true
+            pagingState = nextSlicedResult.pagingState ?: ""
             trackedUsers.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
         }
         return trackedUsers
@@ -653,8 +658,8 @@ class UserActivitiesProvider {
         val slicedResult = CassandraPageV2(posts)
         trackedUsers.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
         var hasNext = slicedResult.hasNext == true
+        pagingState = slicedResult.pagingState ?: ""
         while (hasNext) {
-            pagingState = slicedResult.pagingState ?: ""
             val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
             val nextPosts = userActivitiesForUserRepository.findAllByForUserId(
                 forUserId,
@@ -662,6 +667,7 @@ class UserActivitiesProvider {
             )
             val nextSlicedResult = CassandraPageV2(nextPosts)
             hasNext = nextSlicedResult.hasNext == true
+            pagingState = nextSlicedResult.pagingState ?: ""
             trackedUsers.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
         }
         return trackedUsers
