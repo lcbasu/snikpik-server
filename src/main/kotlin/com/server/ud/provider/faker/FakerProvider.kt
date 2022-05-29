@@ -1094,45 +1094,45 @@ class FakerProvider {
 
         GlobalScope.launch {
 
-            deviceNotificationProvider.notifyLiveEventUsers()
-
-
-            val dataKey1 = "userActivityType"
-            val dataKey2 = "userAggregateActivityType"
-            val dataKey3 = "id"
-            val message = Message
-                .builder()
-                .setNotification(
-                    Notification
-                        .builder()
-                        .setTitle("Hello Post")
-                        .setBody("Post Like")
-//                            .setImage(mediaURL)
-                        .build())
-                .putData(dataKey1, "POST_LIKED")
-                .putData(dataKey2, "LIKED")
-                .putData(dataKey3, "PSTB30EAD093")
-                .putData("fallbackUrl", "https://letsunbox.in/live/LIV78F0BBA31")
-                .setToken("emgxocr7TkyErBv-1y9J1w:APA91bG9jX93Fn3su7V-ltBKpBJmYE0saO8BsarHlrclB6atZiTG4MVtW5sWVnC4RdjtASyMRvgWnUvm_Gcuelnj1dq7g2AYrMVCDeYU1hEqsq30qAYR0Zc3wrtqgDsDAPE-bYs1Dqsk")
-                .build()
-
-            val message2 = Message
-                .builder()
-                .setNotification(
-                    Notification
-                        .builder()
-                        .setTitle("Hello Live")
-                        .setBody("Go Live")
-//                            .setImage(mediaURL)
-                        .build())
-                .putData("fallbackUrl", "https://letsunbox.in/live/LIV78F0BBA31")
-                .setToken("emgxocr7TkyErBv-1y9J1w:APA91bG9jX93Fn3su7V-ltBKpBJmYE0saO8BsarHlrclB6atZiTG4MVtW5sWVnC4RdjtASyMRvgWnUvm_Gcuelnj1dq7g2AYrMVCDeYU1hEqsq30qAYR0Zc3wrtqgDsDAPE-bYs1Dqsk")
-                .build()
-            val response = FirebaseMessaging.getInstance().send(message)
-            val response2 = FirebaseMessaging.getInstance().send(message2)
-
-            logger.info("response: ${response.toString()}")
-            logger.info("response2: ${response2.toString()}")
+//            deviceNotificationProvider.notifyLiveEventUsers()
+//
+//
+//            val dataKey1 = "userActivityType"
+//            val dataKey2 = "userAggregateActivityType"
+//            val dataKey3 = "id"
+//            val message = Message
+//                .builder()
+//                .setNotification(
+//                    Notification
+//                        .builder()
+//                        .setTitle("Hello Post")
+//                        .setBody("Post Like")
+////                            .setImage(mediaURL)
+//                        .build())
+//                .putData(dataKey1, "POST_LIKED")
+//                .putData(dataKey2, "LIKED")
+//                .putData(dataKey3, "PSTB30EAD093")
+//                .putData("fallbackUrl", "https://letsunbox.in/live/LIV78F0BBA31")
+//                .setToken("emgxocr7TkyErBv-1y9J1w:APA91bG9jX93Fn3su7V-ltBKpBJmYE0saO8BsarHlrclB6atZiTG4MVtW5sWVnC4RdjtASyMRvgWnUvm_Gcuelnj1dq7g2AYrMVCDeYU1hEqsq30qAYR0Zc3wrtqgDsDAPE-bYs1Dqsk")
+//                .build()
+//
+//            val message2 = Message
+//                .builder()
+//                .setNotification(
+//                    Notification
+//                        .builder()
+//                        .setTitle("Hello Live")
+//                        .setBody("Go Live")
+////                            .setImage(mediaURL)
+//                        .build())
+//                .putData("fallbackUrl", "https://letsunbox.in/live/LIV78F0BBA31")
+//                .setToken("emgxocr7TkyErBv-1y9J1w:APA91bG9jX93Fn3su7V-ltBKpBJmYE0saO8BsarHlrclB6atZiTG4MVtW5sWVnC4RdjtASyMRvgWnUvm_Gcuelnj1dq7g2AYrMVCDeYU1hEqsq30qAYR0Zc3wrtqgDsDAPE-bYs1Dqsk")
+//                .build()
+//            val response = FirebaseMessaging.getInstance().send(message)
+//            val response2 = FirebaseMessaging.getInstance().send(message2)
+//
+//            logger.info("response: ${response.toString()}")
+//            logger.info("response2: ${response2.toString()}")
 
 
 
@@ -1225,7 +1225,9 @@ class FakerProvider {
 //        redisClient.set("SomeKey333", "SomeValue444")
 //        return "Something was done... ${redisClient.get("SomeKey111")} - ${redisClient.get("SomeKey333")}"
 
-        return "Something was done..."
+        return nearbyPostsByZipcodeProvider.getAllPostsTracker("PSTD34E9EB2B")
+
+//        return "Something was done..."
     }
 
 //    private fun recoverDeletedData() {
