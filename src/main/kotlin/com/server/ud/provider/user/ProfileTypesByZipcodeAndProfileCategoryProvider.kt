@@ -34,7 +34,7 @@ class ProfileTypesByZipcodeAndProfileCategoryProvider {
             }
             return repository.saveAll(profileTypes)
         } catch (e: Exception) {
-            logger.error("Saving ProfileTypesByZipcodeAndProfileCategory filed for userId: ${userV2.userId}.")
+            logger.error("Saving ProfileTypesByZipcodeAndProfileCategory failed for userId: ${userV2.userId}.")
             e.printStackTrace()
             return emptyList()
         }

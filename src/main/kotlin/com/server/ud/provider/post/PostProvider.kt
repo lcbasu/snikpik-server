@@ -125,6 +125,9 @@ class PostProvider {
     private lateinit var postsByHashTagProvider: PostsByHashTagProvider
 
     @Autowired
+    private lateinit var postsByDateProvider: PostsByDateProvider
+
+    @Autowired
     private lateinit var esLocationProvider: ESLocationProvider
 
     @Autowired
@@ -343,6 +346,7 @@ class PostProvider {
             async { likedPostsByUserProvider.deletePostExpandedData(postId) }
             async { postsByFollowingProvider.deletePostExpandedData(postId) }
             async { postsByHashTagProvider.deletePostExpandedData(postId) }
+            async { postsByDateProvider.deletePostExpandedData(postId) }
             async { postsByUserProvider.deletePostExpandedData(postId) }
             async { postsByZipcodeProvider.deletePostExpandedData(postId) }
             async { nearbyPostsByZipcodeProvider.deletePostExpandedData(postId) }
@@ -483,6 +487,7 @@ class PostProvider {
             val postsByPostTypeFuture = async { postsByPostTypeProvider.processPostExpandedData(updatedPost) }
 
             val postsByHashTagFuture = async { postsByHashTagProvider.processPostExpandedData(updatedPost) }
+            val postsByDateFuture = async { postsByDateProvider.processPostExpandedData(updatedPost) }
 
 //            val savePostToESFuture = async {
 //                esPostProvider.save(updatedPost)
@@ -501,6 +506,7 @@ class PostProvider {
             postsByCategoryFuture.await()
             postsByPostTypeFuture.await()
             postsByHashTagFuture.await()
+            postsByDateFuture.await()
             postsByZipcodeFuture.await()
             nearbyPostsByZipcodeFuture.await()
             nearbyVideoPostsByZipcodeFuture.await()

@@ -304,8 +304,6 @@ data class GetAllUsersRequest (
     override val pagingState: String? = null,
 ): PaginationRequest(limit, pagingState)
 
-
-
 data class AllUsersResponse(
     val users: List<SavedUserV2Response>,
     override val count: Int? = null,

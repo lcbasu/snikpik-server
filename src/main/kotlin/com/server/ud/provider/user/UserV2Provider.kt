@@ -241,7 +241,7 @@ class UserV2Provider {
         return saveUserV2(newUserToBeSaved, ProcessingType.NO_PROCESSING)
     }
 
-    // Adding user id filed to handle Faker
+    // Adding user id failed to handle Faker
     // Figure out a better solve without exposing the user id
     fun updateUserV2Location(request: UpdateUserV2LocationRequest, userId: String): UserV2? {
         val user = getUser(userId) ?: error("No user found for userId: $userId")
@@ -648,6 +648,32 @@ class UserV2Provider {
             hasNext = result.hasNext,
             pagingState = result.pagingState
         )
+    }
+
+    fun getTotalPlatformUsers(): List<UserV2> {
+        val limit = 10
+        var pagingState = UDCommonUtils.DEFAULT_PAGING_STATE_VALUE
+        val resultUsers = mutableListOf<UserV2>()
+        val slicedResult = getAllUserForRequest(
+            GetAllUsersRequest(
+            limit = limit,
+            pagingState = pagingState,
+        ))
+        resultUsers.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        pagingState = slicedResult.pagingState ?: UDCommonUtils.DEFAULT_PAGING_STATE_VALUE
+        while (hasNext) {
+            val nextSlicedResult = getAllUserForRequest(
+                GetAllUsersRequest(
+                    limit = limit,
+                    pagingState = pagingState,
+                ))
+
+            hasNext = nextSlicedResult.hasNext == true
+            pagingState = nextSlicedResult.pagingState ?: UDCommonUtils.DEFAULT_PAGING_STATE_VALUE
+            resultUsers.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return resultUsers
     }
 
     private fun getAllUserForRequest(request: GetAllUsersRequest): CassandraPageV2<UserV2> {

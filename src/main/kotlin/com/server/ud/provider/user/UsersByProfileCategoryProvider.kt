@@ -41,7 +41,7 @@ class UsersByProfileCategoryProvider {
 
             return saved
         } catch (e: Exception) {
-            logger.error("Saving UsersByProfileCategory filed for userId: ${userV2.userId}.")
+            logger.error("Saving UsersByProfileCategory failed for userId: ${userV2.userId}.")
             e.printStackTrace()
             return emptyList()
         }

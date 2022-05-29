@@ -1,15 +1,18 @@
 package com.server.ud.provider.post
 
-import com.server.ud.dao.post.PostsByHashTagRepository
-import com.server.ud.dao.post.PostsByHashTagTrackerRepository
+import com.server.common.utils.DateUtils
+import com.server.ud.dao.post.PostsByDateRepository
+import com.server.ud.dao.post.PostsByDateTrackerRepository
+import com.server.ud.dto.AllPostsForDateRequest
+import com.server.ud.dto.AllPostsForDateResponse
+import com.server.ud.dto.toSavedPostResponse
 import com.server.ud.entities.post.*
 import com.server.ud.enums.ProcessingType
 import com.server.ud.pagination.CassandraPageV2
+import com.server.ud.utils.UDCommonUtils
 import com.server.ud.utils.pagination.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,23 +20,23 @@ import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Component
 
 @Component
-class PostsByHashTagProvider {
+class PostsByDateProvider {
 
     private val logger: Logger = LoggerFactory.getLogger(this.javaClass)
 
     @Autowired
-    private lateinit var postsByHashTagRepository: PostsByHashTagRepository
+    private lateinit var postsByDateRepository: PostsByDateRepository
 
     @Autowired
-    private lateinit var postsByHashTagTrackerRepository: PostsByHashTagTrackerRepository
+    private lateinit var postsByDateTrackerRepository: PostsByDateTrackerRepository
 
     @Autowired
     private lateinit var paginationRequestUtil: PaginationRequestUtil
 
-    fun save(post: Post, hashTagId: String): PostsByHashTag? {
+    fun save(post: Post): PostsByDate? {
         try {
-            val postsByHashTag = PostsByHashTag(
-                hashTagId = hashTagId,
+            val postsByDate = PostsByDate(
+                forDate = DateUtils.toStringForDate(DateUtils.getInstantDateTime(post.createdAt)),
                 createdAt = post.createdAt,
                 postId = post.postId,
                 postType = post.postType,
@@ -58,27 +61,70 @@ class PostsByHashTagProvider {
                 countryCode = post.countryCode,
                 completeAddress = post.completeAddress,
             )
-            val saved = postsByHashTagRepository.save(postsByHashTag)
+            val saved = postsByDateRepository.save(postsByDate)
 
-            postsByHashTagTrackerRepository.save(saved.toPostsByHashTagTracker())
+            postsByDateTrackerRepository.save(saved.toPostsByDateTracker())
 
             return saved
         } catch (e: Exception) {
-            logger.error("Saving PostsByHashTag failed for ${post.postId}.")
+            logger.error("Saving PostsByDate failed for ${post.postId}.")
             e.printStackTrace()
             return null
         }
     }
 
-
-    fun getAllPostsTracker(postId: String): List<PostsByHashTagTracker> {
+    fun getTotalPostsForDateResponse(forDate: String): List<PostsByDate> {
         val limit = 10
         var pagingState = ""
 
-        val trackedPosts = mutableListOf<PostsByHashTagTracker>()
+        val resultPosts = mutableListOf<PostsByDate>()
+
+        val slicedResult = getAllPostForDateInternal(AllPostsForDateRequest(
+            forDate = forDate,
+            limit = limit,
+            pagingState = UDCommonUtils.DEFAULT_PAGING_STATE_VALUE
+        ))
+        resultPosts.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
+        var hasNext = slicedResult.hasNext == true
+        pagingState = slicedResult.pagingState ?: UDCommonUtils.DEFAULT_PAGING_STATE_VALUE
+        while (hasNext) {
+            val nextSlicedResult = getAllPostForDateInternal(AllPostsForDateRequest(
+                forDate = forDate,
+                limit = limit,
+                pagingState = pagingState
+            ))
+            hasNext = nextSlicedResult.hasNext == true
+            pagingState = nextSlicedResult.pagingState ?: UDCommonUtils.DEFAULT_PAGING_STATE_VALUE
+            resultPosts.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
+        }
+        return resultPosts
+    }
+
+    fun getAllPostForDate(request: AllPostsForDateRequest): AllPostsForDateResponse {
+        val result = getAllPostForDateInternal(request)
+        return AllPostsForDateResponse(
+            forDate = request.forDate,
+            posts = result.content?.filterNotNull()?.map { it.toSavedPostResponse() } ?: emptyList(),
+            count = result.count,
+            hasNext = result.hasNext,
+            pagingState = result.pagingState
+        )
+    }
+
+    private fun getAllPostForDateInternal(request: AllPostsForDateRequest): CassandraPageV2<PostsByDate> {
+        val pageRequest = paginationRequestUtil.createCassandraPageRequest(request.limit, request.pagingState)
+        val posts = postsByDateRepository.findAllByForDate(request.forDate, pageRequest as Pageable)
+        return CassandraPageV2(posts)
+    }
+
+    fun getAllPostsTracker(postId: String): List<PostsByDateTracker> {
+        val limit = 10
+        var pagingState = ""
+
+        val trackedPosts = mutableListOf<PostsByDateTracker>()
 
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
-        val posts = postsByHashTagTrackerRepository.findAllByPostId(
+        val posts = postsByDateTrackerRepository.findAllByPostId(
             postId,
             pageRequest as Pageable
         )
@@ -88,7 +134,7 @@ class PostsByHashTagProvider {
         while (hasNext) {
             pagingState = slicedResult.pagingState ?: ""
             val nextPageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
-            val nextPosts = postsByHashTagTrackerRepository.findAllByPostId(
+            val nextPosts = postsByDateTrackerRepository.findAllByPostId(
                 postId,
                 nextPageRequest as Pageable
             )
@@ -99,13 +145,13 @@ class PostsByHashTagProvider {
         return trackedPosts
     }
 
-    fun getAllByPostId(postId: String) : List<PostsByHashTag> {
+    fun getAllByPostId(postId: String) : List<PostsByDate> {
         val trackedPosts = getAllPostsTracker(postId)
-        val posts = mutableListOf<PostsByHashTag>()
+        val posts = mutableListOf<PostsByDate>()
         return trackedPosts.map {
-            it.toPostsByHashTag()
+            it.toPostsByDate()
 //            posts.addAll(
-//                postsByHashTagRepository.findAllByHashTagIdAndPostTypeAndCreatedAtAndPostIdAndUserId(
+//                postsByDateRepository.findAllByHashTagIdAndPostTypeAndCreatedAtAndPostIdAndUserId(
 //                    it.hashTagId,
 //                    it.postType,
 //                    it.createdAt,
@@ -120,16 +166,12 @@ class PostsByHashTagProvider {
     fun deletePostExpandedData(postId: String) {
         val all = getAllByPostId(postId)
         all.chunked(10).forEach {
-            postsByHashTagRepository.deleteAll(it)
+            postsByDateRepository.deleteAll(it)
         }
     }
 
     fun processPostExpandedData(post: Post) {
-        runBlocking {
-            post.getHashTags().tags
-                .map { async { save(post, it) } }
-                .map { it.await() }
-        }
+        save(post)
     }
 
     fun updatePostExpandedData(postUpdate: PostUpdate, processingType: ProcessingType) {

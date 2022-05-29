@@ -41,7 +41,7 @@ class UsersByZipcodeProvider {
             usersByZipcodeTrackerRepository.save(saved.toUsersByZipcodeTracker())
             return saved
         } catch (e: Exception) {
-            logger.error("Saving UsersByZipcode filed for userId: ${userV2.userId}.")
+            logger.error("Saving UsersByZipcode failed for userId: ${userV2.userId}.")
             e.printStackTrace()
             return null
         }

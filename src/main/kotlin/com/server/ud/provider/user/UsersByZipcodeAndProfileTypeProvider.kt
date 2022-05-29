@@ -49,7 +49,7 @@ class UsersByZipcodeAndProfileTypeProvider {
             usersByZipcodeAndProfileTypeTrackerRepository.saveAll(saved.map { it.toUsersByZipcodeAndProfileTypeTracker() })
             return saved
         } catch (e: Exception) {
-            logger.error("Saving UsersByZipcodeAndProfileType filed for userId: ${userV2.userId}.")
+            logger.error("Saving UsersByZipcodeAndProfileType failed for userId: ${userV2.userId}.")
             e.printStackTrace()
             return emptyList()
         }

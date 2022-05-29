@@ -68,7 +68,7 @@ class ProductOrderV3Provider {
             productOrderV3Repository.findById(productOrderId).get()
         } catch (e: Exception) {
             e.printStackTrace()
-            logger.error("Filed to get ProductOrderV3 for Id: $productOrderId")
+            logger.error("Failed to get ProductOrderV3 for Id: $productOrderId")
             null
         }
 

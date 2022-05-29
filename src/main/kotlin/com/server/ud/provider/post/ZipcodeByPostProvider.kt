@@ -44,7 +44,7 @@ class ZipcodeByPostProvider {
             }
             zipcodeByPostRepository.saveAll(zipcodeByPosts)
         } catch (e: Exception) {
-            logger.error("Saving ZipcodeByPost filed for postId: ${postId} and zipcodes: ${nearbyZipcodes.toString()}.")
+            logger.error("Saving ZipcodeByPost failed for postId: ${postId} and zipcodes: ${nearbyZipcodes.toString()}.")
             e.printStackTrace()
             emptyList()
         }

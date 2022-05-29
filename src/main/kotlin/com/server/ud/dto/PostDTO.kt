@@ -14,6 +14,25 @@ import com.server.ud.enums.PostType
 import com.server.ud.model.AllHashTags
 import java.time.Instant
 
+data class AllPostsForDateResponse(
+    val forDate: String,
+    val posts: List<SavedPostResponse>,
+    override val count: Int? = null,
+    override val pagingState: String? = null,
+    override val hasNext: Boolean? = null,
+): PaginationResponse(count, pagingState, hasNext)
+
+data class TotalPostsForDateResponse(
+    val forDate: String,
+    val posts: List<SavedPostResponse>,
+)
+
+data class AllPostsForDateRequest (
+    val forDate: String,
+    override val limit: Int = 10,
+    override val pagingState: String? = null,
+): PaginationRequest(limit, pagingState)
+
 data class PostsByUserPostDetail(
     override val postId: String,
     override val userId: String,
@@ -229,6 +248,38 @@ data class SavedPostResponse(
 )
 
 fun Post.toSavedPostResponse(): SavedPostResponse {
+    this.apply {
+        return SavedPostResponse(
+            postId = postId,
+            postType = postType,
+            userId = userId,
+            locationId = locationId,
+            zipcode = zipcode,
+            googlePlaceId = googlePlaceId,
+            locationName = locationName,
+            locationLat = locationLat,
+            locationLng = locationLng,
+            locality = locality,
+            subLocality = subLocality,
+            route = route,
+            city = city,
+            state = state,
+            country = country,
+            countryCode = countryCode,
+            completeAddress = completeAddress,
+            createdAt = DateUtils.getEpoch(createdAt),
+            title = title,
+            description = description,
+            tags = getHashTags(),
+            categories = getCategories(),
+            mediaDetails = getMediaDetails(),
+            media = getMediaDetails(),
+            sourceMediaDetails = getSourceMediaDetails(),
+        )
+    }
+}
+
+fun PostsByDate.toSavedPostResponse(): SavedPostResponse {
     this.apply {
         return SavedPostResponse(
             postId = postId,

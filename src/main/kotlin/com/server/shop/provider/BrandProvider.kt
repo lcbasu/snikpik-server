@@ -55,7 +55,7 @@ class BrandProvider {
             brandRepository.findById(brandId).get()
         } catch (e: Exception) {
             e.printStackTrace()
-            logger.error("Filed to get Brand for brandId: $brandId")
+            logger.error("Failed to get Brand for brandId: $brandId")
             null
         }
 

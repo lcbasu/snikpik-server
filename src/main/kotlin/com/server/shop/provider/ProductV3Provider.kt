@@ -50,7 +50,7 @@ class ProductV3Provider {
             productV3Repository.findById(productId).get()
         } catch (e: Exception) {
             e.printStackTrace()
-            logger.error("Filed to get Product for Id: $productId")
+            logger.error("Failed to get Product for Id: $productId")
             null
         }
 

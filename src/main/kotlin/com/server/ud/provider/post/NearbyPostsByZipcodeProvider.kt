@@ -97,7 +97,7 @@ class NearbyPostsByZipcodeProvider {
             }
             return saveAll(posts)
         } catch (e: Exception) {
-            logger.error("Saving PostsByNearbyZipcode filed for ${post.postId}.")
+            logger.error("Saving PostsByNearbyZipcode failed for ${post.postId}.")
             e.printStackTrace()
             return emptyList()
         }

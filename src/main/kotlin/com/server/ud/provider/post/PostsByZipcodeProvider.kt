@@ -63,7 +63,7 @@ class PostsByZipcodeProvider {
             postsByZipcodeTrackerRepository.save(saved.toPostsByZipcodeTracker())
             return saved
         } catch (e: Exception) {
-            logger.error("Saving PostsByZipcode filed for ${post.postId}.")
+            logger.error("Saving PostsByZipcode failed for ${post.postId}.")
             e.printStackTrace()
             return null
         }

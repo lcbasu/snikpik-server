@@ -89,7 +89,7 @@ class PostsByCategoryProvider {
             postsByCategoryTrackerRepository.save(savedPost.toPostsByCategoryTracker())
             savedPost
         } catch (e: Exception) {
-            logger.error("Saving _root_ide_package_.com.server.ud.entities.post.PostsByCategory filed for ${post.postId}.")
+            logger.error("Saving _root_ide_package_.com.server.ud.entities.post.PostsByCategory failed for ${post.postId}.")
             e.printStackTrace()
             null
         }

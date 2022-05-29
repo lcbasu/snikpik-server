@@ -43,7 +43,7 @@ class UserV3Provider {
             userV3Repository.findById(userId).get()
         } catch (e: Exception) {
             e.printStackTrace()
-            logger.error("Filed to get UserV3 for userId: $userId")
+            logger.error("Failed to get UserV3 for userId: $userId")
             null
         }
 
@@ -60,7 +60,7 @@ class UserV3Provider {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            logger.error("Filed to get UserV3 for logged in user")
+            logger.error("Failed to get UserV3 for logged in user")
             null
         }
 

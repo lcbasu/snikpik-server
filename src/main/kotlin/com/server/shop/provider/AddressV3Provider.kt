@@ -47,7 +47,7 @@ class AddressV3Provider {
             addressV3Repository.findById(addressId).get()
         } catch (e: Exception) {
             e.printStackTrace()
-            logger.error("Filed to get AddressV3 for addressId: $addressId")
+            logger.error("Failed to get AddressV3 for addressId: $addressId")
             null
         }
 
@@ -82,7 +82,7 @@ class AddressV3Provider {
             saveAddress(user, request)
         } catch (e: Exception) {
             e.printStackTrace()
-            logger.error("Filed to convert location to AddressV3 for locationId: $locationId")
+            logger.error("Failed to convert location to AddressV3 for locationId: $locationId")
             null
         }
     }

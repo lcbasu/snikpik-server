@@ -41,7 +41,7 @@ class UsersByProfileTypeProvider {
 
             return saved
         } catch (e: Exception) {
-            logger.error("Saving UsersByProfileType filed for userId: ${userV2.userId}.")
+            logger.error("Saving UsersByProfileType failed for userId: ${userV2.userId}.")
             e.printStackTrace()
             return emptyList()
         }

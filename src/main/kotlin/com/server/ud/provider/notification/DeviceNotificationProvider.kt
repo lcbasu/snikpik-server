@@ -5,20 +5,24 @@ import com.google.firebase.messaging.Message
 import com.google.firebase.messaging.Notification
 import com.server.common.enums.NotificationTokenProvider
 import com.server.common.model.getMediaUrlForNotification
+import com.server.common.utils.DateUtils
 import com.server.ud.dto.GetAllLiveStreamsRequest
+import com.server.ud.entities.post.PostsByDate
+import com.server.ud.entities.post.getCategories
+import com.server.ud.entities.user.getPreferredCategories
 import com.server.ud.entities.user_activity.UserActivity
 import com.server.ud.enums.LiveStreamPlatform
 import com.server.ud.enums.UserActivityType
 import com.server.ud.enums.UserAggregateActivityType
 import com.server.ud.provider.automation.AutomationProvider
 import com.server.ud.provider.live_stream.LiveStreamProvider
+import com.server.ud.provider.post.PostsByDateProvider
 import com.server.ud.provider.user.UserV2Provider
 import com.server.ud.utils.UDCommonUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import kotlin.math.log
 
 
 @Component
@@ -34,6 +38,9 @@ class DeviceNotificationProvider {
 
     @Autowired
     private lateinit var liveStreamProvider: LiveStreamProvider
+
+    @Autowired
+    private lateinit var postsByDateProvider: PostsByDateProvider
 
     fun sendNotification(userActivity: UserActivity) {
         try {
@@ -297,6 +304,39 @@ class DeviceNotificationProvider {
                 }
             }
         }
+    }
+
+    fun dailyNotificationToUsersForNewPost() {
+        val forDate = DateUtils.toStringForDate(DateUtils.dateTimeNow())
+        val posts = postsByDateProvider.getTotalPostsForDateResponse(forDate)
+
+        if (posts.isNotEmpty()) {
+            logger.info("Send notification to all users")
+
+            val categoryToPostsMap = mutableMapOf<String, List<PostsByDate>>()
+            posts.map { post ->
+                post.getCategories().categories.map {
+                    val catName = it.id.name
+                    val existingPosts = categoryToPostsMap.getOrDefault(catName, emptyList())
+                    val newPosts = existingPosts + post
+                    categoryToPostsMap[catName] = newPosts
+                }
+            }
+
+            val users = userV2Provider.getTotalPlatformUsers()
+
+            users
+                .filter { it.notificationToken.isNullOrBlank().not() }
+                .chunked(10).map {
+                    it.map {
+                        val preferredCategories = it.getPreferredCategories()
+                    }
+                }
+
+        } else {
+            logger.warn("No new posts on $forDate. Hence not sending any notification.")
+        }
+
     }
 
 }
