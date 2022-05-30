@@ -342,10 +342,9 @@ class IntegrationProvider {
             val integrationAccountInfoByUserId = getIntegrationAccountInfoByUserId(request.userId, IntegrationPlatform.INSTAGRAM, request.accountId)
             integrationAccountInfoByUserId?.let {
                 logger.info("Starting Instagram ingestion for userId: ${request.userId}, accountId: ${request.accountId}")
-                saveIntegrationAccountInfoByUserId(
+                ingestAllInstagramPostsAsync(saveIntegrationAccountInfoByUserId(
                     it.copy(firstIngestionDone = true)
-                )
-                ingestAllInstagramPostsAsync(integrationAccountInfoByUserId)
+                ))
             }
         }
     }
@@ -576,6 +575,7 @@ class IntegrationProvider {
                             try {
                                 // Adding try catch to avoid braking if anything in between breaks
                                 val savedPost = save(integrationAccountInfoByUserId, it)
+                                logger.info("Try ingesting instagram post: ${savedPost?.postId}")
                                 if (integrationAccountInfoByUserId.firstIngestionDone) {
                                     // Make sure that the first time ingestion flag is active
                                     // This is to make sure that we took user inputs like manual
