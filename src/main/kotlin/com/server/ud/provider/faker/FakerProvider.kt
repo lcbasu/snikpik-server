@@ -17,6 +17,7 @@ import com.server.common.provider.SecurityProvider
 import com.server.common.provider.UniqueIdProvider
 import com.server.common.provider.communication.CommunicationProvider
 import com.server.common.utils.DateUtils
+import com.server.common.utils.ExperimentManager
 import com.server.ud.dao.bookmark.BookmarkRepository
 import com.server.ud.dao.like.LikeRepository
 import com.server.ud.dao.location.LocationRepository
@@ -32,6 +33,7 @@ import com.server.ud.entities.post.Post
 import com.server.ud.entities.reply.Reply
 import com.server.ud.entities.social.SocialRelation
 import com.server.ud.entities.user.UserV2
+import com.server.ud.entities.user.getPreferredCategories
 import com.server.ud.entities.user.getProfiles
 import com.server.ud.enums.*
 import com.server.ud.model.sampleHashTagsIds
@@ -1092,7 +1094,18 @@ class FakerProvider {
 
     fun doSomething(): Any {
 
-        GlobalScope.launch {
+        val users = userV2Provider.getTotalPlatformUsers()
+        val experimentName = "ShopExperiment_Enabled"
+        val enabled = users.filter {
+            ExperimentManager.isExperimentEnabled(
+                name = experimentName,
+                userId = it.userId
+            )
+        }
+
+        return "Total users count: ${users.size}. $experimentName experiment Enabled count: ${enabled.size}."
+
+//        GlobalScope.launch {
 
 //            deviceNotificationProvider.notifyLiveEventUsers()
 //
@@ -1140,7 +1153,7 @@ class FakerProvider {
 
 
 //            matchViewsCount()
-        }
+//        }
 
 //        GlobalScope.launch {
 //            userV2Repository.findAll().filterNotNull().forEach {
@@ -1225,7 +1238,7 @@ class FakerProvider {
 //        redisClient.set("SomeKey333", "SomeValue444")
 //        return "Something was done... ${redisClient.get("SomeKey111")} - ${redisClient.get("SomeKey333")}"
 
-        return nearbyPostsByZipcodeProvider.getAllPostsTracker("PSTD34E9EB2B")
+//        return nearbyPostsByZipcodeProvider.getAllPostsTracker("PSTD34E9EB2B")
 
 //        return "Something was done..."
     }
