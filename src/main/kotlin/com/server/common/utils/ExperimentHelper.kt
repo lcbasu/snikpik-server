@@ -7,17 +7,23 @@ import kotlin.math.abs
 val allUnboxUserExperiments = listOf(
     OneCohortExperiment("TestingExperiment",
         25,
-        userIdWhiteList = emptyList(),
-        userIdBlackList = emptyList(),
+        userIdWhiteList = emptySet(),
+        userIdBlackList = emptySet(),
+        enableForAdmins = true),
+
+    OneCohortExperiment("Shop_Enabled",
+        0,
+        userIdWhiteList = setOf("IDs for which shop has to be enabled"),
+        userIdBlackList = emptySet(),
         enableForAdmins = true),
 )
 
 val allMultipleCohortExperiments = listOf(
     MultipleCohortExperiment(
-        "ShopExperiment", cohorts = listOf(
-            Pair("ShopExperiment_Control", 50),
-            Pair("ShopExperiment_Enabled", 50)
-        ), cohortForUnboxTeam = "ShopExperiment_Enabled"
+        "SomeExperiment", cohorts = listOf(
+            Pair("SomeExperiment_Control", 50),
+            Pair("SomeExperiment_Enabled", 50)
+        ), cohortForUnboxTeam = "SomeExperiment_Enabled"
     )
 )
 
@@ -116,8 +122,8 @@ abstract class UnboxExperiment(private val name: String) {
 class OneCohortExperiment(
     name: String,
     private val percent: Int,
-    private val userIdWhiteList: List<String> = emptyList(),
-    private val userIdBlackList: List<String> = emptyList(),
+    private val userIdWhiteList: Set<String> = emptySet(),
+    private val userIdBlackList: Set<String> = emptySet(),
     private val enableForAdmins: Boolean = false,
 ) : UnboxExperiment(name) {
 
