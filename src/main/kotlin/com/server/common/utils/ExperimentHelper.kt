@@ -16,6 +16,13 @@ val allUnboxUserExperiments = listOf(
         userIdWhiteList = setOf("IDs for which shop has to be enabled"),
         userIdBlackList = emptySet(),
         enableForAdmins = true),
+
+    // Enable only for user whose test credential is shared with Facebook
+    OneCohortExperiment("InstagramIngestion_Enabled",
+        0,
+        userIdWhiteList = setOf("USREg7UVXtfVeZ4aFQSBwKmvuFa46A3"),
+        userIdBlackList = emptySet(),
+        enableForAdmins = false),
 )
 
 val allMultipleCohortExperiments = listOf(
