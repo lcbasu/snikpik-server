@@ -13,7 +13,7 @@ val allUnboxUserExperiments = listOf(
 
     OneCohortExperiment("Shop_Enabled",
         0,
-        userIdWhiteList = setOf("IDs for which shop has to be enabled"),
+        userIdWhiteList = setOf("USRNAa6uOZNxPOO6AL0InF0stpke213"),
         userIdBlackList = emptySet(),
         enableForAdmins = true),
 
