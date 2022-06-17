@@ -1,9 +1,7 @@
 package com.server.ud.controller
 
 import com.server.ud.dto.*
-import com.server.ud.entities.post.Post
 import com.server.ud.entities.user.PostsCountByUser
-import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.service.post.PostService
 import io.micrometer.core.annotation.Timed
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,15 +36,15 @@ class PostController {
         return postService.deletePostFromExplore(request)
     }
 
-    @RequestMapping(value = ["/getPosts"], method = [RequestMethod.GET])
-    fun getPosts(@RequestParam limit: Int, @RequestParam pagingState: String?): CassandraPageV2<Post?>? {
-        return postService.getPosts(
-            PaginatedRequest(
-                limit,
-                pagingState
-            )
-        )
-    }
+//    @RequestMapping(value = ["/getPosts"], method = [RequestMethod.GET])
+//    fun getPosts(@RequestParam limit: Int, @RequestParam pagingState: String?): CassandraPageV2<Post?>? {
+//        return postService.getPosts(
+//            PaginatedRequest(
+//                limit,
+//                pagingState
+//            )
+//        )
+//    }
 
     @RequestMapping(value = ["/getPost"], method = [RequestMethod.GET])
     fun getPost(@RequestParam postId: String): SavedPostResponse? {

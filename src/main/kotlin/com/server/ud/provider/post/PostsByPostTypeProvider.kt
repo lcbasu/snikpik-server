@@ -8,11 +8,11 @@ import com.server.ud.dto.CommunityWallViewResponse
 import com.server.ud.dto.toSavedPostResponse
 import com.server.ud.entities.post.*
 import com.server.ud.enums.PostType
-import com.server.ud.enums.ProcessingType
-import com.server.ud.pagination.CassandraPageV2
+import com.server.common.enums.ProcessingType
+import com.server.common.pagination.CassandraPageV2
 import com.server.ud.provider.cache.BlockedIDs
 import com.server.ud.provider.cache.UDCacheProviderV2
-import com.server.ud.utils.pagination.PaginationRequestUtil
+import com.server.common.utils.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking

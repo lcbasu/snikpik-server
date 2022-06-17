@@ -15,7 +15,7 @@ import com.server.ud.provider.es.ESProvider
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.post.PostProvider
 import com.server.ud.provider.user.UserV2ProcessingProvider
-import com.server.ud.utils.UDCommonUtils
+import com.server.common.utils.CommonUtils
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.future.await
@@ -121,7 +121,7 @@ class LocationProvider {
     fun getOrSaveRandomLocation(userId: String, locationFor: LocationFor) : Location? {
         return try {
             // Get
-            val existing = getLocation(UDCommonUtils.randomLocationId)
+            val existing = getLocation(CommonUtils.randomLocationId)
 
             if (existing != null) {
                 logger.info("Get random location from cassandra")
@@ -132,12 +132,12 @@ class LocationProvider {
                 // this save happens and the future calls
                 // do not happen
                 val location = Location(
-                    locationId = UDCommonUtils.randomLocationId,
+                    locationId = CommonUtils.randomLocationId,
                     locationFor = locationFor,
                     userId = userId,
                     createdAt = Instant.now(),
-                    zipcode = UDCommonUtils.randomLocationZipcode,
-                    name = UDCommonUtils.randomLocationName,
+                    zipcode = CommonUtils.randomLocationZipcode,
+                    name = CommonUtils.randomLocationName,
                 )
                 val savedLocation = locationRepository.save(location)
                 logger.info("Saved random location into cassandra with locationId: ${savedLocation.locationId}")
@@ -200,14 +200,14 @@ class LocationProvider {
                 ((response.response.aggregations.asList()[0] as ParsedFilter).aggregations.asList()[0] as Terms).buckets.map {
                     it.keyAsString
                 }.toSet() + (if (shouldAddRandomZipcode) {
-                    setOf(UDCommonUtils.randomLocationZipcode)
+                    setOf(CommonUtils.randomLocationZipcode)
                 } else {
                     emptySet()
                 })
             } ?: emptySet()
             val computedZipcode = if (nearbyZipcodes.isEmpty()) {
                 // In case of no nearby zipcodes, add the random zipcode
-                setOf(UDCommonUtils.randomLocationZipcode)
+                setOf(CommonUtils.randomLocationZipcode)
             } else {
                 nearbyZipcodes
             }

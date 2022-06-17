@@ -21,15 +21,12 @@ import com.server.ud.entities.live_stream.LiveStream
 import com.server.ud.entities.live_stream.LiveStreamSubscribedByUser
 import com.server.ud.entities.live_stream.SubscribedLiveStreamUsersByStream
 import com.server.ud.entities.live_stream.SubscribedLiveStreamsByUser
-import com.server.ud.entities.post.PostsByFollowing
-import com.server.ud.entities.post.PostsByFollowingTracker
-import com.server.ud.entities.post.toPostsByFollowing
 import com.server.ud.enums.LiveStreamJoinStatus
 import com.server.ud.enums.LiveStreamPlatform
-import com.server.ud.pagination.CassandraPageV2
+import com.server.common.pagination.CassandraPageV2
 import com.server.ud.provider.user.UserV2Provider
-import com.server.ud.utils.UDCommonUtils
-import com.server.ud.utils.pagination.PaginationRequestUtil
+import com.server.common.utils.CommonUtils
+import com.server.common.utils.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
@@ -88,7 +85,7 @@ class LiveStreamProvider {
     fun save(request: SaveLiveStreamRequest) : LiveStream? {
         try {
             val loggedInUserId = securityProvider.getFirebaseAuthUser()!!.getUserIdToUse()
-            val isAdmin = UDCommonUtils.isAdmin(loggedInUserId)
+            val isAdmin = CommonUtils.isAdmin(loggedInUserId)
 
             if (!isAdmin) {
                 error("User is not admin. Only admins can save live streams.")

@@ -30,4 +30,7 @@ enum class JobGroupTriggerType {
     InstagramPostIngestion_JobGroupTrigger,
 
     DeleteJob_JobGroupTrigger,
+
+    ProcessSpUser_JobGroupTrigger,
+    ReProcessSpUser_JobGroupTrigger,
 }

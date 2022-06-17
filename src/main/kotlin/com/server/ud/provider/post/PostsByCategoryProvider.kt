@@ -12,12 +12,12 @@ import com.server.ud.dto.toSavedPostResponse
 import com.server.ud.entities.post.*
 import com.server.ud.enums.CategoryV2
 import com.server.ud.enums.PostType
-import com.server.ud.enums.ProcessingType
-import com.server.ud.pagination.CassandraPageV2
+import com.server.common.enums.ProcessingType
+import com.server.common.pagination.CassandraPageV2
 import com.server.ud.provider.cache.BlockedIDs
 import com.server.ud.provider.cache.UDCacheProviderV2
-import com.server.ud.utils.UDCommonUtils.DEFAULT_PAGING_STATE_VALUE
-import com.server.ud.utils.pagination.PaginationRequestUtil
+import com.server.common.utils.CommonUtils.DEFAULT_PAGING_STATE_VALUE
+import com.server.common.utils.PaginationRequestUtil
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.future
 import org.slf4j.Logger

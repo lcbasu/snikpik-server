@@ -5,8 +5,6 @@ import com.server.common.enums.NotificationTokenProvider
 import com.server.common.enums.ProfileType
 import com.server.common.enums.UserLocationUpdateType
 import com.server.common.model.MediaDetailsV2
-import com.server.ud.dto.PaginationRequest
-import com.server.ud.dto.PaginationResponse
 
 /**
  *

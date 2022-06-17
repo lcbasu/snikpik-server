@@ -5,6 +5,7 @@ import com.server.common.dto.AllLabelsResponse
 import com.server.common.dto.convertToString
 import com.server.common.dto.toCategoryV2Response
 import com.server.common.enums.MediaType
+import com.server.common.enums.ProcessingType
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.model.MediaDetailsV2
 import com.server.common.model.SingleMediaDetail
@@ -30,8 +31,8 @@ import com.server.ud.enums.*
 import com.server.ud.model.AllHashTags
 import com.server.ud.model.MediaInputDetail
 import com.server.ud.model.convertToString
-import com.server.ud.pagination.CassandraPageV2
-import com.server.ud.provider.automation.AutomationProvider
+import com.server.common.pagination.CassandraPageV2
+import com.server.common.provider.automation.AutomationProvider
 import com.server.ud.provider.bookmark.BookmarkProvider
 import com.server.ud.provider.comment.CommentProvider
 import com.server.ud.provider.integration.IntegrationProvider
@@ -45,8 +46,7 @@ import com.server.ud.provider.search.SearchProvider
 import com.server.ud.provider.social.FollowersByUserProvider
 import com.server.ud.provider.user.UserV2Provider
 import com.server.ud.provider.user_activity.UserActivitiesProvider
-import com.server.ud.utils.UDCommonUtils
-import com.server.ud.utils.pagination.PaginationRequestUtil
+import com.server.common.utils.PaginationRequestUtil
 import kotlinx.coroutines.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -294,9 +294,9 @@ class PostProvider {
         udJobProvider.scheduleProcessingForPost(post.postId)
     }
 
-    fun getPosts(request: PaginatedRequest): CassandraPageV2<Post?>? {
-        return getPageOfPosts(request.limit, request.pagingState)
-    }
+//    fun getPosts(request: PaginatedRequest): CassandraPageV2<Post?>? {
+//        return getPageOfPosts(request.limit, request.pagingState)
+//    }
 
     fun getPageOfPosts(limit: Int, pagingState: String?): CassandraPageV2<Post?>? {
         val pageRequest = paginationRequestUtil.createCassandraPageRequest(limit, pagingState)
@@ -364,7 +364,7 @@ class PostProvider {
 
     fun deletePostFromExplore(postId: String) {
         val loggedInUserId = securityProvider.validateRequest().getUserIdToUse()
-        val isAdmin = UDCommonUtils.isAdmin(loggedInUserId)
+        val isAdmin = CommonUtils.isAdmin(loggedInUserId)
         val post = getPost(postId) ?: error("No post found for postId: $postId")
         if (isAdmin.not()) {
             error("User $loggedInUserId is not authorized to delete post: $postId. Only admins can delete the post from explore.")

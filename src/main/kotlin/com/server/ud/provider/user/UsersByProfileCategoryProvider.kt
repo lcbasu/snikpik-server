@@ -3,8 +3,8 @@ package com.server.ud.provider.user
 import com.server.ud.dao.user.UsersByProfileCategoryRepository
 import com.server.ud.dao.user.UsersByProfileCategoryTrackerRepository
 import com.server.ud.entities.user.*
-import com.server.ud.pagination.CassandraPageV2
-import com.server.ud.utils.pagination.PaginationRequestUtil
+import com.server.common.pagination.CassandraPageV2
+import com.server.common.utils.PaginationRequestUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

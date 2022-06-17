@@ -4,8 +4,8 @@ import com.server.ud.dao.comment.CommentsByPostRepository
 import com.server.ud.dto.GetPostCommentsRequest
 import com.server.ud.entities.comment.Comment
 import com.server.ud.entities.comment.CommentsByPost
-import com.server.ud.pagination.CassandraPageV2
-import com.server.ud.utils.pagination.PaginationRequestUtil
+import com.server.common.pagination.CassandraPageV2
+import com.server.common.utils.PaginationRequestUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

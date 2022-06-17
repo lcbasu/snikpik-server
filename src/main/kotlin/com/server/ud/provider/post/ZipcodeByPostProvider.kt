@@ -3,9 +3,7 @@ package com.server.ud.provider.post
 import com.server.ud.dao.post.ZipcodeByPostRepository
 import com.server.ud.entities.location.NearbyZipcodesByZipcode
 import com.server.ud.entities.post.Post
-import com.server.ud.entities.post.PostUpdate
 import com.server.ud.entities.post.ZipcodeByPost
-import com.server.ud.enums.ProcessingType
 import com.server.ud.provider.location.NearbyZipcodesByZipcodeProvider
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

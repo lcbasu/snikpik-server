@@ -4,7 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.enums.ContentType
 import com.server.common.enums.MediaQualityType
 import com.server.common.enums.MediaType
-import com.server.ud.utils.UDCommonUtils.getFileExtension
+import com.server.common.utils.CommonUtils.getFileExtension
 
 const val ALL_MEDIA_SOURCE_BUCKET = "unboxed-video-ingestion-to-deliver-source71e471f1-1uyj9h1m9ewum";
 const val ALL_MEDIA_SOURCE_CLOUDFRONT_URL = "https://d2qrqijxy3rkcj.cloudfront.net";

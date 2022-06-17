@@ -2,9 +2,7 @@ package com.server.ud.service.post
 
 import com.server.common.provider.SecurityProvider
 import com.server.ud.dto.*
-import com.server.ud.entities.post.Post
 import com.server.ud.entities.user.PostsCountByUser
-import com.server.ud.pagination.CassandraPageV2
 import com.server.ud.provider.post.PostProvider
 import com.server.ud.provider.post.PostsCountByUserProvider
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,9 +26,9 @@ class PostServiceImpl : PostService() {
         return post?.toSavedPostResponse()
     }
 
-    override fun getPosts(request: PaginatedRequest): CassandraPageV2<Post?>? {
-        return postProvider.getPosts(request)
-    }
+//    override fun getPosts(request: PaginatedRequest): CassandraPageV2<Post?>? {
+//        return postProvider.getPosts(request)
+//    }
 
     override fun getPost(postId: String): SavedPostResponse? {
         return postProvider.getPost(postId)?.toSavedPostResponse()

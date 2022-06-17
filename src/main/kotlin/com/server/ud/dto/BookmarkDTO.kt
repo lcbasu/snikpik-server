@@ -1,6 +1,8 @@
 package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.server.common.dto.PaginationRequest
+import com.server.common.dto.PaginationResponse
 import com.server.common.utils.DateUtils
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.enums.BookmarkUpdateAction

@@ -2,7 +2,7 @@ package com.server.common.provider
 
 import com.server.common.dto.ApplicableExperimentsResponse
 import com.server.common.utils.ExperimentManager
-import com.server.ud.utils.UDCommonUtils
+import com.server.common.utils.CommonUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
@@ -14,7 +14,7 @@ class ExperimentProvider {
 
     fun getApplicableExperiments(): ApplicableExperimentsResponse? {
         val loggedInUserId = securityProvider.validateRequest().getUserIdToUse()
-        val isAdmin = UDCommonUtils.isAdmin(loggedInUserId)
+        val isAdmin = CommonUtils.isAdmin(loggedInUserId)
         val experiments = ExperimentManager.allApplicableExperimentsMap(loggedInUserId, isAdmin)
         return ApplicableExperimentsResponse(
             userId = loggedInUserId,

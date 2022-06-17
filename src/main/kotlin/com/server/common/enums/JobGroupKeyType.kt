@@ -30,4 +30,8 @@ enum class JobGroupKeyType {
     InstagramPostIngestion_JobGroupKey,
 
     DeletePost_JobGroupKey,
+
+
+    ProcessSpUser_JobGroupKey,
+    ReProcessSpUser_JobGroupKey,
 }

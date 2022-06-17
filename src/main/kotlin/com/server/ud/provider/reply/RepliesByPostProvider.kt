@@ -3,7 +3,7 @@ package com.server.ud.provider.reply
 import com.server.ud.dao.reply.RepliesByPostRepository
 import com.server.ud.entities.reply.RepliesByPost
 import com.server.ud.entities.reply.Reply
-import com.server.ud.utils.pagination.PaginationRequestUtil
+import com.server.common.utils.PaginationRequestUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

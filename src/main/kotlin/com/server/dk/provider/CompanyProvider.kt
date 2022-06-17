@@ -14,7 +14,6 @@ import com.server.dk.enums.CategoryGroup
 import com.server.dk.enums.DKShopStatus
 import com.server.dk.enums.EntityType
 import com.server.dk.enums.ProductOrderStatus
-import com.server.ud.utils.UDCommonUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
@@ -147,7 +146,7 @@ class CompanyProvider {
                 return false
             }
             // Blocked locked usernames
-            if (UDCommonUtils.lockedUsernames().map { it.toLowerCase() }.contains(username.toLowerCase())) {
+            if (CommonUtils.lockedUsernames().map { it.toLowerCase() }.contains(username.toLowerCase())) {
                 return false
             }
             getCompanyByUsername(username) == null

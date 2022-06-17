@@ -2,9 +2,6 @@ package com.server.ud.provider.faker
 
 import com.algolia.search.SearchClient
 import com.github.javafaker.Faker
-import com.google.firebase.messaging.FirebaseMessaging
-import com.google.firebase.messaging.Message
-import com.google.firebase.messaging.Notification
 import com.server.common.client.RedisClient
 import com.server.common.dto.*
 import com.server.common.enums.*
@@ -33,11 +30,9 @@ import com.server.ud.entities.post.Post
 import com.server.ud.entities.reply.Reply
 import com.server.ud.entities.social.SocialRelation
 import com.server.ud.entities.user.UserV2
-import com.server.ud.entities.user.getPreferredCategories
-import com.server.ud.entities.user.getProfiles
 import com.server.ud.enums.*
 import com.server.ud.model.sampleHashTagsIds
-import com.server.ud.provider.automation.AutomationProvider
+import com.server.common.provider.automation.AutomationProvider
 import com.server.ud.provider.bookmark.BookmarkProvider
 import com.server.ud.provider.bookmark.BookmarksByResourceProvider
 import com.server.ud.provider.bookmark.BookmarksByUserProvider
@@ -66,8 +61,6 @@ import com.server.ud.provider.user.UsersByProfileCategoryProvider
 import com.server.ud.provider.user.UsersByProfileTypeProvider
 import com.server.ud.provider.user.UsersByZipcodeProvider
 import com.server.ud.provider.view.ResourceViewsCountByResourceProvider
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

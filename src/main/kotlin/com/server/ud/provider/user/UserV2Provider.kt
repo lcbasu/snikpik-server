@@ -11,28 +11,24 @@ import com.server.common.provider.CommonProvider
 import com.server.common.provider.SecurityProvider
 import com.server.common.utils.CommonUtils
 import com.server.common.utils.DateUtils
-import com.server.dk.dto.AllUserReportResponse
-import com.server.dk.dto.UserReportRequest
-import com.server.dk.dto.UserReportResponse
 import com.server.shop.provider.UserV3Provider
 import com.server.ud.dao.user.UserReportByUserRepository
 import com.server.ud.dao.user.UserV2Repository
-import com.server.ud.dto.IPLocationData
-import com.server.ud.dto.SaveLocationRequest
 import com.server.ud.entities.user.UserReportV2ByUser
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.toSavedUserV2Response
 import com.server.ud.entities.user.toUserV2PublicMiniDataResponse
 import com.server.ud.enums.LocationFor
-import com.server.ud.enums.ProcessingType
+import com.server.common.enums.ProcessingType
 import com.server.ud.enums.UserReportActionType
-import com.server.ud.pagination.CassandraPageV2
-import com.server.ud.provider.automation.AutomationProvider
+import com.server.common.pagination.CassandraPageV2
+import com.server.common.provider.UserIdByMobileNumberProvider
+import com.server.common.provider.automation.AutomationProvider
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.location.LocationProvider
 import com.server.ud.provider.search.SearchProvider
-import com.server.ud.utils.UDCommonUtils
-import com.server.ud.utils.pagination.PaginationRequestUtil
+import com.server.common.utils.PaginationRequestUtil
+import com.server.ud.dto.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
@@ -65,7 +61,7 @@ class UserV2Provider {
     private lateinit var searchProvider: SearchProvider
 
     @Autowired
-    private lateinit var userV2ByMobileNumberProvider: UserV2ByMobileNumberProvider
+    private lateinit var userIdByMobileNumberProvider: UserIdByMobileNumberProvider
 
     @Autowired
     private lateinit var automationProvider: AutomationProvider
@@ -338,12 +334,12 @@ class UserV2Provider {
     }
 
     fun getAWSLambdaAuthDetails(): AWSLambdaAuthResponse? {
-        val userDetails = securityProvider.validateRequest()
-        userDetails.getUserIdToUse()
-        val userV2 = getUser(userDetails.getUserIdToUse()) ?: error("No user found with userId: ${userDetails.getUserIdToUse()}")
+        val firebaseAuthUser = securityProvider.validateRequest()
+//        firebaseAuthUser.getUserIdToUse()
+//        val userV2 = getUser(firebaseAuthUser.getUserIdToUse()) ?: error("No user found with userId: ${firebaseAuthUser.getUserIdToUse()}")
         return AWSLambdaAuthResponse(
-            userId = userV2.userId,
-            anonymous = userV2.anonymous
+            userId = firebaseAuthUser.getUserIdToUse(),
+            anonymous = firebaseAuthUser.getIsAnonymous() == true
         )
     }
 
@@ -520,7 +516,7 @@ class UserV2Provider {
     private fun saveForAuthV2 (user: UserV2) {
         GlobalScope.launch {
             if (user.absoluteMobile.isNullOrBlank().not()) {
-                userV2ByMobileNumberProvider.saveUserV2ByMobileNumber(
+                userIdByMobileNumberProvider.saveUserIdByMobileNumber(
                     absoluteMobileNumber = user.absoluteMobile!!,
                     userId = user.userId
                 )
@@ -572,7 +568,7 @@ class UserV2Provider {
         val firebaseAuthUser = securityProvider.validateRequest()
         val loggedInUserId = firebaseAuthUser.getUserIdToUse()
         val user = getUser(loggedInUserId) ?: error("No user found for userId: ${firebaseAuthUser.getUserIdToUse()}")
-        val isAdmin = UDCommonUtils.isAdmin(loggedInUserId)
+        val isAdmin = CommonUtils.isAdmin(loggedInUserId)
         if (isAdmin.not()) {
             error("User $loggedInUserId is not authorized to remove username. Only admins can remove the username.")
         }
@@ -652,7 +648,7 @@ class UserV2Provider {
 
     fun getTotalPlatformUsers(): List<UserV2> {
         val limit = 10
-        var pagingState = UDCommonUtils.DEFAULT_PAGING_STATE_VALUE
+        var pagingState = CommonUtils.DEFAULT_PAGING_STATE_VALUE
         val resultUsers = mutableListOf<UserV2>()
         val slicedResult = getAllUserForRequest(
             GetAllUsersRequest(
@@ -661,7 +657,7 @@ class UserV2Provider {
         ))
         resultUsers.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
         var hasNext = slicedResult.hasNext == true
-        pagingState = slicedResult.pagingState ?: UDCommonUtils.DEFAULT_PAGING_STATE_VALUE
+        pagingState = slicedResult.pagingState ?: CommonUtils.DEFAULT_PAGING_STATE_VALUE
         while (hasNext) {
             val nextSlicedResult = getAllUserForRequest(
                 GetAllUsersRequest(
@@ -670,7 +666,7 @@ class UserV2Provider {
                 ))
 
             hasNext = nextSlicedResult.hasNext == true
-            pagingState = nextSlicedResult.pagingState ?: UDCommonUtils.DEFAULT_PAGING_STATE_VALUE
+            pagingState = nextSlicedResult.pagingState ?: CommonUtils.DEFAULT_PAGING_STATE_VALUE
             resultUsers.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
         }
         return resultUsers

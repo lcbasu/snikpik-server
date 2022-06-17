@@ -17,14 +17,14 @@ import com.server.ud.entities.reply.Reply
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user_activity.*
 import com.server.ud.enums.*
-import com.server.ud.pagination.CassandraPageV2
+import com.server.common.pagination.CassandraPageV2
 import com.server.ud.provider.cache.BlockedIDs
 import com.server.ud.provider.cache.UDCacheProviderV2
 import com.server.ud.provider.comment.CommentProvider
 import com.server.ud.provider.notification.DeviceNotificationProvider
 import com.server.ud.provider.post.PostProvider
 import com.server.ud.provider.reply.ReplyProvider
-import com.server.ud.utils.pagination.PaginationRequestUtil
+import com.server.common.utils.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch

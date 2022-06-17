@@ -1,4 +1,4 @@
-package com.server.dk.dto
+package com.server.ud.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.server.ud.enums.UserReportActionType

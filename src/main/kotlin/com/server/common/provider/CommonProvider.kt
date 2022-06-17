@@ -2,7 +2,6 @@ package com.server.common.provider
 
 import com.server.common.enums.ReadableIdPrefix
 import com.server.common.utils.CommonUtils
-import com.server.ud.utils.UDCommonUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -31,7 +30,7 @@ class CommonProvider {
             return false
         }
         // Blocked locked usernames
-        if (UDCommonUtils.lockedUsernames().map { it.toLowerCase() }.contains(handle.toLowerCase())) {
+        if (CommonUtils.lockedUsernames().map { it.toLowerCase() }.contains(handle.toLowerCase())) {
             return false
         }
         return uniqueIdProvider.isIdAvailable(handle)
@@ -76,7 +75,7 @@ class CommonProvider {
     fun hardCheckForAdmin(){
         val firebaseAuthUser = securityProvider.validateRequest()
         val loggedInUserId = firebaseAuthUser.getUserIdToUse()
-        val isAdmin = UDCommonUtils.isAdmin(loggedInUserId)
+        val isAdmin = CommonUtils.isAdmin(loggedInUserId)
         if (isAdmin.not()) {
             val message = "User $loggedInUserId is not authorized for this operation. Only admins can perform these operations."
             logger.error(message)

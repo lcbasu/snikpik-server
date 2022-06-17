@@ -5,10 +5,10 @@ import com.server.ud.dao.post.LikedPostsByUserTrackerRepository
 import com.server.ud.dto.LikedPostsByUserRequest
 import com.server.ud.entities.like.Like
 import com.server.ud.entities.post.*
-import com.server.ud.enums.ProcessingType
+import com.server.common.enums.ProcessingType
 import com.server.ud.enums.ResourceType
-import com.server.ud.pagination.CassandraPageV2
-import com.server.ud.utils.pagination.PaginationRequestUtil
+import com.server.common.pagination.CassandraPageV2
+import com.server.common.utils.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch

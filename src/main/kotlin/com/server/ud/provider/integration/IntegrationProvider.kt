@@ -16,11 +16,11 @@ import com.server.ud.entities.integration.common.*
 import com.server.ud.entities.post.InstagramPost
 import com.server.ud.entities.post.getInstagramPostChildrenResponse
 import com.server.ud.enums.*
-import com.server.ud.pagination.CassandraPageV2
+import com.server.common.pagination.CassandraPageV2
 import com.server.ud.provider.job.UDJobProvider
 import com.server.ud.provider.post.PostProvider
 import com.server.ud.utils.UDKeyBuilder
-import com.server.ud.utils.pagination.PaginationRequestUtil
+import com.server.common.utils.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch

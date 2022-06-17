@@ -1,13 +1,11 @@
 package com.server.ud.provider.like
 
-import com.server.common.utils.DateUtils
 import com.server.ud.dao.like.LikesByResourceRepository
 import com.server.ud.dao.like.LikesByResourceTrackerRepository
 import com.server.ud.entities.like.*
-import com.server.ud.entities.post.PostsByZipcode
 import com.server.ud.enums.ResourceType
-import com.server.ud.pagination.CassandraPageV2
-import com.server.ud.utils.pagination.PaginationRequestUtil
+import com.server.common.pagination.CassandraPageV2
+import com.server.common.utils.PaginationRequestUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.server.common.dto.AllCategoryV2Response
+import com.server.common.dto.PaginationRequest
+import com.server.common.dto.PaginationResponse
 import com.server.common.model.MediaDetailsV2
 import com.server.common.utils.DateUtils
 import com.server.ud.entities.post.*

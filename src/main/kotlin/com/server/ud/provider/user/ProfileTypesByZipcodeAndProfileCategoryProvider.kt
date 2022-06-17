@@ -4,7 +4,6 @@ import com.server.ud.dao.user.ProfileTypesByZipcodeAndProfileCategoryRepository
 import com.server.ud.entities.user.ProfileTypesByZipcodeAndProfileCategory
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getProfiles
-import com.server.ud.utils.pagination.PaginationRequestUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

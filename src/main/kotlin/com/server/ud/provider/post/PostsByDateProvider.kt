@@ -7,10 +7,10 @@ import com.server.ud.dto.AllPostsForDateRequest
 import com.server.ud.dto.AllPostsForDateResponse
 import com.server.ud.dto.toSavedPostResponse
 import com.server.ud.entities.post.*
-import com.server.ud.enums.ProcessingType
-import com.server.ud.pagination.CassandraPageV2
-import com.server.ud.utils.UDCommonUtils
-import com.server.ud.utils.pagination.PaginationRequestUtil
+import com.server.common.enums.ProcessingType
+import com.server.common.pagination.CassandraPageV2
+import com.server.common.utils.CommonUtils
+import com.server.common.utils.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.slf4j.Logger
@@ -75,7 +75,7 @@ class PostsByDateProvider {
 
     fun getTotalPostsForDateResponse(forDate: String): List<PostsByDate> {
         val limit = 10
-        var pagingState = UDCommonUtils.DEFAULT_PAGING_STATE_VALUE
+        var pagingState = CommonUtils.DEFAULT_PAGING_STATE_VALUE
 
         val resultPosts = mutableListOf<PostsByDate>()
 
@@ -86,7 +86,7 @@ class PostsByDateProvider {
         ))
         resultPosts.addAll((slicedResult.content?.filterNotNull() ?: emptyList()))
         var hasNext = slicedResult.hasNext == true
-        pagingState = slicedResult.pagingState ?: UDCommonUtils.DEFAULT_PAGING_STATE_VALUE
+        pagingState = slicedResult.pagingState ?: CommonUtils.DEFAULT_PAGING_STATE_VALUE
         while (hasNext) {
             val nextSlicedResult = getAllPostForDateInternal(AllPostsForDateRequest(
                 forDate = forDate,
@@ -94,7 +94,7 @@ class PostsByDateProvider {
                 pagingState = pagingState
             ))
             hasNext = nextSlicedResult.hasNext == true
-            pagingState = nextSlicedResult.pagingState ?: UDCommonUtils.DEFAULT_PAGING_STATE_VALUE
+            pagingState = nextSlicedResult.pagingState ?: CommonUtils.DEFAULT_PAGING_STATE_VALUE
             resultPosts.addAll((nextSlicedResult.content?.filterNotNull() ?: emptyList()))
         }
         return resultPosts

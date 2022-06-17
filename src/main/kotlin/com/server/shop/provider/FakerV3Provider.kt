@@ -24,7 +24,7 @@ import com.server.shop.model.getSampleVariantInfoV3List
 import com.server.shop.model.getSampleVariantProperties
 import com.server.ud.entities.user.UserV2
 import com.server.ud.enums.LocationFor
-import com.server.ud.enums.ProcessingType
+import com.server.common.enums.ProcessingType
 import com.server.common.enums.UserLocationUpdateType
 import com.server.ud.provider.location.LocationProvider
 import com.server.ud.provider.user.UserV2Provider

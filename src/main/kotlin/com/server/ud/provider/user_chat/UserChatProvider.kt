@@ -13,9 +13,9 @@ import com.server.ud.dto.*
 import com.server.ud.entities.user_activity.*
 import com.server.ud.enums.UserChatMessageStatus
 import com.server.ud.enums.UserChatStatus
-import com.server.ud.pagination.CassandraPageV2
+import com.server.common.pagination.CassandraPageV2
 import com.server.ud.provider.user_activity.UserActivitiesProvider
-import com.server.ud.utils.pagination.PaginationRequestUtil
+import com.server.common.utils.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.slf4j.Logger

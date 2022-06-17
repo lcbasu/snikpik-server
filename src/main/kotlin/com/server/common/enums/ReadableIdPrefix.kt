@@ -42,5 +42,8 @@ enum class ReadableIdPrefix {
     LIV, // Live Stream
 
     QLI, // Live Question
+
+    // SnikPik
+    MNT, // Moment
 }
 

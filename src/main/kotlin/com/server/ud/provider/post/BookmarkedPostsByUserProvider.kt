@@ -7,10 +7,10 @@ import com.server.ud.dto.BookmarkedPostsByUserResponse
 import com.server.ud.dto.BookmarkedPostsByUserResponseV2
 import com.server.ud.entities.bookmark.Bookmark
 import com.server.ud.entities.post.*
-import com.server.ud.enums.ProcessingType
+import com.server.common.enums.ProcessingType
 import com.server.ud.enums.ResourceType
-import com.server.ud.pagination.CassandraPageV2
-import com.server.ud.utils.pagination.PaginationRequestUtil
+import com.server.common.pagination.CassandraPageV2
+import com.server.common.utils.PaginationRequestUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch

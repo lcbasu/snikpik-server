@@ -5,11 +5,11 @@ import com.server.common.provider.SecurityProvider
 import com.server.common.provider.communication.CommunicationProvider
 import com.server.common.utils.DateUtils
 import com.server.dk.dto.*
-import com.server.ud.provider.auth.OtpValidationProvider
-import com.server.ud.provider.auth.RefreshTokenProvider
-import com.server.ud.provider.automation.AutomationProvider
-import com.server.ud.provider.user.UserV2ByMobileNumberProvider
-import com.server.ud.utils.UDCommonUtils.fixedLoginOTPMap
+import com.server.common.provider.auth.OtpValidationProvider
+import com.server.common.provider.auth.RefreshTokenProvider
+import com.server.common.provider.automation.AutomationProvider
+import com.server.common.provider.UserIdByMobileNumberProvider
+import com.server.common.utils.CommonUtils.fixedLoginOTPMap
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -20,7 +20,7 @@ class AuthServiceImpl : AuthService() {
     private lateinit var authProvider: AuthProvider
 
     @Autowired
-    private lateinit var userV2ByMobileNumberProvider: UserV2ByMobileNumberProvider
+    private lateinit var userIdByMobileNumberProvider: UserIdByMobileNumberProvider
 
     @Autowired
     private lateinit var refreshTokenProvider: RefreshTokenProvider
@@ -203,7 +203,7 @@ class AuthServiceImpl : AuthService() {
             )
         }
 
-        val userV2ByMobileNumber = userV2ByMobileNumberProvider.getOrSaveUserV2ByMobileNumber(request.absoluteMobileNumber) ?: error("Error while generating id for mobile number: ${request.absoluteMobileNumber}")
+        val userV2ByMobileNumber = userIdByMobileNumberProvider.getOrSaveUserIdByMobileNumber(request.absoluteMobileNumber) ?: error("Error while generating id for mobile number: ${request.absoluteMobileNumber}")
 
         val firebaseCustomToken = authProvider.getAuthTokenForFirebaseUserId(userV2ByMobileNumber.userId) ?: error("Error while generating auth token for user id: ${userV2ByMobileNumber.userId}")
 
@@ -220,7 +220,7 @@ class AuthServiceImpl : AuthService() {
 //        val oldLoginSequenceId = request.loginSequenceId
 //        val oldToken = request.token
 //        val refreshTokenObject = refreshTokenProvider.getRefreshToken(oldLoginSequenceId)
-//        if (refreshTokenObject == null || refreshTokenObject.token != UDCommonUtils.getSha256Hash(oldToken) || refreshTokenObject.loginSequenceId != oldLoginSequenceId || refreshTokenObject.usedToRefresh) {
+//        if (refreshTokenObject == null || refreshTokenObject.token != CommonUtils.getSha256Hash(oldToken) || refreshTokenObject.loginSequenceId != oldLoginSequenceId || refreshTokenObject.usedToRefresh) {
 //            return TokenRefreshResponse(
 //                oldLoginSequenceId = oldLoginSequenceId,
 //                oldToken = oldToken,

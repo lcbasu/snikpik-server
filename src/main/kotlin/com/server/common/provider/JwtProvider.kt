@@ -2,8 +2,7 @@ package com.server.common.provider
 
 import com.server.common.model.UserDetailsForToken
 import com.server.common.model.UserDetailsFromUDTokens
-import com.server.ud.provider.auth.ValidTokenProvider
-import com.server.ud.provider.user.UserV2ByMobileNumberProvider
+import com.server.common.provider.auth.ValidTokenProvider
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
@@ -25,7 +24,7 @@ class JwtProvider {
     private val SECRET_KEY = "hdsj6suhdvfshdf7gsjd"
 
     @Autowired
-    private lateinit var userV2ByMobileNumberProvider: UserV2ByMobileNumberProvider
+    private lateinit var userIdByMobileNumberProvider: UserIdByMobileNumberProvider
 
     @Autowired
     private lateinit var validTokenProvider: ValidTokenProvider
@@ -68,7 +67,7 @@ class JwtProvider {
                 error("Token subject does not match with uid. token: $token")
             }
 
-            val userV2ByMobileNumber = userV2ByMobileNumberProvider.getUserV2ByMobileNumber(absoluteMobile) ?: error("user not found for absoluteMobile: $absoluteMobile")
+            val userV2ByMobileNumber = userIdByMobileNumberProvider.getUserIdByMobileNumber(absoluteMobile) ?: error("user not found for absoluteMobile: $absoluteMobile")
 
             // Commenting this as the user might not have actually been saved into db while the auth token is created.
 //            val userV2 = userV2Provider.getUser(uid) ?: error("user not found for uid: $uid")

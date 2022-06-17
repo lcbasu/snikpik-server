@@ -1,6 +1,8 @@
 package com.server.ud.dto
 
 import com.server.common.dto.*
+import com.server.common.dto.PaginationRequest
+import com.server.common.dto.PaginationResponse
 import com.server.common.enums.ProfileCategory
 import com.server.common.enums.ProfileType
 import com.server.common.model.MediaDetailsV2

@@ -1,7 +1,7 @@
 package com.server.shop.provider
 
 import com.server.shop.dto.NotifyMeForShopCategoryLaunchResponse
-import com.server.ud.provider.automation.AutomationProvider
+import com.server.common.provider.automation.AutomationProvider
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

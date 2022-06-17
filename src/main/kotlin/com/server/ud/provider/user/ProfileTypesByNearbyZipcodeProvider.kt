@@ -5,8 +5,8 @@ import com.server.ud.dto.MarketplaceProfileTypesFeedRequest
 import com.server.ud.entities.user.ProfileTypesByNearbyZipcode
 import com.server.ud.entities.user.UserV2
 import com.server.ud.entities.user.getProfiles
-import com.server.ud.pagination.CassandraPageV2
-import com.server.ud.utils.pagination.PaginationRequestUtil
+import com.server.common.pagination.CassandraPageV2
+import com.server.common.utils.PaginationRequestUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

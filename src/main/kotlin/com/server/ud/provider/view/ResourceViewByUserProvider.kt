@@ -4,9 +4,8 @@ import com.server.common.utils.DateUtils
 import com.server.ud.dao.view.ResourceViewsByUserRepository
 import com.server.ud.dto.ResourceViewRequest
 import com.server.ud.entities.view.ResourceViewsByUser
-import com.server.ud.enums.PostType
-import com.server.ud.pagination.CassandraPageV2
-import com.server.ud.utils.pagination.PaginationRequestUtil
+import com.server.common.pagination.CassandraPageV2
+import com.server.common.utils.PaginationRequestUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

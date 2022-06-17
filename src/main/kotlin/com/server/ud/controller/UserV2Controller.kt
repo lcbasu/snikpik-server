@@ -3,9 +3,6 @@ package com.server.ud.controller
 import com.server.common.dto.*
 import com.server.common.enums.ProfileCategory
 import com.server.common.provider.SecurityProvider
-import com.server.dk.dto.AllUserReportResponse
-import com.server.dk.dto.UserReportRequest
-import com.server.dk.dto.UserReportResponse
 import com.server.ud.dto.*
 import com.server.ud.entities.social.FollowersCountByUser
 import com.server.ud.entities.social.FollowingsCountByUser
